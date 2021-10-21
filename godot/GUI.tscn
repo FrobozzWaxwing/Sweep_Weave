@@ -1,0 +1,1605 @@
+[gd_scene load_steps=12 format=2]
+
+[ext_resource path="res://GUI.gd" type="Script" id=1]
+[ext_resource path="res://MainMenu.gd" type="Script" id=2]
+[ext_resource path="res://SortMenu.gd" type="Script" id=3]
+[ext_resource path="res://custom_resources/arrow-up-circle.svg" type="Texture" id=4]
+[ext_resource path="res://custom_resources/arrow-down-circle.svg" type="Texture" id=5]
+[ext_resource path="res://custom_resources/NotoSerif-Italic.tres" type="DynamicFont" id=6]
+[ext_resource path="res://custom_resources/NotoMono-Regular.tres" type="DynamicFont" id=7]
+[ext_resource path="res://custom_resources/NotoSerif-Bold.tres" type="DynamicFont" id=8]
+[ext_resource path="res://custom_resources/NotoSerif-Regular.tres" type="DynamicFont" id=9]
+[ext_resource path="res://custom_resources/NotoSerif-BoldItalic.tres" type="DynamicFont" id=10]
+[ext_resource path="res://custom_resources/rotate-cw.svg" type="Texture" id=11]
+
+[node name="GUI" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBC" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Menu" type="MenuButton" parent="VBC"]
+margin_right = 48.0
+margin_bottom = 20.0
+size_flags_horizontal = 0
+text = "Menu"
+align = 0
+script = ExtResource( 2 )
+
+[node name="Bookspine" type="HSplitContainer" parent="VBC"]
+margin_top = 24.0
+margin_right = 1366.0
+margin_bottom = 736.0
+rect_min_size = Vector2( 1366, 700 )
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="EditorTabs" type="TabContainer" parent="VBC/Bookspine"]
+margin_right = 677.0
+margin_bottom = 712.0
+rect_min_size = Vector2( 320, 0 )
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Encounters" type="Tabs" parent="VBC/Bookspine/EditorTabs"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Main" type="HSplitContainer" parent="VBC/Bookspine/EditorTabs/Encounters"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -19.0
+margin_bottom = -9.0
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Column1" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main"]
+margin_right = 144.0
+margin_bottom = 667.0
+rect_pivot_offset = Vector2( -285, -37 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBC" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1"]
+margin_right = 144.0
+margin_bottom = 20.0
+
+[node name="AddButton" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/HBC"]
+margin_right = 20.0
+margin_bottom = 20.0
+text = "+"
+
+[node name="DeleteButton" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/HBC"]
+margin_left = 24.0
+margin_right = 41.0
+margin_bottom = 20.0
+text = "-"
+
+[node name="Label" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/HBC"]
+margin_left = 45.0
+margin_top = 3.0
+margin_right = 120.0
+margin_bottom = 17.0
+text = "Encounters:"
+
+[node name="SortMenu" type="OptionButton" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1"]
+margin_top = 24.0
+margin_right = 144.0
+margin_bottom = 44.0
+text = "Sort by"
+script = ExtResource( 3 )
+
+[node name="HBC2" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1"]
+margin_top = 48.0
+margin_right = 144.0
+margin_bottom = 68.0
+
+[node name="Edit" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/HBC2"]
+margin_right = 36.0
+margin_bottom = 20.0
+text = "Edit"
+
+[node name="Duplicate" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/HBC2"]
+margin_left = 40.0
+margin_right = 113.0
+margin_bottom = 20.0
+text = "Duplicate"
+
+[node name="VScroll" type="ScrollContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1"]
+margin_top = 72.0
+margin_right = 144.0
+margin_bottom = 667.0
+rect_min_size = Vector2( 0, 590 )
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="EncountersList" type="ItemList" parent="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/VScroll"]
+margin_right = 144.0
+margin_bottom = 595.0
+rect_min_size = Vector2( 32, 590 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+select_mode = 1
+auto_height = true
+
+[node name="HSC" type="HSplitContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main"]
+margin_left = 156.0
+margin_right = 682.0
+margin_bottom = 667.0
+rect_min_size = Vector2( 64, 0 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Column2" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC"]
+margin_right = 264.0
+margin_bottom = 667.0
+rect_min_size = Vector2( 32, 0 )
+rect_pivot_offset = Vector2( -285, -37 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBCTitle" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2"]
+margin_right = 264.0
+margin_bottom = 24.0
+
+[node name="Label" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTitle"]
+margin_top = 5.0
+margin_bottom = 19.0
+
+[node name="LineEdit" type="LineEdit" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTitle"]
+margin_left = 4.0
+margin_right = 264.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 240, 0 )
+size_flags_horizontal = 3
+placeholder_text = "Encounter Title"
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="TextEdit" type="TextEdit" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2"]
+margin_top = 28.0
+margin_right = 264.0
+margin_bottom = 372.0
+rect_min_size = Vector2( 0, 320 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+highlight_current_line = true
+smooth_scrolling = true
+wrap_enabled = true
+
+[node name="Edit_Encounter_Settings_Button" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2"]
+margin_top = 376.0
+margin_right = 264.0
+margin_bottom = 396.0
+text = "Edit Encounter Settings"
+
+[node name="HBCTurn" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2"]
+margin_top = 400.0
+margin_right = 264.0
+margin_bottom = 459.0
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="VBC" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn"]
+margin_left = 16.0
+margin_right = 90.0
+margin_bottom = 59.0
+
+[node name="EarliestTurnLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn/VBC"]
+margin_right = 74.0
+margin_bottom = 31.0
+text = "Earliest
+turn:"
+
+[node name="EarliestTurn" type="SpinBox" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn/VBC"]
+margin_top = 35.0
+margin_right = 74.0
+margin_bottom = 59.0
+rounded = true
+allow_greater = true
+allow_lesser = true
+
+[node name="VBC2" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn"]
+margin_left = 94.0
+margin_right = 168.0
+margin_bottom = 59.0
+
+[node name="LatestTurnLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn/VBC2"]
+margin_right = 74.0
+margin_bottom = 31.0
+text = "Latest
+turn: "
+
+[node name="LatestTurn" type="SpinBox" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn/VBC2"]
+margin_top = 35.0
+margin_right = 74.0
+margin_bottom = 59.0
+rounded = true
+allow_greater = true
+allow_lesser = true
+
+[node name="VBC3" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn"]
+margin_left = 172.0
+margin_right = 248.0
+margin_bottom = 59.0
+
+[node name="AntagonistPickerLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn/VBC3"]
+margin_right = 76.0
+margin_bottom = 14.0
+text = "Antagonist: "
+
+[node name="AntagonistPicker" type="OptionButton" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn/VBC3"]
+margin_top = 18.0
+margin_right = 76.0
+margin_bottom = 38.0
+
+[node name="HBCTurn2" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2"]
+margin_top = 463.0
+margin_right = 264.0
+margin_bottom = 493.0
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="AddOption" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn2"]
+margin_left = 40.0
+margin_right = 60.0
+margin_bottom = 30.0
+text = "+"
+
+[node name="DeleteOption" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn2"]
+margin_left = 64.0
+margin_right = 81.0
+margin_bottom = 30.0
+text = "-"
+
+[node name="Label" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn2"]
+margin_left = 85.0
+margin_top = 8.0
+margin_right = 144.0
+margin_bottom = 22.0
+text = "Options: "
+align = 1
+
+[node name="MoveOptionUpButton" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn2"]
+margin_left = 148.0
+margin_right = 184.0
+margin_bottom = 30.0
+icon = ExtResource( 4 )
+
+[node name="MoveOptionDownButton" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn2"]
+margin_left = 188.0
+margin_right = 224.0
+margin_bottom = 30.0
+icon = ExtResource( 5 )
+
+[node name="OptionsScroll" type="ScrollContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2"]
+margin_top = 497.0
+margin_right = 264.0
+margin_bottom = 597.0
+rect_min_size = Vector2( 264, 100 )
+scroll_horizontal_enabled = false
+
+[node name="OptionsList" type="ItemList" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/OptionsScroll"]
+margin_right = 264.0
+margin_bottom = 100.0
+rect_min_size = Vector2( 264, 100 )
+size_flags_horizontal = 3
+max_text_lines = 3
+auto_height = true
+
+[node name="OptTxtLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2"]
+margin_top = 601.0
+margin_right = 264.0
+margin_bottom = 615.0
+text = "Text of option: "
+
+[node name="OptionText" type="LineEdit" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2"]
+margin_top = 619.0
+margin_right = 264.0
+margin_bottom = 643.0
+rect_min_size = Vector2( 200, 0 )
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="OptionSettingsButton" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2"]
+margin_top = 647.0
+margin_right = 264.0
+margin_bottom = 667.0
+text = "Edit Option Settings"
+
+[node name="Column3" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC"]
+margin_left = 276.0
+margin_right = 526.0
+margin_bottom = 667.0
+grow_horizontal = 0
+rect_min_size = Vector2( 32, 0 )
+rect_pivot_offset = Vector2( -285, -37 )
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBC" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_right = 250.0
+margin_bottom = 30.0
+
+[node name="AddReaction" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBC"]
+margin_right = 20.0
+margin_bottom = 30.0
+text = "+"
+
+[node name="DeleteReaction" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBC"]
+margin_left = 24.0
+margin_right = 41.0
+margin_bottom = 30.0
+text = "-"
+
+[node name="ReactionsHeadLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBC"]
+margin_left = 45.0
+margin_top = 8.0
+margin_right = 115.0
+margin_bottom = 22.0
+text = "Reactions: "
+
+[node name="MoveReactionUpButton" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBC"]
+margin_left = 119.0
+margin_right = 155.0
+margin_bottom = 30.0
+icon = ExtResource( 4 )
+
+[node name="MoveReactionDownButton" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBC"]
+margin_left = 159.0
+margin_right = 195.0
+margin_bottom = 30.0
+icon = ExtResource( 5 )
+
+[node name="ReactionsScroll" type="ScrollContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 34.0
+margin_right = 250.0
+margin_bottom = 114.0
+rect_min_size = Vector2( 235, 80 )
+scroll_horizontal_enabled = false
+
+[node name="ReactionList" type="ItemList" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/ReactionsScroll"]
+margin_right = 250.0
+margin_bottom = 80.0
+rect_min_size = Vector2( 250, 80 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+max_text_lines = 2
+auto_height = true
+
+[node name="Label" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 118.0
+margin_right = 250.0
+margin_bottom = 132.0
+text = "Reaction text:"
+
+[node name="ReactionText" type="TextEdit" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 136.0
+margin_right = 250.0
+margin_bottom = 325.0
+rect_min_size = Vector2( 0, 100 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+wrap_enabled = true
+
+[node name="IncBlendWeightLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 329.0
+margin_right = 250.0
+margin_bottom = 343.0
+text = "Inclination blend weight: 0"
+
+[node name="HBCLSL" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 347.0
+margin_right = 250.0
+margin_bottom = 378.0
+alignment = 1
+
+[node name="Label" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCLSL"]
+margin_left = 13.0
+margin_right = 41.0
+margin_bottom = 31.0
+text = "Trait
+#1"
+align = 1
+
+[node name="InclinationHSlider" type="HSlider" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCLSL"]
+margin_left = 45.0
+margin_right = 205.0
+margin_bottom = 16.0
+rect_min_size = Vector2( 160, 0 )
+min_value = -100.0
+rounded = true
+tick_count = 3
+ticks_on_borders = true
+
+[node name="Label2" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCLSL"]
+margin_left = 209.0
+margin_right = 237.0
+margin_bottom = 31.0
+text = "Trait
+#2"
+align = 1
+
+[node name="HBCTT" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 382.0
+margin_right = 250.0
+margin_bottom = 402.0
+alignment = 1
+
+[node name="Trait1" type="OptionButton" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCTT"]
+margin_left = 59.0
+margin_right = 123.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 64, 0 )
+
+[node name="Trait2" type="OptionButton" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCTT"]
+margin_left = 127.0
+margin_right = 191.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 64, 0 )
+
+[node name="HBCConsequence" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 406.0
+margin_right = 250.0
+margin_bottom = 426.0
+
+[node name="ChangeConsequence" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCConsequence"]
+margin_right = 152.0
+margin_bottom = 20.0
+hint_tooltip = "This sets the reaction's consequence to the first currently selected encounter, (selected in the encounter list on the far left of the screen.)"
+text = "Change Consequence:"
+
+[node name="CurrentConsequence" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCConsequence"]
+margin_left = 156.0
+margin_top = 3.0
+margin_right = 156.0
+margin_bottom = 17.0
+hint_tooltip = "The reaction's consequence occurs next, even if it could not normally occur due to turn count, prerequisites, or disqualifiers. The \"void\" and \"splash\" encounters cannot serve as consequences."
+mouse_filter = 1
+
+[node name="RemoveConsequenceButton" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 430.0
+margin_right = 158.0
+margin_bottom = 450.0
+hint_tooltip = "This sets the reaction's consequence to \"wild,\" so that, if this reaction occurs, the interpreter chooses the next encounter semi-randomly."
+size_flags_horizontal = 0
+text = "Remove Consequence."
+align = 0
+
+[node name="HBCpValueChanges" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 454.0
+margin_right = 250.0
+margin_bottom = 474.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="pValueChangeAdd" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCpValueChanges"]
+margin_right = 20.0
+margin_bottom = 20.0
+text = "+"
+
+[node name="pValueChangeDelete" type="Button" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCpValueChanges"]
+margin_left = 24.0
+margin_right = 41.0
+margin_bottom = 20.0
+text = "-"
+
+[node name="BlendChangeHeadLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCpValueChanges"]
+margin_left = 45.0
+margin_top = 3.0
+margin_right = 148.0
+margin_bottom = 17.0
+hint_tooltip = "When the selected reaction occurs, the following changes will be made to relationships between non-player characters and the player character."
+mouse_filter = 1
+text = "pValue changes:"
+
+[node name="pValueChangeList" type="ItemList" parent="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3"]
+margin_top = 478.0
+margin_right = 250.0
+margin_bottom = 667.0
+rect_min_size = Vector2( 0, 32 )
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Characters" type="Tabs" parent="VBC/Bookspine/EditorTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="HBC" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Characters"]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBC" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Characters/HBC"]
+margin_right = 160.0
+margin_bottom = 624.0
+
+[node name="Header" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC"]
+margin_right = 160.0
+margin_bottom = 20.0
+
+[node name="AddCharacter" type="Button" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC/Header"]
+margin_right = 20.0
+margin_bottom = 20.0
+text = "+"
+
+[node name="DeleteCharacter" type="Button" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC/Header"]
+margin_left = 24.0
+margin_right = 41.0
+margin_bottom = 20.0
+text = "-"
+
+[node name="Label" type="Label" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC/Header"]
+margin_left = 45.0
+margin_top = 3.0
+margin_right = 116.0
+margin_bottom = 17.0
+text = "Characters:"
+
+[node name="Scroll" type="ScrollContainer" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC"]
+margin_top = 24.0
+margin_right = 160.0
+margin_bottom = 624.0
+rect_min_size = Vector2( 160, 600 )
+
+[node name="CharacterList" type="ItemList" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC/Scroll"]
+margin_right = 160.0
+margin_bottom = 600.0
+rect_min_size = Vector2( 160, 600 )
+auto_height = true
+
+[node name="VBC2" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Characters/HBC"]
+margin_left = 164.0
+margin_right = 484.0
+margin_bottom = 624.0
+rect_min_size = Vector2( 320, 624 )
+
+[node name="Label" type="Label" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_right = 320.0
+margin_bottom = 14.0
+text = "Character name: "
+
+[node name="CharNameEdit" type="LineEdit" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 18.0
+margin_right = 320.0
+margin_bottom = 42.0
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="Label2" type="Label" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 46.0
+margin_right = 320.0
+margin_bottom = 77.0
+text = "Character pronoun:
+(e.g. \"they,\" \"she,\" \"he.\")"
+
+[node name="CharPronounEdit" type="LineEdit" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 81.0
+margin_right = 320.0
+margin_bottom = 105.0
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="Bad_GoodLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 109.0
+margin_right = 320.0
+margin_bottom = 123.0
+text = "Bad_Good"
+
+[node name="Bad_GoodEdit" type="HSlider" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 127.0
+margin_right = 320.0
+margin_bottom = 143.0
+min_value = -100.0
+tick_count = 3
+ticks_on_borders = true
+
+[node name="False_HonestLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 147.0
+margin_right = 320.0
+margin_bottom = 161.0
+text = "False_Honest"
+
+[node name="False_HonestEdit" type="HSlider" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 165.0
+margin_right = 320.0
+margin_bottom = 181.0
+min_value = -100.0
+tick_count = 3
+ticks_on_borders = true
+
+[node name="Timid_DominantLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 185.0
+margin_right = 320.0
+margin_bottom = 199.0
+text = "Timid_Dominant"
+
+[node name="Timid_DominantEdit" type="HSlider" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 203.0
+margin_right = 320.0
+margin_bottom = 219.0
+min_value = -100.0
+tick_count = 3
+ticks_on_borders = true
+
+[node name="pBad_GoodLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 223.0
+margin_right = 320.0
+margin_bottom = 237.0
+text = "pBad_Good"
+
+[node name="pBad_GoodEdit" type="HSlider" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 241.0
+margin_right = 320.0
+margin_bottom = 257.0
+min_value = -100.0
+tick_count = 3
+ticks_on_borders = true
+
+[node name="pFalse_HonestLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 261.0
+margin_right = 320.0
+margin_bottom = 275.0
+text = "pFalse_Honest"
+
+[node name="pFalse_HonestEdit" type="HSlider" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 279.0
+margin_right = 320.0
+margin_bottom = 295.0
+min_value = -100.0
+tick_count = 3
+ticks_on_borders = true
+
+[node name="pTimid_DominantLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 299.0
+margin_right = 320.0
+margin_bottom = 313.0
+text = "pTimid_Dominant"
+
+[node name="pTimid_DominantEdit" type="HSlider" parent="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2"]
+margin_top = 317.0
+margin_right = 320.0
+margin_bottom = 333.0
+min_value = -100.0
+tick_count = 3
+ticks_on_borders = true
+
+[node name="Settings" type="Tabs" parent="VBC/Bookspine/EditorTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="VBC" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Settings"]
+margin_right = 320.0
+margin_bottom = 156.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SWTitleLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_right = 160.0
+margin_bottom = 14.0
+text = "Storyworld title:"
+
+[node name="TitleEdit" type="LineEdit" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_top = 18.0
+margin_right = 160.0
+margin_bottom = 42.0
+rect_min_size = Vector2( 160, 0 )
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="SWAuthorLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_top = 46.0
+margin_right = 160.0
+margin_bottom = 60.0
+text = "Storyworld author:"
+
+[node name="AuthorEdit" type="LineEdit" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_top = 64.0
+margin_right = 160.0
+margin_bottom = 88.0
+rect_min_size = Vector2( 160, 0 )
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="HSeparator" type="HSeparator" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_right = 40.0
+margin_bottom = 4.0
+
+[node name="TemplatePathDisplay" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_right = 40.0
+margin_bottom = 14.0
+autowrap = true
+
+[node name="ChangeTemplate" type="Button" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_right = 12.0
+margin_bottom = 20.0
+text = "Select new html template file"
+
+[node name="SavePathDisplay" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_right = 40.0
+margin_bottom = 14.0
+autowrap = true
+
+[node name="HBC" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="DBMLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC/HBC"]
+margin_right = 40.0
+margin_bottom = 14.0
+text = "Set Storyworld to Debug Mode?"
+
+[node name="DBMSwitch" type="CheckButton" parent="VBC/Bookspine/EditorTabs/Settings/VBC/HBC"]
+margin_right = 76.0
+margin_bottom = 40.0
+
+[node name="InterpreterTabs" type="TabContainer" parent="VBC/Bookspine"]
+margin_left = 689.0
+margin_right = 1366.0
+margin_bottom = 712.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Documentation" type="Tabs" parent="VBC/Bookspine/InterpreterTabs"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBC/Bookspine/InterpreterTabs/Documentation"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -8.0
+margin_bottom = -8.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RichTextLabel" type="RichTextLabel" parent="VBC/Bookspine/InterpreterTabs/Documentation/ScrollContainer"]
+margin_right = 661.0
+margin_bottom = 668.0
+rect_min_size = Vector2( 320, 640 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_fonts/mono_font = ExtResource( 7 )
+custom_fonts/bold_italics_font = ExtResource( 10 )
+custom_fonts/italics_font = ExtResource( 6 )
+custom_fonts/bold_font = ExtResource( 8 )
+custom_fonts/normal_font = ExtResource( 9 )
+bbcode_enabled = true
+bbcode_text = "Welcome to the pre-alpha of SweepWeave, an experimental authoring tool for interactive storyworlds. This version is built in Godot, saves projects to .json files, and exports storyworlds to standalone .html or .htm files.
+
+System designed by Chris Crawford and Sasha Fenn. Coding and implementation by Sasha Fenn.
+
+We welcome all constructive feedback. You can contact us through the Thaddeus messageboard. For bug reports and other feedback, you can also contact Sasha Fenn at sasha@emptiestvoid.com.
+
+Hmtl tags are supported in encounter titles and text, option text, and reaction text. E.g., \"<i>italicized text</i>\" will render as \"[i]italicized text[/i]\" in game.
+
+Storyworlds differ, structurally, from those built in SpeareShake in three main regards:
+
+1) Each reaction has its own blend-change weights, and blend-change operations occur after a reaction has been chosen by the character, rather than before.
+
+2) You may create an unlimited number of characters per storyworld, options per encounter, and reactions per option.
+
+3) Encounter prerequisites can include choices made by the player and non-player characters, in addition to what events occur. Encounters are selected by calculating the distance from current conditions to the target conditions of each encounter, and selecting an encounter which is closest to its target conditions.
+
+Most other differences are in the interface, rather than storyworld structure.
+
+To playtest a storyworld, select an html template using the settings tab, (by default the system looks for \"interpreter_template.html\" in the same directory as the editor, but on Mac you may need to select this file manually,) then click \"Menu,\" then click \"Compile to HTML\" and name your html file. You can then open this html file in your webbrowser of choice and playtest the resulting game."
+text = "Welcome to the pre-alpha of SweepWeave, an experimental authoring tool for interactive storyworlds. This version is built in Godot, saves projects to .json files, and exports storyworlds to standalone .html or .htm files.
+
+System designed by Chris Crawford and Sasha Fenn. Coding and implementation by Sasha Fenn.
+
+We welcome all constructive feedback. You can contact us through the Thaddeus messageboard. For bug reports and other feedback, you can also contact Sasha Fenn at sasha@emptiestvoid.com.
+
+Hmtl tags are supported in encounter titles and text, option text, and reaction text. E.g., \"<i>italicized text</i>\" will render as \"italicized text\" in game.
+
+Storyworlds differ, structurally, from those built in SpeareShake in three main regards:
+
+1) Each reaction has its own blend-change weights, and blend-change operations occur after a reaction has been chosen by the character, rather than before.
+
+2) You may create an unlimited number of characters per storyworld, options per encounter, and reactions per option.
+
+3) Encounter prerequisites can include choices made by the player and non-player characters, in addition to what events occur. Encounters are selected by calculating the distance from current conditions to the target conditions of each encounter, and selecting an encounter which is closest to its target conditions.
+
+Most other differences are in the interface, rather than storyworld structure.
+
+To playtest a storyworld, select an html template using the settings tab, (by default the system looks for \"interpreter_template.html\" in the same directory as the editor, but on Mac you may need to select this file manually,) then click \"Menu,\" then click \"Compile to HTML\" and name your html file. You can then open this html file in your webbrowser of choice and playtest the resulting game."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Statistics" type="Tabs" parent="VBC/Bookspine/InterpreterTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="VBC" type="VBoxContainer" parent="VBC/Bookspine/InterpreterTabs/Statistics"]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RefreshStats" type="Button" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
+margin_right = 148.0
+margin_bottom = 30.0
+text = "Refresh Statistics"
+icon = ExtResource( 11 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StatEncounters" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
+margin_top = 34.0
+margin_right = 148.0
+margin_bottom = 48.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StatOptions" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
+margin_top = 52.0
+margin_right = 148.0
+margin_bottom = 66.0
+
+[node name="StatReactions" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
+margin_top = 70.0
+margin_right = 148.0
+margin_bottom = 84.0
+
+[node name="StatCharacters" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
+margin_top = 88.0
+margin_right = 148.0
+margin_bottom = 102.0
+
+[node name="StatWords" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
+margin_top = 106.0
+margin_right = 148.0
+margin_bottom = 120.0
+
+[node name="StatEarliestTurn" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
+margin_top = 124.0
+margin_right = 148.0
+margin_bottom = 138.0
+
+[node name="StatLatestTurn" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
+margin_top = 142.0
+margin_right = 148.0
+margin_bottom = 156.0
+
+[node name="GraphView" type="Tabs" parent="VBC/Bookspine/InterpreterTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="VBC" type="VBoxContainer" parent="VBC/Bookspine/InterpreterTabs/GraphView"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 40.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBC/Bookspine/InterpreterTabs/GraphView/VBC"]
+visible = false
+margin_right = 80.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button" type="Button" parent="VBC/Bookspine/InterpreterTabs/GraphView/VBC/HBoxContainer"]
+margin_right = 12.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Zoom"
+
+[node name="GraphEdit" type="GraphEdit" parent="VBC/Bookspine/InterpreterTabs/GraphView/VBC"]
+margin_right = 80.0
+margin_bottom = 64.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LoadFileDialog" type="FileDialog" parent="."]
+margin_right = 254.0
+margin_bottom = 400.0
+rect_min_size = Vector2( 200, 400 )
+window_title = "Load a Saved Project"
+resizable = true
+mode_overrides_title = false
+mode = 0
+access = 2
+current_dir = "/Backup/Creativity/Crawford/2021encounter_engine/godot"
+current_path = "/Backup/Creativity/Crawford/2021encounter_engine/godot/"
+
+[node name="SaveAsFileDialog" type="FileDialog" parent="."]
+margin_right = 355.0
+margin_bottom = 400.0
+rect_min_size = Vector2( 200, 400 )
+resizable = true
+access = 2
+current_dir = "/Backup/Creativity/Crawford/2021encounter_engine/godot"
+current_file = "story.json"
+current_path = "/Backup/Creativity/Crawford/2021encounter_engine/godot/story.json"
+
+[node name="ConfirmEncounterDeletion" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+resizable = true
+dialog_text = "Are you sure you want to delete these encounters?"
+dialog_autowrap = true
+
+[node name="CannotDelete" type="AcceptDialog" parent="."]
+margin_right = 83.0
+margin_bottom = 58.0
+resizable = true
+dialog_autowrap = true
+
+[node name="ConfirmCharacterDeletion" type="ConfirmationDialog" parent="."]
+margin_right = 310.0
+margin_bottom = 202.0
+dialog_autowrap = true
+
+[node name="Center" type="CenterContainer" parent="ConfirmCharacterDeletion"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 302.0
+margin_bottom = 166.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AntagonistReplacementPicker" type="OptionButton" parent="ConfirmCharacterDeletion/Center"]
+margin_left = 132.0
+margin_top = 69.0
+margin_right = 161.0
+margin_bottom = 89.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="CompileFileDialog" type="FileDialog" parent="."]
+margin_right = 355.0
+margin_bottom = 400.0
+rect_min_size = Vector2( 200, 400 )
+window_title = "Compile to HTML"
+resizable = true
+access = 2
+current_dir = "/Backup/Creativity/Crawford/2021encounter_engine/godot"
+current_file = "story.html"
+current_path = "/Backup/Creativity/Crawford/2021encounter_engine/godot/story.html"
+
+[node name="ConfirmOptionDeletion" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+dialog_autowrap = true
+
+[node name="ConfirmReactionDeletion" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+dialog_autowrap = true
+
+[node name="ConfirmOpenWhenUnsaved" type="ConfirmationDialog" parent="."]
+margin_right = 700.0
+margin_bottom = 70.0
+dialog_text = "You have not yet saved your current project. Are you sure you wish to open another project without saving?"
+
+[node name="ConfirmQuit" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+dialog_text = "You have modified your project without saving. Do you wish to quit without saving first? Progress will be lost."
+dialog_autowrap = true
+
+[node name="ConfirmNewStoryworld" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+dialog_text = "You have modified your project since you last saved. Do you wish to start a new project without saving your current one? Progress will be lost."
+dialog_autowrap = true
+
+[node name="ChooseTemplateDialog" type="FileDialog" parent="."]
+margin_right = 254.0
+margin_bottom = 400.0
+rect_min_size = Vector2( 200, 400 )
+window_title = "Choose a Template"
+resizable = true
+dialog_text = "Please select a new html template for compiling."
+dialog_autowrap = true
+mode_overrides_title = false
+mode = 0
+access = 2
+current_dir = "/Backup/Creativity/Crawford/2021encounter_engine/godot"
+current_path = "/Backup/Creativity/Crawford/2021encounter_engine/godot/"
+
+[node name="ImportXMLFileDialog" type="FileDialog" parent="."]
+margin_right = 315.0
+margin_bottom = 320.0
+window_title = "Import Project from XML"
+resizable = true
+mode_overrides_title = false
+mode = 0
+access = 2
+current_dir = "/Backup/Creativity/Crawford/2021encounter_engine/godot"
+current_path = "/Backup/Creativity/Crawford/2021encounter_engine/godot/"
+
+[node name="EditEncounterSettings" type="AcceptDialog" parent="."]
+margin_right = 292.0
+margin_bottom = 320.0
+rect_min_size = Vector2( 256, 0 )
+window_title = ""
+resizable = true
+
+[node name="VBC" type="VBoxContainer" parent="EditEncounterSettings"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 524.0
+margin_bottom = 284.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBC" type="HBoxContainer" parent="EditEncounterSettings/VBC"]
+margin_right = 288.0
+margin_bottom = 114.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="VBC" type="VBoxContainer" parent="EditEncounterSettings/VBC/HBC"]
+margin_left = 12.0
+margin_right = 142.0
+margin_bottom = 114.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBC" type="HBoxContainer" parent="EditEncounterSettings/VBC/HBC/VBC"]
+margin_right = 130.0
+margin_bottom = 20.0
+
+[node name="PrereqAdd" type="Button" parent="EditEncounterSettings/VBC/HBC/VBC/HBC"]
+margin_right = 20.0
+margin_bottom = 20.0
+text = "+"
+
+[node name="Prerequisites" type="Label" parent="EditEncounterSettings/VBC/HBC/VBC/HBC"]
+margin_left = 24.0
+margin_top = 3.0
+margin_right = 109.0
+margin_bottom = 17.0
+hint_tooltip = "All prerequisite encounters must have occured before the present encounter can occur, unless the present encounter occurs as a consequence of a character reaction."
+mouse_filter = 1
+text = "Prerequisites"
+
+[node name="PrereqDelete" type="Button" parent="EditEncounterSettings/VBC/HBC/VBC/HBC"]
+margin_left = 113.0
+margin_right = 130.0
+margin_bottom = 20.0
+text = "-"
+
+[node name="Scroll" type="ScrollContainer" parent="EditEncounterSettings/VBC/HBC/VBC"]
+margin_top = 24.0
+margin_right = 130.0
+margin_bottom = 114.0
+rect_min_size = Vector2( 0, 90 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="PrerequisiteList" type="ItemList" parent="EditEncounterSettings/VBC/HBC/VBC/Scroll"]
+margin_right = 256.0
+margin_bottom = 90.0
+rect_min_size = Vector2( 256, 90 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+select_mode = 1
+auto_height = true
+
+[node name="VBC2" type="VBoxContainer" parent="EditEncounterSettings/VBC/HBC"]
+margin_left = 146.0
+margin_right = 276.0
+margin_bottom = 114.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBC" type="HBoxContainer" parent="EditEncounterSettings/VBC/HBC/VBC2"]
+margin_right = 130.0
+margin_bottom = 20.0
+
+[node name="AddDesideratum" type="Button" parent="EditEncounterSettings/VBC/HBC/VBC2/HBC"]
+margin_right = 20.0
+margin_bottom = 20.0
+text = "+"
+
+[node name="Desiderata" type="Label" parent="EditEncounterSettings/VBC/HBC/VBC2/HBC"]
+margin_left = 24.0
+margin_top = 3.0
+margin_right = 93.0
+margin_bottom = 17.0
+hint_tooltip = "If any disqualifier encounters have occured, then the present encounter cannot occur, unless the present encounter occurs as a consequence of a character reaction."
+mouse_filter = 1
+text = "Target Conditions"
+
+[node name="DeleteDesideratum" type="Button" parent="EditEncounterSettings/VBC/HBC/VBC2/HBC"]
+margin_left = 97.0
+margin_right = 114.0
+margin_bottom = 20.0
+text = "-"
+
+[node name="Scroll" type="ScrollContainer" parent="EditEncounterSettings/VBC/HBC/VBC2"]
+margin_top = 24.0
+margin_right = 130.0
+margin_bottom = 114.0
+rect_min_size = Vector2( 0, 90 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="DesiderataList" type="ItemList" parent="EditEncounterSettings/VBC/HBC/VBC2/Scroll"]
+margin_right = 256.0
+margin_bottom = 90.0
+rect_min_size = Vector2( 256, 90 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+select_mode = 1
+auto_height = true
+
+[node name="EventSelection" type="ConfirmationDialog" parent="EditEncounterSettings"]
+visible = true
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 524.0
+margin_bottom = 284.0
+rect_min_size = Vector2( 276, 276 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+window_title = "Select an event."
+resizable = true
+
+[node name="VBC" type="VBoxContainer" parent="EditEncounterSettings/EventSelection"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 508.0
+margin_bottom = 240.0
+
+[node name="EventTree" type="Tree" parent="EditEncounterSettings/EventSelection/VBC"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 264.0
+margin_bottom = 136.0
+rect_min_size = Vector2( 256, 128 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="NegatedCheckBox" type="CheckBox" parent="EditEncounterSettings/EventSelection/VBC"]
+margin_right = 81.0
+margin_bottom = 40.0
+text = "Negated"
+
+[node name="DesideratumSelection" type="ConfirmationDialog" parent="EditEncounterSettings"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 524.0
+margin_bottom = 284.0
+size_flags_horizontal = 3
+window_title = "Set New Target Condition"
+resizable = true
+
+[node name="HBC" type="HBoxContainer" parent="EditEncounterSettings/DesideratumSelection"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 508.0
+margin_bottom = 240.0
+size_flags_horizontal = 3
+
+[node name="CharacterSelect" type="OptionButton" parent="EditEncounterSettings/DesideratumSelection/HBC"]
+margin_right = 29.0
+margin_bottom = 20.0
+size_flags_vertical = 0
+
+[node name="pValueSelect" type="OptionButton" parent="EditEncounterSettings/DesideratumSelection/HBC"]
+margin_right = 140.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 140, 0 )
+size_flags_vertical = 0
+
+[node name="PointSet" type="SpinBox" parent="EditEncounterSettings/DesideratumSelection/HBC"]
+margin_right = 74.0
+margin_bottom = 24.0
+size_flags_vertical = 0
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+
+[node name="EditOptionSettings" type="AcceptDialog" parent="."]
+margin_right = 292.0
+margin_bottom = 320.0
+rect_min_size = Vector2( 256, 0 )
+window_title = ""
+resizable = true
+
+[node name="VBC" type="VBoxContainer" parent="EditOptionSettings"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 524.0
+margin_bottom = 284.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBC" type="HBoxContainer" parent="EditOptionSettings/VBC"]
+margin_right = 288.0
+margin_bottom = 114.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="VBC" type="VBoxContainer" parent="EditOptionSettings/VBC/HBC"]
+margin_left = 12.0
+margin_right = 142.0
+margin_bottom = 114.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBC" type="HBoxContainer" parent="EditOptionSettings/VBC/HBC/VBC"]
+margin_right = 130.0
+margin_bottom = 20.0
+
+[node name="VisibilityPrereqAdd" type="Button" parent="EditOptionSettings/VBC/HBC/VBC/HBC"]
+margin_right = 20.0
+margin_bottom = 20.0
+text = "+"
+
+[node name="VisibilityPrerequisites" type="Label" parent="EditOptionSettings/VBC/HBC/VBC/HBC"]
+margin_left = 24.0
+margin_top = 3.0
+margin_right = 109.0
+margin_bottom = 17.0
+hint_tooltip = "All of these prerequisites must be met, or this option will be hidden from the player."
+mouse_filter = 1
+text = "Visibility Prerequisites"
+
+[node name="VisibilityPrereqDelete" type="Button" parent="EditOptionSettings/VBC/HBC/VBC/HBC"]
+margin_left = 113.0
+margin_right = 130.0
+margin_bottom = 20.0
+text = "-"
+
+[node name="Scroll" type="ScrollContainer" parent="EditOptionSettings/VBC/HBC/VBC"]
+margin_top = 24.0
+margin_right = 130.0
+margin_bottom = 114.0
+rect_min_size = Vector2( 0, 90 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="VisibilityPrerequisiteList" type="ItemList" parent="EditOptionSettings/VBC/HBC/VBC/Scroll"]
+margin_right = 256.0
+margin_bottom = 90.0
+rect_min_size = Vector2( 256, 90 )
+hint_tooltip = "All of these prerequisites must be met, or this option will be hidden from the player."
+size_flags_horizontal = 3
+size_flags_vertical = 3
+select_mode = 1
+auto_height = true
+
+[node name="VBC2" type="VBoxContainer" parent="EditOptionSettings/VBC/HBC"]
+margin_left = 146.0
+margin_right = 276.0
+margin_bottom = 114.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBC" type="HBoxContainer" parent="EditOptionSettings/VBC/HBC/VBC2"]
+margin_right = 130.0
+margin_bottom = 20.0
+
+[node name="PerformabilityPrereqAdd" type="Button" parent="EditOptionSettings/VBC/HBC/VBC2/HBC"]
+margin_right = 20.0
+margin_bottom = 20.0
+text = "+"
+
+[node name="PerformabilityPrereq" type="Label" parent="EditOptionSettings/VBC/HBC/VBC2/HBC"]
+margin_left = 24.0
+margin_top = 3.0
+margin_right = 93.0
+margin_bottom = 17.0
+hint_tooltip = "All of these prerequisites must be met in order for the player to select this option. If any are not met, the option will be struck through, and will not be clickable."
+mouse_filter = 1
+text = "Performability Prerequisites"
+
+[node name="PerformabilityPrereqDelete" type="Button" parent="EditOptionSettings/VBC/HBC/VBC2/HBC"]
+margin_left = 97.0
+margin_right = 114.0
+margin_bottom = 20.0
+text = "-"
+
+[node name="Scroll" type="ScrollContainer" parent="EditOptionSettings/VBC/HBC/VBC2"]
+margin_top = 24.0
+margin_right = 130.0
+margin_bottom = 114.0
+rect_min_size = Vector2( 0, 90 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="PerformabilityPrerequisiteList" type="ItemList" parent="EditOptionSettings/VBC/HBC/VBC2/Scroll"]
+margin_right = 256.0
+margin_bottom = 90.0
+rect_min_size = Vector2( 256, 90 )
+hint_tooltip = "All of these prerequisites must be met in order for the player to select this option. If any are not met, the option will be struck through, and will not be clickable."
+size_flags_horizontal = 3
+size_flags_vertical = 3
+select_mode = 1
+auto_height = true
+
+[node name="EventSelection" type="ConfirmationDialog" parent="EditOptionSettings"]
+visible = true
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 524.0
+margin_bottom = 284.0
+rect_min_size = Vector2( 276, 276 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+window_title = "Select an event."
+resizable = true
+
+[node name="VBC" type="VBoxContainer" parent="EditOptionSettings/EventSelection"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 508.0
+margin_bottom = 240.0
+
+[node name="EventTree" type="Tree" parent="EditOptionSettings/EventSelection/VBC"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 264.0
+margin_bottom = 136.0
+rect_min_size = Vector2( 256, 128 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="NegatedCheckBox" type="CheckBox" parent="EditOptionSettings/EventSelection/VBC"]
+margin_right = 81.0
+margin_bottom = 40.0
+text = "Negated"
+
+[node name="pValueChangeSelection" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+
+[node name="VBC" type="VBoxContainer" parent="pValueChangeSelection"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 259.0
+margin_bottom = 50.0
+
+[node name="Label" type="Label" parent="pValueChangeSelection/VBC"]
+margin_right = 40.0
+margin_bottom = 14.0
+text = "Create a new pValue change:"
+
+[node name="HBC" type="HBoxContainer" parent="pValueChangeSelection/VBC"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 259.0
+margin_bottom = 34.0
+size_flags_horizontal = 3
+
+[node name="CharacterSelect" type="OptionButton" parent="pValueChangeSelection/VBC/HBC"]
+margin_right = 29.0
+margin_bottom = 20.0
+size_flags_vertical = 0
+
+[node name="pValueSelect" type="OptionButton" parent="pValueChangeSelection/VBC/HBC"]
+margin_right = 140.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 140, 0 )
+size_flags_vertical = 0
+
+[node name="PointSet" type="SpinBox" parent="pValueChangeSelection/VBC/HBC"]
+margin_right = 74.0
+margin_bottom = 24.0
+size_flags_vertical = 0
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+
+[node name="ChangeDescription" type="Label" parent="pValueChangeSelection/VBC"]
+visible = false
+margin_right = 40.0
+margin_bottom = 14.0
+
+[node name="About" type="AcceptDialog" parent="."]
+margin_right = 83.0
+margin_bottom = 58.0
+size_flags_vertical = 2
+window_title = "About"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="About"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 398.0
+margin_bottom = 108.0
+size_flags_vertical = 0
+
+[node name="VersionMessage" type="Label" parent="About/VBoxContainer"]
+margin_right = 40.0
+margin_bottom = 40.0
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="About/VBoxContainer"]
+margin_right = 40.0
+margin_bottom = 4.0
+
+[node name="Par1" type="Label" parent="About/VBoxContainer"]
+margin_right = 40.0
+margin_bottom = 40.0
+text = "An interactive storyworld creation kit, created by Sasha Fenn."
+align = 1
+
+[node name="Par2" type="Label" parent="About/VBoxContainer"]
+margin_right = 40.0
+margin_bottom = 14.0
+text = "You can help support me through:"
+align = 1
+
+[node name="OpenPatreonButton" type="Button" parent="About/VBoxContainer"]
+margin_right = 84.0
+margin_bottom = 20.0
+text = "My Patreon"
+
+[node name="Par3" type="Label" parent="About/VBoxContainer"]
+visible = false
+margin_right = 40.0
+margin_bottom = 14.0
+text = "And you can contact me by email at sasha@emptiestvoid.com."
+
+[node name="Par4" type="Label" parent="About/VBoxContainer"]
+margin_right = 40.0
+margin_bottom = 14.0
+text = "Thanks, and peace to you."
+align = 1
+
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/HBC/AddButton" to="." method="_on_AddButton_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/HBC/DeleteButton" to="." method="_on_DeleteButton_pressed"]
+[connection signal="item_selected" from="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/SortMenu" to="." method="_on_SortMenu_item_selected"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/HBC2/Edit" to="." method="_on_Edit_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/HBC2/Duplicate" to="." method="_on_Duplicate_pressed"]
+[connection signal="item_activated" from="VBC/Bookspine/EditorTabs/Encounters/Main/Column1/VScroll/EncountersList" to="." method="_on_EncountersList_item_activated"]
+[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTitle/LineEdit" to="." method="_on_LineEdit_text_changed"]
+[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/TextEdit" to="." method="_on_TextEdit_text_changed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/Edit_Encounter_Settings_Button" to="." method="_on_Button_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/Edit_Encounter_Settings_Button" to="." method="_on_Edit_Encounter_Settings_Button_pressed"]
+[connection signal="value_changed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn/VBC/EarliestTurn" to="." method="_on_EarliestTurn_value_changed"]
+[connection signal="value_changed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn/VBC2/LatestTurn" to="." method="_on_LatestTurn_value_changed"]
+[connection signal="item_selected" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn/VBC3/AntagonistPicker" to="." method="_on_AntagonistPicker_item_selected"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn2/AddOption" to="." method="_on_AddOption_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn2/DeleteOption" to="." method="_on_DeleteOption_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn2/MoveOptionUpButton" to="." method="_on_MoveOptionUpButton_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/HBCTurn2/MoveOptionDownButton" to="." method="_on_MoveOptionDownButton_pressed"]
+[connection signal="item_selected" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/OptionsScroll/OptionsList" to="." method="_on_OptionsList_item_selected"]
+[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/OptionText" to="." method="_on_OptionText_text_changed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column2/OptionSettingsButton" to="." method="_on_OptionSettingsButton_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBC/AddReaction" to="." method="_on_AddReaction_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBC/DeleteReaction" to="." method="_on_DeleteReaction_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBC/MoveReactionUpButton" to="." method="_on_MoveReactionUpButton_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBC/MoveReactionDownButton" to="." method="_on_MoveReactionDownButton_pressed"]
+[connection signal="item_selected" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/ReactionsScroll/ReactionList" to="." method="_on_ReactionList_item_selected"]
+[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/ReactionText" to="." method="_on_ReactionText_text_changed"]
+[connection signal="value_changed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCLSL/InclinationHSlider" to="." method="_on_InclinationHSlider_value_changed"]
+[connection signal="item_selected" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCTT/Trait1" to="." method="_on_Trait1_item_selected"]
+[connection signal="item_selected" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCTT/Trait2" to="." method="_on_Trait2_item_selected"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCConsequence/ChangeConsequence" to="." method="_on_ChangeConsequence_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/RemoveConsequenceButton" to="." method="_on_RemoveConsequenceButton_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCpValueChanges/pValueChangeAdd" to="." method="_on_pValueChangeAdd_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Encounters/Main/HSC/Column3/HBCpValueChanges/pValueChangeDelete" to="." method="_on_pValueChangeDelete_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC/Header/AddCharacter" to="." method="_on_AddCharacter_pressed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC/Header/DeleteCharacter" to="." method="_on_DeleteCharacter_pressed"]
+[connection signal="item_selected" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC/Scroll/CharacterList" to="." method="_on_CharacterList_item_selected"]
+[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2/CharNameEdit" to="." method="_on_CharNameEdit_text_changed"]
+[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2/CharPronounEdit" to="." method="_on_CharPronounEdit_text_changed"]
+[connection signal="value_changed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2/Bad_GoodEdit" to="." method="_on_Bad_GoodEdit_value_changed"]
+[connection signal="value_changed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2/False_HonestEdit" to="." method="_on_False_HonestEdit_value_changed"]
+[connection signal="value_changed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2/Timid_DominantEdit" to="." method="_on_Timid_DominantEdit_value_changed"]
+[connection signal="value_changed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2/pBad_GoodEdit" to="." method="_on_pBad_GoodEdit_value_changed"]
+[connection signal="value_changed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2/pFalse_HonestEdit" to="." method="_on_pFalse_HonestEdit_value_changed"]
+[connection signal="value_changed" from="VBC/Bookspine/EditorTabs/Characters/HBC/VBC2/pTimid_DominantEdit" to="." method="_on_pTimid_DominantEdit_value_changed"]
+[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Settings/VBC/TitleEdit" to="." method="_on_TitleEdit_text_changed"]
+[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Settings/VBC/AuthorEdit" to="." method="_on_AuthorEdit_text_changed"]
+[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Settings/VBC/ChangeTemplate" to="." method="_on_ChangeTemplate_pressed"]
+[connection signal="toggled" from="VBC/Bookspine/EditorTabs/Settings/VBC/HBC/DBMSwitch" to="." method="_on_DBMSwitch_toggled"]
+[connection signal="pressed" from="VBC/Bookspine/InterpreterTabs/Statistics/VBC/RefreshStats" to="." method="_on_RefreshStats_pressed"]
+[connection signal="_end_node_move" from="VBC/Bookspine/InterpreterTabs/GraphView/VBC/GraphEdit" to="." method="_on_GraphEdit__end_node_move"]
+[connection signal="connection_request" from="VBC/Bookspine/InterpreterTabs/GraphView/VBC/GraphEdit" to="." method="_on_GraphEdit_connection_request"]
+[connection signal="file_selected" from="LoadFileDialog" to="." method="_on_LoadFileDialog_file_selected"]
+[connection signal="file_selected" from="SaveAsFileDialog" to="." method="_on_SaveAsFileDialog_file_selected"]
+[connection signal="confirmed" from="ConfirmEncounterDeletion" to="." method="_on_ConfirmEncounterDeletion_confirmed"]
+[connection signal="confirmed" from="ConfirmCharacterDeletion" to="." method="_on_ConfirmCharacterDeletion_confirmed"]
+[connection signal="file_selected" from="CompileFileDialog" to="." method="_on_CompileFileDialog_file_selected"]
+[connection signal="confirmed" from="ConfirmOptionDeletion" to="." method="_on_ConfirmOptionDeletion_confirmed"]
+[connection signal="confirmed" from="ConfirmReactionDeletion" to="." method="_on_ConfirmReactionDeletion_confirmed"]
+[connection signal="confirmed" from="ConfirmOpenWhenUnsaved" to="." method="_on_ConfirmOpenWhenUnsaved_confirmed"]
+[connection signal="confirmed" from="ConfirmQuit" to="." method="_on_ConfirmQuit_confirmed"]
+[connection signal="confirmed" from="ConfirmNewStoryworld" to="." method="_on_ConfirmNewStoryworld_confirmed"]
+[connection signal="file_selected" from="ChooseTemplateDialog" to="." method="_on_ChooseTemplateDialog_file_selected"]
+[connection signal="file_selected" from="ImportXMLFileDialog" to="." method="_on_ImportXMLFileDialog_file_selected"]
+[connection signal="pressed" from="EditEncounterSettings/VBC/HBC/VBC/HBC/PrereqAdd" to="." method="_on_PrereqAdd_pressed"]
+[connection signal="pressed" from="EditEncounterSettings/VBC/HBC/VBC/HBC/PrereqDelete" to="." method="_on_PrereqDelete_pressed"]
+[connection signal="pressed" from="EditEncounterSettings/VBC/HBC/VBC2/HBC/AddDesideratum" to="." method="_on_AddDesideratum_pressed"]
+[connection signal="pressed" from="EditEncounterSettings/VBC/HBC/VBC2/HBC/DeleteDesideratum" to="." method="_on_DeleteDesideratum_pressed"]
+[connection signal="confirmed" from="EditEncounterSettings/EventSelection" to="." method="_on_EventSelection_confirmed"]
+[connection signal="confirmed" from="EditEncounterSettings/DesideratumSelection" to="." method="_on_DesideratumSelection_confirmed"]
+[connection signal="pressed" from="EditOptionSettings/VBC/HBC/VBC/HBC/VisibilityPrereqAdd" to="." method="_on_VisibilityPrereqAdd_pressed"]
+[connection signal="pressed" from="EditOptionSettings/VBC/HBC/VBC/HBC/VisibilityPrereqDelete" to="." method="_on_VisibilityPrereqDelete_pressed"]
+[connection signal="pressed" from="EditOptionSettings/VBC/HBC/VBC2/HBC/PerformabilityPrereqAdd" to="." method="_on_PerformabilityPrereqAdd_pressed"]
+[connection signal="pressed" from="EditOptionSettings/VBC/HBC/VBC2/HBC/PerformabilityPrereqDelete" to="." method="_on_PerformabilityPrereqDelete_pressed"]
+[connection signal="confirmed" from="EditOptionSettings/EventSelection" to="." method="_on_OptionEventSelection_confirmed"]
+[connection signal="confirmed" from="pValueChangeSelection" to="." method="_on_pValueChangeSelection_confirmed"]
+[connection signal="pressed" from="About/VBoxContainer/OpenPatreonButton" to="." method="_on_OpenPatreonButton_pressed"]

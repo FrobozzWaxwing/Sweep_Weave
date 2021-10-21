@@ -1,0 +1,96 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Object",
+"class": "Actor",
+"language": "GDScript",
+"path": "res://Actor.gd"
+}, {
+"base": "Object",
+"class": "Compiler",
+"language": "GDScript",
+"path": "res://Compiler.gd"
+}, {
+"base": "Object",
+"class": "Desideratum",
+"language": "GDScript",
+"path": "res://Desideratum.gd"
+}, {
+"base": "Object",
+"class": "Encounter",
+"language": "GDScript",
+"path": "res://Encounter.gd"
+}, {
+"base": "Object",
+"class": "Option",
+"language": "GDScript",
+"path": "res://Option.gd"
+}, {
+"base": "Object",
+"class": "Prerequisite",
+"language": "GDScript",
+"path": "res://Prerequisite.gd"
+}, {
+"base": "Object",
+"class": "Reaction",
+"language": "GDScript",
+"path": "res://Reaction.gd"
+} ]
+_global_script_class_icons={
+"Actor": "",
+"Compiler": "",
+"Desideratum": "",
+"Encounter": "",
+"Option": "",
+"Prerequisite": "",
+"Reaction": ""
+}
+
+[application]
+
+config/name="encountereditor"
+run/main_scene="res://GUI.tscn"
+config/icon="res://icon.png"
+
+[display]
+
+window/size/width=1366
+window/size/height=736
+
+[input]
+
+project_save_overwrite={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":true,"meta":false,"command":true,"pressed":false,"scancode":83,"unicode":0,"echo":false,"script":null)
+ ]
+}
+project_save_as={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":true,"shift":false,"control":true,"meta":false,"command":true,"pressed":false,"scancode":83,"unicode":0,"echo":false,"script":null)
+ ]
+}
+project_new={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":true,"meta":false,"command":true,"pressed":false,"scancode":78,"unicode":0,"echo":false,"script":null)
+ ]
+}
+project_load={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":true,"meta":false,"command":true,"pressed":false,"scancode":79,"unicode":0,"echo":false,"script":null)
+ ]
+}
+
+[rendering]
+
+quality/driver/driver_name="GLES2"
+vram_compression/import_etc=true
+vram_compression/import_etc2=false
+environment/default_environment="res://default_env.tres"
