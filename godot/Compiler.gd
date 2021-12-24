@@ -21,7 +21,7 @@ func get_template_from_file():
 		print(error_message)
 	return html_content
 
-func _init(game_data, storyworld_title, storyworld_author, template = OS.get_executable_path().get_base_dir() + "\\interpreter_template.html"):
+func _init(game_data, storyworld_title, storyworld_author, template = "res://custom_resources/encounter_engine.html"):
 	file_to_read = template
 	output = get_template_from_file()
 	if ("" != storyworld_title):

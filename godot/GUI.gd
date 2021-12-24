@@ -7,7 +7,7 @@ var encounters_directory = {}#Used for quick lookup.
 #var first_page = "wild"
 var wild_encounter = Encounter.new("wild", "Wild", 'If the consequence of a reaction is set to "wild," then the next page chosen will be random. This encounter is used only by the editor to represent this situation, and will not be saved to exported game_data.', 0, 1000, characters[0], [], -1)
 var current_project_path = ""
-var current_html_template_path = OS.get_executable_path().get_base_dir() + "\\interpreter_template.html"
+var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var current_encounter = wild_encounter
 var current_option = -1
 var current_reaction = -1
@@ -17,7 +17,7 @@ var char_unique_id_seed = 0
 var storyworld_title = "New Storyworld"
 var storyworld_author = "Anonymous"
 var storyworld_debug_mode_on = false
-var sweepweave_version_number = "0.0.10"
+var sweepweave_version_number = "0.0.11"
 
 
 func unique_id():
@@ -481,7 +481,7 @@ func compile_storyworld_to_html(path):
 		file_text += JSON.print(file_data, "\t")
 	else:
 		file_text += JSON.print(file_data)
-	var compiler = Compiler.new(file_text, storyworld_title, storyworld_author, current_html_template_path)
+	var compiler = Compiler.new(file_text, storyworld_title, storyworld_author)
 	var file = File.new()
 	file.open(path, File.WRITE)
 	file.store_string(compiler.output)
