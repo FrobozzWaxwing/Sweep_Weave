@@ -17,6 +17,7 @@ var char_unique_id_seed = 0
 var storyworld_title = "New Storyworld"
 var storyworld_author = "Anonymous"
 var storyworld_debug_mode_on = false
+var storyworld_display_mode = 1 #0 is old display mode, (maintext, choice, reaction, next-button, clear screen, maintext...), 1 is new display mode, (maintext, choice, clear screen, reaction, maintext...)
 var sweepweave_version_number = "0.0.11"
 
 
@@ -420,6 +421,8 @@ func load_project(file_text):
 		storyworld_author = data_to_load.storyworld_author
 	if (data_to_load.has("debug_mode")):
 		storyworld_debug_mode_on = data_to_load.debug_mode
+	if (data_to_load.has("display_mode")):
+		storyworld_display_mode = data_to_load.display_mode
 	print("Project Loaded: " + storyworld_title + " by " + storyworld_author)
 	refresh_encounter_list()
 	Clear_Encounter_Editing_Screen()
@@ -446,6 +449,7 @@ func save_project(save_as = false):
 	file_data["storyworld_title"] = storyworld_title
 	file_data["storyworld_author"] = storyworld_author
 	file_data["debug_mode"] = storyworld_debug_mode_on
+	file_data["display_mode"] = storyworld_display_mode
 	file_data["sweepweave_version"] = sweepweave_version_number
 	var file_text = ""
 	if (storyworld_debug_mode_on):
@@ -476,6 +480,7 @@ func compile_storyworld_to_html(path):
 	for entry in encounters:
 		file_data["encounters"].append(entry.compile(characters))
 	file_data["debug_mode"] = storyworld_debug_mode_on
+	file_data["display_mode"] = storyworld_display_mode
 	var file_text = "var storyworld_data = "
 	if (storyworld_debug_mode_on):
 		file_text += JSON.print(file_data, "\t")
@@ -1226,6 +1231,13 @@ func _on_DBMSwitch_toggled(button_pressed):
 		storyworld_debug_mode_on = false
 	log_update(wild_encounter)
 
+func _on_DisplayModeSwitch_toggled(button_pressed):
+	if (button_pressed):
+		storyworld_display_mode = 1
+	else:
+		storyworld_display_mode = 0
+	log_update(wild_encounter)
+
 
 #Statistical Overview interface elements.
 func refresh_statistical_overview():
@@ -1510,6 +1522,8 @@ func _on_PerformabilityPrereqDelete_pressed():
 		for entry in current_option.performability_prerequisites:
 			$EditOptionSettings/VBC/HBC/VBC2/Scroll/PerformabilityPrerequisiteList.add_item(entry.summarize())
 		log_update(current_encounter)
+
+
 
 
 

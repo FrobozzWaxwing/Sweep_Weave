@@ -130,6 +130,7 @@ var next_page = "wild";//"wild" means a page is chosen semi-randomly; other valu
 var current_antagonist = 0;
 var turn = 0;
 var current_scene = "wild";//"wild" means the current scene is ignored when selecting an encounter; encounters with any scene are acceptable.
+var text_buffer = "";//Used to store the text of a reaction so that it can be displayed at the start of the next encounter. Also used when encounters are broken into sections to store the text so far displayed.
 
 //Here is the database of characters.
 var characters = [
@@ -282,7 +283,7 @@ function loadGame(save_filename){
   turn = slow_historybook.length;
   //Load last encounter.
   if ('undefined' === typeof slow_historybook[slow_historybook.length - 1]){
-    loadTheEnd();//Don't record to historybook.
+    loadTheEnd(false);//Don't record to historybook.
   } else {
     loadEncounter(slow_historybook[slow_historybook.length - 1].encounter, false);//Don't record to historybook.
   }
@@ -568,13 +569,38 @@ function loadEncounter(encounter_id, record = true) {
   current_page = encounter;//Track which encounter we're in.
   next_page = "start";//Set the next encounter to be semi-random.
   current_antagonist = encounter.antagonist;//integer
+  var encounter_sections = [];
   
   //Now we change the main encounter text to what it needs to be.
-  if (storyworld_data["debug_mode"]){//If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-    document.getElementById("encounter_text").innerHTML = "<b>(" + encounter.title + ")</b><br>" + printCharRelationships(current_antagonist, "<br>") + "<br>" + encounter.main_text;
-  } else {
-    document.getElementById("encounter_text").innerHTML = encounter.main_text;
+  var current_main_text = "";
+  var continue_button_label = "";
+  if (0 == storyworld_data["display_mode"]){
+    //In display mode 0, the game displays the reaction on the same screen as the current encounter, then requires the player to click an extra button to proceed to the next encounter.
+    text_buffer = "";
+  } else if (1 == storyworld_data["display_mode"]){
+    //In display mode 1, when a player chooses an option, the game clears the screen and displays the reaction text followed by the text of the next encounter.
+	current_main_text += text_buffer + "<br>";//text_buffer should be holding the text of the reaction that needs displayed.
   }
+  if (storyworld_data["debug_mode"]){
+    //If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
+    current_main_text += "<b>(" + encounter.title + ")</b><br>" + printCharRelationships(current_antagonist, "<br>") + "<br>";
+  }
+  var continue_regex = /\[\[.*\|continue\]\]/gim;
+  if (-1 != encounter.main_text.search(continue_regex)){
+    //If the encounter's main text is split into sections:
+	//Add the first section to the text buffer,
+    encounter_sections = encounter.main_text.split(continue_regex);
+	current_main_text += encounter_sections[0];
+	text_buffer = current_main_text;
+	//And compile the html code for the continue button.
+	continue_button_label = '<a href="javascript:continueFromBreak(1)">';
+	var button_code = encounter.main_text.match(continue_regex)[0];
+	continue_button_label += button_code.split(/(\[\[|\|continue\]\])/gi)[2];
+	continue_button_label += "</a>";
+  } else {
+    current_main_text += encounter.main_text;
+  }
+  document.getElementById("encounter_text").innerHTML = current_main_text + continue_button_label;
   //Now we go through the options one by one, creating links for each.
   var each;
   var compiled_options = "";
@@ -627,8 +653,8 @@ function loadEncounter(encounter_id, record = true) {
   }
   document.getElementById("options_list").innerHTML = compiled_options;
   
-  //If there are no options for this encounter, hide the options field.
-  if(0 == encounter.options.length){
+  //If there are no options for this encounter, or the encounter has multiple sections separated by "continue" commands, then hide the options field.
+  if(0 == encounter.options.length || 1 < encounter_sections.length){
     document.getElementById("options_text").style.display = "none";
   } else {
     document.getElementById("options_text").style.display = "block";
@@ -652,8 +678,30 @@ function loadEncounter(encounter_id, record = true) {
   //If all goes well... It's the player's turn!
 }
 
-function continueFromBreak(){
-
+function continueFromBreak(step){
+  var continue_regex = /\[\[.*\|continue\]\]/gim;
+  var encounter = current_page;
+  var button_code = "";
+  var encounter_sections = [];
+  var code_blocks = [];
+  if (-1 != encounter.main_text.search(continue_regex)){
+	encounter_sections = encounter.main_text.split(continue_regex);
+	code_blocks = encounter.main_text.match(continue_regex);
+  }
+  text_buffer += encounter_sections[step];
+  if (encounter_sections.length <= (step + 1)){
+    //Last step.
+	document.getElementById("encounter_text").innerHTML = text_buffer;
+    document.getElementById("options_text").style.display = "block";
+  } else {
+    button_code += '<a href="javascript:continueFromBreak(';
+    var x = step + 1;
+	button_code += x.toString();
+	button_code += ')">';
+	button_code += code_blocks[step].split(/(\[\[|\|continue\]\])/gi)[2];
+	button_code += "</a>";
+	document.getElementById("encounter_text").innerHTML = text_buffer + button_code;
+  }
 }
 
 function executeOption(which){
@@ -698,23 +746,35 @@ function executeOption(which){
     var initial_value = characters[affected_character].pValues[each["pValue"]];
     characters[affected_character].pValues[each["pValue"]] = blendChange(initial_value, each["change"]);
   }
-  //Change text of options list to show only the text of the option chosen by the player.
-  document.getElementById("options_list").innerHTML = '&gt; ' + current_page.options[parseInt(which)].text;
-  //Display text of chosen reaction.
-  document.getElementById("reaction_field").style.display = "block";
-  if (storyworld_data["debug_mode"]){//If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-    document.getElementById("reaction_text").innerHTML = printCharRelationships(current_antagonist, "<br>") + "<br>" + reactions[workingChoice].text;
-  } else {
-    document.getElementById("reaction_text").innerHTML = reactions[workingChoice].text;
-  }
   if (!(0 > turn)){
     //We already wrote the present encounter to the quick_historybook when we displayed the encounter. We also wrote it to the slow_historybook, but left the player and character choices "blank," (i.e. at -1.) Now we record the player and character choices in the slow_historybook.
     slow_historybook[turn] = {"encounter": current_page.id, "option": which, "reaction": workingChoice};
   }
+  //Change text of options list to show only the text of the option chosen by the player.
+  document.getElementById("options_list").innerHTML = '&gt; ' + current_page.options[parseInt(which)].text;
+  if (storyworld_data["debug_mode"]){//If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
+    text_buffer = printCharRelationships(current_antagonist, "<br>") + "<br>" + reactions[workingChoice].text;
+  } else {
+    text_buffer = reactions[workingChoice].text;
+  }
+  if (0 == storyworld_data["display_mode"]){
+    //Display text of chosen reaction.
+    document.getElementById("reaction_field").style.display = "block";
+    document.getElementById("reaction_text").innerHTML = text_buffer;
+  } else if (1 == storyworld_data["display_mode"]){
+    //In display mode 1, once the player selects an option the game clears the screen, displays the reaction text, and then displays the text of the next encounter.
+    document.getElementById("reaction_text").innerHTML = "";
+	selectEncounter();
+  }
 }
 
 //I decided to replace my "void encounter" feature with a basic screen saying "The End." Since I set the engine up to skip to the next turn with an acceptable encounter, after all. 2021 may 12.
-function loadTheEnd(){
+function loadTheEnd(record = true){
+  if(record){//if we're recording to the historybook and transcript:
+    //Update the transcript.
+    document.getElementById("transcript").innerHTML = playthrough_transcript;
+	refreshCollapsable(document.getElementById("transcript"));
+  }
   document.getElementById("encounter_text").innerHTML = "<b>THE END</b>";
   document.getElementById("options_text").style.display = "none";
   document.getElementById("reaction_field").style.display = "none";
@@ -725,6 +785,7 @@ function writeToTranscript(){
   playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + document.getElementById("encounter_text").innerHTML + "<p>" + document.getElementById("options_list").innerHTML + "</p><p>" + document.getElementById("reaction_text").innerHTML + "</p>";
 }
 
+//Update transcript with text of a specific encounter. Used when loading a saved game.
 function writeEncounterToTranscript(encounter_name, option, reaction){
   var encounter;
   encounter = encounters[encounter_name];
@@ -849,7 +910,7 @@ function selectEncounter(){
 	//If no encounters are deemed acceptable, display a message saying "THE END" instead of an encounter.
 	if (0 == acceptable_encounters_inc.length){
 	  if (0 == acceptable_encounters_exc.length){
-	    loadTheEnd();
+	    loadTheEnd(true);
 	  } else {
 	    if (turn < earliest_acceptable_turn){
 		  console.log("Increasing turn from " + turn + " to " + earliest_acceptable_turn + ".");

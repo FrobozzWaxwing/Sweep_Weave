@@ -785,6 +785,20 @@ text = "Set Storyworld to Debug Mode?"
 margin_right = 76.0
 margin_bottom = 40.0
 
+[node name="HBC2" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="DisplayModeLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC/HBC2"]
+margin_right = 40.0
+margin_bottom = 14.0
+text = "Use new display mode?"
+
+[node name="DisplayModeSwitch" type="CheckButton" parent="VBC/Bookspine/EditorTabs/Settings/VBC/HBC2"]
+margin_right = 76.0
+margin_bottom = 40.0
+pressed = true
+
 [node name="InterpreterTabs" type="TabContainer" parent="VBC/Bookspine"]
 margin_left = 689.0
 margin_right = 1366.0
@@ -1791,6 +1805,7 @@ align = 1
 [connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Settings/VBC/AuthorEdit" to="." method="_on_AuthorEdit_text_changed"]
 [connection signal="pressed" from="VBC/Bookspine/EditorTabs/Settings/VBC/ChangeTemplate" to="." method="_on_ChangeTemplate_pressed"]
 [connection signal="toggled" from="VBC/Bookspine/EditorTabs/Settings/VBC/HBC/DBMSwitch" to="." method="_on_DBMSwitch_toggled"]
+[connection signal="toggled" from="VBC/Bookspine/EditorTabs/Settings/VBC/HBC2/DisplayModeSwitch" to="." method="_on_DisplayModeSwitch_toggled"]
 [connection signal="pressed" from="VBC/Bookspine/InterpreterTabs/Statistics/VBC/RefreshStats" to="." method="_on_RefreshStats_pressed"]
 [connection signal="_end_node_move" from="VBC/Bookspine/InterpreterTabs/GraphView/VBC/GraphEdit" to="." method="_on_GraphEdit__end_node_move"]
 [connection signal="connection_request" from="VBC/Bookspine/InterpreterTabs/GraphView/VBC/GraphEdit" to="." method="_on_GraphEdit_connection_request"]
