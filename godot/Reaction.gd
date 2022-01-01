@@ -25,6 +25,13 @@ func get_index():
 		return option.reactions.find(self)
 	return -1
 
+func get_antagonist():
+	if (null != option):
+		if (null != option.encounter):
+			if (null != option.encounter.antagonist):
+				return option.encounter.antagonist
+	return null
+
 func compile(character_list, include_editor_only_variables = false):
 	var result = {}
 	result["text"] = text

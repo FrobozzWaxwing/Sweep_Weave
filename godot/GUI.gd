@@ -18,7 +18,7 @@ var storyworld_title = "New Storyworld"
 var storyworld_author = "Anonymous"
 var storyworld_debug_mode_on = false
 var storyworld_display_mode = 1 #0 is old display mode, (maintext, choice, reaction, next-button, clear screen, maintext...), 1 is new display mode, (maintext, choice, clear screen, reaction, maintext...)
-var sweepweave_version_number = "0.0.11"
+var sweepweave_version_number = "0.0.13"
 
 
 func unique_id():
@@ -313,11 +313,22 @@ func parse_reactions_data(data, incomplete_reactions, option):
 			reaction.consequence = encounters_directory[each["consequence_id"]]
 		else:
 			incomplete_reactions.append([reaction, each["consequence_id"]])
-		for x in each["pValue_changes"]:
-			print (str(x["character"]) + x["pValue"] + str(x["point"]))
-			var character = characters[x["character"]]
-			var new_pValueChange = Desideratum.new(character, x["pValue"], x["point"])
-			reaction.pValue_changes.append(new_pValueChange)
+		if (each.has("pValue_changes")):
+			for x in each["pValue_changes"]:
+				print (str(x["character"]) + x["pValue"] + str(x["point"]))
+				var character = characters[x["character"]]
+				var new_pValueChange = Desideratum.new(character, x["pValue"], x["point"])
+				reaction.pValue_changes.append(new_pValueChange)
+		elif (each.has("deltaLove")):
+			if (0 != each["deltaLove"]):
+				var new_deltaLove = Desideratum.new(reaction.get_antagonist(), "pBad_Good", each["deltaLove"])
+				reaction.pValue_changes.append(new_deltaLove)
+			if (0 != each["deltaTrust"]):
+				var new_deltaTrust = Desideratum.new(reaction.get_antagonist(), "pFalse_Honest", each["deltaTrust"])
+				reaction.pValue_changes.append(new_deltaTrust)
+			if (0 != each["deltaFear"]):
+				var new_deltaFear = Desideratum.new(reaction.get_antagonist(), "pTimid_Dominant", each["deltaFear"])
+				reaction.pValue_changes.append(new_deltaFear)
 		result.append(reaction)
 	return result
 
