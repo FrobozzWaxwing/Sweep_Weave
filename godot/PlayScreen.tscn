@@ -1,0 +1,164 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://PlayScreen.gd" type="Script" id=1]
+
+[node name="Background" type="ColorRect"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color( 0.25098, 0.25098, 0.25098, 1 )
+script = ExtResource( 1 )
+
+[node name="Layout" type="HSplitContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = -180
+
+[node name="VBC" type="VBoxContainer" parent="Layout"]
+margin_right = 497.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Historybook_Label" type="Label" parent="Layout/VBC"]
+margin_right = 497.0
+margin_bottom = 14.0
+text = "Historybook"
+
+[node name="Scroll_History" type="ScrollContainer" parent="Layout/VBC"]
+margin_top = 18.0
+margin_right = 497.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Historybook" type="ItemList" parent="Layout/VBC/Scroll_History"]
+margin_right = 497.0
+margin_bottom = 718.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="L2" type="HSplitContainer" parent="Layout"]
+margin_left = 509.0
+margin_right = 1366.0
+margin_bottom = 736.0
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = 80
+
+[node name="ColorRect" type="ColorRect" parent="Layout/L2"]
+margin_right = 502.0
+margin_bottom = 736.0
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color( 0, 0, 0.14902, 1 )
+
+[node name="VBC" type="VBoxContainer" parent="Layout/L2/ColorRect"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Play_Button" type="Button" parent="Layout/L2/ColorRect/VBC"]
+margin_right = 41.0
+margin_bottom = 20.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "Start"
+
+[node name="EncounterTitle" type="Label" parent="Layout/L2/ColorRect/VBC"]
+margin_top = 24.0
+margin_right = 502.0
+margin_bottom = 38.0
+
+[node name="MainText" type="RichTextLabel" parent="Layout/L2/ColorRect/VBC"]
+margin_top = 42.0
+margin_right = 502.0
+margin_bottom = 502.0
+rect_min_size = Vector2( 128, 128 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+bbcode_enabled = true
+
+[node name="Scroll_Options" type="ScrollContainer" parent="Layout/L2/ColorRect/VBC"]
+margin_top = 506.0
+margin_right = 502.0
+margin_bottom = 736.0
+rect_min_size = Vector2( 0, 128 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="OptionsList" type="ItemList" parent="Layout/L2/ColorRect/VBC/Scroll_Options"]
+margin_right = 502.0
+margin_bottom = 230.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBC" type="VBoxContainer" parent="Layout/L2"]
+margin_left = 514.0
+margin_right = 857.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+
+[node name="Castbook_Label" type="Label" parent="Layout/L2/VBC"]
+margin_right = 343.0
+margin_bottom = 14.0
+text = "Castbook"
+
+[node name="Scroll_Cast" type="ScrollContainer" parent="Layout/L2/VBC"]
+margin_top = 18.0
+margin_right = 343.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="Castbook" type="Tree" parent="Layout/L2/VBC/Scroll_Cast"]
+margin_right = 343.0
+margin_bottom = 718.0
+rect_min_size = Vector2( 0, 32 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Result_Label" type="Label" parent="Layout/L2/VBC"]
+visible = false
+margin_top = 22.0
+margin_right = 58.0
+margin_bottom = 36.0
+text = "Results:"
+clip_text = true
+
+[node name="Result_Display" type="Label" parent="Layout/L2/VBC"]
+visible = false
+margin_top = 22.0
+margin_right = 58.0
+margin_bottom = 36.0
+autowrap = true
+
+[node name="Scroll_Reactions" type="ScrollContainer" parent="Layout/L2/VBC"]
+visible = false
+margin_top = 379.0
+margin_right = 343.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="Reaction_Inclinations" type="Tree" parent="Layout/L2/VBC/Scroll_Reactions"]
+margin_right = 343.0
+margin_bottom = 357.0
+rect_min_size = Vector2( 0, 32 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[connection signal="item_activated" from="Layout/VBC/Scroll_History/Historybook" to="." method="_on_Historybook_item_activated"]
+[connection signal="pressed" from="Layout/L2/ColorRect/VBC/Play_Button" to="." method="_on_Play_Button_pressed"]
+[connection signal="item_activated" from="Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList" to="." method="_on_OptionsList_item_activated"]
+[connection signal="item_selected" from="Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList" to="." method="_on_OptionsList_item_selected"]

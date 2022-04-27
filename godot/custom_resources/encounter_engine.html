@@ -107,13 +107,34 @@ class Character_Reaction {
 }
 
 class Character {
-  constructor(name, pronoun, Bad_Good, False_Honest, Timid_Dominant) {
+  constructor(name, pronoun, bnumber_properties) {
     this.name = name;//The character's name.
     this.pronoun = pronoun;//They, she, he, etc.
-	this.Bad_Good = Bad_Good;//How good or bad this character is.
-	this.False_Honest = False_Honest;//How dishonest or honest this character is.
-	this.Timid_Dominant = Timid_Dominant;//How timid or dominant this character is.
-	this.pValues = {};//dictionary of pValues.
+	this.bnumber_properties = JSON.parse(JSON.stringify(bnumber_properties));//dictionary of personality traits.
+  }
+  lookup(text){
+	var result = 0;
+	var sign = 1;
+	var key = "";
+	if ("-" == text.charAt(0)){
+	  key = text.substr(1);
+	  sign = -1;
+	} else {
+	  key = text;
+	}
+	result = sign * this.bnumber_properties[key];
+	return result;
+  }
+  set_bnumber_property(key, value){
+    this.bnumber_properties[key] = value
+  }
+  printCharRelationships(delimiter){
+    let result = "";
+	result += "<b>Name:</b> " + this.name;
+    for (const [key, value] of Object.entries(this.bnumber_properties)) {
+      result += delimiter + "<b>" + key + ":</b> " + value;
+    }
+	return result;
   }
 }
 
@@ -181,15 +202,12 @@ function parseOptionsData(data){
 function importCharacterData(){
   characters = [];
   if (0 == storyworld_data.characters.length){
-    characters.push(new Character("Fate", "they", 0, 0, 0, 0, 0, 0));
+    characters.push(new Character("Fate", "they", {}, {}));
 	console.log("Warning: Storyworld includes no characters!");
   }
   var eachCh;
   for (eachCh of storyworld_data.characters){
-    var new_character = new Character(eachCh["name"], eachCh["pronoun"], eachCh["Bad_Good"], eachCh["False_Honest"], eachCh["Timid_Dominant"]);
-	new_character.pValues["pBad_Good"] = eachCh["pBad_Good"];
-	new_character.pValues["pFalse_Honest"] = eachCh["pFalse_Honest"];
-	new_character.pValues["pTimid_Dominant"] = eachCh["pTimid_Dominant"];
+    var new_character = new Character(eachCh["name"], eachCh["pronoun"], eachCh["bnumber_properties"]);
     characters.push(new_character);
   }
 }
@@ -211,6 +229,16 @@ function importGameData(){
 	}
     encounters[eachEn["id"]] = x_event;
   }
+}
+
+//Sorting comparison functions.
+function comparePageTitleAlphabetically(a, b){
+  if (a.title < b.title){
+    return -1;
+  } else if (a.title == b.title && a.id < b.id){
+    return -1;
+  }
+  return 1;
 }
 
 //-----------------------------
@@ -336,19 +364,6 @@ function displaySaveProfile(){
 //Section 5: Debugging
 //--------------------
 
-function printCharRelationships(who, delimiter){
-  //This function looks up a character's pValues towards the player character, compiles the information into a string, and returns the string.
-  if (characters[who] !== void 0){//If the value is not undefined:
-    var result = "<b>Name:</b> " + characters[who].name + delimiter;
-	result = result + "<b>Love:</b> " + characters[who].pValues["pBad_Good"] + delimiter;
-	result = result + "<b>Trust:</b> " + characters[who].pValues["pFalse_Honest"] + delimiter;
-	result = result + "<b>Fear:</b> " + characters[who].pValues["pTimid_Dominant"];
-	return result;
-  } else {
-    return "Invalid character lookup request.";
-  }
-}
-
 //-------------------------------------
 //Section 6: Prerequisite Checking Functionality
 //-------------------------------------
@@ -382,7 +397,7 @@ function compare_pValue_to_constant(who, pValue_id, operator, constant){
   if (characters[who] == void 0){//If character is undefined
     return false;
   }
-  var pValue = characters[who].pValues[pValue_id];
+  var pValue = characters[who].lookup(pValue_id);
   if ("==" == operator && pValue == constant){
     return true;
   } else if ("<" == operator && pValue < constant){
@@ -401,8 +416,8 @@ function compare_pValue_to_pValue(who1, pValue1_id, operator, who2, pValue2_id){
   if (characters[who1] == void 0 || characters[who2] == void 0){//If either character is undefined
     return false;
   }
-  var pValue1 = characters[who1].pValues[pValue1_id];
-  var pValue2 = characters[who2].pValues[pValue2_id];
+  var pValue1 = characters[who1].lookup(pValue1_id);
+  var pValue2 = characters[who2].lookup(pValue2_id);
   if ("==" == operator && pValue1 == pValue2){
     return true;
   } else if ("<" == operator && pValue1 < pValue2){
@@ -422,9 +437,9 @@ function query_max_pValue(pValue){
   var max_pValue = -1;
   var x;
   for (x in characters){
-	if (characters[x].pValues[pValue] >= max_pValue){
+	if (characters[x].lookup(pValue) >= max_pValue){
 	  max_character = x;
-      max_pValue = characters[x].pValues[pValue];
+      max_pValue = characters[x].lookup(pValue);
     }
   }
   return [max_character, max_pValue];
@@ -435,9 +450,9 @@ function query_min_pValue(pValue){
   var min_pValue = 1;
   var x;
   for (x in characters){
-	if (characters[x].pValues[pValue] <= min_pValue){
+	if (characters[x].lookup(pValue) <= min_pValue){
 	  min_character = x;
-      min_pValue = characters[x].pValues[pValue];
+      min_pValue = characters[x].lookup(pValue);
     }
   }
   return [min_character, min_pValue];
@@ -447,7 +462,7 @@ function query_median_pValue(pValue){
   var unsorted_array = [];
   var x;
   for (x of characters){
-	unsorted_array.push(x.pValues[pValue]);
+	unsorted_array.push(x.lookup(pValue));
   }
   var mid = Math.ceil(unsorted_array.length / 2);
   var sorted_array = unsorted_array.sort();
@@ -459,7 +474,7 @@ function query_mean_pValue(pValue){
   var sum = 0;
   var x;
   for (x of characters){
-	sum += x.pValues[pValue];
+	sum += x.lookup(pValue);
   }
   return sum / characters.length;
 }
@@ -506,7 +521,7 @@ function compare_statistic_to_pValue(prerequisite){
   } else if ("mean" == prerequisite["who1"]){
     statistic = query_mean_pValue(prerequisite["pValue1"]);
   }
-  pValue = characters[who2].pValues[prerequisite["pValue2"]];
+  pValue = characters[who2].lookup(prerequisite["pValue2"]);
   if ("==" == operator && statistic == pValue){
     return true;
   } else if ("<" == operator && statistic < pValue){
@@ -583,7 +598,7 @@ function loadEncounter(encounter_id, record = true) {
   }
   if (storyworld_data["debug_mode"]){
     //If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-    current_main_text += "<b>(" + encounter.title + ")</b><br>" + printCharRelationships(current_antagonist, "<br>") + "<br>";
+    current_main_text += "<b>(" + encounter.title + ")</b><br>" + characters[current_antagonist].printCharRelationships("<br>") + "<br>";
   }
   var continue_regex = /\[\[.*\|continue\]\]/gim;
   if (-1 != encounter.main_text.search(continue_regex)){
@@ -712,6 +727,7 @@ function executeOption(which){
   for (each of reactions){
     //This chooses how a character reacts to the player's choice.
 	var weight = ((each.blend_weight + 1) / 2);
+	/*
 	var blend_x = each.blend_x;
 	var blend_x_sign = 1;
 	if ("-" == blend_x.charAt(0)){
@@ -726,6 +742,9 @@ function executeOption(which){
 	  blend_y_sign = -1;
 	}
 	var blend_y_value = blend_y_sign * characters[current_antagonist].pValues[blend_y];
+	*/
+	var blend_x_value = characters[current_antagonist].lookup(each.blend_x);
+	var blend_y_value = characters[current_antagonist].lookup(each.blend_y);
     var latestInclination = (blend_x_value * (1 - weight)) + (blend_y_value * weight);
     if (latestInclination >= topInclination){
       topInclination = latestInclination;
@@ -743,8 +762,8 @@ function executeOption(which){
 	if (-1 == affected_character){
 	  affected_character = current_antagonist;
 	}
-    var initial_value = characters[affected_character].pValues[each["pValue"]];
-    characters[affected_character].pValues[each["pValue"]] = blendChange(initial_value, each["change"]);
+    var initial_value = characters[affected_character].lookup(each["pValue"]);
+    characters[affected_character].set_bnumber_property(each["pValue"], blendChange(initial_value, each["change"]));
   }
   if (!(0 > turn)){
     //We already wrote the present encounter to the quick_historybook when we displayed the encounter. We also wrote it to the slow_historybook, but left the player and character choices "blank," (i.e. at -1.) Now we record the player and character choices in the slow_historybook.
@@ -753,7 +772,7 @@ function executeOption(which){
   //Change text of options list to show only the text of the option chosen by the player.
   document.getElementById("options_list").innerHTML = '&gt; ' + current_page.options[parseInt(which)].text;
   if (storyworld_data["debug_mode"]){//If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-    text_buffer = printCharRelationships(current_antagonist, "<br>") + "<br>" + reactions[workingChoice].text;
+    text_buffer = characters[current_antagonist].printCharRelationships("<br>") + "<br>" + reactions[workingChoice].text;
   } else {
     text_buffer = reactions[workingChoice].text;
   }
@@ -806,7 +825,7 @@ function desirability(encounter){
   for (desideratum of encounter.desiderata){
     var who = characters[desideratum["character"]];
 	var pValue = 0;
-	pValue = who.pValues[desideratum["pValue"]];
+	pValue = who.lookup(desideratum["pValue"]);
 	var difference = pValue - desideratum["point"];
     distance += (difference * difference);
   }
@@ -820,8 +839,11 @@ function loadMostDesirableEncounter(acceptableEncounters){
   var flag = true;
   var shortest_distance = 0;
   var each;
+  //To help keep our results consistent and relatively predictable,
+  //sort our array of acceptable encounters alphabetically, by encounter title.
+  acceptableEncounters.sort(comparePageTitleAlphabetically);
   for (each of acceptableEncounters){
-    encounter = encounters[each];
+    var encounter = encounters[each];
 	if (flag){//First iteration of loop.
 	  shortest_distance = desirability(encounter);
 	  next_page = each;
@@ -878,9 +900,13 @@ function selectEncounter(){
 		if (acceptable){
 		  for (x of encounter.prerequisites){
 			var prereqStatus = evaluatePrerequisite(x);
-		    if (false == x["negated"] && !(prereqStatus)){
+		    /*if (false == x["negated"] && !(prereqStatus)){
 			  acceptable = false;
 			} else if (true == x["negated"] && prereqStatus){
+			  acceptable = false;
+			}
+			Why did I do this the hard way before?*/
+			if (x["negated"] == prereqStatus){
 			  acceptable = false;
 			}
 		  }
@@ -892,10 +918,10 @@ function selectEncounter(){
 		      acceptable_encounters_inc.push(encounter.id);
 		    } else {
 			  if (0 == acceptable_encounters_exc.length){
-			    earliest_acceptable_turn = encounter.earliest_turn
+			    earliest_acceptable_turn = encounter.earliest_turn;
 			  } else {
 			    if (earliest_acceptable_turn > encounter.earliest_turn){
-				  earliest_acceptable_turn = encounter.earliest_turn
+				  earliest_acceptable_turn = encounter.earliest_turn;
 				}
 			  }
 	          console.log("Encounter: " + encounter.title + " deemed acceptable for later turn.");

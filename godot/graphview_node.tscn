@@ -39,9 +39,6 @@ slot/4/right_enabled = false
 slot/4/right_type = 0
 slot/4/right_color = Color( 1, 1, 1, 1 )
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Prereq_Label" type="Label" parent="."]
 margin_left = 16.0

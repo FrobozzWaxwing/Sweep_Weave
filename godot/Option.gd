@@ -8,6 +8,7 @@ var performability_prerequisites = []
 var reactions = []
 #Variables for editor:
 var graph_offset = Vector2(0, 0)
+var occurrences = 0 #Number of times this option occurs during a rehearsal.
 
 func _init(in_encounter, in_text, in_graph_offset = Vector2(0, 0)):
 	encounter = in_encounter
@@ -36,3 +37,23 @@ func compile(character_list, include_editor_only_variables = false):
 		result["graph_offset_x"] = graph_offset.x
 		result["graph_offset_y"] = graph_offset.y
 	return result
+
+func set_as_copy_of(original):
+	encounter = original.encounter
+	text = original.text
+	graph_offset = original.graph_offset
+	visibility_prerequisites = []
+	for each in original.visibility_prerequisites:
+		var new_prereq = Prerequisite.new(0, false)
+		new_prereq.set_as_copy_of(each)
+		visibility_prerequisites.append(new_prereq)
+	performability_prerequisites = []
+	for each in original.performability_prerequisites:
+		var new_prereq = Prerequisite.new(0, false)
+		new_prereq.set_as_copy_of(each)
+		performability_prerequisites.append(new_prereq)
+	reactions = []
+	for each in original.reactions:
+		var new_reaction = Reaction.new(null, "", "", "", 0.0)
+		new_reaction.set_as_copy_of(each)
+		reactions.append(new_reaction)

@@ -27,9 +27,29 @@ func explain_pValue_change():
 		output += "Decrease (" + character.char_name + ")." + pValue + " " + str(percentage) + "% of the distance from its present value to -1."
 	return output
 
+func sign_and_pValue():
+	if (0 <= point):
+		return pValue
+	else:
+		return "-" + pValue
+
 func compile(character_list):
 	var output = {}
 	output["character"] = character_list.find(character)
 	output["pValue"] = pValue
 	output["point"] = point
 	return output
+
+func set_as_copy_of(original):
+	character = original.character
+	pValue = original.pValue
+	point = original.point
+
+func data_to_string():
+	var result = "Character: ("
+	if (null != character):
+		result += character.char_name
+	else:
+		result += "null"
+	result += ") Key: (" + pValue + ") Point: (" + str(point) + ")"
+	return result

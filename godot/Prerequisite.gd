@@ -33,11 +33,11 @@ var option = null #Only for historybook lookups. Translated into a numerical ind
 var reaction = null #Only for historybook lookups. Translated into a numerical index for interpreter.
 var encounter_scene = "" #Only for scene inqueries.
 var who1 = null
-var pValue1 = "pBad_Good"
+var pValue1 = null#"pBad_Good"
 var operator = ">="
 var constant = 0
 var who2 = null
-var pValue2 = "pBad_Good"
+var pValue2 = null#"pBad_Good"
 
 func _init(in_prereq_type, in_negated):
 	prereq_type = in_prereq_type
@@ -72,3 +72,17 @@ func compile():
 	else:
 		output["reaction"] = reaction.get_index()
 	return output
+
+func set_as_copy_of(original):
+	prereq_type = original.prereq_type
+	negated = original.negated
+	encounter = original.encounter
+	option = original.option
+	reaction = original.reaction
+	encounter_scene = original.encounter_scene
+	who1 = original.who1
+	pValue1 = original.pValue1
+	operator = original.operator
+	constant = original.constant
+	who2 = original.who2
+	pValue2 = original.pValue2
