@@ -9,6 +9,7 @@ var node_scene = preload("res://graphview_node.tscn")
 var encounters_to_delete = null
 var options_to_delete = null
 var reactions_to_delete = null
+var effect_to_delete = null
 #Clipboard system variables:
 var clipboard = [] #Copies of the clipped data.
 var clipped_originals = [] #References to the original objects that were clipped.
@@ -80,83 +81,90 @@ func refresh_reaction_list(cutoff = 50):
 
 func refresh_character_lists():
 	$HSC/Column2/HBCTurn/VBC3/AntagonistPicker.clear()
-	$EditEncounterSettings/DesideratumSelection/HBC/CharacterSelect.clear()
-	$pValueChangeSelection/VBC/HBC/CharacterSelect.clear()
 	var index = 0
 	for entry in storyworld.characters:
 		$HSC/Column2/HBCTurn/VBC3/AntagonistPicker.add_item(entry.char_name)
 		$HSC/Column2/HBCTurn/VBC3/AntagonistPicker.set_item_metadata(index, entry)
-		$EditEncounterSettings/DesideratumSelection/HBC/CharacterSelect.add_item(entry.char_name)
-		$EditEncounterSettings/DesideratumSelection/HBC/CharacterSelect.set_item_metadata(index, entry)
-		$pValueChangeSelection/VBC/HBC/CharacterSelect.add_item(entry.char_name)
-		$pValueChangeSelection/VBC/HBC/CharacterSelect.set_item_metadata(index, entry)
 		index += 1
 	if (null != current_encounter):
 		$HSC/Column2/HBCTurn/VBC3/AntagonistPicker.select(storyworld.characters.find(current_encounter.antagonist))
 	else:
 		$HSC/Column2/HBCTurn/VBC3/AntagonistPicker.select(0)
-	$EditEncounterSettings/DesideratumSelection/HBC/CharacterSelect.select(0)
-	$pValueChangeSelection/VBC/HBC/CharacterSelect.select(0)
+	refresh_bnumber_property_lists()
 
 func replace_character(deleted_character, replacement):
 	print("Replacing " + deleted_character.char_name + " with " + replacement.char_name)
-	for encounter in storyworld.encounters:
-		for desid in encounter.desiderata:
-			if (desid.character == deleted_character):
-				desid.character = replacement
-				log_update(encounter)
-		if (encounter.antagonist == deleted_character):
-			encounter.antagonist = replacement
-			log_update(encounter)
-	storyworld.characters.erase(deleted_character)
-	deleted_character.call_deferred("free")
+#	for encounter in storyworld.encounters:
+#		for desid in encounter.desirability_script.contents.operands:
+#			if (desid is Desideratum and desid.character == deleted_character):
+#				desid.character = replacement
+#				log_update(encounter)
+#		if (encounter.antagonist == deleted_character):
+#			encounter.antagonist = replacement
+#			log_update(encounter)
+#		for option in encounter.options:
+#			for reaction in option.reactions:
+#				reaction.desirability_script.
+#	storyworld.characters.erase(deleted_character)
+#	deleted_character.call_deferred("free")
 	log_update(null)
 	refresh_character_lists()
 
 func add_character_to_lists(character):
 	$HSC/Column2/HBCTurn/VBC3/AntagonistPicker.add_item(character.char_name)
-	$pValueChangeSelection/VBC/HBC/CharacterSelect.add_item(character.char_name)
+	$HSC/Column2/HBCTurn/VBC3/AntagonistPicker.set_item_metadata(storyworld.characters.size() - 1, character)
+	refresh_bnumber_property_lists()
 
 func refresh_character_names():
 	for index in range($HSC/Column2/HBCTurn/VBC3/AntagonistPicker.get_item_count()):
 		var character = $HSC/Column2/HBCTurn/VBC3/AntagonistPicker.get_item_metadata(index)
 		$HSC/Column2/HBCTurn/VBC3/AntagonistPicker.set_item_text(index, character.char_name)
-	for index in range($EditEncounterSettings/DesideratumSelection/HBC/CharacterSelect.get_item_count()):
-		var character = $EditEncounterSettings/DesideratumSelection/HBC/CharacterSelect.get_item_metadata(index)
-		$EditEncounterSettings/DesideratumSelection/HBC/CharacterSelect.set_item_text(index, character.char_name)
-	for index in range($pValueChangeSelection/VBC/HBC/CharacterSelect.get_item_count()):
-		var character = $pValueChangeSelection/VBC/HBC/CharacterSelect.get_item_metadata(index)
-		$pValueChangeSelection/VBC/HBC/CharacterSelect.set_item_text(index, character.char_name)
+	refresh_bnumber_property_lists()
 
-func refresh_pValue_Change_List():
-	$HSC/Column3/pValueChangeList.clear()
+func refresh_reaction_after_effects_list():
+	$HSC/Column3/AfterReactionEffectsDisplay.clear()
+	$HSC/Column3/AfterReactionEffectsDisplay.list_to_display.clear()
 	if (null != current_reaction):
-		for change in current_reaction.pValue_changes:
-			$HSC/Column3/pValueChangeList.add_item(change.explain_pValue_change())
-		if (0 != $HSC/Column3/pValueChangeList.get_item_count()):
-			$HSC/Column3/pValueChangeList.select(0)
+		for change in current_reaction.after_effects:
+			var entry = {"text": change.data_to_string(), "metadata": change}
+			$HSC/Column3/AfterReactionEffectsDisplay.list_to_display.append(entry)
+	$HSC/Column3/AfterReactionEffectsDisplay.refresh()
 
 func refresh_bnumber_property_lists():
-	$HSC/Column3/HBCTT/Trait1.clear()
-	$HSC/Column3/HBCTT/Trait2.clear()
-	$EditEncounterSettings/DesideratumSelection/HBC/pValueSelect.clear()
-	$pValueChangeSelection/VBC/HBC/pValueSelect.clear()
-	for bnumber_property in storyworld.personality_model.keys():
-		$HSC/Column3/HBCTT/Trait1.add_item(bnumber_property)
-		$HSC/Column3/HBCTT/Trait1.add_item("-" + bnumber_property)
-		$HSC/Column3/HBCTT/Trait2.add_item(bnumber_property)
-		$HSC/Column3/HBCTT/Trait2.add_item("-" + bnumber_property)
-		$EditEncounterSettings/DesideratumSelection/HBC/pValueSelect.add_item(bnumber_property)
-		$pValueChangeSelection/VBC/HBC/pValueSelect.add_item(bnumber_property)
+	$HSC/Column3/HBCTT/Trait1Selector.reset()
+	$HSC/Column3/HBCTT/Trait2Selector.reset()
+	if (null != current_reaction):
+		if (current_reaction.desirability_script is ScriptManager):
+			if (current_reaction.desirability_script.contents is BlendOperator and 3 == current_reaction.desirability_script.contents.operands.size()):
+				if (current_reaction.desirability_script.contents.operands[0] is BNumberPointer):
+					$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents.operands[0])
+				if (current_reaction.desirability_script.contents.operands[1] is BNumberPointer):
+					$HSC/Column3/HBCTT/Trait2Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents.operands[1])
+	$HSC/Column3/HBCTT/Trait1Selector.allow_root_character_editing = true
+	$HSC/Column3/HBCTT/Trait1Selector.refresh()
+	$HSC/Column3/HBCTT/Trait2Selector.allow_root_character_editing = true
+	$HSC/Column3/HBCTT/Trait2Selector.refresh()
+	$EditEncounterSettings/DesideratumSelection/VBC/HBC/PropertySelector.reset()
+	$EditEncounterSettings/DesideratumSelection/VBC/HBC/PropertySelector.refresh()
+	$pValueChangeSelection/VBC/HBC/PropertySelector.reset()
+	$pValueChangeSelection/VBC/HBC/PropertySelector.refresh()
+	refresh_reaction_after_effects_list()
 
 func load_Reaction(reaction):
 	current_reaction = reaction
+	$HSC/Column3/HBCLSL/BlendWeightSelector.set_layout("", 1)
+	$HSC/Column3/HBCLSL/BlendWeightSelector.storyworld = storyworld
+	$HSC/Column3/HBCLSL/BlendWeightSelector.reset()
+	$HSC/Column3/HBCTT/Trait1Selector.allow_coefficient_editing = true
+	$HSC/Column3/HBCTT/Trait1Selector.storyworld = storyworld
+	$HSC/Column3/HBCTT/Trait1Selector.reset()
+	$HSC/Column3/HBCTT/Trait2Selector.allow_coefficient_editing = true
+	$HSC/Column3/HBCTT/Trait2Selector.storyworld = storyworld
+	$HSC/Column3/HBCTT/Trait2Selector.reset()
 	if (null == reaction):
 		$HSC/Column3/ReactionText.text = ""
-		$HSC/Column3/IncBlendWeightLabel.text = "Inclination blend weight: " + str(0)
-		$HSC/Column3/HBCLSL/InclinationHSlider.value = 0
-		$HSC/Column3/HBCTT/Trait1.select(0)
-		$HSC/Column3/HBCTT/Trait2.select(0)
+		$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability blend weight: " + str(0)
+		$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
 		$HSC/Column3/HBCConsequence/CurrentConsequence.text = "No consequence."
 		for each in $HSC/Column3.get_children():
 			if ($HSC/Column3/Null_Reaction_Label == each):
@@ -164,22 +172,35 @@ func load_Reaction(reaction):
 			else:
 				each.visible = false
 	else:
-		$HSC/Column3/ReactionText.text = reaction.text
-		$HSC/Column3/IncBlendWeightLabel.text = "Inclination blend weight: " + str(reaction.blend_weight)
-		$HSC/Column3/HBCLSL/InclinationHSlider.value = (reaction.blend_weight)
-		$HSC/Column3/HBCTT/Trait1.select(trait_index(reaction.blend_x.sign_and_pValue()))
-		$HSC/Column3/HBCTT/Trait2.select(trait_index(reaction.blend_y.sign_and_pValue()))
-		if (null == reaction.consequence):
-			$HSC/Column3/HBCConsequence/CurrentConsequence.text = "No consequence."
-		else:
-			$HSC/Column3/HBCConsequence/CurrentConsequence.text = reaction.consequence.title
 		for each in $HSC/Column3.get_children():
 			if ($HSC/Column3/Null_Reaction_Label == each):
 				each.visible = false
 			else:
 				each.visible = true
-#		$HSC/Column3/ReactionsScroll/ReactionList.select(reaction.get_index())
-	refresh_pValue_Change_List()
+		$HSC/Column3/ReactionText.text = reaction.text
+		if (reaction.desirability_script is ScriptManager
+			and reaction.desirability_script.contents is BlendOperator
+			and 3 == reaction.desirability_script.contents.operands.size()
+			and reaction.desirability_script.contents.operands[2] is BNumberConstant
+			and reaction.desirability_script.contents.operands[0] is BNumberPointer
+			and reaction.desirability_script.contents.operands[1] is BNumberPointer):
+			$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability blend weight: " + str(reaction.desirability_script.contents.operands[2].get_value())
+			$HSC/Column3/HBCLSL/BlendWeightSelector.operator.set_value(reaction.desirability_script.contents.operands[2].get_value())
+			$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
+			$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(reaction.desirability_script.contents.operands[0])
+			$HSC/Column3/HBCTT/Trait1Selector.refresh()
+			$HSC/Column3/HBCTT/Trait2Selector.selected_property.set_as_copy_of(reaction.desirability_script.contents.operands[1])
+			$HSC/Column3/HBCTT/Trait2Selector.refresh()
+			$HSC/Column3/HBCLSL.visible = true
+			$HSC/Column3/HBCTT.visible = true
+		else:
+			$HSC/Column3/HBCLSL.visible = false
+			$HSC/Column3/HBCTT.visible = false
+		if (null == reaction.consequence):
+			$HSC/Column3/HBCConsequence/CurrentConsequence.text = "No consequence."
+		else:
+			$HSC/Column3/HBCConsequence/CurrentConsequence.text = reaction.consequence.title
+	refresh_reaction_after_effects_list()
 
 func load_Option(option):
 	current_option = option
@@ -192,15 +213,18 @@ func load_Option(option):
 		if (0 < option.reactions.size()):
 			load_Reaction(option.reactions[0])
 			$HSC/Column3/ReactionsScroll/ReactionList.select(0)
-#		$HSC/Column2/OptionsScroll/OptionsList.select(option.get_index())
 
 func load_Encounter(encounter):
+	if (null == encounter):
+		Clear_Encounter_Editing_Screen()
+		return
 	current_encounter = encounter
 	print("Loading Encounter: " + encounter.title)
 	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = encounter.title
 	$HSC/Column2/EncounterMainTextEdit.text = encounter.main_text
 	$HSC/Column2/HBCTurn/VBC/EarliestTurn.value = encounter.earliest_turn
 	$HSC/Column2/HBCTurn/VBC2/LatestTurn.value = encounter.latest_turn
+	refresh_character_lists()
 	$HSC/Column2/HBCTurn/VBC3/AntagonistPicker.select(storyworld.characters.find(encounter.antagonist))
 	refresh_option_list()
 	if (0 < encounter.options.size()):
@@ -228,11 +252,9 @@ func Clear_Encounter_Editing_Screen():
 	$HSC/Column3/ReactionsScroll/ReactionList.clear()
 	$HSC/Column2/OptionText.text = ""
 	$HSC/Column3/ReactionText.text = ""
-	$HSC/Column3/IncBlendWeightLabel.text = "Inclination blend weight: 0"
-	$HSC/Column3/HBCLSL/InclinationHSlider.value = 0
-	$HSC/Column3/HBCTT/Trait1.select(0)
-	$HSC/Column3/HBCTT/Trait2.select(0)
+	$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability blend weight: 0"
 	$HSC/Column3/HBCConsequence/CurrentConsequence.text = ""
+	refresh_bnumber_property_lists()
 	load_Option(null)
 
 func load_and_focus_first_encounter():
@@ -245,33 +267,40 @@ func log_update(encounter = null):
 	if (null != encounter):
 		encounter.log_update()
 	storyworld.log_update()
-	OS.set_window_title("Encounter Editor - " + storyworld.storyworld_title + "*")
+	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
 
 func _on_AddButton_pressed():
-	var new_encounter = Encounter.new(storyworld, "encounter_" + storyworld.unique_id(), "Encounter " + str(storyworld.unique_id_seed-1), "", 0, 1000, storyworld.characters[0], [], storyworld.unique_id_seed-1)
-	var new_option = Option.new(new_encounter, "What does the user do?")
+	var new_index = storyworld.unique_id_seeds["encounter"]
+	var new_encounter = null
+	if (0 < storyworld.characters.size()):
+		new_encounter = Encounter.new(storyworld, "encounter_" + storyworld.unique_id(), "Encounter " + str(new_index), "", 0, 1000, storyworld.characters[0], [], new_index)
+	else:
+		new_encounter = Encounter.new(storyworld, "encounter_" + storyworld.unique_id(), "Encounter " + str(new_index), "", 0, 1000, Actor.new(storyworld, "An Error occurred. Please ad characters to your storyworld.", ""), [], new_index)
+	var new_option = create_new_generic_option(new_encounter)
 	var blend_x = null
 	var blend_y = null
-	if (0 < storyworld.personality_model.size()):
-		var properties = storyworld.personality_model.keys()
+	if (0 < storyworld.authored_property_directory.size()):
+		var properties = storyworld.authored_property_directory.keys()
 		blend_x = properties[0]
-		if (1 < storyworld.personality_model.size()):
+		if (1 < storyworld.authored_property_directory.size()):
 			blend_y = properties[1]
-	var new_reaction = Reaction.new(new_option, "How does the antagonist respond?", {"character": storyworld.characters[0], "pValue": blend_x, "point": 1}, {"character": storyworld.characters[0], "pValue": blend_y, "point": 1}, 0)
 	new_encounter.options.append(new_option)
-	new_option.reactions.append(new_reaction)
 	storyworld.add_encounter(new_encounter)
 	log_update(new_encounter)
 	refresh_encounter_list()
 	emit_signal("refresh_graphview")
+	current_encounter = null
+	current_option = null
+	current_reaction = null
 	load_Encounter(new_encounter)
+	$Column1/VScroll/EncountersList.select(storyworld.encounters.find(new_encounter))
 
 func _on_Edit_pressed():
 	if ($Column1/VScroll/EncountersList.is_anything_selected()):
 		var selection = $Column1/VScroll/EncountersList.get_selected_items()
-		var encounter_id = selection[0]
-		var encounter_to_edit = storyworld.encounters[encounter_id]
+		var encounter_index = selection[0]
+		var encounter_to_edit = storyworld.encounters[encounter_index]
 		load_Encounter(encounter_to_edit)
 
 func _on_EncountersList_item_activated(index):
@@ -296,6 +325,7 @@ func _on_Duplicate_pressed():
 		emit_signal("refresh_graphview")
 		if (encounter_to_edit != null):
 			load_Encounter(encounter_to_edit)
+			$Column1/VScroll/EncountersList.select(storyworld.encounters.find(encounter_to_edit))
 
 func _on_EncounterTitleEdit_text_changed(new_text):
 	#Change encounter title
@@ -315,10 +345,30 @@ func _on_EncounterMainTextEdit_text_changed():
 		emit_signal("refresh_graphview")
 
 func _on_ConfirmEncounterDeletion_confirmed():
+	var encounter_to_select = null
+	var selection_index = storyworld.encounters.find(current_encounter) - 1
+	if (null != current_encounter and encounters_to_delete.has(current_encounter) and encounters_to_delete.size() < storyworld.encounters.size()):
+		while (-1 < selection_index):
+			if (encounters_to_delete.has(storyworld.encounters[selection_index])):
+				selection_index -= 1
+			else:
+				encounter_to_select = storyworld.encounters[selection_index]
+				break
+		if (null == encounter_to_select):
+			selection_index = storyworld.encounters.find(current_encounter) + 1
+			while (selection_index < storyworld.encounters.size()):
+				if (encounters_to_delete.has(storyworld.encounters[selection_index])):
+					selection_index += 1
+				else:
+					encounter_to_select = storyworld.encounters[selection_index]
+					break
+		load_Encounter(encounter_to_select)
 	for each in encounters_to_delete:
 		storyworld.delete_encounter(each)
 	log_update(null)
 	refresh_encounter_list()
+	if (null != encounter_to_select):
+		$Column1/VScroll/EncountersList.select(selection_index)
 	emit_signal("refresh_graphview")
 
 func _on_DeleteButton_pressed():
@@ -346,30 +396,47 @@ func _on_PrereqDelete_pressed():
 		var selection = $EditEncounterSettings/VBC/HBC/VBC/Scroll/PrerequisiteList.get_selected_items()
 		var selected_prerequisites = []
 		for each in selection:
-			selected_prerequisites.append(current_encounter.prerequisites[each])
+			selected_prerequisites.append(current_encounter.acceptability_script.contents.operands[each + 1])
 		for each in selected_prerequisites:
-			current_encounter.prerequisites.erase(each)
+			current_encounter.acceptability_script.contents.operands.erase(each)
 		$EditEncounterSettings/VBC/HBC/VBC/Scroll/PrerequisiteList.clear()
-		for entry in current_encounter.prerequisites:
-			$EditEncounterSettings/VBC/HBC/VBC/Scroll/PrerequisiteList.add_item(entry.summarize())
+		for entry in current_encounter.acceptability_script.contents.operands:
+			if (entry is EventPointer):
+				$EditEncounterSettings/VBC/HBC/VBC/Scroll/PrerequisiteList.add_item(entry.summarize())
 		log_update(current_encounter)
+		emit_signal("refresh_graphview")
 
 func _on_EarliestTurn_value_changed(value):
 	if (null != current_encounter):
-#		current_encounter.earliest_turn = $HSC/Column2/HBCTurn/VBC/EarliestTurn.value
 		current_encounter.earliest_turn = value
 		log_update(current_encounter)
 
 func _on_LatestTurn_value_changed(value):
 	if (null != current_encounter):
-#		current_encounter.latest_turn = $HSC/Column2/HBCTurn/VBC2/LatestTurn.value
 		current_encounter.latest_turn = value
 		log_update(current_encounter)
 
-func _on_AntagonistPicker_item_selected(index):
-	if (null != current_encounter):
-		current_encounter.antagonist = storyworld.characters[index]
-		log_update(current_encounter)
+#func _on_AntagonistPicker_item_selected(index):
+#	var new_antagonist = $HSC/Column2/HBCTurn/VBC3/AntagonistPicker.get_selected_metadata()
+#	var log_text = "Changing antagonist of \""
+#	if (null != current_encounter):
+#		log_text += current_encounter.title
+#		for option in current_encounter.options:
+#			for reaction in option.reactions:
+##				reaction.desirability_script.search_and_replace(current_encounter.antagonist, new_antagonist)
+#				pass
+#		current_encounter.antagonist = new_antagonist #storyworld.characters[index]
+#		refresh_bnumber_property_lists()
+#		log_update(current_encounter)
+#	else:
+#		log_text += "Null Encounter"
+#	log_text += "\" to \""
+#	if (null != new_antagonist and new_antagonist is Actor):
+#		log_text += new_antagonist.char_name
+#	else:
+#		log_text += "Null character."
+#	log_text += "\""
+#	print (log_text)
 
 #Options and Reactions interface elements:
 #Option editing interface:
@@ -394,9 +461,12 @@ func _on_ConfirmOptionDeletion_confirmed():
 	for option in options_to_delete:
 		print("Deleting option: " + option.text.left(20))
 		for encounter in storyworld.encounters:
-			for prereq in encounter.prerequisites:
-				if (prereq.option == option):
-					prereq.option = null
+			if (encounter.acceptability_script.search_and_replace(option, null)):
+				log_update(encounter)
+			for each in encounter.options:
+				if (each.visibility_script.search_and_replace(option, null)):
+					log_update(encounter)
+				if (each.performability_script.search_and_replace(option, null)):
 					log_update(encounter)
 		current_encounter.options.erase(option)
 		option.call_deferred("free")
@@ -524,12 +594,6 @@ func _on_OptionText_text_changed(new_text):
 				var index = current_option.get_index()
 				optionslist.set_item_text(index, current_option.text.left(50) + "...")
 				optionslist.set_item_tooltip(index, current_option.text)
-#		var selection = $HSC/Column2/OptionsScroll/OptionsList.get_selected_items()
-#		var which = 0
-#		if (0 < selection.size()):
-#			which = selection[0]
-#		refresh_option_list()
-#		$HSC/Column2/OptionsScroll/OptionsList.select(which)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
@@ -566,6 +630,8 @@ func _on_OptionsList_item_rmb_selected(index, at_position):
 		context_menu.popup(Rect2(mouse_position.x, mouse_position.y, context_menu.rect_size.x, context_menu.rect_size.y))
 
 func add_options_at_position(options_to_add, position):
+	if (0 == options_to_add.size()):
+		return
 	var copies_to_add = []
 	for object in options_to_add:
 		var copy = create_new_generic_option()
@@ -586,8 +652,14 @@ func add_options_at_position(options_to_add, position):
 		current_encounter.options.append_array(copies_to_add)
 	refresh_option_list()
 	if (0 < current_encounter.options.size()):
-		load_Option(copies_to_add[0])
-		$HSC/Column2/OptionsScroll/OptionsList.select(copies_to_add[0].get_index())
+		if (0 < copies_to_add.size()):
+			load_Option(copies_to_add[0])
+			$HSC/Column2/OptionsScroll/OptionsList.select(copies_to_add[0].get_index())
+		else:
+			load_Option(current_encounter.options[0])
+			$HSC/Column2/OptionsScroll/OptionsList.select(current_encounter.options[0].get_index())
+	else:
+		load_Option(null)
 	update_wordcount(current_encounter)
 	log_update(current_encounter)
 	emit_signal("refresh_graphview")
@@ -627,9 +699,12 @@ func delete_clipped_originals():
 			if (object is Option):
 				print("Deleting option: " + object.text.left(20))
 				for encounter in storyworld.encounters:
-					for prereq in encounter.prerequisites:
-						if (prereq.option == object):
-							prereq.option = null
+					if (encounter.acceptability_script.search_and_replace(object, null)):
+						log_update(encounter)
+					for option in encounter.options:
+						if (option.visibility_script.search_and_replace(object, null)):
+							log_update(encounter)
+						if (option.performability_script.search_and_replace(object, null)):
 							log_update(encounter)
 				object.encounter.options.erase(object)
 				update_wordcount(object.encounter)
@@ -646,9 +721,12 @@ func delete_clipped_originals():
 			if (object is Reaction):
 				print("Deleting reaction: " + object.text.left(20))
 				for encounter in storyworld.encounters:
-					for prereq in encounter.prerequisites:
-						if (prereq.reaction == object):
-							prereq.reaction = null
+					if (encounter.acceptability_script.search_and_replace(object, null)):
+						log_update(encounter)
+					for option in encounter.options:
+						if (option.visibility_script.search_and_replace(object, null)):
+							log_update(encounter)
+						if (option.performability_script.search_and_replace(object, null)):
 							log_update(encounter)
 				object.option.reactions.erase(object)
 				update_wordcount(object.option.encounter)
@@ -718,7 +796,21 @@ func _on_OptionsContextMenu_id_pressed(id):
 #Reaction editing interface:
 
 func create_new_generic_reaction(option = current_option):
-	return Reaction.new(option, "How does the antagonist respond?", {"character": storyworld.characters[0], "pValue": "Bad_Good", "point": 1}, {"character": storyworld.characters[0], "pValue": "False_Honest", "point": 1}, 0)
+	if (null == storyworld or 0 == storyworld.characters.size() or null == option.get_antagonist() or 0 == option.get_antagonist().bnumber_properties.size() or 0 == option.get_antagonist().authored_properties.size()):
+		var new_desirability_script = ScriptManager.new(0)
+		return Reaction.new(option, "How does the antagonist respond?", new_desirability_script)
+	else:
+		var antagonist = option.get_antagonist()
+		var keyring = []
+		keyring.append(antagonist.authored_properties[0].id)
+		for layer in range(antagonist.authored_properties[0].depth):
+			keyring.append(storyworld.characters[0].id)
+		var x = BNumberPointer.new(antagonist, keyring.duplicate(true))
+		var y = BNumberPointer.new(antagonist, keyring.duplicate(true))
+		var z = BNumberConstant.new(0)
+		var new_blend_operator = BlendOperator.new(x, y, z)
+		var new_desirability_script = ScriptManager.new(new_blend_operator)
+		return Reaction.new(option, "How does the antagonist respond?", new_desirability_script)
 
 func _on_AddReaction_pressed():
 	if (null != current_option):
@@ -734,16 +826,20 @@ func _on_ConfirmReactionDeletion_confirmed():
 	for reaction in reactions_to_delete:
 		print("Deleting reaction: " + reaction.text.left(25))
 		for encounter in storyworld.encounters:
-			for prereq in encounter.prerequisites:
-				if (prereq.reaction == reaction):
-					prereq.reaction = null
+			if (encounter.acceptability_script.search_and_replace(reaction, null)):
+				log_update(encounter)
+			for option in encounter.options:
+				if (option.visibility_script.search_and_replace(reaction, null)):
+					log_update(encounter)
+				if (option.performability_script.search_and_replace(reaction, null)):
 					log_update(encounter)
 		current_option.reactions.erase(reaction)
 		reaction.call_deferred("free")
 	load_Option(current_option)
-	current_reaction = current_option.reactions[0]
-	$HSC/Column3/ReactionsScroll/ReactionList.select(0)
-	load_Reaction(current_reaction)
+	if (null != current_option and 0 < current_option.reactions.size()):
+		current_reaction = current_option.reactions[0]
+		load_Reaction(current_reaction)
+		$HSC/Column3/ReactionsScroll/ReactionList.select(0)
 	update_wordcount(current_encounter)
 	log_update(current_encounter)
 	emit_signal("refresh_graphview")
@@ -835,43 +931,42 @@ func _on_ReactionText_text_changed():
 			else:
 				reactionslist.set_item_text(index, current_reaction.text.left(50) + "...")
 				reactionslist.set_item_tooltip(index, current_reaction.text)
-#		var selection = $HSC/Column3/ReactionsScroll/ReactionList.get_selected_items()
-#		var which = 0
-#		if (0 < selection.size()):
-#			which = selection[0]
-#		refresh_reaction_list()
-#		$HSC/Column3/ReactionsScroll/ReactionList.select(which)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
-func _on_InclinationHSlider_value_changed(value):
-	if (null != current_reaction):
-		current_reaction.blend_weight = ($HSC/Column3/HBCLSL/InclinationHSlider.value)
-		$HSC/Column3/IncBlendWeightLabel.text = "Inclination blend weight: " + str(current_reaction.blend_weight)
+func _on_BlendWeightSelector_bnumber_value_changed(operator):
+	if (null != current_reaction and null != operator and operator is BNumberConstant):
+		current_reaction.desirability_script.contents.operands[2].set_value(operator.get_value())
+		$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability blend weight: " + str(current_reaction.desirability_script.contents.operands[2].get_value())
 		log_update(current_encounter)
 
-func _on_Trait1_item_selected(index):
-	if (null != current_reaction):
-		var traits = ["Bad_Good", "-Bad_Good", "False_Honest", "-False_Honest", "Timid_Dominant", "-Timid_Dominant", "pBad_Good", "-pBad_Good", "pFalse_Honest", "-pFalse_Honest", "pTimid_Dominant", "-pTimid_Dominant"]
-		current_reaction.set_blend_x(traits[$HSC/Column3/HBCTT/Trait1.get_selected_id()])
-		log_update(current_encounter)
+func _on_Trait1Selector_bnumber_property_selected(selected_property):
+	if (null != current_reaction and null != selected_property):
+		if (selected_property is BNumberPointer):
+			if (current_reaction.desirability_script is ScriptManager):
+				if (current_reaction.desirability_script.contents is BlendOperator and 3 == current_reaction.desirability_script.contents.operands.size()):
+					current_reaction.desirability_script.contents.operands[0].set_as_copy_of(selected_property)
+					log_update(current_encounter)
 
-func _on_Trait2_item_selected(index):
-	if (null != current_reaction):
-		var traits = ["Bad_Good", "-Bad_Good", "False_Honest", "-False_Honest", "Timid_Dominant", "-Timid_Dominant", "pBad_Good", "-pBad_Good", "pFalse_Honest", "-pFalse_Honest", "pTimid_Dominant", "-pTimid_Dominant"]
-		current_reaction.set_blend_y(traits[$HSC/Column3/HBCTT/Trait2.get_selected_id()])
-		log_update(current_encounter)
+func _on_Trait2Selector_bnumber_property_selected(selected_property):
+	if (null != current_reaction and null != selected_property):
+		if (selected_property is BNumberPointer):
+			if (current_reaction.desirability_script is ScriptManager):
+				if (current_reaction.desirability_script.contents is BlendOperator and 3 == current_reaction.desirability_script.contents.operands.size()):
+					current_reaction.desirability_script.contents.operands[1].set_as_copy_of(selected_property)
+					log_update(current_encounter)
 
 func _on_ChangeConsequence_pressed():
 	if (null != current_reaction):
-		var selection = $Column1/VScroll/EncountersList.get_selected_items()
-		if (storyworld.encounters[selection[0]] == current_encounter):
-			print("An encounter cannot serve as a consequence for itself.")
-		else:
-			current_reaction.consequence = storyworld.encounters[selection[0]]
-			$HSC/Column3/HBCConsequence/CurrentConsequence.text = current_reaction.consequence.title
-			log_update(current_encounter)
-			emit_signal("refresh_graphview")
+		if ($Column1/VScroll/EncountersList.is_anything_selected()):
+			var selection = $Column1/VScroll/EncountersList.get_selected_items()
+			if (storyworld.encounters[selection[0]] == current_encounter):
+				print("An encounter cannot serve as a consequence for itself.")
+			else:
+				current_reaction.consequence = storyworld.encounters[selection[0]]
+				$HSC/Column3/HBCConsequence/CurrentConsequence.text = current_reaction.consequence.title
+				log_update(current_encounter)
+				emit_signal("refresh_graphview")
 
 func _on_RemoveConsequenceButton_pressed():
 	if (null != current_reaction):
@@ -882,30 +977,65 @@ func _on_RemoveConsequenceButton_pressed():
 
 func _on_pValueChangeAdd_pressed():
 	if (null != current_reaction):
+		if (null != storyworld and 0 < storyworld.characters.size() and 0 < storyworld.authored_properties.size()):
+			$pValueChangeSelection/VBC/HBC/PropertySelector.storyworld = storyworld
+			$pValueChangeSelection/VBC/HBC/PropertySelector.allow_root_character_editing = true
+			$pValueChangeSelection/VBC/HBC/PropertySelector.reset()
+			$pValueChangeSelection/VBC/HBC/PropertySelector.refresh()
+			var new_script = ScriptManager.new(BNumberConstant.new(0))
+			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.storyworld = storyworld
+			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.script_to_edit = new_script
+			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.allow_root_character_editing = true
+			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.allow_coefficient_editing = true
+			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.refresh_script_display()
 		$pValueChangeSelection.popup()
 	else:
 		print("No reaction currently selected.")
 
 func _on_pValueChangeSelection_confirmed():
 	if (null != current_reaction):
-		var des_character_id = $pValueChangeSelection/VBC/HBC/CharacterSelect.get_selected_id()
-		var des_character = storyworld.characters[des_character_id]
-		var des_pValue_id = $pValueChangeSelection/VBC/HBC/pValueSelect.get_selected_id()
-		var des_pValue = $pValueChangeSelection/VBC/HBC/pValueSelect.get_item_text(des_pValue_id)
-		var des_point = $pValueChangeSelection/VBC/HBC/PointSet.value
-		var new_pValueChange = Desideratum.new(des_character, des_pValue, des_point)
-		current_reaction.pValue_changes.append(new_pValueChange)
-		refresh_pValue_Change_List()
+		var pointer = BNumberPointer.new()
+		pointer.set_as_copy_of($pValueChangeSelection/VBC/HBC/PropertySelector.selected_property)
+		var new_change = AssignmentOperator.new(pointer, $pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.script_to_edit)
+		current_reaction.after_effects.append(new_change)
+		refresh_reaction_after_effects_list()
 		log_update(current_encounter)
 	else:
 		print("No reaction currently selected.")
 
+#func _on_pValueChangeSelection_confirmed():
+#	if (null != current_reaction):
+#		var pointer = BNumberPointer.new()
+#		pointer.set_as_copy_of($pValueChangeSelection/VBC/HBC/PropertySelector.selected_property)
+#		var des_point = $pValueChangeSelection/VBC/PointSet.value
+#		var new_nudge_operator = NudgeOperator.new(pointer, des_point)
+#		var new_script = ScriptManager.new(new_nudge_operator)
+#		var new_change = AssignmentOperator.new(pointer, new_script)
+#		current_reaction.after_effects.append(new_change)
+#		refresh_reaction_after_effects_list()
+#		log_update(current_encounter)
+#	else:
+#		print("No reaction currently selected.")
+
 func _on_pValueChangeDelete_pressed():
-	var selection = $HSC/Column3/pValueChangeList.get_selected_items()
-	if (0 < selection.size()):
-		var change_to_delete = current_reaction.pValue_changes[selection[0]]
-		current_reaction.pValue_changes.erase(change_to_delete)
-		refresh_pValue_Change_List()
+	var selected_change = $HSC/Column3/AfterReactionEffectsDisplay.get_selected_metadata()
+	print (selected_change)
+	if (null != selected_change and selected_change is AssignmentOperator):
+		effect_to_delete = selected_change
+		var dialog_text = ""
+		dialog_text = "Are you sure you wish to delete the following reaction effect?"
+		dialog_text += " \"" + selected_change.data_to_string() + "\""
+		$ConfirmReactionEffectDeletion.dialog_text = dialog_text
+		$ConfirmReactionEffectDeletion.popup()
+
+func _on_ConfirmReactionEffectDeletion_confirmed():
+	if (current_reaction.after_effects.has(effect_to_delete)):
+		current_reaction.after_effects.erase(effect_to_delete)
+		if (effect_to_delete is AssignmentOperator):
+			effect_to_delete.clear()
+			effect_to_delete.call_deferred("free")
+		log_update(current_encounter)
+	refresh_reaction_after_effects_list()
 
 func _on_ReactionList_item_rmb_selected(index, at_position):
 	# Bring up context menu.
@@ -940,6 +1070,8 @@ func _on_ReactionList_item_rmb_selected(index, at_position):
 		context_menu.popup(Rect2(mouse_position.x, mouse_position.y, context_menu.rect_size.x, context_menu.rect_size.y))
 
 func add_reactions_at_position(reactions_to_add, position):
+	if (0 == reactions_to_add.size()):
+		return
 	var copies_to_add = []
 	for object in reactions_to_add:
 		var copy = create_new_generic_reaction()
@@ -960,8 +1092,14 @@ func add_reactions_at_position(reactions_to_add, position):
 		current_option.reactions.append_array(copies_to_add)
 	refresh_reaction_list()
 	if (0 < current_option.reactions.size()):
-		load_Reaction(copies_to_add[0])
-		$HSC/Column3/ReactionsScroll/ReactionList.select(copies_to_add[0].get_index())
+		if (0 < copies_to_add.size()):
+			load_Reaction(copies_to_add[0])
+			$HSC/Column3/ReactionsScroll/ReactionList.select(copies_to_add[0].get_index())
+		else:
+			load_Reaction(current_option.reactions[0])
+			$HSC/Column3/ReactionsScroll/ReactionList.select(current_option.reactions[0].get_index())
+	else:
+		load_Reaction(null)
 	update_wordcount(current_encounter)
 	log_update(current_encounter)
 	emit_signal("refresh_graphview")
@@ -1046,9 +1184,7 @@ func update_wordcount(encounter):
 	var sort_method_id = $Column1/SortMenu.get_selected_id()
 	var sort_method = $Column1/SortMenu.get_popup().get_item_text(sort_method_id)
 	if ("Word Count" == sort_method || "Rev. Word Count" == sort_method):
-#		encounter.word_count = wordcount(encounter)
 		var word_count = encounter.wordcount()
-#		print("check. " + str(word_count))
 		log_update(encounter)
 		refresh_encounter_list()
 
@@ -1077,10 +1213,16 @@ func refresh_event_selection():
 					entry_r.set_metadata(0, {"encounter": encounter, "option": option, "reaction": reaction})
 
 func _on_Edit_Encounter_Settings_Button_pressed():
-	if (null != current_encounter):
-		refresh_encounter_settings_screen()
-		refresh_event_selection()
-		$EditEncounterSettings.popup()
+	if (null != current_encounter and current_encounter is Encounter):
+#		refresh_encounter_settings_screen()
+#		refresh_event_selection()
+#		$EditEncounterSettings.popup()
+		$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = current_encounter.title + " Acceptability Script"
+		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
+		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_encounter.acceptability_script
+		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
+		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
+		$ScriptEditWindow.popup()
 	else:
 		print("You must open an encounter before you can edit its settings.")
 
@@ -1101,49 +1243,61 @@ func _on_EventSelection_confirmed():
 		print ("Prerequisite: " + encounter.title + option_index + reaction_index)
 		#Add an event prerequisite to the current encounter.
 		var new_prereq_negated = $EditEncounterSettings/EventSelection/VBC/NegatedCheckBox.is_pressed()
-		var new_prerequisite = Prerequisite.new(0, new_prereq_negated)
-		new_prerequisite.encounter = encounter
-		new_prerequisite.option = option
-		new_prerequisite.reaction = reaction
-		current_encounter.prerequisites.append(new_prerequisite)
+		var new_prerequisite = EventPointer.new(encounter, option, reaction)
+		new_prerequisite.negated = new_prereq_negated
+		current_encounter.acceptability_script.contents.operands.append(new_prerequisite)
+		new_prerequisite.parent_operator = current_encounter.acceptability_script.contents
 		log_update(current_encounter)
 		refresh_encounter_settings_screen()
+		emit_signal("refresh_graphview")
 
 func refresh_encounter_settings_screen():
 	$EditEncounterSettings.window_title = current_encounter.title + " Settings"
 	$EditEncounterSettings/VBC/HBC/VBC/Scroll/PrerequisiteList.clear()
 	$EditEncounterSettings/VBC/HBC/VBC2/Scroll/DesiderataList.clear()
-	for each in current_encounter.prerequisites:
-		$EditEncounterSettings/VBC/HBC/VBC/Scroll/PrerequisiteList.add_item(each.summarize())
-	for each in current_encounter.desiderata:
-		$EditEncounterSettings/VBC/HBC/VBC2/Scroll/DesiderataList.add_item(each.summarize())
+	for each in current_encounter.acceptability_script.contents.operands:
+		if (each is EventPointer):
+			$EditEncounterSettings/VBC/HBC/VBC/Scroll/PrerequisiteList.add_item(each.summarize())
+	for each in current_encounter.desirability_script.contents.operands:
+		if (each is Desideratum):
+			$EditEncounterSettings/VBC/HBC/VBC2/Scroll/DesiderataList.add_item(each.data_to_string())
 
 func _on_AddDesideratum_pressed():
 	refresh_character_lists()
-	$EditEncounterSettings/DesideratumSelection.popup()
+	if (null != current_encounter):
+		if (null != storyworld and 0 < storyworld.characters.size() and 0 < storyworld.authored_properties.size()):
+			$EditEncounterSettings/DesideratumSelection/VBC/HBC/PropertySelector.storyworld = storyworld
+			$EditEncounterSettings/DesideratumSelection/VBC/HBC/PropertySelector.allow_root_character_editing = true
+			$EditEncounterSettings/DesideratumSelection/VBC/HBC/PropertySelector.reset()
+			$EditEncounterSettings/DesideratumSelection/VBC/HBC/PropertySelector.refresh()
+		$EditEncounterSettings/DesideratumSelection.popup()
+	else:
+		print("No encounter selected. Cannot add target conditions.")
 
 func _on_DesideratumSelection_confirmed():
-	var des_character_id = $EditEncounterSettings/DesideratumSelection/HBC/CharacterSelect.get_selected_id()
-	var des_character = storyworld.characters[des_character_id]
-	var des_pValue_id = $EditEncounterSettings/DesideratumSelection/HBC/pValueSelect.get_selected_id()
-	var des_pValue = $EditEncounterSettings/DesideratumSelection/HBC/pValueSelect.get_item_text(des_pValue_id)
-	var des_point = $EditEncounterSettings/DesideratumSelection/HBC/PointSet.value
-	var new_desideratum = Desideratum.new(des_character, des_pValue, des_point)
-	current_encounter.desiderata.append(new_desideratum)
+	var pointer = BNumberPointer.new()
+	pointer.set_as_copy_of($EditEncounterSettings/DesideratumSelection/VBC/HBC/PropertySelector.selected_property)
+	var des_point = BNumberConstant.new($EditEncounterSettings/DesideratumSelection/VBC/PointSet.value)
+	var new_desideratum = Desideratum.new(pointer, des_point)
+	pointer.parent_operator = new_desideratum
+	current_encounter.desirability_script.contents.operands.append(new_desideratum)
+	new_desideratum.parent_operator = current_encounter.desirability_script.contents
 	log_update(current_encounter)
 	refresh_encounter_settings_screen()
+	emit_signal("refresh_graphview")
 
 func _on_DeleteDesideratum_pressed():
 	if ($EditEncounterSettings/VBC/HBC/VBC2/Scroll/DesiderataList.is_anything_selected()):
 		var selection = $EditEncounterSettings/VBC/HBC/VBC2/Scroll/DesiderataList.get_selected_items()
 		var selected_desiderata = []
 		for each in selection:
-			selected_desiderata.append(current_encounter.desiderata[each])
+			selected_desiderata.append(current_encounter.desirability_script.contents.operands[each + 1])
 		for each in selected_desiderata:
-			current_encounter.desiderata.erase(each)
+			current_encounter.desirability_script.contents.operands.erase(each)
 		$EditEncounterSettings/VBC/HBC/VBC2/Scroll/DesiderataList.clear()
-		for entry in current_encounter.desiderata:
-			$EditEncounterSettings/VBC/HBC/VBC2/Scroll/DesiderataList.add_item(entry.summarize())
+		for entry in current_encounter.desirability_script.contents.operands:
+			if (entry is SWOperator):
+				$EditEncounterSettings/VBC/HBC/VBC2/Scroll/DesiderataList.add_item(entry.data_to_string())
 		log_update(current_encounter)
 
 
@@ -1176,10 +1330,12 @@ func refresh_option_settings_screen():
 	$EditOptionSettings.window_title = current_option.text + " Settings"
 	$EditOptionSettings/VBC/HBC/VBC/Scroll/VisibilityPrerequisiteList.clear()
 	$EditOptionSettings/VBC/HBC/VBC2/Scroll/PerformabilityPrerequisiteList.clear()
-	for each in current_option.visibility_prerequisites:
-		$EditOptionSettings/VBC/HBC/VBC/Scroll/VisibilityPrerequisiteList.add_item(each.summarize())
-	for each in current_option.performability_prerequisites:
-		$EditOptionSettings/VBC/HBC/VBC2/Scroll/PerformabilityPrerequisiteList.add_item(each.summarize())
+	for each in current_option.visibility_script.contents.operands:
+		if (each is EventPointer):
+			$EditOptionSettings/VBC/HBC/VBC/Scroll/VisibilityPrerequisiteList.add_item(each.summarize())
+	for each in current_option.performability_script.contents.operands:
+		if (each is EventPointer):
+			$EditOptionSettings/VBC/HBC/VBC2/Scroll/PerformabilityPrerequisiteList.add_item(each.summarize())
 
 func _on_OptionSettingsButton_pressed():
 	if (null != current_option):
@@ -1213,49 +1369,122 @@ func _on_OptionEventSelection_confirmed():
 		print ("Prerequisite: " + encounter.title + option_index + reaction_index)
 		#Add an event prerequisite to the current option.
 		var new_prereq_negated = $EditOptionSettings/EventSelection/VBC/NegatedCheckBox.is_pressed()
-		var new_prerequisite = Prerequisite.new(0, new_prereq_negated)
-		new_prerequisite.encounter = encounter
-		new_prerequisite.option = option
-		new_prerequisite.reaction = reaction
+		var new_prerequisite = EventPointer.new(encounter, option, reaction)
+		new_prerequisite.negated = new_prereq_negated
 		var list = option_event_select.get_root().get_metadata(0)
 		if ("visibility" == list):
-			current_option.visibility_prerequisites.append(new_prerequisite)
+			current_option.visibility_script.contents.operands.append(new_prerequisite)
+			new_prerequisite.parent_operator = current_option.visibility_script.contents
 		else:
-			current_option.performability_prerequisites.append(new_prerequisite)
+			current_option.performability_script.contents.operands.append(new_prerequisite)
+			new_prerequisite.parent_operator = current_option.performability_script.contents
 		log_update(current_encounter)
 		refresh_option_settings_screen()
+		emit_signal("refresh_graphview")
 
 func _on_VisibilityPrereqDelete_pressed():
 	if ($EditOptionSettings/VBC/HBC/VBC/Scroll/VisibilityPrerequisiteList.is_anything_selected()):
 		var selection = $EditOptionSettings/VBC/HBC/VBC/Scroll/VisibilityPrerequisiteList.get_selected_items()
 		var selected_prerequisites = []
 		for each in selection:
-			selected_prerequisites.append(current_option.visibility_prerequisites[each])
+			selected_prerequisites.append(current_option.visibility_script.contents.operands[each + 1])
 		for each in selected_prerequisites:
-			current_option.visibility_prerequisites.erase(each)
+			current_option.visibility_script.contents.operands.erase(each)
 		$EditOptionSettings/VBC/HBC/VBC/Scroll/VisibilityPrerequisiteList.clear()
-		for entry in current_option.visibility_prerequisites:
-			$EditOptionSettings/VBC/HBC/VBC/Scroll/VisibilityPrerequisiteList.add_item(entry.summarize())
+		for entry in current_option.visibility_script.contents.operands:
+			if (entry is EventPointer):
+				$EditOptionSettings/VBC/HBC/VBC/Scroll/VisibilityPrerequisiteList.add_item(entry.summarize())
 		log_update(current_encounter)
+		emit_signal("refresh_graphview")
 
 func _on_PerformabilityPrereqDelete_pressed():
 	if ($EditOptionSettings/VBC/HBC/VBC2/Scroll/PerformabilityPrerequisiteList.is_anything_selected()):
 		var selection = $EditOptionSettings/VBC/HBC/VBC2/Scroll/PerformabilityPrerequisiteList.get_selected_items()
 		var selected_prerequisites = []
 		for each in selection:
-			selected_prerequisites.append(current_option.performability_prerequisites[each])
+			selected_prerequisites.append(current_option.performability_script.contents.operands[each + 1])
 		for each in selected_prerequisites:
-			current_option.performability_prerequisites.erase(each)
+			current_option.performability_script.contents.operands.erase(each)
 		$EditOptionSettings/VBC/HBC/VBC2/Scroll/PerformabilityPrerequisiteList.clear()
-		for entry in current_option.performability_prerequisites:
-			$EditOptionSettings/VBC/HBC/VBC2/Scroll/PerformabilityPrerequisiteList.add_item(entry.summarize())
+		for entry in current_option.performability_script.contents.operands:
+			if (entry is EventPointer):
+				$EditOptionSettings/VBC/HBC/VBC2/Scroll/PerformabilityPrerequisiteList.add_item(entry.summarize())
 		log_update(current_encounter)
+		emit_signal("refresh_graphview")
 
 func _ready():
-	$Column1/SortMenu.select(0)
+	if (0 < $Column1/SortMenu.get_item_count()):
+		$Column1/SortMenu.select(0)
 
+#Script Editing:
 
+func _on_EditEncounterDesirabilityScriptButton_pressed():
+	$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = current_encounter.title + " Desirability Script"
+	$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
+	$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_encounter.desirability_script
+	$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
+	$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
+	$ScriptEditWindow.popup()
 
+func _on_ARDSEButton_pressed():
+	var title = current_reaction.text.left(40)
+	if (40 < current_reaction.text.length()):
+		title += "..."
+	title += " Desirability Script"
+	$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
+	$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
+	$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_reaction.desirability_script
+	$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
+	$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
+	$ScriptEditWindow.popup()
 
+func _on_ScriptEditScreen_sw_script_changed(sw_script):
+	if (current_encounter.acceptability_script == sw_script):
+		emit_signal("refresh_graphview")
+		log_update(current_encounter)
+	if (current_encounter.desirability_script == sw_script):
+		log_update(current_encounter)
+	if (current_reaction.desirability_script == sw_script):
+		load_Reaction(current_reaction)
+		log_update(current_encounter)
 
+func _on_AfterReactionEffectsDisplay_moved_item(item, from_index, to_index):
+	if (null == current_reaction):
+		refresh_reaction_after_effects_list()
+		return
+	var effect = current_reaction.after_effects.pop_at(from_index)
+	print(effect.data_to_string())
+	print(str(current_reaction.after_effects.size()))
+	if (to_index > from_index):
+		to_index = to_index - 1
+	if (to_index < current_reaction.after_effects.size()):
+		current_reaction.after_effects.insert(to_index, effect)
+	else:
+		current_reaction.after_effects.append(effect)
 
+func _on_AfterReactionEffectsDisplay_item_activated():
+	pass
+
+func _on_EditOptionVisibilityScriptButton_pressed():
+	var title = current_option.text.left(40)
+	if (40 < current_option.text.length()):
+		title += "..."
+	title += " Visibility Script"
+	$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
+	$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
+	$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_option.visibility_script
+	$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
+	$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
+	$ScriptEditWindow.popup()
+
+func _on_EditOptionPerformabilityScriptButton_pressed():
+	var title = current_option.text.left(40)
+	if (40 < current_option.text.length()):
+		title += "..."
+	title += " Performability Script"
+	$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
+	$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
+	$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_option.performability_script
+	$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
+	$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
+	$ScriptEditWindow.popup()

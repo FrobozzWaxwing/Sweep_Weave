@@ -1,14 +1,14 @@
 extends Object
 class_name Encounter
-
-#id, title, main_text, prerequisites, disqualifiers, earliest_turn, latest_turn, antagonist, options, creation_index, creation_time, modified_time, graph_position, word_count
+#Encounters are events that can occur during the course of a playthrough. When an encounter occurs, the "main_text" is first presented, then the player chooses an option, then the antagonist of the encounter chooses a reaction to the player character's actions. Once a reaction is chosen by the npc, the text of the reaction is displayed and the effects of the reaction are enacted. Then the system either selects another encounter to present, or the playthrough ends.
 
 var storyworld = null
+var spool = null
 var id = ""
 var title = ""
 var main_text = ""
-var prerequisites = []
-var desiderata = []
+var acceptability_script = null
+var desirability_script = null
 var earliest_turn = 0
 var latest_turn = 1000
 var antagonist = null
@@ -24,11 +24,16 @@ var graphview_node = null
 var occurrences = 0 #Number of times this encounter occurs during a rehearsal.
 
 func _init(in_storyworld, in_id, in_title, in_main_text, in_earliest_turn, in_latest_turn, in_antagonist, in_options,
-		   in_creation_index, in_creation_time = OS.get_unix_time(), in_modified_time = OS.get_unix_time(), in_graph_position = Vector2(40, 40), in_word_count = 0):
+		   in_creation_index, in_creation_time = OS.get_unix_time(), in_modified_time = OS.get_unix_time(), in_graph_position = Vector2(40, 40)):
 	storyworld = in_storyworld
 	id = in_id
 	title = in_title
 	main_text = in_main_text
+	var default = BooleanConstant.new(true)
+	var and_operator = BooleanOperator.new("AND", [default])
+	acceptability_script = ScriptManager.new(and_operator)
+	default = BNumberConstant.new(0)
+	desirability_script = ScriptManager.new(ArithmeticMeanOperator.new([default]))
 	earliest_turn = in_earliest_turn
 	latest_turn = in_latest_turn
 	antagonist = in_antagonist
@@ -37,12 +42,32 @@ func _init(in_storyworld, in_id, in_title, in_main_text, in_earliest_turn, in_la
 	creation_time = in_creation_time
 	modified_time = in_modified_time
 	graph_position = in_graph_position
-	word_count = in_word_count
 
 func get_index():
 	if (null != storyworld):
 		return storyworld.encounters.find(self)
 	return -1
+
+func clear():
+	spool = null
+	storyworld = null
+	id = ""
+	title = ""
+	main_text = ""
+	earliest_turn = 0
+	latest_turn = 0
+	antagonist = null
+	modified_time = OS.get_unix_time()
+	graph_position = Vector2(40, 40)
+	acceptability_script.clear()
+#	acceptability_script.call_deferred("free")
+	acceptability_script = null
+	desirability_script.clear()
+#	desirability_script.call_deferred("free")
+	desirability_script = null
+	for option in options:
+		option.clear()
+		option.call_deferred("free")
 
 func set_as_copy_of(original):
 	#Sets the properties of this encounter equal to the properties of the input encounter.
@@ -52,23 +77,39 @@ func set_as_copy_of(original):
 	earliest_turn = original.earliest_turn
 	latest_turn = original.latest_turn
 	antagonist = original.antagonist
-	creation_index = original.creation_index
-	creation_time = original.creation_time
 	modified_time = OS.get_unix_time()
-	prerequisites = []
-	for prereq in original.prerequisites:
-		var prereq_copy = Prerequisite.new(0, false)
-		prereq_copy.set_as_copy_of(prereq)
-		prerequisites.append(prereq_copy)
-	desiderata = []
-	for desid in original.desiderata:
-		var desid_copy = Desideratum.new(desid.character, desid.pValue, desid.point)
-		desiderata.append(desid_copy)
+	acceptability_script.set_as_copy_of(original.acceptability_script)
+	desirability_script.set_as_copy_of(original.desirability_script)
 	options = []
 	for option in original.options:
 		var option_copy = Option.new(self, option.text)
 		option_copy.set_as_copy_of(option)
+		option_copy.encounter = self
 		options.append(option_copy)
+
+func remap(to_storyworld):
+	storyworld = to_storyworld
+	if (null != antagonist and antagonist is Actor):
+		if(storyworld.character_directory.has(antagonist.id)):
+			antagonist = storyworld.character_directory[antagonist.id]
+		else:
+			print ("Error! " + antagonist.char_name + " not in character directory.")
+	else:
+		print ("Error! Invalid antagonist.")
+	for option in options:
+		for reaction in option.reactions:
+			reaction.desirability_script.remap(to_storyworld)
+			for effect in reaction.after_effects:
+				effect.remap(to_storyworld)
+			if (null != reaction.consequence and null != reaction.consequence.id):
+				if (storyworld.encounter_directory.has(reaction.consequence.id)):
+					reaction.consequence = storyworld.encounter_directory[reaction.consequence.id]
+			reaction.option = option
+		option.visibility_script.remap(to_storyworld)
+		option.performability_script.remap(to_storyworld)
+		option.encounter = self
+	acceptability_script.remap(to_storyworld)
+	desirability_script.remap(to_storyworld)
 
 func wordcount():
 	var sum_words = 0
@@ -85,25 +126,34 @@ func wordcount():
 	word_count = sum_words
 	return sum_words
 
-func compile(characters, include_editor_only_variables = false):
+func has_search_text(searchterm):
+	if (searchterm in title):
+		return true
+	elif (searchterm in main_text):
+		return true
+	for option in options:
+		if (option.has_search_text(searchterm)):
+			return true
+	return false
+
+func compile(parent_storyworld, include_editor_only_variables = false):
 	var result = {}
 	result["id"] = id
 	result["title"] = title
 	result["main_text"] = main_text
-	result["prerequisites"] = []
-	for each in prerequisites:
-		result["prerequisites"].append(each.compile())
-	result["desiderata"] = []
-	for each in desiderata:
-		result["desiderata"].append(each.compile(characters))
+	result["acceptability_script"] = null
+	if (null != acceptability_script and acceptability_script is ScriptManager):
+		result["acceptability_script"] = acceptability_script.compile(parent_storyworld, include_editor_only_variables)
+	result["desirability_script"] = null
+	if (null != desirability_script and desirability_script is ScriptManager):
+		result["desirability_script"] = desirability_script.compile(parent_storyworld, include_editor_only_variables)
 	result["earliest_turn"] = earliest_turn
 	result["latest_turn"] = latest_turn
-	result["antagonist"] = characters.find(antagonist)
-	#print(characters.find(antagonist))
 	result["options"] = []
 	for each in options:
-		result["options"].append(each.compile(characters, include_editor_only_variables))
+		result["options"].append(each.compile(parent_storyworld, include_editor_only_variables))
 	if (include_editor_only_variables):
+		result["antagonist"] = antagonist.id
 		#Editor only variables:
 		result["creation_index"] = creation_index
 		result["creation_time"] = creation_time
@@ -111,6 +161,8 @@ func compile(characters, include_editor_only_variables = false):
 		result["graph_position_x"] = graph_position.x
 		result["graph_position_y"] = graph_position.y
 		result["word_count"] = wordcount()
+	else:
+		result["antagonist"] = parent_storyworld.characters.find(antagonist)
 	return result
 
 func log_update():

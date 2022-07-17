@@ -1,17 +1,16 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://GUI.gd" type="Script" id=1]
 [ext_resource path="res://MainMenu.gd" type="Script" id=2]
 [ext_resource path="res://EncounterEditScreen.tscn" type="PackedScene" id=3]
 [ext_resource path="res://StoryworldMergingScreen.tscn" type="PackedScene" id=4]
-[ext_resource path="res://custom_resources/NotoSerif-Italic.tres" type="DynamicFont" id=6]
-[ext_resource path="res://custom_resources/NotoMono-Regular.tres" type="DynamicFont" id=7]
-[ext_resource path="res://custom_resources/NotoSerif-Bold.tres" type="DynamicFont" id=8]
-[ext_resource path="res://custom_resources/NotoSerif-Regular.tres" type="DynamicFont" id=9]
-[ext_resource path="res://custom_resources/NotoSerif-BoldItalic.tres" type="DynamicFont" id=10]
-[ext_resource path="res://custom_resources/rotate-cw.svg" type="Texture" id=11]
+[ext_resource path="res://SettingsEditScreen.tscn" type="PackedScene" id=5]
+[ext_resource path="res://DocumentationScreen.tscn" type="PackedScene" id=6]
+[ext_resource path="res://AuthoredPropertyCreationScreen.tscn" type="PackedScene" id=7]
+[ext_resource path="res://GraphViewScreen.tscn" type="PackedScene" id=11]
 [ext_resource path="res://PlayScreen.tscn" type="PackedScene" id=12]
 [ext_resource path="res://CharacterEditScreen.tscn" type="PackedScene" id=13]
+[ext_resource path="res://StatisticsScreen.tscn" type="PackedScene" id=14]
 
 [node name="GUI" type="Control"]
 anchor_right = 1.0
@@ -35,11 +34,10 @@ text = "Menu"
 align = 0
 script = ExtResource( 2 )
 
-[node name="Bookspine" type="HSplitContainer" parent="VBC"]
+[node name="EditorTabs" type="TabContainer" parent="VBC"]
 margin_top = 24.0
 margin_right = 1366.0
 margin_bottom = 736.0
-rect_min_size = Vector2( 1366, 700 )
 rect_clip_content = true
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -47,18 +45,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="EditorTabs" type="TabContainer" parent="VBC/Bookspine"]
-margin_right = 677.0
-margin_bottom = 712.0
-rect_min_size = Vector2( 320, 0 )
-rect_clip_content = true
-size_flags_horizontal = 3
-size_flags_vertical = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Encounters" type="Tabs" parent="VBC/Bookspine/EditorTabs"]
+[node name="Encounters" type="Tabs" parent="VBC/EditorTabs"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -72,9 +59,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="EncounterEditScreen" parent="VBC/Bookspine/EditorTabs/Encounters" instance=ExtResource( 3 )]
+[node name="EncounterEditScreen" parent="VBC/EditorTabs/Encounters" instance=ExtResource( 3 )]
 
-[node name="Characters" type="Tabs" parent="VBC/Bookspine/EditorTabs"]
+[node name="Characters" type="Tabs" parent="VBC/EditorTabs"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -83,515 +70,88 @@ margin_top = 32.0
 margin_right = -4.0
 margin_bottom = -4.0
 
-[node name="CharacterEditScreen" parent="VBC/Bookspine/EditorTabs/Characters" instance=ExtResource( 13 )]
+[node name="CharacterEditScreen" parent="VBC/EditorTabs/Characters" instance=ExtResource( 13 )]
 
-[node name="Settings" type="Tabs" parent="VBC/Bookspine/EditorTabs"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
-
-[node name="VBC" type="VBoxContainer" parent="VBC/Bookspine/EditorTabs/Settings"]
-margin_right = 320.0
-margin_bottom = 156.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="SWTitleLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-margin_right = 160.0
-margin_bottom = 14.0
-text = "Storyworld title:"
-
-[node name="TitleEdit" type="LineEdit" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-margin_top = 18.0
-margin_right = 160.0
-margin_bottom = 42.0
-rect_min_size = Vector2( 160, 0 )
-caret_blink = true
-caret_blink_speed = 0.5
-
-[node name="SWAuthorLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-margin_top = 46.0
-margin_right = 160.0
-margin_bottom = 60.0
-text = "Storyworld author:"
-
-[node name="AuthorEdit" type="LineEdit" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-margin_top = 64.0
-margin_right = 160.0
-margin_bottom = 88.0
-rect_min_size = Vector2( 160, 0 )
-caret_blink = true
-caret_blink_speed = 0.5
-
-[node name="HSeparator" type="HSeparator" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-margin_right = 40.0
-margin_bottom = 4.0
-
-[node name="TemplatePathDisplay" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-visible = false
-margin_right = 40.0
-margin_bottom = 14.0
-autowrap = true
-
-[node name="ChangeTemplate" type="Button" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-visible = false
-margin_right = 12.0
-margin_bottom = 20.0
-text = "Select new html template file"
-
-[node name="SavePathDisplay" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-margin_right = 40.0
-margin_bottom = 14.0
-autowrap = true
-
-[node name="HBC" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-margin_right = 40.0
-margin_bottom = 40.0
-
-[node name="DBMLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC/HBC"]
-margin_right = 40.0
-margin_bottom = 14.0
-text = "Set Storyworld to Debug Mode?"
-
-[node name="DBMSwitch" type="CheckButton" parent="VBC/Bookspine/EditorTabs/Settings/VBC/HBC"]
-margin_right = 76.0
-margin_bottom = 40.0
-
-[node name="HBC2" type="HBoxContainer" parent="VBC/Bookspine/EditorTabs/Settings/VBC"]
-margin_right = 40.0
-margin_bottom = 40.0
-
-[node name="DisplayModeLabel" type="Label" parent="VBC/Bookspine/EditorTabs/Settings/VBC/HBC2"]
-margin_right = 40.0
-margin_bottom = 14.0
-text = "Use new display mode?"
-
-[node name="DisplayModeSwitch" type="CheckButton" parent="VBC/Bookspine/EditorTabs/Settings/VBC/HBC2"]
-margin_right = 76.0
-margin_bottom = 40.0
-pressed = true
-
-[node name="InterpreterTabs" type="TabContainer" parent="VBC/Bookspine"]
-margin_left = 689.0
-margin_right = 1366.0
-margin_bottom = 712.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Documentation" type="Tabs" parent="VBC/Bookspine/InterpreterTabs"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
-
-[node name="ScrollContainer" type="ScrollContainer" parent="VBC/Bookspine/InterpreterTabs/Documentation"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_right = -8.0
-margin_bottom = -8.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-scroll_horizontal_enabled = false
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="RichTextLabel" type="RichTextLabel" parent="VBC/Bookspine/InterpreterTabs/Documentation/ScrollContainer"]
-margin_right = 661.0
-margin_bottom = 668.0
-rect_min_size = Vector2( 320, 640 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-custom_fonts/mono_font = ExtResource( 7 )
-custom_fonts/bold_italics_font = ExtResource( 10 )
-custom_fonts/italics_font = ExtResource( 6 )
-custom_fonts/bold_font = ExtResource( 8 )
-custom_fonts/normal_font = ExtResource( 9 )
-bbcode_enabled = true
-bbcode_text = "*************
-Introduction:
-*************
-
-Welcome to SweepWeave, an experimental authoring tool for interactive storyworlds. Storyworlds are computer games, or interactive fiction works, which focus on interaction with fictional characters as the central game mechanic, which track dynamic relationships between characters, (including, in particular, between non-player characters and the player character,) and which employ these simulated characters and relationships to assemble pieces of handcrafted content into a coherent narrative shaped, in part, by player choice.
-
-SweepWeave is based on design work by Chris Crawford and Sasha Fenn, and has been coded and implemented by Sasha Fenn. The suite consists of a storyworld interpretter, written in html and javascript, and a storyworld editor, written in the Godot game engine. Storyworlds are written and scripted in the editor, projects can be saved as .json files, and storyworlds can be exported as standalone html pages, which combine the interpreter with a block of data unique to the storyworld, and which can be played in a web browser.
-
-Storyworlds consist of a collection of characters and a collection of \"encounters,\" which contain the game's story content.
-
-***********
-Characters:
-***********
-
-Each character has personality traits, which track their tendency to act in certain ways, and traits that track their relationship to the player character over the course of the game.
-
-Both personality traits and relationship traits are tracked via \"bounded numbers,\" which are numbers limited to the range: -1 to 1, (including the lower and upper limits within the range.)
-
-***********
-Encounters:
-***********
-
-Each encounter includes a title, a piece of main text that can describe events that happen within the story, a set of options for the player to choose from, such that they can respond to story events, and a set of reactions associated with each of these options, such that a specified character can react to the player's choice.
-
-Authors can also change the settings of the encounter and the options available to the player, changing when encounters occur or when certain options are available for players to choose.
-
-Each encounter has a single character associated with it as an \"antagonist;\" this character's personality and relationship traits are used by the game to determine which reaction occurs after the player has chosen an option. Each reaction has an associated script by which the game calculates the character's inclination to select that reaction; during play, the reaction with the highest inclination is selected. (Ties are broken by choosing the earlier reaction in the list of reactions for the option in question.)
-
-Once a reaction has been selected by the a.i., the game may also change the relationships between any non-player character and the player character. This allows authors to set certain consequences to occur as a result of the player's choices. In turn, these consequences can carry over to later parts of the story, since character relationships can affect which encounters occur, at what time they occur, and how characters react to the player's actions.
-
-Reactions may also cause a specific encounter to occur next, bypassing the usual methods used by the game to select which encounter occurs.
-
-Hmtl tags are supported in encounter titles and text, option text, and reaction text. E.g., \"<i>italicized text</i>\" will render as \"[i]italicized text[/i]\" in game.
-
-*********
-Gameplay:
-*********
-
-A playthrough runs through the following process:
-
-1) The game selects an encounter to display.
-  1-A) If the reaction selected during the last encounter specifies an encounter to occur next, this encounter is displayed.
-  1-B) Otherwise, the game tests each encounter in the storyworld, checking when it can occur and whether all of its prerequisites are met.
-  1-C) The game then calculates the desirability of each valid encounter, displaying the most desirable encounter and displaying it to the player.
-2) The game displays an encounter.
-  2-A) The encounter's main text is displayed to the player.
-  2-B) The game calculates each option's visibility and performability prerequisites, displaying only those which meet their visibility prerequisites, and only allowing players to choose one that meets both its visibility and performability prerequisites.
-  2-C) If no options pass their visibility and performability prerequisites, or the encounter has no options, then the game ends with this encounter.
-3) The player chooses an option.
-4) The game selects a reaction for the encounter's antagonist to perform, and displays the text of this reaction to the player.
-  4-A) The game calculates the inclination of each reaction associated with the option chosen by the player. This is done using the scripts associated with each reaction, which use the antagonist's personality and relationship traits.
-  4-B) The reaction with the highest inclination is selected.
-  4-C) The game resets the options panel to display only the option the player chose.
-  4-D) The text of the selected reaction is displayed to the player. This text can, for example, describe the antagonist's actions in response to the player's choice.
-  4-E) The relationship changes associated with the selected reaction are calculated, and the game changes the designated character relationships accordingly. (The relationships of any character in the game can be changed, during this phase.)
-  4-F) The game takes note of whether or not the selected reaction forces a specific encounter to occur next, and, if so, of which encounter must occur.
-5) The game returns to step 1, repeating this loop until the game runs out of valid encounters, or reaches an encounter without any performable options, at which point the story ends.
-
-**********
-Scripting:
-**********
-
-Storyworlds employ scripts for several sets of calculations. This section contains some technical details for those interested.
-
-1) Reactions:
-
-When the game calculates the inclinations for each reaction associated with a given option, it looks up two of the current antagonist's traits and blends them together. This \"blend\" operation is a weighted average of the two traits. A weighting factor of -1 will set the result equal to the first trait, a weight of 1 will set it equal to the second trait, and a weight of 0 will set it equal to the simple average of both traits, (i.e., adding up the value of both traits and dividing by two.)
-
-If one normalizes the weight from a number between -1 and 1 to a number between 0 and 1, (which can be done by averaging the weight with the number 1,) then the algorithm for a blend calculation consists of the following:
-
-Result = x * (1 - w) + y * w.
-
-Here, \"x\" equals the value of the first trait, y equals the value of the second trait, and w equals the value of the normalized weight.
-
-2) Consequences:
-
-Once a reaction occurs, the game may change the value of various character relationships. Authors can determine what modifications are made by setting up \"blend change\" scripts. Simply select the character and pValue to modify, then choose a weight.
-
-A weight of 0 will leave the relationship unchanged. A weight above 0 will increase the value of the relationship trait, (i.e., the selected pValue.) A weight below 0 will decrease the pValue.
-
-The change made either increases or decreases the pValue a certain percentage of the distance towards the upper or lower limit. For example, a weight of 1 will increase the pValue 100% of the distance towards 1, (i.e., the pValue will be set to 1.) A weight of 0.5 will increase the pValue 50% of the distance from its present value to 1. For example, if the character's current level of affection for the player character equals 0.2, and the designated weight equals 0.5, then the character's affection for the player character will increase to 0.6.
-
-The algorithm for blend change operations consists of the following:
-
-Result = x * (1 - absolute_value_of(delta)) + delta.
-
-Here, \"x\" is the current value of the relationship trait in question, and \"delta\" is the weighting factor.
-
-3) Encounter Settings:
-
-Encounters can have both prerequisites and target conditions. Prerequisites allow authors to set encounters to only occur when certain conditions are met, for example when another encounter has occurred earlier in the playthrough. Target conditions are used by the game to calculate the desirability of each encounter.
-
-Target conditions use a distance calculation to determine the encounter's desirability.
-
-4) Option Settings:
-
-Options can also have prerequisites, which determine whether or not an option is visible should the encounter occur, as well as whether the player can choose the option when it is visible.
-
-**************************************
-Playtesting and Releasing Storyworlds:
-**************************************
-
-Storyworlds can be compiled to html format via the \"Compile to HTML\" option on the main menu. After compiling them, you can open the html page in a web browser to play through your storyworld.
-
-The Settings tab of the editor will let you set your storyworld to debug format or release format. Debug format will display information about the underlying calculations made by the engine during playtesting.
-
-********
-Credits:
-********
-
-SweepWeave is available as open source software under an MIT License. All storyworlds created with SweepWeave belong to their respective authors. You are free to publish your storyworlds as you please, including for commercial purposes.
-
-Chris Crawford can be found online at http://erasmatazz.com/
-Sasha Fenn can be found online at https://www.patreon.com/sasha_fenn
-SweepWeave can be downloaded from http://www.emptiestvoid.com/encounter_system/
-
-If you would like to help support me financially, you can do so through my Patreon page, reached via the second link above.
-Thanks to my patrons for their encouragement and support:
-Pamela Beck
-Chris Conley
-Jóhannes Ævarsson
-
-You can contact me through Chris Crawford's Thaddeus discussion board, through our interactive storytelling workgroup on Slack, via github, through my Patreon page, or via email. On github I am FrobozzWaxwing. My email address is sasha@emptiestvoid.com.
-
-Thanks, and peace to you.
-~Sasha Fenn"
-text = "*************
-Introduction:
-*************
-
-Welcome to SweepWeave, an experimental authoring tool for interactive storyworlds. Storyworlds are computer games, or interactive fiction works, which focus on interaction with fictional characters as the central game mechanic, which track dynamic relationships between characters, (including, in particular, between non-player characters and the player character,) and which employ these simulated characters and relationships to assemble pieces of handcrafted content into a coherent narrative shaped, in part, by player choice.
-
-SweepWeave is based on design work by Chris Crawford and Sasha Fenn, and has been coded and implemented by Sasha Fenn. The suite consists of a storyworld interpretter, written in html and javascript, and a storyworld editor, written in the Godot game engine. Storyworlds are written and scripted in the editor, projects can be saved as .json files, and storyworlds can be exported as standalone html pages, which combine the interpreter with a block of data unique to the storyworld, and which can be played in a web browser.
-
-Storyworlds consist of a collection of characters and a collection of \"encounters,\" which contain the game's story content.
-
-***********
-Characters:
-***********
-
-Each character has personality traits, which track their tendency to act in certain ways, and traits that track their relationship to the player character over the course of the game.
-
-Both personality traits and relationship traits are tracked via \"bounded numbers,\" which are numbers limited to the range: -1 to 1, (including the lower and upper limits within the range.)
-
-***********
-Encounters:
-***********
-
-Each encounter includes a title, a piece of main text that can describe events that happen within the story, a set of options for the player to choose from, such that they can respond to story events, and a set of reactions associated with each of these options, such that a specified character can react to the player's choice.
-
-Authors can also change the settings of the encounter and the options available to the player, changing when encounters occur or when certain options are available for players to choose.
-
-Each encounter has a single character associated with it as an \"antagonist;\" this character's personality and relationship traits are used by the game to determine which reaction occurs after the player has chosen an option. Each reaction has an associated script by which the game calculates the character's inclination to select that reaction; during play, the reaction with the highest inclination is selected. (Ties are broken by choosing the earlier reaction in the list of reactions for the option in question.)
-
-Once a reaction has been selected by the a.i., the game may also change the relationships between any non-player character and the player character. This allows authors to set certain consequences to occur as a result of the player's choices. In turn, these consequences can carry over to later parts of the story, since character relationships can affect which encounters occur, at what time they occur, and how characters react to the player's actions.
-
-Reactions may also cause a specific encounter to occur next, bypassing the usual methods used by the game to select which encounter occurs.
-
-Hmtl tags are supported in encounter titles and text, option text, and reaction text. E.g., \"<i>italicized text</i>\" will render as \"italicized text\" in game.
-
-*********
-Gameplay:
-*********
-
-A playthrough runs through the following process:
-
-1) The game selects an encounter to display.
-  1-A) If the reaction selected during the last encounter specifies an encounter to occur next, this encounter is displayed.
-  1-B) Otherwise, the game tests each encounter in the storyworld, checking when it can occur and whether all of its prerequisites are met.
-  1-C) The game then calculates the desirability of each valid encounter, displaying the most desirable encounter and displaying it to the player.
-2) The game displays an encounter.
-  2-A) The encounter's main text is displayed to the player.
-  2-B) The game calculates each option's visibility and performability prerequisites, displaying only those which meet their visibility prerequisites, and only allowing players to choose one that meets both its visibility and performability prerequisites.
-  2-C) If no options pass their visibility and performability prerequisites, or the encounter has no options, then the game ends with this encounter.
-3) The player chooses an option.
-4) The game selects a reaction for the encounter's antagonist to perform, and displays the text of this reaction to the player.
-  4-A) The game calculates the inclination of each reaction associated with the option chosen by the player. This is done using the scripts associated with each reaction, which use the antagonist's personality and relationship traits.
-  4-B) The reaction with the highest inclination is selected.
-  4-C) The game resets the options panel to display only the option the player chose.
-  4-D) The text of the selected reaction is displayed to the player. This text can, for example, describe the antagonist's actions in response to the player's choice.
-  4-E) The relationship changes associated with the selected reaction are calculated, and the game changes the designated character relationships accordingly. (The relationships of any character in the game can be changed, during this phase.)
-  4-F) The game takes note of whether or not the selected reaction forces a specific encounter to occur next, and, if so, of which encounter must occur.
-5) The game returns to step 1, repeating this loop until the game runs out of valid encounters, or reaches an encounter without any performable options, at which point the story ends.
-
-**********
-Scripting:
-**********
-
-Storyworlds employ scripts for several sets of calculations. This section contains some technical details for those interested.
-
-1) Reactions:
-
-When the game calculates the inclinations for each reaction associated with a given option, it looks up two of the current antagonist's traits and blends them together. This \"blend\" operation is a weighted average of the two traits. A weighting factor of -1 will set the result equal to the first trait, a weight of 1 will set it equal to the second trait, and a weight of 0 will set it equal to the simple average of both traits, (i.e., adding up the value of both traits and dividing by two.)
-
-If one normalizes the weight from a number between -1 and 1 to a number between 0 and 1, (which can be done by averaging the weight with the number 1,) then the algorithm for a blend calculation consists of the following:
-
-Result = x * (1 - w) + y * w.
-
-Here, \"x\" equals the value of the first trait, y equals the value of the second trait, and w equals the value of the normalized weight.
-
-2) Consequences:
-
-Once a reaction occurs, the game may change the value of various character relationships. Authors can determine what modifications are made by setting up \"blend change\" scripts. Simply select the character and pValue to modify, then choose a weight.
-
-A weight of 0 will leave the relationship unchanged. A weight above 0 will increase the value of the relationship trait, (i.e., the selected pValue.) A weight below 0 will decrease the pValue.
-
-The change made either increases or decreases the pValue a certain percentage of the distance towards the upper or lower limit. For example, a weight of 1 will increase the pValue 100% of the distance towards 1, (i.e., the pValue will be set to 1.) A weight of 0.5 will increase the pValue 50% of the distance from its present value to 1. For example, if the character's current level of affection for the player character equals 0.2, and the designated weight equals 0.5, then the character's affection for the player character will increase to 0.6.
-
-The algorithm for blend change operations consists of the following:
-
-Result = x * (1 - absolute_value_of(delta)) + delta.
-
-Here, \"x\" is the current value of the relationship trait in question, and \"delta\" is the weighting factor.
-
-3) Encounter Settings:
-
-Encounters can have both prerequisites and target conditions. Prerequisites allow authors to set encounters to only occur when certain conditions are met, for example when another encounter has occurred earlier in the playthrough. Target conditions are used by the game to calculate the desirability of each encounter.
-
-Target conditions use a distance calculation to determine the encounter's desirability.
-
-4) Option Settings:
-
-Options can also have prerequisites, which determine whether or not an option is visible should the encounter occur, as well as whether the player can choose the option when it is visible.
-
-**************************************
-Playtesting and Releasing Storyworlds:
-**************************************
-
-Storyworlds can be compiled to html format via the \"Compile to HTML\" option on the main menu. After compiling them, you can open the html page in a web browser to play through your storyworld.
-
-The Settings tab of the editor will let you set your storyworld to debug format or release format. Debug format will display information about the underlying calculations made by the engine during playtesting.
-
-********
-Credits:
-********
-
-SweepWeave is available as open source software under an MIT License. All storyworlds created with SweepWeave belong to their respective authors. You are free to publish your storyworlds as you please, including for commercial purposes.
-
-Chris Crawford can be found online at http://erasmatazz.com/
-Sasha Fenn can be found online at https://www.patreon.com/sasha_fenn
-SweepWeave can be downloaded from http://www.emptiestvoid.com/encounter_system/
-
-If you would like to help support me financially, you can do so through my Patreon page, reached via the second link above.
-Thanks to my patrons for their encouragement and support:
-Pamela Beck
-Chris Conley
-Jóhannes Ævarsson
-
-You can contact me through Chris Crawford's Thaddeus discussion board, through our interactive storytelling workgroup on Slack, via github, through my Patreon page, or via email. On github I am FrobozzWaxwing. My email address is sasha@emptiestvoid.com.
-
-Thanks, and peace to you.
-~Sasha Fenn"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Statistics" type="Tabs" parent="VBC/Bookspine/InterpreterTabs"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
-
-[node name="VBC" type="VBoxContainer" parent="VBC/Bookspine/InterpreterTabs/Statistics"]
-margin_right = 40.0
-margin_bottom = 40.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="RefreshStats" type="Button" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-margin_right = 148.0
-margin_bottom = 30.0
-text = "Refresh Statistics"
-icon = ExtResource( 11 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="StatEncounters" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-margin_top = 34.0
-margin_right = 148.0
-margin_bottom = 48.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="StatOptions" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-margin_top = 52.0
-margin_right = 148.0
-margin_bottom = 66.0
-
-[node name="StatReactions" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-margin_top = 70.0
-margin_right = 148.0
-margin_bottom = 84.0
-
-[node name="StatCharacters" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-margin_top = 88.0
-margin_right = 148.0
-margin_bottom = 102.0
-
-[node name="StatWords" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-margin_top = 106.0
-margin_right = 148.0
-margin_bottom = 120.0
-
-[node name="StatEarliestTurn" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-margin_top = 124.0
-margin_right = 148.0
-margin_bottom = 138.0
-
-[node name="StatLatestTurn" type="Label" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-margin_top = 142.0
-margin_right = 148.0
-margin_bottom = 156.0
-
-[node name="Test_Rehearsal_Button" type="CheckButton" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-visible = false
-margin_right = 12.0
-margin_bottom = 20.0
-text = "Automatic Rehearsal"
-
-[node name="Occurrences" type="Tree" parent="VBC/Bookspine/InterpreterTabs/Statistics/VBC"]
-visible = false
-margin_right = 40.0
-margin_bottom = 40.0
-rect_min_size = Vector2( 128, 256 )
-
-[node name="GraphView" type="Tabs" parent="VBC/Bookspine/InterpreterTabs"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
-
-[node name="VBC" type="VBoxContainer" parent="VBC/Bookspine/InterpreterTabs/GraphView"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_right = 40.0
-margin_bottom = 40.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="HBoxContainer" type="HBoxContainer" parent="VBC/Bookspine/InterpreterTabs/GraphView/VBC"]
-visible = false
-margin_right = 80.0
-margin_bottom = 20.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Button" type="Button" parent="VBC/Bookspine/InterpreterTabs/GraphView/VBC/HBoxContainer"]
-margin_right = 12.0
-margin_bottom = 20.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-text = "Zoom"
-
-[node name="GraphEdit" type="GraphEdit" parent="VBC/Bookspine/InterpreterTabs/GraphView/VBC"]
-margin_right = 80.0
-margin_bottom = 64.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Play" type="Tabs" parent="VBC/Bookspine/InterpreterTabs"]
+[node name="PersonalityModel" type="Tabs" parent="VBC/EditorTabs"]
 visible = false
 margin_right = 40.0
 margin_bottom = 24.0
 
-[node name="PlayScreen" parent="VBC/Bookspine/InterpreterTabs/Play" instance=ExtResource( 12 )]
+[node name="AuthoredPropertyCreationScreen" parent="VBC/EditorTabs/PersonalityModel" instance=ExtResource( 7 )]
+
+[node name="Settings" type="Tabs" parent="VBC/EditorTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="SettingsEditScreen" parent="VBC/EditorTabs/Settings" instance=ExtResource( 5 )]
+
+[node name="Documentation" type="Tabs" parent="VBC/EditorTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 96.0
+margin_right = -4.0
+margin_bottom = 60.0
+
+[node name="DocumentationScreen" parent="VBC/EditorTabs/Documentation" instance=ExtResource( 6 )]
+
+[node name="Statistics" type="Tabs" parent="VBC/EditorTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 96.0
+margin_right = -4.0
+margin_bottom = 60.0
+
+[node name="StatisticsScreen" parent="VBC/EditorTabs/Statistics" instance=ExtResource( 14 )]
+
+[node name="GraphView" type="Tabs" parent="VBC/EditorTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 96.0
+margin_right = -4.0
+margin_bottom = 60.0
+
+[node name="GraphViewScreen" parent="VBC/EditorTabs/GraphView" instance=ExtResource( 11 )]
+
+[node name="Play" type="Tabs" parent="VBC/EditorTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 96.0
+margin_right = -4.0
+margin_bottom = 60.0
+
+[node name="PlayScreen" parent="VBC/EditorTabs/Play" instance=ExtResource( 12 )]
+
+[node name="Bookspine" type="HSplitContainer" parent="VBC"]
+visible = false
+margin_top = 88.0
+margin_right = 1366.0
+margin_bottom = 788.0
+rect_min_size = Vector2( 0, 700 )
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="InterpreterTabs" type="TabContainer" parent="VBC/Bookspine"]
+margin_right = 1366.0
+margin_bottom = 700.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="LoadFileDialog" type="FileDialog" parent="."]
 margin_right = 512.0
@@ -606,8 +166,8 @@ current_dir = "/Creativity/Interactive Fiction/SweepWeave/godot"
 current_path = "/Creativity/Interactive Fiction/SweepWeave/godot/"
 
 [node name="SaveAsFileDialog" type="FileDialog" parent="."]
-margin_right = 355.0
-margin_bottom = 400.0
+margin_right = 512.0
+margin_bottom = 512.0
 rect_min_size = Vector2( 200, 400 )
 resizable = true
 access = 2
@@ -616,8 +176,8 @@ current_file = "story.json"
 current_path = "/Creativity/Interactive Fiction/SweepWeave/godot/story.json"
 
 [node name="CompileFileDialog" type="FileDialog" parent="."]
-margin_right = 355.0
-margin_bottom = 400.0
+margin_right = 512.0
+margin_bottom = 512.0
 rect_min_size = Vector2( 200, 400 )
 window_title = "Compile to HTML"
 resizable = true
@@ -642,20 +202,6 @@ margin_right = 200.0
 margin_bottom = 70.0
 dialog_text = "You have modified your project since you last saved. Do you wish to start a new project without saving your current one? Progress will be lost."
 dialog_autowrap = true
-
-[node name="ChooseTemplateDialog" type="FileDialog" parent="."]
-margin_right = 254.0
-margin_bottom = 400.0
-rect_min_size = Vector2( 200, 400 )
-window_title = "Choose a Template"
-resizable = true
-dialog_text = "Please select a new html template for compiling."
-dialog_autowrap = true
-mode_overrides_title = false
-mode = 0
-access = 2
-current_dir = "/Creativity/Interactive Fiction/SweepWeave/godot"
-current_path = "/Creativity/Interactive Fiction/SweepWeave/godot/"
 
 [node name="ImportXMLFileDialog" type="FileDialog" parent="."]
 margin_right = 315.0
@@ -720,7 +266,7 @@ text = "Thanks, and peace to you."
 align = 1
 
 [node name="ImportFromStoryworldFileDialog" type="FileDialog" parent="."]
-margin_right = 315.0
+margin_right = 512.0
 margin_bottom = 512.0
 rect_min_size = Vector2( 200, 100 )
 window_title = "Import from:"
@@ -753,22 +299,12 @@ anchor_bottom = 0.0
 margin_right = 534.0
 margin_bottom = 468.0
 
-[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Settings/VBC/TitleEdit" to="." method="_on_TitleEdit_text_changed"]
-[connection signal="text_changed" from="VBC/Bookspine/EditorTabs/Settings/VBC/AuthorEdit" to="." method="_on_AuthorEdit_text_changed"]
-[connection signal="pressed" from="VBC/Bookspine/EditorTabs/Settings/VBC/ChangeTemplate" to="." method="_on_ChangeTemplate_pressed"]
-[connection signal="toggled" from="VBC/Bookspine/EditorTabs/Settings/VBC/HBC/DBMSwitch" to="." method="_on_DBMSwitch_toggled"]
-[connection signal="toggled" from="VBC/Bookspine/EditorTabs/Settings/VBC/HBC2/DisplayModeSwitch" to="." method="_on_DisplayModeSwitch_toggled"]
-[connection signal="pressed" from="VBC/Bookspine/InterpreterTabs/Statistics/VBC/RefreshStats" to="." method="_on_RefreshStats_pressed"]
-[connection signal="pressed" from="VBC/Bookspine/InterpreterTabs/Statistics/VBC/Test_Rehearsal_Button" to="." method="_on_Test_Rehearsal_Button_pressed"]
-[connection signal="_end_node_move" from="VBC/Bookspine/InterpreterTabs/GraphView/VBC/GraphEdit" to="." method="_on_GraphEdit__end_node_move"]
-[connection signal="connection_request" from="VBC/Bookspine/InterpreterTabs/GraphView/VBC/GraphEdit" to="." method="_on_GraphEdit_connection_request"]
 [connection signal="file_selected" from="LoadFileDialog" to="." method="_on_LoadFileDialog_file_selected"]
 [connection signal="file_selected" from="SaveAsFileDialog" to="." method="_on_SaveAsFileDialog_file_selected"]
 [connection signal="file_selected" from="CompileFileDialog" to="." method="_on_CompileFileDialog_file_selected"]
 [connection signal="confirmed" from="ConfirmOpenWhenUnsaved" to="." method="_on_ConfirmOpenWhenUnsaved_confirmed"]
 [connection signal="confirmed" from="ConfirmQuit" to="." method="_on_ConfirmQuit_confirmed"]
 [connection signal="confirmed" from="ConfirmNewStoryworld" to="." method="_on_ConfirmNewStoryworld_confirmed"]
-[connection signal="file_selected" from="ChooseTemplateDialog" to="." method="_on_ChooseTemplateDialog_file_selected"]
 [connection signal="file_selected" from="ImportXMLFileDialog" to="." method="_on_ImportXMLFileDialog_file_selected"]
 [connection signal="pressed" from="About/VBoxContainer/OpenPatreonButton" to="." method="_on_OpenPatreonButton_pressed"]
 [connection signal="file_selected" from="ImportFromStoryworldFileDialog" to="." method="_on_ImportFromStoryworldFileDialog_file_selected"]

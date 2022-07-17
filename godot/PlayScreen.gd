@@ -43,14 +43,58 @@ func refresh_castbook(next_page = null):
 			listing.set_text(0, character.char_name + " (Antagonist)")
 		else:
 			listing.set_text(0, character.char_name)
-		for key in character.bnumber_properties.keys():
+		#The method_actor character is used to look up bounded number properties in historybook entries.
+		var method_actor = Actor.new(rehearsal.storyworld, "Placeholder", "they / them")
+		if (null != next_page):
+			var record = next_page.get_metadata(0)
+			method_actor.bnumber_properties = record.relationship_values[character.id].duplicate(true)
+		for bnumber_property in character.authored_properties:
 			var entry = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item(listing)
-			var text = key + ": " + str(character.get_bnumber_property([key]))
-			if (null != next_page):
-				for change in next_page.get_metadata(0).relationship_values:
-					if (character == change.character and key == change.pValue and character.get_bnumber_property([key]) != change.point):
-						text += " -> " + str(change.point)
-			entry.set_text(0, text)
+			var keyring = []
+			keyring.append(bnumber_property.id)
+			entry.set_metadata(0, keyring)
+			if (0 == bnumber_property.depth):
+				var text = bnumber_property.get_property_name() + ": " + str(character.get_bnumber_property(keyring))
+				if (null != next_page):
+					if (character.get_bnumber_property(keyring) != method_actor.get_bnumber_property(keyring)):
+						text += " -> " + str(method_actor.get_bnumber_property(keyring))
+#					for change in next_page.get_metadata(0).relationship_values:
+#						if (character == change.character and bnumber_property == change.pValue and character.get_bnumber_property([bnumber_property]) != change.point):
+#							text += " -> " + str(change.point)
+				entry.set_text(0, text)
+			elif (0 < bnumber_property.depth):
+				var entry_text = bnumber_property.get_property_name() + ": "
+				entry.set_text(0, entry_text)
+				var current_layer_items = []
+				current_layer_items.append(entry)
+				var next_layer_items = []
+				for layer in range(bnumber_property.depth):
+					next_layer_items.clear()
+					if (layer < bnumber_property.depth - 1):
+						for branch in current_layer_items:
+							for perceived_character in cast:
+								var leaf = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item(branch)
+								keyring = branch.get_metadata(0).duplicate()
+								keyring.append(perceived_character.id)
+								leaf.set_metadata(0, keyring)
+								var text = perceived_character.char_name
+								leaf.set_text(0, text)
+								next_layer_items.append(leaf)
+					elif (layer == bnumber_property.depth - 1):
+						for branch in current_layer_items:
+							for perceived_character in cast:
+								var leaf = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item(branch)
+								keyring = branch.get_metadata(0).duplicate()
+								keyring.append(perceived_character.id)
+								leaf.set_metadata(0, keyring)
+								var text = perceived_character.char_name + ": " + str(character.get_bnumber_property(keyring))
+								if (null != next_page):
+									if (character.get_bnumber_property(keyring) != method_actor.get_bnumber_property(keyring)):
+										text += " -> " + str(method_actor.get_bnumber_property(keyring))
+								leaf.set_text(0, text)
+					current_layer_items.clear()
+					current_layer_items = next_layer_items.duplicate()
+		method_actor.call_deferred("free")
 
 func refresh_encountertitle():
 	var display_turn = " (Turn: Null)"
@@ -93,24 +137,28 @@ func refresh_optionslist():
 	var open_options_index = 0
 	var page_children = get_item_children(page_to_display)
 	for option in page_to_display.get_metadata(0).encounter.options:
-		var option_visible = true
-		var option_open = true
-		for prerequisite in option.visibility_prerequisites:
-			if (!rehearsal.evaluate_prerequisite(prerequisite, page_to_display)):
-				option_visible = false
-				break
-		for prerequisite in option.performability_prerequisites:
-			if (!rehearsal.evaluate_prerequisite(prerequisite, page_to_display)):
-				option_open = false
-				break
+		var option_visible = option.visibility_script.get_value(page_to_display)
+		var option_open = option.performability_script.get_value(page_to_display)
+#		var option_visible = true
+#		var option_open = true
+#		for prerequisite in option.visibility_prerequisites:
+#			if (!rehearsal.evaluate_prerequisite(prerequisite, page_to_display)):
+#				option_visible = false
+#				break
+#		for prerequisite in option.performability_prerequisites:
+#			if (!rehearsal.evaluate_prerequisite(prerequisite, page_to_display)):
+#				option_open = false
+#				break
 		if (option_visible and option_open):
 			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.text)
 			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.set_item_metadata(all_options_index, page_children[open_options_index])
 			open_options_index += 1
 		elif (option_visible):
 			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.text + " (Visible but closed off.)")
+			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.set_item_metadata(all_options_index, "(Visible but closed off.)")
 		else:
 			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.text + " (Invisible.)")
+			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.set_item_metadata(all_options_index, "(Invisible.)")
 		all_options_index += 1
 
 func refresh_reaction_inclinations(option):
@@ -126,7 +174,7 @@ func refresh_reaction_inclinations(option):
 	for reaction in option.reactions:
 		var entry = []
 		entry.append(reaction)
-		entry.append(rehearsal.calculate_inclination(character, reaction))
+		entry.append(reaction.calculate_desirability())
 		entry.append(index)
 		table.append(entry)
 		index += 1
@@ -134,16 +182,15 @@ func refresh_reaction_inclinations(option):
 	var root = $Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.create_item()
 	$Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.set_hide_root(true)
 	for entry in table:
-		var reaction = entry[0]
-		var text = reaction.text.left(30) + " (Inc: " + str(entry[1]) + ")"
-		var reaction_entry = $Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.create_item(root)
-		reaction_entry.set_text(0, text)
-		reaction_entry.set_metadata(0, reaction)
-		text = "Blend of " + reaction.blend_x.sign_and_pValue() + " (" + str(character.get_bnumber_property([reaction.blend_x.sign_and_pValue()])) + ")"
-		text += " and " + reaction.blend_y.sign_and_pValue() + " (" + str(character.get_bnumber_property([reaction.blend_y.sign_and_pValue()]))
-		text += ") with weight " + str(reaction.blend_weight) + "."
-		var inclination_entry = $Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.create_item(reaction_entry)
-		inclination_entry.set_text(0, text)
+		if (3 == entry.size()):
+			var reaction = entry[0]
+			var text = reaction.text.left(30) + " (Inc: " + str(entry[1]) + ")"
+			var reaction_entry = $Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.create_item(root)
+			reaction_entry.set_text(0, text)
+			reaction_entry.set_metadata(0, reaction)
+			text = reaction.desirability_script.contents.data_to_string()
+			var inclination_entry = $Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.create_item(reaction_entry)
+			inclination_entry.set_text(0, text)
 
 signal encounter_loaded(id)
 
@@ -165,11 +212,17 @@ func load_Page(page):
 func _ready():
 	pass
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
-
+func clear():
+	$Layout/L2/ColorRect/VBC/Play_Button.text = "Start"
+	$Layout/VBC/Scroll_History/Historybook.clear()
+	$Layout/L2/ColorRect/VBC/EncounterTitle.text = ""
+	$Layout/L2/ColorRect/VBC/MainText.set_bbcode("")
+	$Layout/L2/VBC/Scroll_Cast/Castbook.clear()
+	$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.clear()
+	$Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.clear()
+	$Layout/L2/VBC/Result_Label.visible = false
+	$Layout/L2/VBC/Result_Display.visible = false
+	$Layout/L2/VBC/Result_Display.text = ""
 
 func _on_Play_Button_pressed():
 	$Layout/L2/ColorRect/VBC/Play_Button.text = "Restart"
@@ -180,6 +233,13 @@ func _on_Play_Button_pressed():
 
 func _on_OptionsList_item_selected(index):
 	var option_page = $Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.get_item_metadata(index)
+	if (TYPE_STRING == typeof(option_page)):
+		$Layout/L2/VBC/Result_Label.visible = false
+		$Layout/L2/VBC/Result_Display.visible = true
+		$Layout/L2/VBC/Result_Display.text = "Option cannot be chosen by the player."
+		refresh_castbook()
+		refresh_reaction_inclinations(null)
+		return
 	refresh_castbook(option_page)
 	refresh_reaction_inclinations(option_page.get_metadata(0).player_choice)
 	var result_text = ""
@@ -197,6 +257,13 @@ func _on_OptionsList_item_selected(index):
 
 func _on_OptionsList_item_activated(index):
 	var option_page = $Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.get_item_metadata(index)
+	if (TYPE_STRING == typeof(option_page)):
+		$Layout/L2/VBC/Result_Label.visible = false
+		$Layout/L2/VBC/Result_Display.visible = true
+		$Layout/L2/VBC/Result_Display.text = "Option cannot be chosen by the player."
+		refresh_castbook()
+		refresh_reaction_inclinations(null)
+		return
 	load_Page(option_page)
 	refresh_historybook()
 

@@ -26,7 +26,8 @@ func _init(in_storyworld):
 	initial_pValues = HB_Record.new()
 	initial_pValues.set_pValues(storyworld)
 
-func has_occured_on_branch(encounter, option, reaction, leaf):
+#func has_occurred_on_branch(encounter, option, reaction, leaf):
+func has_occurred_on_branch(encounter, leaf):
 	#Checks whether an encounter has occurred.
 	#Optionally checks whether the player chose a given option,
 	#and / or whether the antagonist chose a given reaction.
@@ -36,77 +37,76 @@ func has_occured_on_branch(encounter, option, reaction, leaf):
 	elif (null == leaf):
 		#Playthrough has only just begun.
 		return false
-	elif (null == option && null == reaction):
-		var node = leaf
-		while (null != node):
-			if (null != node.get_metadata(0).encounter and node.get_metadata(0).encounter == encounter):
-				return true
-			#No match for this node.
-			#Go farther towards the root of the tree.
-			if (node != starting_page):
-				node = node.get_parent()
-			else:
-				break
-	else:
-		var node = leaf
-		while (null != node and null != node.get_parent()):
-			if (node.get_parent().get_metadata(0).encounter == encounter):
-				if (null == option && reaction == node.get_metadata(0).antagonist_choice):
-					return true
-				elif (option == node.get_metadata(0).player_choice && null == reaction):
-					return true
-				elif (option == node.get_metadata(0).player_choice && reaction == node.get_metadata(0).antagonist_choice):
-					return true
-			#No match for this node.
-			#Go farther towards the root of the tree.
-			if (node != starting_page && node.get_parent() != starting_page):
-				node = node.get_parent()
-			else:
-				break
+#	elif (null == option && null == reaction):
+	var node = leaf
+	while (null != node):
+		if (null != node.get_metadata(0).encounter and node.get_metadata(0).encounter == encounter):
+			return true
+		#No match for this node.
+		#Go farther towards the root of the tree.
+		if (node != starting_page):
+			node = node.get_parent()
+		else:
+			break
+#	else:
+#		var node = leaf
+#		while (null != node and null != node.get_parent()):
+#			if (node.get_parent().get_metadata(0).encounter == encounter):
+#				if (null == option && reaction == node.get_metadata(0).antagonist_choice):
+#					return true
+#				elif (option == node.get_metadata(0).player_choice && null == reaction):
+#					return true
+#				elif (option == node.get_metadata(0).player_choice && reaction == node.get_metadata(0).antagonist_choice):
+#					return true
+#			#No match for this node.
+#			#Go farther towards the root of the tree.
+#			if (node != starting_page && node.get_parent() != starting_page):
+#				node = node.get_parent()
+#			else:
+#				break
 	return false
 
-func evaluate_prerequisite(prerequisite, leaf):
-	var prereqStatus = false
-	match prerequisite.prereq_type:
-		0:
-			#Ask whether or not an event has occurred.
-			prereqStatus = has_occured_on_branch(prerequisite["encounter"], prerequisite["option"], prerequisite["reaction"], leaf)
-		_:
-			#Default:
-			prereqStatus = false
-	if (false == prerequisite["negated"] && !(prereqStatus)):
-		return false
-	elif (true == prerequisite["negated"] && prereqStatus):
-		return false
-	else:
-		return true
+#func evaluate_prerequisite(prerequisite, leaf):
+#	var prereqStatus = false
+#	match prerequisite.prereq_type:
+#		0:
+#			#Ask whether or not an event has occurred.
+#			prereqStatus = has_occured_on_branch(prerequisite["encounter"], prerequisite["option"], prerequisite["reaction"], leaf)
+#		_:
+#			#Default:
+#			prereqStatus = false
+#	if (false == prerequisite["negated"] && !(prereqStatus)):
+#		return false
+#	elif (true == prerequisite["negated"] && prereqStatus):
+#		return false
+#	else:
+#		return true
 
-func desirability(encounter):
-	var distance = 0
-	for desideratum in encounter.desiderata:
-		var difference = desideratum.character.get_bnumber_property([desideratum.pValue]) - desideratum.point
-		distance += (difference * difference)
-	#console.log("Distance from encounter to target conditions: " + encounter.title + " = " + distance.toString() + ".");
-	return distance
+#func desirability(encounter):
+#	var distance = 0
+#	for desideratum in encounter.desiderata:
+#		var difference = desideratum.get_value()
+#		distance += (difference * difference)
+#	distance = sqrt(distance)
+#	return distance
 
 func select_most_desirable_encounter(acceptableEncounters):
 	#Choose an encounter from the pool of acceptable encounters.
 	#Find one that has a desirability greater than or equal to that of all the others.
-	#print("select_most_desirable_encounter")
 	var flag = true
-	var shortest_distance = 0
+	var greatest_desirability = -1
 	var result = null
 	acceptableEncounters.sort_custom(EncounterSorter, "sort_a_z")
 	for encounter in acceptableEncounters:
 		if (flag):
 			#First iteration of loop.
-			shortest_distance = desirability(encounter)
+			greatest_desirability = encounter.desirability_script.get_value()
 			result = encounter
 			flag = false
 		else:
-			var target_distance = desirability(encounter)
-			if (target_distance < shortest_distance):
-				shortest_distance = target_distance
+			var encounter_desirability = encounter.desirability_script.get_value()
+			if (encounter_desirability > greatest_desirability):
+				greatest_desirability = encounter_desirability
 				result = encounter
 	return result
 
@@ -121,7 +121,7 @@ func select_next_page(reaction, leaf = null):
 		var earliest_acceptable_turn = 0#If no encounters are acceptable for the present turn, but some are acceptable for later turns, what must we set the turn count to?
 		for encounter in storyworld.encounters:
 			#Check whether an encounter is acceptable.
-			var acceptable = false
+			var acceptable = true
 			#console.log("Checking acceptability of: " + encounter.title + " | " + encounter.earliest_turn.toString() + " <= " +  turn.toString() + " <= " +  encounter.latest_turn.toString());
 			#Acceptability checks:
 			#Has encounter already occured once before?
@@ -129,19 +129,19 @@ func select_next_page(reaction, leaf = null):
 			#pValue ranges.
 			#Turn range.
 			#If encounter has occured before, then it is not acceptable.
-			if (has_occured_on_branch(encounter, null, null, leaf)):
+			if (has_occurred_on_branch(encounter, leaf)):
 			#The encounter has occured before.
 			#console.log("The encounter has occured before, and therefore cannot occur again.");
-				pass
-			else:
-				acceptable = true
+				acceptable = false
 			#The following code evaluates prerequisites. For example, we may check whether a character's pValues are within a certain range.
 			if (acceptable):
-				for each in encounter.prerequisites:
-					var prereqStatus = evaluate_prerequisite(each, leaf)
-					if (false == prereqStatus):
-						acceptable = false
-						break
+				if (!encounter.acceptability_script.get_value(leaf)):
+					acceptable = false
+#				for each in encounter.prerequisites:
+#					var prereqStatus = evaluate_prerequisite(each, leaf)
+#					if (false == prereqStatus):
+#						acceptable = false
+#						break
 			if (acceptable):
 				if (turn <= encounter.latest_turn):
 					if (encounter.earliest_turn <= turn):
@@ -184,64 +184,62 @@ func find_open_options(leaf):
 	var all_options = leaf.get_metadata(0).encounter.options
 	var open_options = []
 	for option in all_options:
-		var flag = true
-		for prerequisite in option.visibility_prerequisites:
-			if(prerequisite.negated == evaluate_prerequisite(prerequisite, leaf)):
-				flag = false
-		for prerequisite in option.performability_prerequisites:
-			if(prerequisite.negated == evaluate_prerequisite(prerequisite, leaf)):
-				flag = false
-		if (flag):
+#		var flag = true
+#		for prerequisite in option.visibility_prerequisites:
+#			if(prerequisite.negated == evaluate_prerequisite(prerequisite, leaf)):
+#				flag = false
+#		for prerequisite in option.performability_prerequisites:
+#			if(prerequisite.negated == evaluate_prerequisite(prerequisite, leaf)):
+#				flag = false
+#		if (flag):
+#			open_options.append(option)
+		if (option.visibility_script.get_value(leaf) && option.performability_script.get_value(leaf)):
 			open_options.append(option)
 	return open_options
 
-func calculate_inclination(character, reaction):
-	if (null == character or null == reaction):
-		return -2
-	var weight = ((reaction.blend_weight + 1) / 2)
-	var blend_x_value = reaction.blend_x.point * character.get_bnumber_property([reaction.blend_x.pValue])
-	var blend_y_value = reaction.blend_y.point * character.get_bnumber_property([reaction.blend_y.pValue])
-	var inclination = (blend_x_value * (1 - weight)) + (blend_y_value * weight)
-	return inclination
+#func calculate_inclination(character, reaction):
+#	if (null == character or null == reaction):
+#		#Neither should ever be null, so return an inclination that discourages this reaction from being chosen.
+#		return -2
+#	var inclination = reaction.calculate_desirability()
+#	return inclination
 
 func select_reaction(option, leaf):
 	#This determines how a character reacts to a choice made by the player.
 	var topInclination = -1
 	var workingChoice = null
 	for reaction in option.reactions:
-		var latestInclination = calculate_inclination(option.encounter.antagonist, reaction)
+		var latestInclination = reaction.calculate_desirability()
 		if (latestInclination >= topInclination):
 			topInclination = latestInclination
 			workingChoice = reaction
 #			console.log('Reaction: "' + each.text.substr(0, 9) + '..." Inclination: ' + latestInclination.toString() + " Blended " + each.blend_x + " (" + blend_x_value + ") and " + each.blend_y + " (" + blend_y_value + ") with weight " + each.blend_weight + ".");
 	return workingChoice
 
-func apply_change(change):
-	if (change is Desideratum and null != change.character):
-		var initial_value = change.character.get_bnumber_property([change.pValue])
-		var new_value = (initial_value * (1 - abs(change.point))) + change.point
-		change.character.set_bnumber_property([change.pValue], new_value)
-
 func reset_pValues_to(record):
-	for entry in record.relationship_values:
-		entry.character.set_bnumber_property([entry.pValue], entry.point)
+	for character_id in record.relationship_values.keys():
+		var character = storyworld.character_directory[character_id]
+		character.bnumber_properties = record.relationship_values[character_id].duplicate(true)
 
 func execute_reaction(reaction):
-	for entry in reaction.pValue_changes:
-		apply_change(entry)
+	for change in reaction.after_effects:
+		if (change is AssignmentOperator):
+			change.enact()
 
-func execute_option(root_page, option):
+func execute_option(root_page, option, new_page):
 	reset_pValues_to(root_page.get_metadata(0))
 	turn = root_page.get_metadata(0).turn + 1
 	var reaction = select_reaction(option, root_page)
 	execute_reaction(reaction)
-	var next_page = select_next_page(reaction, root_page)
+#	var next_page = select_next_page(reaction, new_page)
 	#next_page will be null if "The End" screen is reached.
 	#Record option, reaction, and resulting encounter to new branch.
-	var record = HB_Record.new()
-	hb_record_list.append(record)
+#	var record = HB_Record.new()
+#	hb_record_list.append(record)
+	var record = new_page.get_metadata(0)
 	record.player_choice = option
 	record.antagonist_choice = reaction
+	var next_page = select_next_page(reaction, new_page)
 	record.encounter = next_page
 	record.turn = turn
 	record.set_pValues(storyworld)
@@ -303,10 +301,15 @@ func step_playthrough(leaf):
 			for option in options:
 				#Add new branch to history tree.
 				var page = history.create_item(leaf)
-				var record = execute_option(leaf, option)
-				record.tree_node = page
+				var record = HB_Record.new()#
+				hb_record_list.append(record)#
+				record.tree_node = page#
+				page.set_metadata(0, record)#
+				execute_option(leaf, option, page)
+#				var record = execute_option(leaf, option)
+#				record.tree_node = page
 				page.set_text(0, record.data_to_string())
-				page.set_metadata(0, record)
+#				page.set_metadata(0, record)
 		reset_pValues_to(leaf.get_metadata(0))
 		turn = leaf.get_metadata(0).turn + 1
 

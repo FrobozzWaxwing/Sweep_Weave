@@ -13,20 +13,15 @@ var encounter = null
 var is_an_ending_leaf = false
 var turn = 0
 var fully_explored = false
-var relationship_values = []
-# Each list item: {character: x, pValue: y, value: z}
+var relationship_values = {}
+# {character: copy of bnumber_properties}
 
 func set_pValues(storyworld):
 	#Clear out any old data.
-	var copy_relationship_values = relationship_values.duplicate()
-	for each in copy_relationship_values:
-		each.call_deferred("free")
-	relationship_values = []
+	relationship_values = {}
 	#Add new data.
 	for character in storyworld.characters:
-		for pValue in character.bnumber_properties.keys():
-			var entry = Desideratum.new(character, pValue, character.get_bnumber_property([pValue]))
-			relationship_values.append(entry)
+		relationship_values[character.id] = character.bnumber_properties.duplicate(true)
 
 func record_occurrences():
 	if (null != player_choice):

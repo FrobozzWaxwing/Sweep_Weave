@@ -1,0 +1,72 @@
+extends Control
+
+var storyworld = null
+var blacklist = [] #A list of encounters that should not be made available for selection. Could slow down the system if this array is too long.
+var selected_event = null #An EventPointer.
+var searchterm = ""
+
+signal selected_event_changed(selected_event)
+
+func _ready():
+	selected_event = EventPointer.new(null, null, null)
+
+onready var event_selection_tree = get_node("ColorRect/VBC/EventTree")
+
+func refresh():
+	if (null == storyworld):
+		return
+	event_selection_tree.clear()
+	var root = event_selection_tree.create_item()
+	root.set_text(0, "Encounters: ")
+	for encounter in storyworld.encounters:
+#		if (encounter != current_encounter):
+		if (!blacklist.has(encounter)):
+			if ("" == searchterm or encounter.has_search_text(searchterm)):
+				var entry_e = event_selection_tree.create_item(root)
+				if ("" == encounter.title):
+					entry_e.set_text(0, "[Untitled]")
+				else:
+					entry_e.set_text(0, encounter.title)
+				entry_e.set_metadata(0, {"encounter": encounter, "option": null, "reaction": null})
+				for option in encounter.options:
+					var entry_o = event_selection_tree.create_item(entry_e)
+					if ("" == option.text):
+						entry_o.set_text(0, "[Blank Option]")
+					else:
+						entry_o.set_text(0, option.text)
+					entry_o.set_metadata(0, {"encounter": encounter, "option": option, "reaction": null})
+					for reaction in option.reactions:
+						var entry_r = event_selection_tree.create_item(entry_o)
+						if ("" == reaction.text):
+							entry_r.set_text(0, "[Blank Reaction]")
+						else:
+							entry_r.set_text(0, reaction.text)
+						entry_r.set_metadata(0, {"encounter": encounter, "option": option, "reaction": reaction})
+
+func _on_LineEdit_text_entered(new_text):
+	searchterm = new_text
+	print("Searching events for \"" + new_text + "\"")
+	refresh()
+
+func _on_EventTree_item_selected():
+	var item = event_selection_tree.get_selected()
+	if(null != item && item is TreeItem && null != item.get_metadata(0) and selected_event is EventPointer):
+		var metadata = item.get_metadata(0)
+		var encounter = metadata["encounter"]
+		var option = metadata["option"]
+		var reaction = metadata["reaction"]
+		var option_index = ""
+		if (null != option):
+			option_index = " / " + str(option.get_index())
+		var reaction_index = ""
+		if (null != reaction):
+			reaction_index = " / " + str(reaction.get_index())
+		print ("Selecting Event: " + encounter.title + option_index + reaction_index)
+		selected_event.encounter = encounter
+		selected_event.option = option
+		selected_event.reaction = reaction
+		emit_signal("selected_event_changed", selected_event)
+
+func _on_NegatedCheckBox_pressed():
+	selected_event.negated = $ColorRect/VBC/NegatedCheckBox.pressed
+	emit_signal("selected_event_changed", selected_event)

@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://SettingsEditScreen.gd" type="Script" id=1]
+
+[node name="VBC" type="VBoxContainer"]
+margin_right = 320.0
+margin_bottom = 156.0
+script = ExtResource( 1 )
+
+[node name="SWTitleLabel" type="Label" parent="."]
+margin_right = 320.0
+margin_bottom = 14.0
+text = "Storyworld title:"
+
+[node name="TitleEdit" type="LineEdit" parent="."]
+margin_top = 18.0
+margin_right = 320.0
+margin_bottom = 42.0
+rect_min_size = Vector2( 160, 0 )
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="SWAuthorLabel" type="Label" parent="."]
+margin_top = 46.0
+margin_right = 320.0
+margin_bottom = 60.0
+text = "Storyworld author:"
+
+[node name="AuthorEdit" type="LineEdit" parent="."]
+margin_top = 64.0
+margin_right = 320.0
+margin_bottom = 88.0
+rect_min_size = Vector2( 160, 0 )
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="HSeparator" type="HSeparator" parent="."]
+margin_top = 92.0
+margin_right = 320.0
+margin_bottom = 96.0
+
+[node name="SavePathDisplay" type="Label" parent="."]
+margin_top = 100.0
+margin_right = 320.0
+margin_bottom = 114.0
+autowrap = true
+
+[node name="HBC" type="HBoxContainer" parent="."]
+margin_top = 118.0
+margin_right = 320.0
+margin_bottom = 158.0
+
+[node name="DBMLabel" type="Label" parent="HBC"]
+margin_top = 13.0
+margin_right = 199.0
+margin_bottom = 27.0
+text = "Set Storyworld to Debug Mode?"
+
+[node name="DBMSwitch" type="CheckButton" parent="HBC"]
+margin_left = 203.0
+margin_right = 279.0
+margin_bottom = 40.0
+
+[node name="HBC2" type="HBoxContainer" parent="."]
+margin_top = 162.0
+margin_right = 320.0
+margin_bottom = 202.0
+
+[node name="DisplayModeLabel" type="Label" parent="HBC2"]
+margin_top = 13.0
+margin_right = 151.0
+margin_bottom = 27.0
+text = "Use new display mode?"
+
+[node name="DisplayModeSwitch" type="CheckButton" parent="HBC2"]
+margin_left = 155.0
+margin_right = 231.0
+margin_bottom = 40.0
+pressed = true
+
+[node name="SWIFIDLabel" type="Label" parent="."]
+margin_top = 206.0
+margin_right = 320.0
+margin_bottom = 220.0
+
+[connection signal="text_changed" from="TitleEdit" to="." method="_on_TitleEdit_text_changed"]
+[connection signal="text_changed" from="AuthorEdit" to="." method="_on_AuthorEdit_text_changed"]
+[connection signal="toggled" from="HBC/DBMSwitch" to="." method="_on_DBMSwitch_toggled"]
+[connection signal="toggled" from="HBC2/DisplayModeSwitch" to="." method="_on_DisplayModeSwitch_toggled"]

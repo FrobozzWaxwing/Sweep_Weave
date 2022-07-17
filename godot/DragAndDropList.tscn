@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://DragAndDropList.gd" type="Script" id=1]
+
+[node name="Control" type="Tree"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_min_size = Vector2( 0, 32 )
+custom_colors/drop_position_color = Color( 0.12549, 0.501961, 1, 1 )
+hide_root = true
+script = ExtResource( 1 )

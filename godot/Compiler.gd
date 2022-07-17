@@ -3,6 +3,7 @@ class_name Compiler
 
 var file_to_read = ""
 var output = ""
+var ifid = ""
 
 #File reading:
 func get_template_from_file():
@@ -21,11 +22,14 @@ func get_template_from_file():
 		print(error_message)
 	return html_content
 
-func _init(game_data, storyworld_title, storyworld_author, template = "res://custom_resources/encounter_engine.html"):
+func _init(game_data, storyworld_title, storyworld_author, ifid, template = "res://custom_resources/encounter_engine.html"):
 	file_to_read = template
 	output = get_template_from_file()
 	if ("" != storyworld_title):
-		output = output.replacen('<title>SweepWeave Storyworld Interpreter</title>', "<title>" + storyworld_title + "</title>")
+		output = output.replacen("<title>SweepWeave Storyworld Interpreter</title>", "<title>" + storyworld_title + "</title>")
 	if ("" != storyworld_author):
-		output = output.replacen('Anonymous', storyworld_author)
+		output = output.replacen("<meta name=\"author\" content=\"Anonymous\">", "<meta name=\"author\" content=\"" + storyworld_author + "\">")
+	if ("" != ifid):
+		output = output.replacen("<meta prefix=\"ifiction: http://babel.ifarchive.org/protocol/iFiction/\" property=\"ifiction:ifid\" content=\"\">", "<meta prefix=\"ifiction: http://babel.ifarchive.org/protocol/iFiction/\" property=\"ifiction:ifid\" content=\"" + ifid + "\">")
+		
 	output = output.replacen('<script type="text/javascript" src="storyworld_data.js"></script>', "<script>" + game_data.replacen("\\n", "<br>\\n") + "</script>")

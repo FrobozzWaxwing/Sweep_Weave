@@ -58,7 +58,7 @@ func summarize():
 		output += "."
 	return output
 
-func compile():
+func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}
 	output["prereq_type"] = prereq_type
 	output["negated"] = negated
@@ -86,3 +86,21 @@ func set_as_copy_of(original):
 	constant = original.constant
 	who2 = original.who2
 	pValue2 = original.pValue2
+
+func remap(storyworld):
+	#Returns false if an error occurs, and true if everything goes as planned.
+	if (null != encounter):
+		if (storyworld.encounter_directory.has(encounter.id)):
+			encounter = storyworld.encounter_directory[encounter.id]
+			if (null != option):
+				option = encounter.options[option.get_index()]
+				if (null != reaction):
+					reaction = option.reactions[reaction.get_index()]
+			else:
+				reaction = null
+		else:
+			return false
+	else:
+		option = null
+		reaction = null
+	return true

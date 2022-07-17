@@ -2,37 +2,38 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="description" content="An encounter-based, interactive storyworld. Lead System Designer: Chris Crawford. Interpreter coding and implementation: Sasha Fenn. Storyworld author: Anonymous.">
+<meta name="description" content="An interactive storyworld made in SweepWeave. System Designers: Chris Crawford, Sasha Fenn. Interpreter coding and implementation: Sasha Fenn.">
 <meta name="author" content="Anonymous">
+<meta prefix="ifiction: http://babel.ifarchive.org/protocol/iFiction/" property="ifiction:ifid" content="">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Encounter Storyworld Interpreter</title>
+<title>SweepWeave Storyworld Interpreter</title>
 <style>
 body {
-  background-color: LavenderBlush;
+    background-color: LavenderBlush;
 }
 
 .collapsible {
-  background-color: #453d5c;
-  color: white;
-  cursor: pointer;
-  padding: 18px;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 15px;
+    background-color: #453d5c;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
 }
 
 .active, .collapsible:hover {
-  background-color: #675c8a;
+    background-color: #675c8a;
 }
 
 .content {
-  padding: 0 16px;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.5s ease-out;
-  background-color: Thistle;
+    padding: 0 16px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+    background-color: Thistle;
 }
 </style>
 <script type="text/javascript" src="storyworld_data.js"></script>
@@ -58,10 +59,6 @@ function getRadioVal(form, name) {
     return val; // return value of checked radio or undefined if none checked
 }
 
-function blendChange(x, delta){
-  return x * (1 - Math.abs(delta)) + delta;
-}
-
 //------------------
 //Section 2: Classes
 //Define classes for encounters, player options, (i.e. verbs,) character reactions, (i.e. more verbs,) and characters.
@@ -69,73 +66,108 @@ function blendChange(x, delta){
 
 //Define what an encounter consists of:
 class Encounter {
-  constructor(id, title, main_text, earliest_turn, latest_turn, antagonist) {
-    this.id = id;//a string that uniquely identifies this encounter, used for dictionary keys.
-    this.title = title;//string
-    this.main_text = main_text;//string
-	//Prerequisites are conditions that must be met for an encounter to be deemed acceptable.
-    this.prerequisites = [];//array
-	//Desiderata are ideal conditions for the encounter to occur.
-	//The closer present circumstances are to these conditions, the more desirable the encounter is.
-    this.desiderata = [];//array
-    this.earliest_turn = earliest_turn;//integer
-    this.latest_turn = latest_turn;//integer
-    this.antagonist = antagonist;//integer
-    this.options = [];//array
-  }
+    constructor(id, title, main_text, acceptability_script, desirability_script, earliest_turn, latest_turn, antagonist) {
+        this.id = id;//a string that uniquely identifies this encounter, used for dictionary keys.
+        this.title = title;//string
+        this.main_text = main_text;//string
+        this.acceptability_script = acceptability_script
+        this.desirability_script = desirability_script
+        this.earliest_turn = earliest_turn;//integer
+        this.latest_turn = latest_turn;//integer
+        this.antagonist = antagonist;//integer
+        this.options = [];//array
+    }
 }
 
 //Define an option and its associated reactions:
 class Player_Option {
-  constructor(text, visibility_prerequisites, performability_prerequisites, reactions) {
-    this.text = text;//string
-	this.visibility_prerequisites = visibility_prerequisites;
-	this.performability_prerequisites = performability_prerequisites;
-    this.reactions = reactions;//array
-  }
+    constructor(text, visibility_script, performability_script, reactions) {
+        this.text = text;//string
+        this.visibility_script = visibility_script;
+        this.performability_script = performability_script;
+        this.reactions = reactions;//array
+    }
 }
 
 class Character_Reaction {
-  constructor(text, blend_x, blend_y, blend_weight, consequence) {
-    this.text = text;//Text to display to player if reaction is chosen.
-	this.blend_x = blend_x;
-	this.blend_y = blend_y;
-	this.blend_weight = blend_weight;
-	this.consequence = consequence;//An encounter that must happen next if reaction is chosen.
-	this.pValue_changes = [];//Array of dictionaries: {"character": character id (int) or -1 for antagonist, "pValue": pValue name (string), "change": blend change amount (float)}.
-  }
+    constructor(text, desirability_script, consequence) {
+        this.text = text;//Text to display to player if reaction is chosen.
+        this.desirability_script = desirability_script;
+        this.consequence = consequence;//An encounter that must happen next if reaction is chosen.
+        this.after_effects = [];
+    }
 }
 
 class Character {
-  constructor(name, pronoun, bnumber_properties) {
-    this.name = name;//The character's name.
-    this.pronoun = pronoun;//They, she, he, etc.
-	this.bnumber_properties = JSON.parse(JSON.stringify(bnumber_properties));//dictionary of personality traits.
-  }
-  lookup(text){
-	var result = 0;
-	var sign = 1;
-	var key = "";
-	if ("-" == text.charAt(0)){
-	  key = text.substr(1);
-	  sign = -1;
-	} else {
-	  key = text;
-	}
-	result = sign * this.bnumber_properties[key];
-	return result;
-  }
-  set_bnumber_property(key, value){
-    this.bnumber_properties[key] = value
-  }
-  printCharRelationships(delimiter){
-    let result = "";
-	result += "<b>Name:</b> " + this.name;
-    for (const [key, value] of Object.entries(this.bnumber_properties)) {
-      result += delimiter + "<b>" + key + ":</b> " + value;
+    constructor(name, pronoun, bnumber_properties) {
+        this.name = name;//The character's name.
+        this.pronoun = pronoun;//They, she, he, etc.
+        this.bnumber_properties = JSON.parse(JSON.stringify(bnumber_properties));//dictionary of personality traits.
     }
-	return result;
-  }
+    get_bnumber_property(keyring){
+        console.log("Fetching bounded number property " + JSON.stringify(keyring) + "from " + this.name);
+        let first_loop = true;
+        let property = keyring[0];
+        let onion = null;
+        for (const key of keyring){
+            if (first_loop){
+                first_loop = false;
+                if (!Object.hasOwn(this.bnumber_properties, property)){
+                    console.log("Property '" + property + "' not found.");
+                    return 0;
+                } else {
+                    onion = this.bnumber_properties[property];
+                }
+            } else {
+                if ("object" == typeof onion && Object.hasOwn(onion, key)){
+                    onion = onion[key];
+                } else if ("number" == typeof onion){
+                    console.log("Result: " + onion.toString());
+                    return onion;
+                } else {
+                    console.log("Invalid result. Returning 0.");
+                    return 0;
+                }
+            }
+        }
+        if ("number" == typeof onion){
+            //0-depth property.
+            console.log("Result: " + onion.toString());
+            return onion;
+        }
+    }
+    set_bnumber_property(keyring, value){
+        let property = keyring[0];
+        let onion = null;
+        let l = keyring.length;
+        for (let index = 0; index < l; index++) {
+            let key = keyring[index];
+            if (0 == index){
+                //First pass through loop.
+                if (1 == l){
+                    //This keyring refers to a 0-depth property.
+                    this.bnumber_properties[property] = value;
+                } else {
+                    onion = this.bnumber_properties[property];
+                }
+            } else if (0 < index && index < (l - 1)){
+                //Partway through loop.
+                if ("object" == typeof onion && Object.hasOwn(onion, key)){
+                    onion = onion[key];
+                }
+            } else{
+                //Last pass through loop.
+                if ("object" == typeof onion && Object.hasOwn(onion, key)){
+                    onion[key] = value;
+                }
+            }
+        }
+    }
+    printCharRelationships(delimiter){
+        let result = "";
+        result += "<b>Name:</b> " + this.name + JSON.stringify(this.bnumber_properties);
+        return result;
+    }
 }
 
 //-------------------
@@ -154,22 +186,20 @@ var current_scene = "wild";//"wild" means the current scene is ignored when sele
 var text_buffer = "";//Used to store the text of a reaction so that it can be displayed at the start of the next encounter. Also used when encounters are broken into sections to store the text so far displayed.
 
 //Here is the database of characters.
-var characters = [
-  //new Character("Fate", "they", 0, 0, 0, 0, 0, 0)
-];
+var characters = [];
 
 //Here is the history book. Each entry includes an encounter, an option, and a reaction, but the option and reaction entries can equal -1, indicating that none have yet been selected. This database can be exported as a save file.
 
 var slow_historybook = [
-  //{"encounter": "start", "option": -1, "reaction": -1}
+    //{"encounter": "start", "option": -1, "reaction": -1}
 ];
 
 //To enable quick searching of the historybook, here is a dictionary / hash table version. Each key is the name of the encounter, a unique string, while the associated value is the turn when it occured, which also works as an index to the above array if the chosen option and reaction are also needed.
 
 var quick_historybook = {
-  //"start": 0
-  //This is a hashtable which uses encounter ids as keys, and the turn the encounter occured as the value.
-  //This enables us to look up an encounter in the quick historybook, then look it up in the slow historybook by using the turn that it occured as the key, making both searches O(1) in speed.
+    //"start": 0
+    //This is a hashtable which uses encounter ids as keys, and the turn the encounter occured as the value.
+    //This enables us to look up an encounter in the quick historybook, then look it up in the slow historybook by using the turn that it occured as the key, making both searches O(1) in speed.
 };
 
 //The following string keeps a transcript of play. The player can normally review it at any time.
@@ -177,68 +207,60 @@ var quick_historybook = {
 var playthrough_transcript = "";
 
 function parseReactionsData(data){
-  var reactions = [];
-  var each;
-  for (each of data){
-    var new_reaction = new Character_Reaction(each["text"], each["blend_x"], each["blend_y"], each["blend_weight"], each["consequence_id"]);
-	for (x of each["pValue_changes"]){
-	  new_reaction.pValue_changes.push({"character": x["character"], "pValue": x["pValue"], "change": x["point"]});
-	}
-    reactions.push(new_reaction);
-  }
-  return reactions;
+    var reactions = [];
+    var each;
+    for (each of data){
+        var new_reaction = new Character_Reaction(each["text"], each["desirability_script"], each["consequence_id"]);
+        for (x of each["after_effects"]){
+            new_reaction.after_effects.push(x);
+        }
+        reactions.push(new_reaction);
+    }
+    return reactions;
 }
 
 function parseOptionsData(data){
-  var options = [];
-  var each;
-  for (each of data){
-    options.push(new Player_Option(each["text"], each["visibility_prerequisites"], each["performability_prerequisites"], parseReactionsData(each["reactions"])));
-  }
-  return options;
+    var options = [];
+    var each;
+    for (each of data){
+        options.push(new Player_Option(each["text"], each["visibility_script"], each["performability_script"], parseReactionsData(each["reactions"])));
+    }
+    return options;
 }
 
 //Import game data.
 function importCharacterData(){
-  characters = [];
-  if (0 == storyworld_data.characters.length){
-    characters.push(new Character("Fate", "they", {}, {}));
-	console.log("Warning: Storyworld includes no characters!");
-  }
-  var eachCh;
-  for (eachCh of storyworld_data.characters){
-    var new_character = new Character(eachCh["name"], eachCh["pronoun"], eachCh["bnumber_properties"]);
-    characters.push(new_character);
-  }
+    characters = [];
+    if (0 == storyworld_data.characters.length){
+        characters.push(new Character("Fate", "they", {}, {}));
+        console.log("Warning: Storyworld includes no characters!");
+    }
+    var eachCh;
+    for (eachCh of storyworld_data.characters){
+        var new_character = new Character(eachCh["name"], eachCh["pronoun"], eachCh["bnumber_properties"]);
+        characters.push(new_character);
+    }
 }
 
 function importGameData(){
-  importCharacterData();
-  var eachEn;
-  for (eachEn of storyworld_data.encounters){
-    //id, title, main_text, earliest_turn, latest_turn, antagonist, options
-    x_event = new Encounter(eachEn["id"], eachEn["title"], eachEn["main_text"], eachEn["earliest_turn"], eachEn["latest_turn"], eachEn["antagonist"]);
-	x_event.options = parseOptionsData(eachEn["options"]);
-	var x_prereq;
-	for (x_prereq of eachEn["prerequisites"]){
-	  x_event.prerequisites.push(x_prereq);
-	}
-	var x_desid;
-	for (x_desid of eachEn["desiderata"]){
-	  x_event.desiderata.push(x_desid);
-	}
-    encounters[eachEn["id"]] = x_event;
-  }
+    importCharacterData();
+    var eachEn;
+    for (eachEn of storyworld_data.encounters){
+        //id, title, main_text, earliest_turn, latest_turn, antagonist, options
+        x_event = new Encounter(eachEn["id"], eachEn["title"], eachEn["main_text"], eachEn["acceptability_script"], eachEn["desirability_script"], eachEn["earliest_turn"], eachEn["latest_turn"], eachEn["antagonist"]);
+        x_event.options = parseOptionsData(eachEn["options"]);
+        encounters[eachEn["id"]] = x_event;
+    }
 }
 
 //Sorting comparison functions.
 function comparePageTitleAlphabetically(a, b){
-  if (a.title < b.title){
-    return -1;
-  } else if (a.title == b.title && a.id < b.id){
-    return -1;
-  }
-  return 1;
+    if (a.title < b.title){
+        return -1;
+    } else if (a.title == b.title && a.id < b.id){
+        return -1;
+    }
+    return 1;
 }
 
 //-----------------------------
@@ -246,118 +268,118 @@ function comparePageTitleAlphabetically(a, b){
 //-----------------------------
 
 function setCookie(cname,cvalue,exdays) {
-  var d = new Date();
-  d.setTime(d.getTime() + (exdays*24*60*60*1000));
-  var expires = "expires=" + d.toGMTString();
-  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/;SameSite=Lax";
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires=" + d.toGMTString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/;SameSite=Lax";
 }
 
 function getCookie(cname) {
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for(var i = 0; i < ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
     }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
+    return "";
 }
 
 var save_profile = {};
 
 var save_profile_string = getCookie("save_profile");
 if (save_profile_string != "") {
-  save_profile = JSON.parse(save_profile_string);
+    save_profile = JSON.parse(save_profile_string);
 }
 
 function saveGame(save_filename, note = ""){
-  save_filename = encodeURIComponent(save_filename);
-  var save_dictionary = {};
-  save_dictionary.save_filename = save_filename;
-  save_dictionary.slow_historybook = slow_historybook;
-  save_dictionary.characters = characters;
-  save_dictionary.note = encodeURIComponent(note);
-  var save_file = JSON.stringify(save_dictionary);
-  setCookie("saved_game_" + save_filename, save_file, 4096);
-  save_profile[save_filename] = new Date().toUTCString();
-  setCookie("save_profile", JSON.stringify(save_profile), 4096);
-  displaySaveProfile();
-  console.log("Saved game: " + save_filename);
+    save_filename = encodeURIComponent(save_filename);
+    var save_dictionary = {};
+    save_dictionary.save_filename = save_filename;
+    save_dictionary.slow_historybook = slow_historybook;
+    save_dictionary.characters = characters;
+    save_dictionary.note = encodeURIComponent(note);
+    var save_file = JSON.stringify(save_dictionary);
+    setCookie("saved_game_" + save_filename, save_file, 4096);
+    save_profile[save_filename] = new Date().toUTCString();
+    setCookie("save_profile", JSON.stringify(save_profile), 4096);
+    displaySaveProfile();
+    console.log("Saved game: " + save_filename);
 }
 
 function loadGame(save_filename){
-  //Set slow historybook to saved historybook.
-  var save_dictionary = JSON.parse(getCookie("saved_game_" + save_filename));
-  //console.log("Loading game: " + save_filename + " : " + );
-  slow_historybook = save_dictionary.slow_historybook;
-  characters = save_dictionary.characters;
-  //Fill quick historybook from slow historybook.
-  //Fill transcript from slow historybook as well.
-  quick_historybook = {};
-  playthrough_transcript = "";
-  for (const [index,value] of slow_historybook.entries()){
-    quick_historybook[value.encounter] = index;
-    if (-1 != value.option && -1 != value.reaction){
-	  writeEncounterToTranscript(value.encounter, value.option, value.reaction);
-	}
-  }
-  document.getElementById("transcript").innerHTML = playthrough_transcript;
-  refreshCollapsable(document.getElementById("transcript"));
-  turn = slow_historybook.length;
-  //Load last encounter.
-  if ('undefined' === typeof slow_historybook[slow_historybook.length - 1]){
-    loadTheEnd(false);//Don't record to historybook.
-  } else {
-    loadEncounter(slow_historybook[slow_historybook.length - 1].encounter, false);//Don't record to historybook.
-  }
-  console.log("Loaded saved game: " + save_filename);
+    //Set slow historybook to saved historybook.
+    var save_dictionary = JSON.parse(getCookie("saved_game_" + save_filename));
+    //console.log("Loading game: " + save_filename + " : " + );
+    slow_historybook = save_dictionary.slow_historybook;
+    characters = save_dictionary.characters;
+    //Fill quick historybook from slow historybook.
+    //Fill transcript from slow historybook as well.
+    quick_historybook = {};
+    playthrough_transcript = "";
+    for (const [index,value] of slow_historybook.entries()){
+        quick_historybook[value.encounter] = index;
+        if (-1 != value.option && -1 != value.reaction){
+            writeEncounterToTranscript(value.encounter, value.option, value.reaction);
+        }
+    }
+    document.getElementById("transcript").innerHTML = playthrough_transcript;
+    refreshCollapsable(document.getElementById("transcript"));
+    turn = slow_historybook.length;
+    //Load last encounter.
+    if ('undefined' === typeof slow_historybook[slow_historybook.length - 1]){
+        loadTheEnd(false);//Don't record to historybook.
+    } else {
+        loadEncounter(slow_historybook[slow_historybook.length - 1].encounter, false);//Don't record to historybook.
+    }
+    console.log("Loaded saved game: " + save_filename);
 }
 
 function deleteSavedGame(save_filename){
-  setCookie("saved_game_" + save_filename, "", 0);
-  delete save_profile[save_filename];
-  setCookie("save_profile", JSON.stringify(save_profile), 4096);
-  displaySaveProfile();
-  console.log("Deleted saved game: " + save_filename);
+    setCookie("saved_game_" + save_filename, "", 0);
+    delete save_profile[save_filename];
+    setCookie("save_profile", JSON.stringify(save_profile), 4096);
+    displaySaveProfile();
+    console.log("Deleted saved game: " + save_filename);
 }
 
 function confirmSaveGame(save_filename, note = ""){
-  if ("" == getCookie("saved_game_" + save_filename)){//No save file by this name exists.
-    saveGame(save_filename, note);
-  } else {
-    var confirmed = confirm("Do you wish to overwrite this savefile? (" + save_filename + ")");
-	if (true == confirmed){
-	  saveGame(save_filename, note);
-	}
-  }
+    if ("" == getCookie("saved_game_" + save_filename)){//No save file by this name exists.
+        saveGame(save_filename, note);
+    } else {
+        var confirmed = confirm("Do you wish to overwrite this savefile? (" + save_filename + ")");
+        if (true == confirmed){
+            saveGame(save_filename, note);
+        }
+    }
 }
 
 function confirmLoadGame(save_filename){
-  var confirmed = confirm("Do you wish to load this saved game? Unsaved progress will be lost.");
-  if (true == confirmed){
-    loadGame(save_filename);
-  }
+    var confirmed = confirm("Do you wish to load this saved game? Unsaved progress will be lost.");
+    if (true == confirmed){
+        loadGame(save_filename);
+    }
 }
 
 function confirmDeleteSavedGame(save_filename){
-  var confirmed = confirm("Do you wish to delete this saved game? The savefile will be permanently erased.");
-  if (true == confirmed){
-    deleteSavedGame(save_filename);
-  }
+    var confirmed = confirm("Do you wish to delete this saved game? The savefile will be permanently erased.");
+    if (true == confirmed){
+        deleteSavedGame(save_filename);
+    }
 }
 
 function displaySaveProfile(){
-  var text = "<p><b>Saved Games:</b></p>";
-  for (each in save_profile){
-    text = text + "<p>" + '<a href="javascript:confirmLoadGame(\'' + each + '\')">Load</a> / <a href="javascript:confirmDeleteSavedGame(\'' + each + '\')">Delete</a> ' + decodeURIComponent(each) + " : " + save_profile[each] + " : " + decodeURIComponent(JSON.parse(getCookie("saved_game_" + each)).note) + "</p>";
-  }
-  document.getElementById("saved_game_list").innerHTML = text;
-  refreshCollapsable(document.getElementById("main_menu"));
+    var text = "<p><b>Saved Games:</b></p>";
+    for (each in save_profile){
+        text = text + "<p>" + '<a href="javascript:confirmLoadGame(\'' + each + '\')">Load</a> / <a href="javascript:confirmDeleteSavedGame(\'' + each + '\')">Delete</a> ' + decodeURIComponent(each) + " : " + save_profile[each] + " : " + decodeURIComponent(JSON.parse(getCookie("saved_game_" + each)).note) + "</p>";
+    }
+    document.getElementById("saved_game_list").innerHTML = text;
+    refreshCollapsable(document.getElementById("main_menu"));
 }
 
 //--------------------
@@ -365,210 +387,327 @@ function displaySaveProfile(){
 //--------------------
 
 //-------------------------------------
-//Section 6: Prerequisite Checking Functionality
+//Section 6: Script Functionality
 //-------------------------------------
 
 function eventHasOccurred(encounter, option, reaction){
-  //Checks whether an encounter has occurred.
-  //Optionally checks whether the player chose a given option,
-  //and / or whether the antagonist chose a given reaction.
-  //-1 for wildcarding option and reaction.
-  if (quick_historybook.hasOwnProperty(encounter)){
-    if (-1 == option && -1 == reaction){
-	  return true;
-	} else if (-1 == option){
-	  if (slow_historybook[quick_historybook[encounter]].reaction == reaction){
-	    return true;
-	  }
-	} else if (-1 == reaction){
-	  if (slow_historybook[quick_historybook[encounter]].option == option){
-	    return true;
-	  }
-	} else {
-	  if (slow_historybook[quick_historybook[encounter]].option == option && slow_historybook[quick_historybook[encounter]].reaction == reaction){
-	    return true;
-	  }
-	}
-  }
-  return false;
+    //Checks whether an encounter has occurred.
+    //Optionally checks whether the player chose a given option,
+    //and / or whether the antagonist chose a given reaction.
+    //-1 for wildcarding option and reaction.
+    if (quick_historybook.hasOwnProperty(encounter)){
+        if (-1 == option && -1 == reaction){
+            return true;
+        } else if (-1 == option){
+            if (slow_historybook[quick_historybook[encounter]].reaction == reaction){
+                return true;
+            }
+        } else if (-1 == reaction){
+            if (slow_historybook[quick_historybook[encounter]].option == option){
+                return true;
+            }
+        } else {
+            if (slow_historybook[quick_historybook[encounter]].option == option && slow_historybook[quick_historybook[encounter]].reaction == reaction){
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function compare_pValue_to_constant(who, pValue_id, operator, constant){
-  if (characters[who] == void 0){//If character is undefined
+    if (characters[who] == void 0){//If character is undefined
+        return false;
+    }
+    var pValue = characters[who].lookup(pValue_id);
+    if ("==" == operator && pValue == constant){
+        return true;
+    } else if ("<" == operator && pValue < constant){
+        return true;
+    } else if ("<=" == operator && pValue <= constant){
+        return true;
+    } else if (">" == operator && pValue > constant){
+        return true;
+    } else if (">=" == operator && pValue >= constant){
+        return true;
+    }
     return false;
-  }
-  var pValue = characters[who].lookup(pValue_id);
-  if ("==" == operator && pValue == constant){
-    return true;
-  } else if ("<" == operator && pValue < constant){
-    return true;
-  } else if ("<=" == operator && pValue <= constant){
-    return true;
-  } else if (">" == operator && pValue > constant){
-    return true;
-  } else if (">=" == operator && pValue >= constant){
-    return true;
-  }
-  return false;
 }
 
 function compare_pValue_to_pValue(who1, pValue1_id, operator, who2, pValue2_id){
-  if (characters[who1] == void 0 || characters[who2] == void 0){//If either character is undefined
+    if (characters[who1] == void 0 || characters[who2] == void 0){//If either character is undefined
+        return false;
+    }
+    var pValue1 = characters[who1].lookup(pValue1_id);
+    var pValue2 = characters[who2].lookup(pValue2_id);
+    if ("==" == operator && pValue1 == pValue2){
+        return true;
+    } else if ("<" == operator && pValue1 < pValue2){
+        return true;
+    } else if ("<=" == operator && pValue1 <= pValue2){
+        return true;
+    } else if (">" == operator && pValue1 > pValue2){
+        return true;
+    } else if (">=" == operator && pValue1 >= pValue2){
+        return true;
+    }
     return false;
-  }
-  var pValue1 = characters[who1].lookup(pValue1_id);
-  var pValue2 = characters[who2].lookup(pValue2_id);
-  if ("==" == operator && pValue1 == pValue2){
-    return true;
-  } else if ("<" == operator && pValue1 < pValue2){
-    return true;
-  } else if ("<=" == operator && pValue1 <= pValue2){
-    return true;
-  } else if (">" == operator && pValue1 > pValue2){
-    return true;
-  } else if (">=" == operator && pValue1 >= pValue2){
-    return true;
-  }
-  return false;
 }
 
 function query_max_pValue(pValue){
-  var max_character;
-  var max_pValue = -1;
-  var x;
-  for (x in characters){
-	if (characters[x].lookup(pValue) >= max_pValue){
-	  max_character = x;
-      max_pValue = characters[x].lookup(pValue);
+    var max_character;
+    var max_pValue = -1;
+    var x;
+    for (x in characters){
+        if (characters[x].lookup(pValue) >= max_pValue){
+            max_character = x;
+            max_pValue = characters[x].lookup(pValue);
+        }
     }
-  }
-  return [max_character, max_pValue];
+    return [max_character, max_pValue];
 }
 
 function query_min_pValue(pValue){
-  var min_character;
-  var min_pValue = 1;
-  var x;
-  for (x in characters){
-	if (characters[x].lookup(pValue) <= min_pValue){
-	  min_character = x;
-      min_pValue = characters[x].lookup(pValue);
+    var min_character;
+    var min_pValue = 1;
+    var x;
+    for (x in characters){
+        if (characters[x].lookup(pValue) <= min_pValue){
+            min_character = x;
+            min_pValue = characters[x].lookup(pValue);
+        }
     }
-  }
-  return [min_character, min_pValue];
+    return [min_character, min_pValue];
 }
 
 function query_median_pValue(pValue){
-  var unsorted_array = [];
-  var x;
-  for (x of characters){
-	unsorted_array.push(x.lookup(pValue));
-  }
-  var mid = Math.ceil(unsorted_array.length / 2);
-  var sorted_array = unsorted_array.sort();
-  var median = sorted_array.length % 2 == 0 ? (sorted_array[mid] + sorted_array[mid - 1]) / 2 : sorted_array[mid - 1];
-  return median;
+    var unsorted_array = [];
+    var x;
+    for (x of characters){
+        unsorted_array.push(x.lookup(pValue));
+    }
+    var mid = Math.ceil(unsorted_array.length / 2);
+    var sorted_array = unsorted_array.sort();
+    var median = sorted_array.length % 2 == 0 ? (sorted_array[mid] + sorted_array[mid - 1]) / 2 : sorted_array[mid - 1];
+    return median;
 }
 
 function query_mean_pValue(pValue){
-  var sum = 0;
-  var x;
-  for (x of characters){
-	sum += x.lookup(pValue);
-  }
-  return sum / characters.length;
+    var sum = 0;
+    var x;
+    for (x of characters){
+        sum += x.lookup(pValue);
+    }
+    return sum / characters.length;
 }
 
 function compare_statistic_to_constant(prerequisite){
-  var statistic;
-  var operator = prerequisite["operator"];
-  var constant = prerequisite["constant"];
-  if ("maximum" == prerequisite["who1"]){
-    statistic = query_max_pValue(prerequisite["pValue1"])[1];
-  } else if ("minimum" == prerequisite["who1"]){
-    statistic = query_min_pValue(prerequisite["pValue1"])[1];
-  } else if ("median" == prerequisite["who1"]){
-    statistic = query_median_pValue(prerequisite["pValue1"]);
-  } else if ("mean" == prerequisite["who1"]){
-    statistic = query_mean_pValue(prerequisite["pValue1"]);
-  }
-  if ("==" == operator && statistic == constant){
-    return true;
-  } else if ("<" == operator && statistic < constant){
-    return true;
-  } else if ("<=" == operator && statistic <= constant){
-    return true;
-  } else if (">" == operator && statistic > constant){
-    return true;
-  } else if (">=" == operator && statistic >= constant){
-    return true;
-  }
-  return false;
+    var statistic;
+    var operator = prerequisite["operator"];
+    var constant = prerequisite["constant"];
+    if ("maximum" == prerequisite["who1"]){
+        statistic = query_max_pValue(prerequisite["pValue1"])[1];
+    } else if ("minimum" == prerequisite["who1"]){
+        statistic = query_min_pValue(prerequisite["pValue1"])[1];
+    } else if ("median" == prerequisite["who1"]){
+        statistic = query_median_pValue(prerequisite["pValue1"]);
+    } else if ("mean" == prerequisite["who1"]){
+        statistic = query_mean_pValue(prerequisite["pValue1"]);
+    }
+    if ("==" == operator && statistic == constant){
+        return true;
+    } else if ("<" == operator && statistic < constant){
+        return true;
+    } else if ("<=" == operator && statistic <= constant){
+        return true;
+    } else if (">" == operator && statistic > constant){
+        return true;
+    } else if (">=" == operator && statistic >= constant){
+        return true;
+    }
+    return false;
 }
 
 function compare_statistic_to_pValue(prerequisite){
-  var statistic;
-  var operator = prerequisite["operator"];
-  var constant = prerequisite["constant"];
-  var who2 = prerequisite["who2"];
-  var pValue;
-  if ("maximum" == prerequisite["who1"]){
-    statistic = query_max_pValue(prerequisite["pValue1"])[1];
-  } else if ("minimum" == prerequisite["who1"]){
-    statistic = query_min_pValue(prerequisite["pValue1"])[1];
-  } else if ("median" == prerequisite["who1"]){
-    statistic = query_median_pValue(prerequisite["pValue1"]);
-  } else if ("mean" == prerequisite["who1"]){
-    statistic = query_mean_pValue(prerequisite["pValue1"]);
-  }
-  pValue = characters[who2].lookup(prerequisite["pValue2"]);
-  if ("==" == operator && statistic == pValue){
-    return true;
-  } else if ("<" == operator && statistic < pValue){
-    return true;
-  } else if ("<=" == operator && statistic <= pValue){
-    return true;
-  } else if (">" == operator && statistic > pValue){
-    return true;
-  } else if (">=" == operator && statistic >= pValue){
-    return true;
-  }
-  return false;
+    var statistic;
+    var operator = prerequisite["operator"];
+    var constant = prerequisite["constant"];
+    var who2 = prerequisite["who2"];
+    var pValue;
+    if ("maximum" == prerequisite["who1"]){
+        statistic = query_max_pValue(prerequisite["pValue1"])[1];
+    } else if ("minimum" == prerequisite["who1"]){
+        statistic = query_min_pValue(prerequisite["pValue1"])[1];
+    } else if ("median" == prerequisite["who1"]){
+        statistic = query_median_pValue(prerequisite["pValue1"]);
+    } else if ("mean" == prerequisite["who1"]){
+        statistic = query_mean_pValue(prerequisite["pValue1"]);
+    }
+    pValue = characters[who2].lookup(prerequisite["pValue2"]);
+    if ("==" == operator && statistic == pValue){
+        return true;
+    } else if ("<" == operator && statistic < pValue){
+        return true;
+    } else if ("<=" == operator && statistic <= pValue){
+        return true;
+    } else if (">" == operator && statistic > pValue){
+        return true;
+    } else if (">=" == operator && statistic >= pValue){
+        return true;
+    }
+    return false;
 }
 
 function evaluatePrerequisite(prerequisite){
-  switch (prerequisite["prereq_type"]){
-    case 0:
-	  //Ask whether or not an event has occurred.
-	  return eventHasOccurred(prerequisite["encounter"], prerequisite["option"], prerequisite["reaction"]);
-	  break;
-	case 1:
-	  //Ask whether or not a scene is active.
-	  if (current_scene == prerequisite["encounter_scene"] || current_scene == "wild"){
-  	    return true;
-	  } else {
-	    return false;
-	  }
-	  break;
-	case 2:
-	  //pValue to constant
-	  return compare_pValue_to_constant(prerequisite["who1"], prerequisite["pValue1"], prerequisite["operator"], prerequisite["constant"])
-	  break;
-	case 3:
-	  //pValue to pValue
-	  return compare_pValue_to_pValue(prerequisite["who1"], prerequisite["pValue1"], prerequisite["operator"], prerequisite["who2"], prerequisite["pValue2"])
-	  break;
-	case 4:
-	  //pValueStat to constant.
-	  return compare_statistic_to_constant(prerequisite);
-	  break;
-	case 5:
-	  //pValueStat to pValue.
-	  return compare_statistic_to_pValue(prerequisite);
-	  break;
-	default:
-	  return false;
-  }
+    switch (prerequisite["prereq_type"]){
+        case 0:
+            //Ask whether or not an event has occurred.
+            return eventHasOccurred(prerequisite["encounter"], prerequisite["option"], prerequisite["reaction"]);
+            break;
+        case 1:
+            //Ask whether or not a scene is active.
+            if (current_scene == prerequisite["encounter_scene"] || current_scene == "wild"){
+                return true;
+            } else {
+                return false;
+            }
+            break;
+        case 2:
+            //pValue to constant
+            return compare_pValue_to_constant(prerequisite["who1"], prerequisite["pValue1"], prerequisite["operator"], prerequisite["constant"])
+            break;
+        case 3:
+            //pValue to pValue
+            return compare_pValue_to_pValue(prerequisite["who1"], prerequisite["pValue1"], prerequisite["operator"], prerequisite["who2"], prerequisite["pValue2"])
+            break;
+        case 4:
+            //pValueStat to constant.
+            return compare_statistic_to_constant(prerequisite);
+            break;
+        case 5:
+            //pValueStat to pValue.
+            return compare_statistic_to_pValue(prerequisite);
+            break;
+        default:
+            return false;
+    }
+}
+
+function blend(x, y, w){
+    const weight = ((w + 1) / 2);
+    const result = x * (1 - weight) + y * weight;
+    console.log("Blend of " + x.toString() + " and " + y.toString() + " with weight " + w.toString() + " equals " + result);
+    return result;
+}
+
+function nudge(x, delta){
+    const result = x * (1 - Math.abs(delta)) + delta;
+    console.log("Nudge " + x.toString() + " by " + delta.toString() + " equals " + result);
+    return result;
+}
+
+function clampBNumber(num){
+    return Math.min(Math.max(num, -0.99), 0.99);
+}
+
+function evaluateSWScript(script){
+    if ("boolean" == typeof script){
+        return script;
+    } else if (null !== script && "object" == typeof script && Object.hasOwn(script, "script_element_type")){
+        console.log("Evaluating script: " + JSON.stringify(script));
+        if ("Pointer" == script["script_element_type"] && Object.hasOwn(script, "pointer_type")){
+            console.log("Script is a pointer.");
+            if ("Bounded Number Constant" == script["pointer_type"] && Object.hasOwn(script, "value")){
+                console.log("Script is a bounded number constant, with a value of " + script["value"].toString() + ".");
+                return script["value"];
+            } else if ("Bounded Number Pointer" == script["pointer_type"] && Object.hasOwn(script, "character") && Object.hasOwn(script, "coefficient") && Object.hasOwn(script, "keyring")){
+                let character = characters[script["character"]];
+                let result = script["coefficient"] * character.get_bnumber_property(script["keyring"]);
+                console.log("Script is a bounded number pointer, with a value of " + result.toString() + ".");
+                return result;
+            } else if ("Event Pointer" == script["pointer_type"] && Object.hasOwn(script, "negated") && Object.hasOwn(script, "spool") && Object.hasOwn(script, "encounter") && Object.hasOwn(script, "option") && Object.hasOwn(script, "reaction")){
+                let has_occurred = eventHasOccurred(script["encounter"], script["option"], script["reaction"]);
+                if (false == script["negated"] && !(has_occurred)){
+                    return false;
+                } else if (true == script["negated"] && has_occurred){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        } else if ("Operator" == script["script_element_type"] && Object.hasOwn(script, "operator_type") && Object.hasOwn(script, "operands") && Object.hasOwn(script, "input_type")){
+            console.log("Script is an operator.");
+            //Evaluate operands first.
+            let evaluated_operands = [];
+            let operands_length = script["operands"].length;
+            for (let index = 0; index < operands_length; index++) {
+                let parsed_operand = evaluateSWScript(script["operands"][index]);
+                //Check whether or not the operand is valid before adding it to the list of evaluated operands.
+                if (null !== parsed_operand && script["input_type"] == typeof parsed_operand){
+                    evaluated_operands.push(parsed_operand);
+                }
+            }
+            operands_length = evaluated_operands.length;
+            //Now evaluate operator.
+            if ("Arithmetic Mean" == script["operator_type"]){
+                let sum = 0;
+                let count = 0;
+                for (let index = 0; index < operands_length; index++) {
+                    evaluated_operand = evaluated_operands[index];
+                    if ("number" == typeof evaluated_operand){
+                        sum += evaluated_operands[index];
+                        count += 1;
+                    }
+                }
+                if (0 == count){
+                    return 0;
+                } else {
+                    return sum / count;
+                }
+            } else if ("Blend" == script["operator_type"] && 3 == operands_length){
+                let result = blend(evaluated_operands[0], evaluated_operands[1], evaluated_operands[2]);
+                return result;
+            } else if ("Boolean Comparator" == script["operator_type"] && Object.hasOwn(script, "operator_subtype") && 1 <= operands_length){
+                if ("NOT" == script["operator_subtype"] && 1 <= operands_length){
+                    return !evaluated_operands[0];
+                } else if ("AND" == script["operator_subtype"]){
+                    let result = true;
+                    for (let index = 0; index < operands_length; index++) {
+                        evaluated_operand = evaluated_operands[index];
+                        result = (result && evaluated_operand);
+                    }
+                    return result;
+                } else if ("OR" == script["operator_subtype"]){
+                    let result = false;
+                    for (let index = 0; index < operands_length; index++) {
+                        evaluated_operand = evaluated_operands[index];
+                        result = (result || evaluated_operand);
+                    }
+                    return result;
+                } else if ("XOR" == script["operator_subtype"] && 2 <= operands_length){
+                    return (evaluated_operands[0] != evaluated_operands[1]);
+                }
+//            } else if ("Bounded Sum" == script["operator_type"]){
+//                return blend(x, y, w);
+            } else if ("Desideratum" == script["operator_type"] && 3 == operands_length){
+                return clampBNumber(0.99 - Math.abs(evaluated_operands[0] - evaluated_operands[1]));
+            } else if ("Nudge" == script["operator_type"] && 2 == operands_length){
+                return nudge(evaluated_operands[0], evaluated_operands[1]);
+            }
+        }
+    }
+    console.log("Script produces null result.");
+    return null;
+}
+
+function enactEffect(effect_data){
+    let character = characters[effect_data["Set"]["character"]];
+    let keyring = effect_data["Set"]["keyring"];
+    let value = evaluateSWScript(effect_data["to"]);
+    if (null !== value && "number" == typeof value){
+        value *= effect_data["Set"]["coefficient"];
+        character.set_bnumber_property(keyring, value);
+    }
 }
 
 //-----------------------
@@ -578,402 +717,363 @@ function evaluatePrerequisite(prerequisite){
 //Load an encounter:
 //This one is mildly complicated. It looks up an encounter in the above database and displays it to the player.
 function loadEncounter(encounter_id, record = true) {
-  //This function can either take a string as input, in which case it treats the string as the encounter name and looks up the encounter in the encounters database, or it can take an encounter as input, thereby skipping the database lookup.
-  var encounter = encounters[encounter_id];
-  console.log("Turn: " + turn + ' Displaying encounter: "' + encounter.title + '" Antagonist: ' + characters[encounter.antagonist].name);
-  current_page = encounter;//Track which encounter we're in.
-  next_page = "start";//Set the next encounter to be semi-random.
-  current_antagonist = encounter.antagonist;//integer
-  var encounter_sections = [];
-  
-  //Now we change the main encounter text to what it needs to be.
-  var current_main_text = "";
-  var continue_button_label = "";
-  if (0 == storyworld_data["display_mode"]){
-    //In display mode 0, the game displays the reaction on the same screen as the current encounter, then requires the player to click an extra button to proceed to the next encounter.
-    text_buffer = "";
-  } else if (1 == storyworld_data["display_mode"]){
-    //In display mode 1, when a player chooses an option, the game clears the screen and displays the reaction text followed by the text of the next encounter.
-	current_main_text += text_buffer + "<br>";//text_buffer should be holding the text of the reaction that needs displayed.
-  }
-  if (storyworld_data["debug_mode"]){
-    //If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-    current_main_text += "<b>(" + encounter.title + ")</b><br>" + characters[current_antagonist].printCharRelationships("<br>") + "<br>";
-  }
-  var continue_regex = /\[\[.*\|continue\]\]/gim;
-  if (-1 != encounter.main_text.search(continue_regex)){
-    //If the encounter's main text is split into sections:
-	//Add the first section to the text buffer,
-    encounter_sections = encounter.main_text.split(continue_regex);
-	current_main_text += encounter_sections[0];
-	text_buffer = current_main_text;
-	//And compile the html code for the continue button.
-	continue_button_label = '<a href="javascript:continueFromBreak(1)">';
-	var button_code = encounter.main_text.match(continue_regex)[0];
-	continue_button_label += button_code.split(/(\[\[|\|continue\]\])/gi)[2];
-	continue_button_label += "</a>";
-  } else {
-    current_main_text += encounter.main_text;
-  }
-  document.getElementById("encounter_text").innerHTML = current_main_text + continue_button_label;
-  //Now we go through the options one by one, creating links for each.
-  var each;
-  var compiled_options = "";
-  var index = 0;
-  var option_visible = true;
-  var option_performable = true;
-  for (each of encounter.options){
-    //This produces HTML code from a list of options.
-	//Check option prerequisites before displaying option.
-	var v_prereq;
-	for (v_prereq of each.visibility_prerequisites){
-	  //The following code evaluates prerequisites. For example, we may check whether an event has occured.
-	  if (option_visible){
-		var prereqStatus = evaluatePrerequisite(v_prereq);
-		if (false == v_prereq["negated"] && !(prereqStatus)){
-		  option_visible = false;
-		} else if (true == v_prereq["negated"] && prereqStatus){
-		  option_visible = false;
-		}
-	  }
-	}
-	var p_prereq;
-	for (p_prereq of each.visibility_prerequisites){
-	  //The following code evaluates prerequisites. For example, we may check whether an event has occured.
-	  if (option_visible && option_performable){
-		var prereqStatus = evaluatePrerequisite(p_prereq);
-		if (false == p_prereq["negated"] && !(prereqStatus)){
-		  option_performable = false;
-		} else if (true == p_prereq["negated"] && prereqStatus){
-		  option_performable = false;
-		}
-	  }
-	}
-	if (option_visible){
-	  if (option_performable){
-        entry = '&gt; <a href="javascript:executeOption(';
-        entry = entry + index.toString();
-        entry = entry + ')">';
-        entry = entry + each.text;
-        entry = entry + '</a><br>';
-        compiled_options = compiled_options + entry;
-	  } else {
-        entry = '&gt; <del>';
-        entry = entry + each.text;
-        entry = entry + '</del><br>';
-        compiled_options = compiled_options + entry;
-	  }
-	}
-	index++;
-  }
-  document.getElementById("options_list").innerHTML = compiled_options;
-  
-  //If there are no options for this encounter, or the encounter has multiple sections separated by "continue" commands, then hide the options field.
-  if(0 == encounter.options.length || 1 < encounter_sections.length){
-    document.getElementById("options_text").style.display = "none";
-  } else {
-    document.getElementById("options_text").style.display = "block";
-  }
-  
-  //Render the reaction field invisible.
-  document.getElementById("reaction_field").style.display = "none";
-  document.getElementById("reaction_text").innerHTML = "";
-  
-  if(record){//if we're recording to the historybook and transcript:
-    //Update the transcript.
-    document.getElementById("transcript").innerHTML = playthrough_transcript;
-	refreshCollapsable(document.getElementById("transcript"));
-  
-    //Update the historybook.
-    slow_historybook[turn] = {"encounter": current_page.id, "option": -1, "reaction": -1};
-    quick_historybook[current_page.id] = turn;
-    //Most encounters can only be displayed once. However, the "consequence" property of character reactions bypasses the check of whether an encounter has already been displayed. In these cases the quick_historybook will only record the latest turn the encounter was displayed. Since the quick_historybook is primarilly used to check for prerequisites and disqualifiers, and to avoid displaying encounters more than once, the information needed is whether an encounter has occured; when it occured is presently less important. If future changes to the overall design eventually require it, entries to the quick_historybook can be changed to arrays of integers, rather than integers, to record all turns an encounter is displayed.
-  }
+    //This function can either take a string as input, in which case it treats the string as the encounter name and looks up the encounter in the encounters database, or it can take an encounter as input, thereby skipping the database lookup.
+    var encounter = encounters[encounter_id];
+    console.log("Turn: " + turn + ' Displaying encounter: "' + encounter.title + '" Antagonist: ' + characters[encounter.antagonist].name);
+    current_page = encounter;//Track which encounter we're in.
+    next_page = "start";//Set the next encounter to be semi-random.
+    current_antagonist = encounter.antagonist;//integer
+    var encounter_sections = [];
+    
+    //Now we change the main encounter text to what it needs to be.
+    var current_main_text = "";
+    var continue_button_label = "";
+    if (0 == storyworld_data["display_mode"]){
+        //In display mode 0, the game displays the reaction on the same screen as the current encounter, then requires the player to click an extra button to proceed to the next encounter.
+        text_buffer = "";
+    } else if (1 == storyworld_data["display_mode"]){
+        //In display mode 1, when a player chooses an option, the game clears the screen and displays the reaction text followed by the text of the next encounter.
+        current_main_text += text_buffer + "<br>";//text_buffer should be holding the text of the reaction that needs displayed.
+    }
+    if (storyworld_data["debug_mode"]){
+        //If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
+        current_main_text += "<b>(" + encounter.title + ")</b><br>" + characters[current_antagonist].printCharRelationships("<br>") + "<br>";
+    }
+    var continue_regex = /\[\[.*\|continue\]\]/gim;
+    if (-1 != encounter.main_text.search(continue_regex)){
+        //If the encounter's main text is split into sections:
+        //Add the first section to the text buffer,
+        encounter_sections = encounter.main_text.split(continue_regex);
+        current_main_text += encounter_sections[0];
+        text_buffer = current_main_text;
+        //And compile the html code for the continue button.
+        continue_button_label = '<a href="javascript:continueFromBreak(1)">';
+        var button_code = encounter.main_text.match(continue_regex)[0];
+        continue_button_label += button_code.split(/(\[\[|\|continue\]\])/gi)[2];
+        continue_button_label += "</a>";
+    } else {
+        current_main_text += encounter.main_text;
+    }
+    document.getElementById("encounter_text").innerHTML = current_main_text + continue_button_label;
+    //Now we go through the options one by one, creating links for each.
+    var option;
+    var compiled_options = "";
+    var index = 0;
+    var option_visible = true;
+    var option_performable = true;
+    for (option of encounter.options){
+        //This produces HTML code from a list of options.
+        option_visible = evaluateSWScript(option.visibility_script);
+        option_performable = evaluateSWScript(option.performability_script);
+        if (option_visible){
+            if (option_performable){
+                entry = '&gt; <a href="javascript:executeOption(';
+                entry = entry + index.toString();
+                entry = entry + ')">';
+                entry = entry + option.text;
+                entry = entry + '</a><br>';
+                compiled_options = compiled_options + entry;
+            } else {
+                entry = '&gt; <del>';
+                entry = entry + option.text;
+                entry = entry + '</del><br>';
+                compiled_options = compiled_options + entry;
+            }
+        }
+        index++;
+    }
+    document.getElementById("options_list").innerHTML = compiled_options;
+    
+    //If there are no options for this encounter, or the encounter has multiple sections separated by "continue" commands, then hide the options field.
+    if(0 == encounter.options.length || 1 < encounter_sections.length){
+        document.getElementById("options_text").style.display = "none";
+    } else {
+        document.getElementById("options_text").style.display = "block";
+    }
+    
+    //Render the reaction field invisible.
+    document.getElementById("reaction_field").style.display = "none";
+    document.getElementById("reaction_text").innerHTML = "";
+    
+    if(record){//if we're recording to the historybook and transcript:
+        //Update the transcript.
+        document.getElementById("transcript").innerHTML = playthrough_transcript;
+        refreshCollapsable(document.getElementById("transcript"));
+    
+        //Update the historybook.
+        slow_historybook[turn] = {"encounter": current_page.id, "option": -1, "reaction": -1};
+        quick_historybook[current_page.id] = turn;
+        //Most encounters can only be displayed once. However, the "consequence" property of character reactions bypasses the check of whether an encounter has already been displayed. In these cases the quick_historybook will only record the latest turn the encounter was displayed. Since the quick_historybook is primarilly used to check for prerequisites and disqualifiers, and to avoid displaying encounters more than once, the information needed is whether an encounter has occured; when it occured is presently less important. If future changes to the overall design eventually require it, entries to the quick_historybook can be changed to arrays of integers, rather than integers, to record all turns an encounter is displayed.
+    }
 
-  //If all goes well... It's the player's turn!
+    //If all goes well... It's the player's turn!
 }
 
 function continueFromBreak(step){
-  var continue_regex = /\[\[.*\|continue\]\]/gim;
-  var encounter = current_page;
-  var button_code = "";
-  var encounter_sections = [];
-  var code_blocks = [];
-  if (-1 != encounter.main_text.search(continue_regex)){
-	encounter_sections = encounter.main_text.split(continue_regex);
-	code_blocks = encounter.main_text.match(continue_regex);
-  }
-  text_buffer += encounter_sections[step];
-  if (encounter_sections.length <= (step + 1)){
-    //Last step.
-	document.getElementById("encounter_text").innerHTML = text_buffer;
-    document.getElementById("options_text").style.display = "block";
-  } else {
-    button_code += '<a href="javascript:continueFromBreak(';
-    var x = step + 1;
-	button_code += x.toString();
-	button_code += ')">';
-	button_code += code_blocks[step].split(/(\[\[|\|continue\]\])/gi)[2];
-	button_code += "</a>";
-	document.getElementById("encounter_text").innerHTML = text_buffer + button_code;
-  }
+    var continue_regex = /\[\[.*\|continue\]\]/gim;
+    var encounter = current_page;
+    var button_code = "";
+    var encounter_sections = [];
+    var code_blocks = [];
+    if (-1 != encounter.main_text.search(continue_regex)){
+        encounter_sections = encounter.main_text.split(continue_regex);
+        code_blocks = encounter.main_text.match(continue_regex);
+    }
+    text_buffer += encounter_sections[step];
+    if (encounter_sections.length <= (step + 1)){
+        //Last step.
+        document.getElementById("encounter_text").innerHTML = text_buffer;
+        document.getElementById("options_text").style.display = "block";
+    } else {
+        button_code += '<a href="javascript:continueFromBreak(';
+        var x = step + 1;
+        button_code += x.toString();
+        button_code += ')">';
+        button_code += code_blocks[step].split(/(\[\[|\|continue\]\])/gi)[2];
+        button_code += "</a>";
+        document.getElementById("encounter_text").innerHTML = text_buffer + button_code;
+    }
 }
 
 function executeOption(which){
-  var reactions = current_page.options[parseInt(which)].reactions;
-  var topInclination = -1;//Reset variable to lowest possible value, -1.
-  var workingChoice = 0;//Which reaction will the character choose? Reset variable.
-  var index = 0;
-  for (each of reactions){
-    //This chooses how a character reacts to the player's choice.
-	var weight = ((each.blend_weight + 1) / 2);
-	/*
-	var blend_x = each.blend_x;
-	var blend_x_sign = 1;
-	if ("-" == blend_x.charAt(0)){
-	  blend_x = blend_x.substr(1);
-	  blend_x_sign = -1;
-	}
-	var blend_x_value = blend_x_sign * characters[current_antagonist].pValues[blend_x];
-	var blend_y = each.blend_y;
-	var blend_y_sign = 1;
-	if ("-" == blend_y.charAt(0)){
-	  blend_y = blend_y.substr(1);
-	  blend_y_sign = -1;
-	}
-	var blend_y_value = blend_y_sign * characters[current_antagonist].pValues[blend_y];
-	*/
-	var blend_x_value = characters[current_antagonist].lookup(each.blend_x);
-	var blend_y_value = characters[current_antagonist].lookup(each.blend_y);
-    var latestInclination = (blend_x_value * (1 - weight)) + (blend_y_value * weight);
-    if (latestInclination >= topInclination){
-      topInclination = latestInclination;
-	  workingChoice = index;
+    var reactions = current_page.options[parseInt(which)].reactions;
+    var topInclination = -1;//Reset variable to lowest possible value, -1.
+    var workingChoice = -1;//Which reaction will the character choose? Reset variable.
+    var index = 0;
+    for (reaction of reactions){
+        //This chooses how a character reacts to the player's choice.
+        var latestInclination = evaluateSWScript(reaction.desirability_script);
+        console.log('Reaction: "' + reaction.text.substr(0, 24) + '..." Inclination: ' + latestInclination.toString());
+        if (latestInclination >= topInclination){
+            topInclination = latestInclination;
+            workingChoice = index;
+        }
+        index++;
     }
-	index++;
-	console.log('Reaction: "' + each.text.substr(0, 9) + '..." Inclination: ' + latestInclination.toString() + " Blended " + each.blend_x + " (" + blend_x_value + ") and " + each.blend_y + " (" + blend_y_value + ") with weight " + each.blend_weight + ".");
-  }
-  //Execute reaction:
-  //If a consequence encounter is defined, ensure that occurs next:
-  next_page = reactions[workingChoice].consequence;
-  //Make appropriate changes to character relations:
-  for (each of reactions[workingChoice].pValue_changes){
-    var affected_character = each["character"];
-	if (-1 == affected_character){
-	  affected_character = current_antagonist;
-	}
-    var initial_value = characters[affected_character].lookup(each["pValue"]);
-    characters[affected_character].set_bnumber_property(each["pValue"], blendChange(initial_value, each["change"]));
-  }
-  if (!(0 > turn)){
-    //We already wrote the present encounter to the quick_historybook when we displayed the encounter. We also wrote it to the slow_historybook, but left the player and character choices "blank," (i.e. at -1.) Now we record the player and character choices in the slow_historybook.
-    slow_historybook[turn] = {"encounter": current_page.id, "option": which, "reaction": workingChoice};
-  }
-  //Change text of options list to show only the text of the option chosen by the player.
-  document.getElementById("options_list").innerHTML = '&gt; ' + current_page.options[parseInt(which)].text;
-  if (storyworld_data["debug_mode"]){//If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-    text_buffer = characters[current_antagonist].printCharRelationships("<br>") + "<br>" + reactions[workingChoice].text;
-  } else {
-    text_buffer = reactions[workingChoice].text;
-  }
-  if (0 == storyworld_data["display_mode"]){
-    //Display text of chosen reaction.
-    document.getElementById("reaction_field").style.display = "block";
-    document.getElementById("reaction_text").innerHTML = text_buffer;
-  } else if (1 == storyworld_data["display_mode"]){
-    //In display mode 1, once the player selects an option the game clears the screen, displays the reaction text, and then displays the text of the next encounter.
-    document.getElementById("reaction_text").innerHTML = "";
-	selectEncounter();
-  }
+    if (-1 == workingChoice){
+        console.log("Error, no reaction selected.");
+        workingChoice = 0;
+    } else {
+        console.log("Reaction " + workingChoice.toString() + " selected.");
+    }
+    //Execute reaction:
+    //If a consequence encounter is defined, ensure that occurs next:
+    next_page = reactions[workingChoice].consequence;
+    //Make appropriate changes to character relations:
+    for (effect_data of reactions[workingChoice].after_effects){
+        enactEffect(effect_data);
+    }
+    if (!(0 > turn)){
+        //We already wrote the present encounter to the quick_historybook when we displayed the encounter. We also wrote it to the slow_historybook, but left the player and character choices "blank," (i.e. at -1.) Now we record the player and character choices in the slow_historybook.
+        slow_historybook[turn] = {"encounter": current_page.id, "option": which, "reaction": workingChoice};
+    }
+    //Change text of options list to show only the text of the option chosen by the player.
+    document.getElementById("options_list").innerHTML = '&gt; ' + current_page.options[parseInt(which)].text;
+    if (storyworld_data["debug_mode"]){//If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
+        text_buffer = characters[current_antagonist].printCharRelationships("<br>") + "<br>" + reactions[workingChoice].text;
+    } else {
+        text_buffer = reactions[workingChoice].text;
+    }
+    if (0 == storyworld_data["display_mode"]){
+        //Display text of chosen reaction.
+        document.getElementById("reaction_field").style.display = "block";
+        document.getElementById("reaction_text").innerHTML = text_buffer;
+    } else if (1 == storyworld_data["display_mode"]){
+        //In display mode 1, once the player selects an option the game clears the screen, displays the reaction text, and then displays the text of the next encounter.
+        document.getElementById("reaction_text").innerHTML = "";
+        selectEncounter();
+    }
 }
 
 //I decided to replace my "void encounter" feature with a basic screen saying "The End." Since I set the engine up to skip to the next turn with an acceptable encounter, after all. 2021 may 12.
 function loadTheEnd(record = true){
-  if(record){//if we're recording to the historybook and transcript:
-    //Update the transcript.
-    document.getElementById("transcript").innerHTML = playthrough_transcript;
-	refreshCollapsable(document.getElementById("transcript"));
-  }
-  document.getElementById("encounter_text").innerHTML = "<b>THE END</b>";
-  document.getElementById("options_text").style.display = "none";
-  document.getElementById("reaction_field").style.display = "none";
+    if(record){//if we're recording to the historybook and transcript:
+        //Update the transcript.
+        document.getElementById("transcript").innerHTML = playthrough_transcript;
+        refreshCollapsable(document.getElementById("transcript"));
+    }
+    //Now we change the main encounter text to what it needs to be.
+    let ending_text = "";
+    if (0 == storyworld_data["display_mode"]){
+        //In display mode 0, the game displays the reaction on the same screen as the current encounter, then requires the player to click an extra button to proceed to the next encounter.
+        text_buffer = "";
+    } else if (1 == storyworld_data["display_mode"]){
+        //In display mode 1, when a player chooses an option, the game clears the screen and displays the reaction text followed by the text of the next encounter.
+        ending_text += text_buffer + "<br>";//text_buffer should be holding the text of the reaction that needs displayed.
+    }
+    document.getElementById("encounter_text").innerHTML = ending_text + "<b>THE END</b>";
+    document.getElementById("options_text").style.display = "none";
+    document.getElementById("reaction_field").style.display = "none";
 }
 
 //Update transcript with text of the present encounter, option, and reaction.
 function writeToTranscript(){
-  playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + document.getElementById("encounter_text").innerHTML + "<p>" + document.getElementById("options_list").innerHTML + "</p><p>" + document.getElementById("reaction_text").innerHTML + "</p>";
+    playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + document.getElementById("encounter_text").innerHTML + "<p>" + document.getElementById("options_list").innerHTML + "</p><p>" + document.getElementById("reaction_text").innerHTML + "</p>";
 }
 
 //Update transcript with text of a specific encounter. Used when loading a saved game.
 function writeEncounterToTranscript(encounter_name, option, reaction){
-  var encounter;
-  encounter = encounters[encounter_name];
-  if ('undefined' == typeof encounter.options[option] || 'undefined' == typeof encounter.options[option].reactions[reaction]){
-    //Test for corrupted savefile, or other errors.
-    playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + encounter.main_text + "<p>" + '&gt; ' + "Option and/or reaction undefined." + "</p>";
-  } else {
-    playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + encounter.main_text + "<p>" + '&gt; ' + encounter.options[option].text + "</p><p>" + encounter.options[option].reactions[reaction].text + "</p>";
-  }
+    var encounter;
+    encounter = encounters[encounter_name];
+    if ('undefined' == typeof encounter.options[option] || 'undefined' == typeof encounter.options[option].reactions[reaction]){
+        //Test for corrupted savefile, or other errors.
+        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + encounter.main_text + "<p>" + '&gt; ' + "Option and/or reaction undefined." + "</p>";
+    } else {
+        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + encounter.main_text + "<p>" + '&gt; ' + encounter.options[option].text + "</p><p>" + encounter.options[option].reactions[reaction].text + "</p>";
+    }
 }
 
 //Find distance from current conditions to target conditions for an encounter.
+/*function desirability(encounter){
+    //Takes an encounter as input, not an id.
+    console.log("Checking desirability of encounter: " + encounter.title + ".");
+    var distance = 0;
+    var desideratum;
+    for (desideratum of encounter.desiderata){
+        var who = characters[desideratum["character"]];
+        var pValue = 0;
+        pValue = who.lookup(desideratum["pValue"]);
+        var difference = pValue - desideratum["point"];
+        distance += (difference * difference);
+    }
+    distance = Math.sqrt(distance)
+    console.log("Distance from encounter to target conditions: " + encounter.title + " = " + distance.toString() + ".");
+    return distance;
+}*/
+
 function desirability(encounter){
-  //Takes an encounter as input, not an id.
-  console.log("Checking desirability of encounter: " + encounter.title + ".");
-  var distance = 0;
-  var desideratum;
-  for (desideratum of encounter.desiderata){
-    var who = characters[desideratum["character"]];
-	var pValue = 0;
-	pValue = who.lookup(desideratum["pValue"]);
-	var difference = pValue - desideratum["point"];
-    distance += (difference * difference);
-  }
-  console.log("Distance from encounter to target conditions: " + encounter.title + " = " + distance.toString() + ".");
-  return distance;
+    let result = evaluateSWScript(encounter.desirability_script);
+    if (null !== result && "number" == typeof (result)){
+        return result;
+    } else {
+        return -1;
+    }
 }
 
 function loadMostDesirableEncounter(acceptableEncounters){
-  //Choose an encounter from the pool of acceptable encounters.
-  //Find one that has a desirability greater than or equal to that of all the others.
-  var flag = true;
-  var shortest_distance = 0;
-  var each;
-  //To help keep our results consistent and relatively predictable,
-  //sort our array of acceptable encounters alphabetically, by encounter title.
-  acceptableEncounters.sort(comparePageTitleAlphabetically);
-  for (each of acceptableEncounters){
-    var encounter = encounters[each];
-	if (flag){//First iteration of loop.
-	  shortest_distance = desirability(encounter);
-	  next_page = each;
-	  flag = false;
-	} else {
-      var target_distance = desirability(encounter);
-	  if (target_distance < shortest_distance){
-		shortest_distance = target_distance;
-		next_page = each;
-	  }
-	}
-  }
-  //next_page = acceptable_encounters_inc[Math.floor(Math.random() * acceptable_encounters_inc.length)];
-  console.log("Encounter: " + next_page + " selected.");
-  //Add the chosen encounter to the historybook, then display it.
-  loadEncounter(next_page);
+    //Choose an encounter from the pool of acceptable encounters.
+    //Find one that has a desirability greater than or equal to that of all the others.
+    var flag = true;
+    var shortest_distance = 0;
+    var each;
+    //To help keep our results consistent and relatively predictable,
+    //sort our array of acceptable encounters alphabetically, by encounter title.
+    acceptableEncounters.sort(comparePageTitleAlphabetically);
+    for (each of acceptableEncounters){
+        var encounter = encounters[each];
+        if (flag){//First iteration of loop.
+            shortest_distance = desirability(encounter);
+            next_page = each;
+            flag = false;
+        } else {
+            var target_distance = desirability(encounter);
+            if (target_distance < shortest_distance){
+                shortest_distance = target_distance;
+                next_page = each;
+            }
+        }
+    }
+    //next_page = acceptable_encounters_inc[Math.floor(Math.random() * acceptable_encounters_inc.length)];
+    console.log("Encounter: " + next_page + " selected.");
+    //Add the chosen encounter to the historybook, then display it.
+    loadEncounter(next_page);
 }
 
 //Select which encounter comes next:
 function selectEncounter(){
-  console.log("Selecting next encounter.");
-  if (0 != turn){//Unless we're just starting a new game.
-    writeToTranscript();//Record the last encounter to the transcript before moving on.
-  }
-  turn = turn + 1;
-  if ("wild" != next_page) {
-    //If the reaction of the last encounter led to a consequence, that consequence occurs next.
-    loadEncounter(next_page);
-  } else {
-    //Otherwise:
-	var each;
-	var encounter;
-	var acceptable_encounters_inc = [];//These encounters are acceptable for the current turn.
-	var acceptable_encounters_exc = [];//These encounters are acceptable except for their turn range.
-	var earliest_acceptable_turn = 0;//If no encounters are acceptable for the present turn, but some are acceptable for later turns, what must we set the turn count to?
-	for (each in encounters){
-	  encounter = encounters[each];
-	  //Check whether an encounter is acceptable.
-	  var acceptable = false;
-	  console.log("Checking acceptability of: " + encounter.title + " | " + encounter.earliest_turn.toString() + " <= " +  turn.toString() + " <= " +  encounter.latest_turn.toString());
-	  //Acceptability checks:
-	  //Has encounter already occured once before?
-	  //Test encounter history against prerequisites and disqualifiers.
-	  //pValue ranges.
-	  //Turn range.
-	  //If encounter has occured before, then it is not acceptable.
-	  if (quick_historybook.hasOwnProperty(encounter.id)){
-	    //The encounter has occured before.
-		console.log("The encounter has occured before, and therefore cannot occur again.");
-	  } else {
-		acceptable = true;
-		var x;
-		//The following code evaluates prerequisites. For example, we may check whether a character's pValues are within a certain range.
-		if (acceptable){
-		  for (x of encounter.prerequisites){
-			var prereqStatus = evaluatePrerequisite(x);
-		    /*if (false == x["negated"] && !(prereqStatus)){
-			  acceptable = false;
-			} else if (true == x["negated"] && prereqStatus){
-			  acceptable = false;
-			}
-			Why did I do this the hard way before?*/
-			if (x["negated"] == prereqStatus){
-			  acceptable = false;
-			}
-		  }
-		}
-		if (acceptable){
-	      if (turn <= encounter.latest_turn){
-		    if (encounter.earliest_turn <= turn) {
-	          console.log("Encounter: " + encounter.title + " deemed acceptable for current turn.");
-		      acceptable_encounters_inc.push(encounter.id);
-		    } else {
-			  if (0 == acceptable_encounters_exc.length){
-			    earliest_acceptable_turn = encounter.earliest_turn;
-			  } else {
-			    if (earliest_acceptable_turn > encounter.earliest_turn){
-				  earliest_acceptable_turn = encounter.earliest_turn;
-				}
-			  }
-	          console.log("Encounter: " + encounter.title + " deemed acceptable for later turn.");
-		      acceptable_encounters_exc.push(encounter);//Note we're pushing the whole encounter, not just its id as in the inc array.
-			}
-		  }
-	    } else {
-		  console.log("Encounter: " + encounter.title + " deemed unacceptable.");
-		}
-	  }
-	}//end of for (each in encounters)
-	//If no encounters are deemed acceptable, display a message saying "THE END" instead of an encounter.
-	if (0 == acceptable_encounters_inc.length){
-	  if (0 == acceptable_encounters_exc.length){
-	    loadTheEnd(true);
-	  } else {
-	    if (turn < earliest_acceptable_turn){
-		  console.log("Increasing turn from " + turn + " to " + earliest_acceptable_turn + ".");
-		  turn = earliest_acceptable_turn;
-		}
-		acceptable_encounters_inc = [];
-		for (encounter of acceptable_encounters_exc){
-		  if (encounter.earliest_turn <= turn) {
-		    acceptable_encounters_inc.push(encounter.id);
-		  }
-		}
-		loadMostDesirableEncounter(acceptable_encounters_inc)
-	  }
-	} else {
-  	  loadMostDesirableEncounter(acceptable_encounters_inc)
-	}
-  }
+    console.log("Selecting next encounter.");
+    if (0 != turn){//Unless we're just starting a new game.
+        writeToTranscript();//Record the last encounter to the transcript before moving on.
+    }
+    turn = turn + 1;
+    if ("wild" != next_page) {
+        //If the reaction of the last encounter led to a consequence, that consequence occurs next.
+        loadEncounter(next_page);
+    } else {
+        //Otherwise:
+        var each;
+        var encounter;
+        var acceptable_encounters_inc = [];//These encounters are acceptable for the current turn.
+        var acceptable_encounters_exc = [];//These encounters are acceptable except for their turn range.
+        var earliest_acceptable_turn = 0;//If no encounters are acceptable for the present turn, but some are acceptable for later turns, what must we set the turn count to?
+        for (each in encounters){
+            encounter = encounters[each];
+            //Check whether an encounter is acceptable.
+            var acceptable = false;
+            console.log("Checking acceptability of: " + encounter.title + " | " + encounter.earliest_turn.toString() + " <= " + turn.toString() + " <= " +  encounter.latest_turn.toString());
+            //Acceptability checks:
+            //Has encounter already occured once before?
+            //Evaluate encounter acceptability_script.
+            //Turn range.
+            //If encounter has occured before, then it is not acceptable.
+            if (quick_historybook.hasOwnProperty(encounter.id)){
+                //The encounter has occured before.
+                console.log("The encounter has occured before, and therefore cannot occur again.");
+            } else {
+                acceptable = evaluateSWScript(encounter.acceptability_script);
+                if (acceptable){
+                    if (turn <= encounter.latest_turn){
+                        if (encounter.earliest_turn <= turn) {
+                            console.log("Encounter: " + encounter.title + " deemed acceptable for current turn.");
+                            acceptable_encounters_inc.push(encounter.id);
+                        } else {
+                            if (0 == acceptable_encounters_exc.length){
+                                earliest_acceptable_turn = encounter.earliest_turn;
+                            } else {
+                                if (earliest_acceptable_turn > encounter.earliest_turn){
+                                    earliest_acceptable_turn = encounter.earliest_turn;
+                                }
+                            }
+                            console.log("Encounter: " + encounter.title + " deemed acceptable for later turn.");
+                            acceptable_encounters_exc.push(encounter);//Note we're pushing the whole encounter, not just its id as in the inc array.
+                        }
+                    }
+                } else {
+                    console.log("Encounter: " + encounter.title + " deemed unacceptable.");
+                }
+            }
+        }//end of for (each in encounters)
+        //If no encounters are deemed acceptable, display a message saying "THE END" instead of an encounter.
+        if (0 == acceptable_encounters_inc.length){
+            if (0 == acceptable_encounters_exc.length){
+                loadTheEnd(true);
+            } else {
+                if (turn < earliest_acceptable_turn){
+                    console.log("Increasing turn from " + turn + " to " + earliest_acceptable_turn + ".");
+                    turn = earliest_acceptable_turn;
+                }
+                acceptable_encounters_inc = [];
+                for (encounter of acceptable_encounters_exc){
+                    if (encounter.earliest_turn <= turn) {
+                        acceptable_encounters_inc.push(encounter.id);
+                    }
+                }
+                loadMostDesirableEncounter(acceptable_encounters_inc)
+            }
+        } else {
+            loadMostDesirableEncounter(acceptable_encounters_inc)
+        }
+    }
 }
 
 //Start a new game / playthrough.
 function startNewGame(ask_for_confirmation = true){
-  var confirmed = true;
-  if (ask_for_confirmation){
-    confirmed = confirm("Do you wish to start a new game? Unsaved progress will be lost.");
-  }
-  if (true == confirmed){
-    slow_historybook = [];
-	quick_historybook = {};
-	playthrough_transcript = "";
-    turn = 0;
-	current_page = null;
-    next_page = "wild";
-    current_antagonist = 0;
-    displaySaveProfile();
-	importCharacterData();//Reset Character relations.
-    selectEncounter();
-  }
+    var confirmed = true;
+    if (ask_for_confirmation){
+        confirmed = confirm("Do you wish to start a new game? Unsaved progress will be lost.");
+    }
+    if (true == confirmed){
+        slow_historybook = [];
+        quick_historybook = {};
+        playthrough_transcript = "";
+        turn = 0;
+        current_page = null;
+        next_page = "wild";
+        current_antagonist = 0;
+        displaySaveProfile();
+        importCharacterData();//Reset Character relations.
+        selectEncounter();
+    }
 }
 </script>
 </head>
@@ -990,19 +1090,17 @@ function startNewGame(ask_for_confirmation = true){
 <p>~~~~~</p>
 </div>
 <fieldset>
-        <legend><i>~~~</i></legend>
+<legend><i>~~~</i></legend>
 <div id="encounter_text">Once the game begins, encounter text will be placed here by a properly functioning script.</div>
 </fieldset><br>
 <div id="options_text"><form action="#" method="post" id="optionsForm">
-    <fieldset>
-        <legend>Choose your path:</legend>
-    <div id="options_list">
-    </div>
-    </fieldset>
+<fieldset><legend>~~~</legend>
+<div id="options_list"></div>
+</fieldset>
 </form></div>
 <div id="reaction_field">
 <fieldset>
-        <legend><i>~~~</i></legend>
+<legend><i>~~~</i></legend>
 <div id="reaction_text">This field will display how characters react to the player's choices.</div>
 <br><a href="javascript:selectEncounter()">--></a>
 </fieldset>
@@ -1014,21 +1112,21 @@ var coll = document.getElementsByClassName("collapsible");
 var i;
 
 for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling;
-    if (content.style.maxHeight){
-      content.style.maxHeight = null;
-    } else {
-      content.style.maxHeight = content.scrollHeight + "px";
-    } 
-  });
+    coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight){
+            content.style.maxHeight = null;
+        } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+        } 
+    });
 }
 
 function refreshCollapsable(element){
-  if (element.style.maxHeight){
-    element.style.maxHeight = element.scrollHeight + "px";
-  }
+    if (element.style.maxHeight){
+        element.style.maxHeight = element.scrollHeight + "px";
+    }
 }
 </script>
 <script>

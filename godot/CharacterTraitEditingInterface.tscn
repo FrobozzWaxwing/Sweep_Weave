@@ -15,35 +15,46 @@ anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HBC" type="HBoxContainer" parent="VBC"]
+[node name="Label" type="Label" parent="VBC"]
 margin_right = 1366.0
-margin_bottom = 24.0
+margin_bottom = 14.0
+
+[node name="HBC1" type="HBoxContainer" parent="VBC"]
+margin_top = 18.0
+margin_right = 1366.0
+margin_bottom = 18.0
 size_flags_horizontal = 3
 alignment = 2
 
-[node name="Label" type="Label" parent="VBC/HBC"]
+[node name="KeyringHBC" type="HBoxContainer" parent="VBC/HBC1"]
+visible = false
 margin_left = 1288.0
-margin_top = 5.0
 margin_right = 1288.0
-margin_bottom = 19.0
-
-[node name="SpinBox" type="SpinBox" parent="VBC/HBC"]
-margin_left = 1292.0
-margin_right = 1366.0
 margin_bottom = 24.0
-min_value = -1.0
-max_value = 1.0
-step = 0.01
+size_flags_horizontal = 3
 
-[node name="Slidebar" type="HSlider" parent="VBC"]
-margin_top = 28.0
+[node name="HBC2" type="HBoxContainer" parent="VBC"]
+margin_top = 22.0
 margin_right = 1366.0
-margin_bottom = 44.0
-min_value = -1.0
-max_value = 1.0
+margin_bottom = 46.0
+
+[node name="Slidebar" type="HSlider" parent="VBC/HBC2"]
+margin_right = 1288.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+min_value = -0.99
+max_value = 0.99
 step = 0.01
 tick_count = 3
 ticks_on_borders = true
 
-[connection signal="value_changed" from="VBC/HBC/SpinBox" to="." method="_on_SpinBox_value_changed"]
-[connection signal="value_changed" from="VBC/Slidebar" to="." method="_on_Slidebar_value_changed"]
+[node name="SpinBox" type="SpinBox" parent="VBC/HBC2"]
+margin_left = 1292.0
+margin_right = 1366.0
+margin_bottom = 24.0
+min_value = -0.99
+max_value = 0.99
+step = 0.01
+
+[connection signal="value_changed" from="VBC/HBC2/Slidebar" to="." method="_on_Slidebar_value_changed"]
+[connection signal="value_changed" from="VBC/HBC2/SpinBox" to="." method="_on_SpinBox_value_changed"]

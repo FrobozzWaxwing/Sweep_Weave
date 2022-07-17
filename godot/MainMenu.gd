@@ -10,5 +10,4 @@ func _ready():
 	get_popup().add_item("Save As")
 	get_popup().add_item("Compile to HTML")
 	get_popup().add_item("Compile and Playtest")
-#	get_popup().add_item("Playtest")
 	get_popup().add_item("Quit")

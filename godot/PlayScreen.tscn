@@ -15,34 +15,34 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-split_offset = -180
+split_offset = -300
 
 [node name="VBC" type="VBoxContainer" parent="Layout"]
-margin_right = 497.0
+margin_right = 377.0
 margin_bottom = 736.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Historybook_Label" type="Label" parent="Layout/VBC"]
-margin_right = 497.0
+margin_right = 377.0
 margin_bottom = 14.0
 text = "Historybook"
 
 [node name="Scroll_History" type="ScrollContainer" parent="Layout/VBC"]
 margin_top = 18.0
-margin_right = 497.0
+margin_right = 377.0
 margin_bottom = 736.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Historybook" type="ItemList" parent="Layout/VBC/Scroll_History"]
-margin_right = 497.0
+margin_right = 377.0
 margin_bottom = 718.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="L2" type="HSplitContainer" parent="Layout"]
-margin_left = 509.0
+margin_left = 389.0
 margin_right = 1366.0
 margin_bottom = 736.0
 rect_clip_content = true
@@ -51,7 +51,7 @@ size_flags_vertical = 3
 split_offset = 80
 
 [node name="ColorRect" type="ColorRect" parent="Layout/L2"]
-margin_right = 502.0
+margin_right = 562.0
 margin_bottom = 736.0
 rect_clip_content = true
 size_flags_horizontal = 3
@@ -73,12 +73,12 @@ text = "Start"
 
 [node name="EncounterTitle" type="Label" parent="Layout/L2/ColorRect/VBC"]
 margin_top = 24.0
-margin_right = 502.0
+margin_right = 562.0
 margin_bottom = 38.0
 
 [node name="MainText" type="RichTextLabel" parent="Layout/L2/ColorRect/VBC"]
 margin_top = 42.0
-margin_right = 502.0
+margin_right = 562.0
 margin_bottom = 502.0
 rect_min_size = Vector2( 128, 128 )
 size_flags_horizontal = 3
@@ -88,7 +88,7 @@ bbcode_enabled = true
 
 [node name="Scroll_Options" type="ScrollContainer" parent="Layout/L2/ColorRect/VBC"]
 margin_top = 506.0
-margin_right = 502.0
+margin_right = 562.0
 margin_bottom = 736.0
 rect_min_size = Vector2( 0, 128 )
 size_flags_horizontal = 3
@@ -96,32 +96,32 @@ size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
 [node name="OptionsList" type="ItemList" parent="Layout/L2/ColorRect/VBC/Scroll_Options"]
-margin_right = 502.0
+margin_right = 562.0
 margin_bottom = 230.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="VBC" type="VBoxContainer" parent="Layout/L2"]
-margin_left = 514.0
-margin_right = 857.0
+margin_left = 574.0
+margin_right = 977.0
 margin_bottom = 736.0
 size_flags_horizontal = 3
 
 [node name="Castbook_Label" type="Label" parent="Layout/L2/VBC"]
-margin_right = 343.0
+margin_right = 403.0
 margin_bottom = 14.0
 text = "Castbook"
 
 [node name="Scroll_Cast" type="ScrollContainer" parent="Layout/L2/VBC"]
 margin_top = 18.0
-margin_right = 343.0
+margin_right = 403.0
 margin_bottom = 736.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
 [node name="Castbook" type="Tree" parent="Layout/L2/VBC/Scroll_Cast"]
-margin_right = 343.0
+margin_right = 403.0
 margin_bottom = 718.0
 rect_min_size = Vector2( 0, 32 )
 size_flags_horizontal = 3

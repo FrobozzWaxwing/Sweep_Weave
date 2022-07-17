@@ -3,41 +3,22 @@ class_name Reaction
 
 var option = null #The option this reaction is associated with.
 var text = ""
-#Use 2 desiderata to determine which pValues to blend together,
-#and whether or not to negate their values.
-var blend_x = null
-var blend_y = null
-var blend_weight = 0.0
+# The desirability script holds the "script" for calculating an antagonist's inclination to select this reaction.
+var desirability_script = null
 var consequence = null
-var pValue_changes = []#{"character": character, "pValue": pValue name (string), "change": blend change amount (float)}.
+var after_effects = [] #Each array entry should be an AssignmentOperator.
 #Variables for editor:
 var graph_offset = Vector2(0, 0)
 var occurrences = 0 #Number of times this reaction occurs during a rehearsal.
 
-func _init(in_option, in_text, in_blend_x, in_blend_y, in_blend_weight = 0,
-		   in_graph_offset = Vector2(0, 0)):
+func _init(in_option, in_text, in_desirability_script = null, in_graph_offset = Vector2(0, 0)):
 	option = in_option
 	text = in_text
-	if (null != in_option):
-		if (TYPE_DICTIONARY == typeof(in_blend_x)):
-			blend_x = Desideratum.new(in_option.encounter.antagonist, in_blend_x["pValue"], in_blend_x["point"])
-		elif (in_blend_x is Desideratum):
-			blend_x = in_blend_x
-		elif (TYPE_STRING == typeof(in_blend_x)):
-			if ("-" == in_blend_x.left(1)):
-				blend_x = Desideratum.new(in_option.encounter.antagonist, in_blend_x.substr(1), -1)
-			else:
-				blend_x = Desideratum.new(in_option.encounter.antagonist, in_blend_x, 1)
-		if (TYPE_DICTIONARY == typeof(in_blend_y)):
-			blend_y = Desideratum.new(in_option.encounter.antagonist, in_blend_y["pValue"], in_blend_y["point"])
-		elif (in_blend_y is Desideratum):
-			blend_y = in_blend_y
-		elif (TYPE_STRING == typeof(in_blend_y)):
-			if ("-" == in_blend_y.left(1)):
-				blend_y = Desideratum.new(in_option.encounter.antagonist, in_blend_y.substr(1), -1)
-			else:
-				blend_y = Desideratum.new(in_option.encounter.antagonist, in_blend_y, 1)
-	blend_weight = in_blend_weight
+	if (null == in_desirability_script):
+		var default = BNumberConstant.new(0)
+		desirability_script = ScriptManager.new(ArithmeticMeanOperator.new([default]))
+	else:
+		desirability_script = in_desirability_script
 	graph_offset = in_graph_offset
 
 func get_index():
@@ -52,63 +33,72 @@ func get_antagonist():
 				return option.encounter.antagonist
 	return null
 
-func compile(character_list, include_editor_only_variables = false):
+func calculate_desirability():
+	var result = null
+	if (null == desirability_script):
+		result = null
+	elif (desirability_script is ScriptManager):
+		#If everything is working as intended, desirability_script will always contain either a ScriptManager object or a null value.
+		result = desirability_script.get_value()
+	else:
+		result = null
+	return result
+
+func has_search_text(searchterm):
+	if (searchterm in text):
+		return true
+	else:
+		return false
+
+func compile(parent_storyworld, include_editor_only_variables = false):
 	var result = {}
 	result["text"] = text
-	result["blend_x"] = blend_x.sign_and_pValue()#compile(character_list) May change this to the compile function later on.
-	result["blend_y"] = blend_y.sign_and_pValue()#compile(character_list)
-	result["blend_weight"] = blend_weight
+	result["desirability_script"] = null
+	if (null != desirability_script and desirability_script is ScriptManager):
+		result["desirability_script"] = desirability_script.compile(parent_storyworld, include_editor_only_variables)
 	if (null == consequence):
 		result["consequence_id"] = "wild"
 	else:
 		result["consequence_id"] = consequence.id
-	result["pValue_changes"] = []
-	for each in pValue_changes:
-		result["pValue_changes"].append(each.compile(character_list))
+	result["after_effects"] = []
+	for change in after_effects:
+		result["after_effects"].append(change.compile(parent_storyworld, include_editor_only_variables))
 	#Editor only variables:
 	if (include_editor_only_variables):
 		result["graph_offset_x"] = graph_offset.x
 		result["graph_offset_y"] = graph_offset.y
 	return result
 
+func clear():
+	option = null
+	text = ""
+#	if (desirability_script is ScriptManager):
+#		desirability_script.clear()
+#		desirability_script.call_deferred("free")
+#		desirability_script = null
+	consequence = null
+	graph_offset = Vector2(0, 0)
+#	for change in after_effects:
+#		change.clear()
+#		change.call_deferred("free")
+#	after_effects.clear()
+
 func set_as_copy_of(original):
 	option = original.option
 	text = original.text
-	if (blend_x is Desideratum):
-		blend_x.call_deferred("free")
-	blend_x = Desideratum.new(original.blend_x.character, original.blend_x.pValue, original.blend_x.point)
-	if (blend_y is Desideratum):
-		blend_y.call_deferred("free")
-	blend_y = Desideratum.new(original.blend_y.character, original.blend_y.pValue, original.blend_y.point)
-	blend_weight = original.blend_weight
+	if (null == desirability_script):
+		desirability_script = ScriptManager.new()
+	desirability_script.set_as_copy_of(original.desirability_script)
 	consequence = original.consequence
 	graph_offset = original.graph_offset
-	var copy_pValue_changes = pValue_changes.duplicate()
-	for each in copy_pValue_changes:
-		each.call_deferred("free")
-	pValue_changes = []
-	for change in original.pValue_changes:
-		var new_pValueChange = Desideratum.new(change.character, change.pValue, change.point)
-		pValue_changes.append(new_pValueChange)
-
-func set_blend_x(text):
-	if (!(blend_x is Desideratum)):
-		blend_x = Desideratum.new(option.encounter.antagonist, "", 1)
-	if ("-" == text.left(1)):
-		text = text.substr(1)
-		blend_x.pValue = text
-		blend_x.point = -1
-	else:
-		blend_x.pValue = text
-		blend_x.point = 1
-
-func set_blend_y(text):
-	if (!(blend_y is Desideratum)):
-		blend_y = Desideratum.new(option.encounter.antagonist, "", 1)
-	if ("-" == text.left(1)):
-		text = text.substr(1)
-		blend_y.pValue = text
-		blend_y.point = -1
-	else:
-		blend_y.pValue = text
-		blend_y.point = 1
+	for change in after_effects:
+		change.clear()
+		change.call_deferred("free")
+	after_effects.clear()
+	for change in original.after_effects:
+		var change_copy = AssignmentOperator.new()
+		var succeeded = change_copy.set_as_copy_of(change)
+		if (succeeded):
+			after_effects.append(change_copy)
+		else:
+			change_copy.call_deferred("free")
