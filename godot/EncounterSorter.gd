@@ -17,10 +17,16 @@ static func sort_z_a(a, b):
 static func sort_created(a, b):
 	if a.creation_time < b.creation_time:
 		return true
+	elif a.creation_time == b.creation_time:
+		if a.creation_index < b.creation_index:
+			return true
 	return false
 static func sort_r_created(a, b):
 	if a.creation_time > b.creation_time:
 		return true
+	elif a.creation_time == b.creation_time:
+		if a.creation_index > b.creation_index:
+			return true
 	return false
 static func sort_modified(a, b):
 	if a.modified_time > b.modified_time:

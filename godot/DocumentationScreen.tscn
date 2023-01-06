@@ -27,9 +27,9 @@ custom_fonts/italics_font = ExtResource( 2 )
 custom_fonts/bold_font = ExtResource( 4 )
 custom_fonts/normal_font = ExtResource( 1 )
 bbcode_enabled = true
-bbcode_text = "Loading, saving, and compiling projects is temporarilly disabled in this version of SweepWeave. (I haven't yet finished updating the functions that make all of that work.) I'm releasing this version as a preview to ask for feedback on a new feature: the ability to change the personality / relationship model of a storyworld.
+bbcode_text = "Saving projects is temporarilly disabled in this version of SweepWeave. (I haven't yet finished updating the functions that make all of that work.) I'm releasing this version as a preview to ask for feedback on a new feature: the spooling system.
 
-Feel free to offer feedback through Thaddeus or Slack. Thanks, and peace to you!
+Feel free to offer feedback through Thaddeus, Discord, Slack, email, or my Patreon page. Thanks, and peace to you!
 
 *************
 Introduction:
@@ -157,9 +157,9 @@ You can contact me through Chris Crawford's Thaddeus discussion board, through o
 
 Thanks, and peace to you.
 ~Sasha Fenn"
-text = "Loading, saving, and compiling projects is temporarilly disabled in this version of SweepWeave. (I haven't yet finished updating the functions that make all of that work.) I'm releasing this version as a preview to ask for feedback on a new feature: the ability to change the personality / relationship model of a storyworld.
+text = "Saving projects is temporarilly disabled in this version of SweepWeave. (I haven't yet finished updating the functions that make all of that work.) I'm releasing this version as a preview to ask for feedback on a new feature: the spooling system.
 
-Feel free to offer feedback through Thaddeus or Slack. Thanks, and peace to you!
+Feel free to offer feedback through Thaddeus, Discord, Slack, email, or my Patreon page. Thanks, and peace to you!
 
 *************
 Introduction:

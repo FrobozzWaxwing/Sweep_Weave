@@ -144,18 +144,23 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 func set_operator_subtype(in_operator_subtype):
 	if (in_operator_subtype.matchn("NOT")):
 		can_add_operands = false
+		minimum_number_of_operands = 1
 		operator_subtype = operator_subtypes.NOT
 	elif (in_operator_subtype.matchn("AND")):
 		can_add_operands = true
+		minimum_number_of_operands = 1
 		operator_subtype = operator_subtypes.AND
 	elif (in_operator_subtype.matchn("OR")):
 		can_add_operands = true
+		minimum_number_of_operands = 1
 		operator_subtype = operator_subtypes.OR
 	elif (in_operator_subtype.matchn("XOR")):
 		can_add_operands = false
+		minimum_number_of_operands = 2
 		operator_subtype = operator_subtypes.XOR
 	elif (in_operator_subtype.matchn("EQUALS")):
 		can_add_operands = true
+		minimum_number_of_operands = 2
 		operator_subtype = operator_subtypes.EQUALS
 	else:
 		operator_subtype = null

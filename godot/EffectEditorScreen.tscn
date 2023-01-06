@@ -1,0 +1,95 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://EffectEditorScreen.gd" type="Script" id=1]
+[ext_resource path="res://SpoolSelector.tscn" type="PackedScene" id=2]
+[ext_resource path="res://BNumberPropertySelector.tscn" type="PackedScene" id=3]
+[ext_resource path="res://ScriptEditScreen.tscn" type="PackedScene" id=4]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="TabContainer" type="TabContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="BNumberProperty" type="Tabs" parent="TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="VBC" type="VBoxContainer" parent="TabContainer/BNumberProperty"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="TabContainer/BNumberProperty/VBC"]
+margin_right = 1358.0
+margin_bottom = 14.0
+text = "Set the following property:"
+
+[node name="PropertySelector" parent="TabContainer/BNumberProperty/VBC" instance=ExtResource( 3 )]
+anchor_right = 0.0
+margin_top = 18.0
+margin_right = 1358.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 0, 32 )
+
+[node name="Label2" type="Label" parent="TabContainer/BNumberProperty/VBC"]
+margin_top = 54.0
+margin_right = 1358.0
+margin_bottom = 68.0
+text = "to the value of the following script:"
+
+[node name="ScriptEditingInterface" parent="TabContainer/BNumberProperty/VBC" instance=ExtResource( 4 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 72.0
+margin_right = 1358.0
+margin_bottom = 700.0
+size_flags_vertical = 3
+
+[node name="SpoolStatus" type="Tabs" parent="TabContainer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="VBC" type="VBoxContainer" parent="TabContainer/SpoolStatus"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="TabContainer/SpoolStatus/VBC"]
+margin_right = 1358.0
+margin_bottom = 14.0
+text = "Set the following property:"
+
+[node name="SpoolSelector" parent="TabContainer/SpoolStatus/VBC" instance=ExtResource( 2 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 18.0
+margin_right = 1358.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 0, 32 )
+
+[node name="Label2" type="Label" parent="TabContainer/SpoolStatus/VBC"]
+margin_top = 54.0
+margin_right = 1358.0
+margin_bottom = 68.0
+text = "to the value of the following script:"
+
+[node name="ScriptEditingInterface" parent="TabContainer/SpoolStatus/VBC" instance=ExtResource( 4 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 72.0
+margin_right = 1358.0
+margin_bottom = 700.0
+size_flags_vertical = 3

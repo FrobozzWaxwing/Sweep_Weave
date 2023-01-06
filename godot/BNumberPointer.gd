@@ -109,3 +109,28 @@ func data_to_string():
 	text += str(character.get_bnumber_property(keyring))
 	text += ")"
 	return text
+
+func validate(intended_script_output_datatype):
+	var report = ""
+	#Check character:
+	if (null == character):
+		report += "\n" + "Null character."
+	elif (!(character is Actor)):
+		report += "\n" + "Invalid character."
+	elif (!is_instance_valid(character)):
+		report += "\n" + "Character has been deleted."
+	#Check coefficient:
+	if (TYPE_INT != typeof(coefficient) and TYPE_REAL != typeof(coefficient)):
+		report += "\n" + "Coefficient is not a number."
+	#Check keyring and value:
+	if (keyring.empty()):
+		report += "\n" + "Keyring is empty."
+	elif (null != character and character is Actor and is_instance_valid(character)):
+		if (!character.bnumber_properties.has(keyring[0])):
+			report += "\n" + "Character does not possess the property that this pointer refers to."
+		elif (get_value(null)):
+			report += "\n" + "Value is null."
+	if ("" == report):
+		return "Passed."
+	else:
+		return pointer_type + " errors:" + report

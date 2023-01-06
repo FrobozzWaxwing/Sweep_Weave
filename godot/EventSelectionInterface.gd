@@ -4,13 +4,23 @@ var storyworld = null
 var blacklist = [] #A list of encounters that should not be made available for selection. Could slow down the system if this array is too long.
 var selected_event = null #An EventPointer.
 var searchterm = ""
+var display_options = true #If true, the refresh function will display the options of encounters as branches of those encounters in the EventTree.
+var display_negated_checkbox = true
 
 signal selected_event_changed(selected_event)
+signal event_doubleclicked(selected_event)
 
 func _ready():
 	selected_event = EventPointer.new(null, null, null)
+	if (0 < $ColorRect/VBC/SortBar/SortMenu.get_item_count()):
+		$ColorRect/VBC/SortBar/SortMenu.select(0)
 
 onready var event_selection_tree = get_node("ColorRect/VBC/EventTree")
+
+func reset():
+	blacklist.clear()
+	selected_event = EventPointer.new(null, null, null)
+	searchterm = ""
 
 func refresh():
 	if (null == storyworld):
@@ -28,20 +38,22 @@ func refresh():
 				else:
 					entry_e.set_text(0, encounter.title)
 				entry_e.set_metadata(0, {"encounter": encounter, "option": null, "reaction": null})
-				for option in encounter.options:
-					var entry_o = event_selection_tree.create_item(entry_e)
-					if ("" == option.text):
-						entry_o.set_text(0, "[Blank Option]")
-					else:
-						entry_o.set_text(0, option.text)
-					entry_o.set_metadata(0, {"encounter": encounter, "option": option, "reaction": null})
-					for reaction in option.reactions:
-						var entry_r = event_selection_tree.create_item(entry_o)
-						if ("" == reaction.text):
-							entry_r.set_text(0, "[Blank Reaction]")
+				if (display_options):
+					for option in encounter.options:
+						var entry_o = event_selection_tree.create_item(entry_e)
+						if ("" == option.text):
+							entry_o.set_text(0, "[Blank Option]")
 						else:
-							entry_r.set_text(0, reaction.text)
-						entry_r.set_metadata(0, {"encounter": encounter, "option": option, "reaction": reaction})
+							entry_o.set_text(0, option.text)
+						entry_o.set_metadata(0, {"encounter": encounter, "option": option, "reaction": null})
+						for reaction in option.reactions:
+							var entry_r = event_selection_tree.create_item(entry_o)
+							if ("" == reaction.text):
+								entry_r.set_text(0, "[Blank Reaction]")
+							else:
+								entry_r.set_text(0, reaction.text)
+							entry_r.set_metadata(0, {"encounter": encounter, "option": option, "reaction": reaction})
+	$ColorRect/VBC/NegatedCheckBox.visible = display_negated_checkbox
 
 func _on_LineEdit_text_entered(new_text):
 	searchterm = new_text
@@ -61,7 +73,6 @@ func _on_EventTree_item_selected():
 		var reaction_index = ""
 		if (null != reaction):
 			reaction_index = " / " + str(reaction.get_index())
-		print ("Selecting Event: " + encounter.title + option_index + reaction_index)
 		selected_event.encounter = encounter
 		selected_event.option = option
 		selected_event.reaction = reaction
@@ -70,3 +81,14 @@ func _on_EventTree_item_selected():
 func _on_NegatedCheckBox_pressed():
 	selected_event.negated = $ColorRect/VBC/NegatedCheckBox.pressed
 	emit_signal("selected_event_changed", selected_event)
+
+func _on_SortMenu_item_selected(index):
+	var sort_method = $ColorRect/VBC/SortBar/SortMenu.get_popup().get_item_text(index)
+	if ("Word Count" == sort_method || "Rev. Word Count" == sort_method):
+		for encounter in storyworld.encounters:
+			encounter.wordcount() #Update recorded wordcount of each encounter.
+	storyworld.sort_encounters(sort_method)
+	refresh()
+
+func _on_EventTree_item_activated():
+	emit_signal("event_doubleclicked", selected_event)

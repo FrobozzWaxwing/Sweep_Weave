@@ -170,12 +170,26 @@ class Character {
     }
 }
 
+class Spool {
+    constructor(id, name, starts_active) {
+        this.id = id;
+        this.name = name;
+        this.encounters = [];
+        this.starts_active = starts_active;
+        this.currently_active = starts_active;
+    }
+}
+
 //-------------------
 //Section 3: Database
 //-------------------
 
 //Here is the database of encounters.
 var encounters = {};
+
+//Here is the database of spools.
+var spools = [];
+var spool_directory = {};
 
 //We need to keep track of the present encounter.
 var current_page = null;
@@ -242,8 +256,24 @@ function importCharacterData(){
     }
 }
 
+function importSpoolData(){
+    spools = [];
+    spool_directory = {};
+    var eachSpool;
+    for (eachSpool of storyworld_data.spools){
+        x_spool = new Spool(eachSpool["id"], eachSpool["spool_name"], eachSpool["starts_active"]);
+        for (encounter of eachSpool["encounters"]){
+            //encounter is the id of the encounter, in this case, rather than the encounter itself.
+            x_spool.encounters.push(encounter);
+        }
+        spools.push(x_spool);
+        spool_directory[eachSpool["id"]] = x_spool;
+    }
+}
+
 function importGameData(){
     importCharacterData();
+    importSpoolData();
     var eachEn;
     for (eachEn of storyworld_data.encounters){
         //id, title, main_text, earliest_turn, latest_turn, antagonist, options
@@ -303,6 +333,10 @@ function saveGame(save_filename, note = ""){
     save_dictionary.save_filename = save_filename;
     save_dictionary.slow_historybook = slow_historybook;
     save_dictionary.characters = characters;
+    save_dictionary.spool_directory = {};
+    for (spool of spools){
+        save_dictionary.spool_directory[spool.id] = spool.currently_active;
+    }
     save_dictionary.note = encodeURIComponent(note);
     var save_file = JSON.stringify(save_dictionary);
     setCookie("saved_game_" + save_filename, save_file, 4096);
@@ -336,6 +370,9 @@ function loadGame(save_filename){
         loadTheEnd(false);//Don't record to historybook.
     } else {
         loadEncounter(slow_historybook[slow_historybook.length - 1].encounter, false);//Don't record to historybook.
+    }
+    for (spool of spools){
+        spool.currently_active = save_dictionary.spool_directory[spool.id];
     }
     console.log("Loaded saved game: " + save_filename);
 }
@@ -616,7 +653,7 @@ function evaluateSWScript(script){
     } else if (null !== script && "object" == typeof script && Object.hasOwn(script, "script_element_type")){
         console.log("Evaluating script: " + JSON.stringify(script));
         if ("Pointer" == script["script_element_type"] && Object.hasOwn(script, "pointer_type")){
-            console.log("Script is a pointer.");
+            //console.log("Script is a pointer.");
             if ("Bounded Number Constant" == script["pointer_type"] && Object.hasOwn(script, "value")){
                 console.log("Script is a bounded number constant, with a value of " + script["value"].toString() + ".");
                 return script["value"];
@@ -634,9 +671,11 @@ function evaluateSWScript(script){
                 } else {
                     return true;
                 }
+            } else if ("Spool Status Pointer" == script["pointer_type"] && Object.hasOwn(script, "negated") && Object.hasOwn(script, "spool")){
+                return (!script["negated"] == spool_directory[script["spool"]].currently_active);
             }
         } else if ("Operator" == script["script_element_type"] && Object.hasOwn(script, "operator_type") && Object.hasOwn(script, "operands") && Object.hasOwn(script, "input_type")){
-            console.log("Script is an operator.");
+            //console.log("Script is an operator.");
             //Evaluate operands first.
             let evaluated_operands = [];
             let operands_length = script["operands"].length;
@@ -649,7 +688,9 @@ function evaluateSWScript(script){
             }
             operands_length = evaluated_operands.length;
             //Now evaluate operator.
-            if ("Arithmetic Mean" == script["operator_type"]){
+            if ("Absolute Value" == script["operator_type"] && 1 == operands_length){
+                return Math.abs(evaluated_operands[0]);
+            } else if ("Arithmetic Mean" == script["operator_type"]){
                 let sum = 0;
                 let count = 0;
                 for (let index = 0; index < operands_length; index++) {
@@ -664,6 +705,9 @@ function evaluateSWScript(script){
                 } else {
                     return sum / count;
                 }
+            } else if ("Arithmetic Negation" == script["operator_type"] && 1 == operands_length){
+                let result = -1 * evaluated_operands[0];
+                return result;
             } else if ("Blend" == script["operator_type"] && 3 == operands_length){
                 let result = blend(evaluated_operands[0], evaluated_operands[1], evaluated_operands[2]);
                 return result;
@@ -701,12 +745,21 @@ function evaluateSWScript(script){
 }
 
 function enactEffect(effect_data){
-    let character = characters[effect_data["Set"]["character"]];
-    let keyring = effect_data["Set"]["keyring"];
-    let value = evaluateSWScript(effect_data["to"]);
-    if (null !== value && "number" == typeof value){
-        value *= effect_data["Set"]["coefficient"];
-        character.set_bnumber_property(keyring, value);
+    if (null !== effect_data && "object" == typeof effect_data && Object.hasOwn(effect_data, "effect_type")){
+        if ("Bounded Number Effect" == effect_data["effect_type"]){
+            let character = characters[effect_data["Set"]["character"]];
+            let keyring = effect_data["Set"]["keyring"];
+            let value = evaluateSWScript(effect_data["to"]);
+            if (null !== value && "number" == typeof value){
+                value *= effect_data["Set"]["coefficient"];
+                character.set_bnumber_property(keyring, value);
+            }
+        } else if ("Spool Effect" == effect_data["effect_type"]){
+            let value = evaluateSWScript(effect_data["to"]);
+            if (null !== value && "boolean" == typeof value){
+                spool_directory[effect_data["Set"]["spool"]].currently_active = value;
+            }
+        }
     }
 }
 
@@ -733,7 +786,7 @@ function loadEncounter(encounter_id, record = true) {
         text_buffer = "";
     } else if (1 == storyworld_data["display_mode"]){
         //In display mode 1, when a player chooses an option, the game clears the screen and displays the reaction text followed by the text of the next encounter.
-        current_main_text += text_buffer + "<br>";//text_buffer should be holding the text of the reaction that needs displayed.
+        current_main_text += text_buffer + "";//text_buffer should be holding the text of the reaction that needs displayed.
     }
     if (storyworld_data["debug_mode"]){
         //If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
@@ -843,6 +896,9 @@ function executeOption(which){
     for (reaction of reactions){
         //This chooses how a character reacts to the player's choice.
         var latestInclination = evaluateSWScript(reaction.desirability_script);
+        if (null === latestInclination || "number" != typeof latestInclination){
+            continue
+        }
         console.log('Reaction: "' + reaction.text.substr(0, 24) + '..." Inclination: ' + latestInclination.toString());
         if (latestInclination >= topInclination){
             topInclination = latestInclination;
@@ -870,9 +926,13 @@ function executeOption(which){
     //Change text of options list to show only the text of the option chosen by the player.
     document.getElementById("options_list").innerHTML = '&gt; ' + current_page.options[parseInt(which)].text;
     if (storyworld_data["debug_mode"]){//If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-        text_buffer = characters[current_antagonist].printCharRelationships("<br>") + "<br>" + reactions[workingChoice].text;
+        text_buffer = characters[current_antagonist].printCharRelationships("<br>") + "<br>";
     } else {
-        text_buffer = reactions[workingChoice].text;
+        text_buffer = "";
+    }
+    let reaction_text = reactions[workingChoice].text;
+    if ("string" == typeof reaction_text && "" != reaction_text){
+        text_buffer += reaction_text + "<br><br>";
     }
     if (0 == storyworld_data["display_mode"]){
         //Display text of chosen reaction.
@@ -954,32 +1014,32 @@ function loadMostDesirableEncounter(acceptableEncounters){
     //Choose an encounter from the pool of acceptable encounters.
     //Find one that has a desirability greater than or equal to that of all the others.
     var flag = true;
-    var shortest_distance = 0;
-    var each;
+    var highest_desirability = -1;
+    var encounter;
     //To help keep our results consistent and relatively predictable,
     //sort our array of acceptable encounters alphabetically, by encounter title.
-    acceptableEncounters.sort(comparePageTitleAlphabetically);
-    for (each of acceptableEncounters){
-        var encounter = encounters[each];
+    //acceptableEncounters.sort(comparePageTitleAlphabetically);
+    for (encounter of acceptableEncounters){
+        var doe = desirability(encounter);
+        console.log("Desirability of encounter " + encounter.title + " equals " + doe + ".");
         if (flag){//First iteration of loop.
-            shortest_distance = desirability(encounter);
-            next_page = each;
+            highest_desirability = doe;
+            next_page = encounter;
             flag = false;
         } else {
-            var target_distance = desirability(encounter);
-            if (target_distance < shortest_distance){
-                shortest_distance = target_distance;
-                next_page = each;
+            if (doe > highest_desirability){
+                highest_desirability = doe;
+                next_page = encounter;
             }
         }
     }
-    //next_page = acceptable_encounters_inc[Math.floor(Math.random() * acceptable_encounters_inc.length)];
-    console.log("Encounter: " + next_page + " selected.");
+    console.log("Encounter: " + next_page.title + " selected.");
     //Add the chosen encounter to the historybook, then display it.
-    loadEncounter(next_page);
+    loadEncounter(next_page.id);
 }
 
 //Select which encounter comes next:
+/*
 function selectEncounter(){
     console.log("Selecting next encounter.");
     if (0 != turn){//Unless we're just starting a new game.
@@ -1055,6 +1115,44 @@ function selectEncounter(){
         }
     }
 }
+*/
+function selectEncounter(){
+    console.log("Selecting next encounter.");
+    if (0 != turn){//Unless we're just starting a new game.
+        writeToTranscript();//Record the last encounter to the transcript before moving on.
+    }
+    turn = turn + 1;
+    if ("wild" != next_page) {
+        //If the reaction of the last encounter led to a consequence, that consequence occurs next.
+        loadEncounter(next_page);
+    } else {
+        //Otherwise:
+        var each_id;
+        var acceptable_encounters = [];//These encounters are acceptable.
+        var checked_encounters = {};//These encounters have already been checked.
+        for (spool of spools){
+            if (spool.currently_active){
+                console.log("Checking spool: " + spool.name + ".");
+                for (each_id of spool.encounters){
+                    if (!checked_encounters.hasOwnProperty(each_id)){
+                        checked_encounters[each_id] = true;
+                        var encounter = encounters[each_id];
+                        if (!quick_historybook.hasOwnProperty(encounter.id) && evaluateSWScript(encounter.acceptability_script)){
+                            acceptable_encounters.push(encounter);
+                            console.log("Encounter: " + encounter.title + " deemed acceptable.");
+                        }
+                    }
+                }
+            }
+        }
+        //If no encounters are deemed acceptable, display a message saying "THE END" instead of an encounter.
+        if (0 == acceptable_encounters.length){
+            loadTheEnd(true);
+        } else {
+            loadMostDesirableEncounter(acceptable_encounters);
+        }
+    }
+}
 
 //Start a new game / playthrough.
 function startNewGame(ask_for_confirmation = true){
@@ -1072,6 +1170,9 @@ function startNewGame(ask_for_confirmation = true){
         current_antagonist = 0;
         displaySaveProfile();
         importCharacterData();//Reset Character relations.
+        for (spool of spools){
+            spool.currently_active = spool.starts_active;
+        }
         selectEncounter();
     }
 }

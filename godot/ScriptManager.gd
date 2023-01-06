@@ -49,10 +49,12 @@ func deeply_copy(original):
 		copy_of_element = []
 		for each in original:
 			copy_of_element.append(deeply_copy(each))
+	elif (original is ArithmeticAbsoluteValueOperator):
+		copy_of_element = ArithmeticAbsoluteValueOperator.new(copy_of_operands.pop_front())
 	elif (original is ArithmeticMeanOperator):
 		copy_of_element = ArithmeticMeanOperator.new(copy_of_operands)
-#	elif (original is AssignmentOperator):
-#		copy_of_element = AssignmentOperator.new(copy_of_operands.pop_front(), copy_of_operands.pop_front())
+	elif (original is ArithmeticNegationOperator):
+		copy_of_element = ArithmeticNegationOperator.new(copy_of_operands.pop_front())
 	elif (original is BlendOperator):
 		copy_of_element = BlendOperator.new(copy_of_operands.pop_front(), copy_of_operands.pop_front(), copy_of_operands.pop_front())
 	elif (original is BNumberConstant):
@@ -73,6 +75,9 @@ func deeply_copy(original):
 		copy_of_element.negated = original.negated
 	elif (original is NudgeOperator):
 		copy_of_element = NudgeOperator.new(copy_of_operands.pop_front(), copy_of_operands.pop_front())
+	elif (original is SpoolStatusPointer):
+		copy_of_element = SpoolStatusPointer.new()
+		copy_of_element.set_as_copy_of(original)
 	return copy_of_element
 
 func set_as_copy_of(original):
@@ -396,6 +401,20 @@ func find_all_bnumberpointers():
 	recursive_find_all_bnumberpointers(contents, results)
 	return results
 
+func recursive_find_all_characters_involved(element, results):
+	if (element is BNumberPointer and null != element.character):
+		results[element.character.id] = element.character
+	elif (element is SWOperator):
+		for operand in element.operands:
+			recursive_find_all_characters_involved(operand, results)
+
+func find_all_characters_involved():
+	#Use a dictionary for the results list so that we can avoid duplicate entries.
+	#Key will be character id, value will be the character themselves.
+	var results = {}
+	recursive_find_all_characters_involved(contents, results)
+	return results
+
 func get_value(leaf = null):
 	var result = null
 	if (null == contents):
@@ -428,6 +447,17 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 		result = contents.compile(parent_storyworld, include_editor_only_variables)
 	return result
 
+func stringify_datatype(datatype):
+	#This is used for script validation, not storyworld compilation, so unlike the similar functions in script elements and operators, the strings that this function outputs need not be javascript datatype names.
+	if (sw_script_data_types.BOOLEAN == datatype):
+		return "boolean"
+	elif (sw_script_data_types.BNUMBER == datatype):
+		return "bounded number"
+	elif (sw_script_data_types.VARIANT == datatype):
+		return "variant"
+	else:
+		return ""
+
 func data_to_string():
 	var result = "[invalid script]"
 	if (null == contents):
@@ -459,10 +489,24 @@ func recursive_load_from_json_v0_0_21(storyworld, data_to_load):
 				script_element.spool = storyworld.spool_directory[data_to_load["spool"]]
 			if (TYPE_STRING == typeof(data_to_load["encounter"]) and storyworld.encounter_directory.has(data_to_load["encounter"])):
 				script_element.encounter = storyworld.encounter_directory[data_to_load["encounter"]]
-				if (TYPE_INT == typeof(data_to_load["option"]) and data_to_load["option"] < script_element.encounter.options.size()):
-					script_element.option = script_element.encounter.options[data_to_load["option"]]
-					if (TYPE_INT == typeof(data_to_load["reaction"]) and data_to_load["reaction"] < script_element.option.reactions.size()):
-						script_element.reaction = script_element.option.reactions[data_to_load["reaction"]]
+				if (TYPE_INT == typeof(data_to_load["option"]) or TYPE_REAL == typeof(data_to_load["option"])):
+					var option_index = data_to_load["option"]
+					var maximum = script_element.encounter.options.size()
+					if (0 <= option_index and option_index < maximum):
+						script_element.option = script_element.encounter.options[option_index]
+						if (TYPE_INT == typeof(data_to_load["reaction"]) or TYPE_REAL == typeof(data_to_load["reaction"])):
+							var reaction_index = data_to_load["reaction"]
+							maximum = script_element.option.reactions.size()
+							if (0 <= reaction_index and reaction_index < maximum):
+								script_element.reaction = script_element.option.reactions[data_to_load["reaction"]]
+#							else:
+#								print ("Reaction index (" + str(reaction_index) + ") is out of range (0 to " + str(maximum - 1) + ".)")
+						else:
+							print ("Reaction index is not a number.")
+#					else:
+#						print ("Option index (" + str(option_index) + ") is out of range (0 to " + str(maximum - 1) + ".)")
+				else:
+					print ("Option index is not a number.")
 			return script_element
 	elif ("Operator" == data_to_load["script_element_type"] and data_to_load.has_all(["operator_type", "operands"])):
 		var operands = []
@@ -484,5 +528,36 @@ func recursive_load_from_json_v0_0_21(storyworld, data_to_load):
 			return NudgeOperator.new(operands.pop_front(), operands.pop_front())
 	return null
 
-func load_from_json_v0_0_21(storyworld, data_to_load):
-	set_contents(recursive_load_from_json_v0_0_21(storyworld, data_to_load))
+func load_from_json_v0_0_21(storyworld, data_to_load, expected_output_datatype):
+	var parsed_script = recursive_load_from_json_v0_0_21(storyworld, data_to_load)
+	if (null == parsed_script):
+		if (sw_script_data_types.BNUMBER == expected_output_datatype):
+			print ("Warning, script has null or invalid contents. Setting script contents to bounded number constant to match expected output datatype.")
+			set_contents(BNumberConstant.new(0))
+		elif (sw_script_data_types.BOOLEAN == expected_output_datatype):
+			print ("Warning, script has null or invalid contents. Setting script contents to boolean constant to match expected output datatype.")
+			set_contents(BooleanConstant.new(false))
+		else:
+			print ("Warning, script has null or invalid contents. Please try running storyworld validation lizard to find broken scripts.")
+			set_contents(null)
+	else:
+		set_contents(parsed_script)
+
+func validate(intended_script_output_datatype):
+	if (null == contents):
+		return "Script contents are null."
+	elif (!(contents is SWScriptElement)):
+		return "Script contents are not a SweepWeave script element."
+	elif (!is_instance_valid(contents)):
+		return "Script contents have been deleted but not properly nullified or replaced."
+	else:
+		var validation_report = ""
+		if (output_type != intended_script_output_datatype and sw_script_data_types.VARIANT != intended_script_output_datatype):
+			validation_report += "Script has incorrect output type. The correct output type would be " + stringify_datatype(intended_script_output_datatype)
+			validation_report += ", but the script has an output type of " + stringify_datatype(output_type)
+		var contents_report = contents.validate(intended_script_output_datatype)
+		if ("Passed." != contents_report):
+			validation_report += "\n" + contents_report
+		if ("" == validation_report):
+			return "Passed."
+		return validation_report

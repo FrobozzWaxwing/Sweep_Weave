@@ -73,3 +73,8 @@ func get_selected_metadata():
 		return selection.get_metadata(0)["listed_object"]
 	else:
 		return null
+
+func select_first_item():
+	var treeitem = get_root().get_children()
+	if (null != treeitem):
+		treeitem.select(0)

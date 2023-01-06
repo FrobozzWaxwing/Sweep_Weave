@@ -27,9 +27,11 @@ func load_encounter_in_graphview(encounter, zoom_level):
 func load_connections_in_graphview(encounter, zoom_level):
 	if (encounter is Encounter):
 		var encounter_graph_node = encounter.graphview_node
-		for each in encounter.acceptability_script.contents.operands:
-			if (each is EventPointer and each.encounter is Encounter):
-				$GraphEdit.connect_node(each.encounter.graphview_node.get_name(), 0, encounter_graph_node.get_name(), 0)
+		if (encounter.acceptability_script is ScriptManager):
+			var acceptability_pointers = encounter.acceptability_script.find_all_eventpointers()
+			for each in acceptability_pointers:
+				if (each is EventPointer and each.encounter is Encounter):
+					$GraphEdit.connect_node(each.encounter.graphview_node.get_name(), 0, encounter_graph_node.get_name(), 0)
 		for option in encounter.options:
 			if (option is Option):
 				for reaction in option.reactions:

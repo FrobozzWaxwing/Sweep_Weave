@@ -3,6 +3,7 @@ class_name BlendOperator
 
 func _init(in_operand_0, in_operand_1, in_weight):
 	operator_type = "Blend"
+	minimum_number_of_operands = 3
 	input_type = sw_script_data_types.BNUMBER
 	output_type = sw_script_data_types.BNUMBER
 	add_operand(in_operand_0)

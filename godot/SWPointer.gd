@@ -15,3 +15,6 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 	output["script_element_type"] = "Pointer"
 	output["pointer_type"] = pointer_type
 	return output
+
+func validate(intended_script_output_datatype):
+	return "Passed."

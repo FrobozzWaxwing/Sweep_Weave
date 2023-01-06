@@ -47,7 +47,6 @@ func refresh_property_list():
 
 func _on_AddCharacter_pressed():
 	var new_character = storyworld.create_default_character()
-	print("New character: " + new_character.char_name)
 	for character in storyworld.characters:
 		for property in storyworld.authored_properties:
 			if (property.attribution_target == property.possible_attribution_targets.CAST_MEMBERS and property.affected_characters.has(character)):
@@ -119,7 +118,7 @@ func _on_ConfirmCharacterDeletion_confirmed():
 					print(reaction.text.left(25) + " Desirability Script")
 					reaction.desirability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
 					for effect in reaction.after_effects:
-						if (effect is AssignmentOperator):
+						if (effect is BNumberEffect):
 							effect.operand_0.replace_character_with_character(character_to_delete, replacement) #BNumberPointer
 							effect.operand_1.replace_character_with_character(character_to_delete, replacement) #ScriptManager
 		for authored_property in storyworld.authored_properties:

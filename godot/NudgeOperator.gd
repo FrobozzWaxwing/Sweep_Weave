@@ -3,6 +3,7 @@ class_name NudgeOperator
 
 func _init(in_operand_0 = null, in_operand_1 = null):
 	operator_type = "Nudge"
+	minimum_number_of_operands = 2
 	input_type = sw_script_data_types.BNUMBER
 	output_type = sw_script_data_types.BNUMBER
 	add_operand(in_operand_0)

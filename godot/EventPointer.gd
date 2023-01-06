@@ -151,3 +151,15 @@ func remap(storyworld):
 		option = null
 		reaction = null
 	return true
+
+func validate(intended_script_output_datatype):
+	var report = ""
+	#Check negated:
+	if (TYPE_BOOL != typeof(negated)):
+		report += "\n" + "Negated is not a boolean."
+	if (null == spool and null == encounter and null == option and null == reaction):
+		report += "\n" + "Spool, encounter, option, and reaction are all null."
+	if ("" == report):
+		return "Passed."
+	else:
+		return pointer_type + " errors:" + report

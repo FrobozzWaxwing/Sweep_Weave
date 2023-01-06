@@ -3,16 +3,12 @@ class_name Storyworld
 
 var characters = []
 var character_directory = {}
-#var char_unique_id_seed = 0
 var encounters = []
 var encounter_directory = {}
-#var unique_id_seed = 0
 var spools = []
 var spool_directory = {}
-#var spool_unique_id_seed = 0
 var authored_properties = []
 var authored_property_directory = {}
-#var authored_property_unique_id_seed = 0
 var unique_id_seeds = {"character": 0, "encounter": 0, "spool": 0, "authored_property": 0}
 var storyworld_title = ""
 var storyworld_author = ""
@@ -24,6 +20,8 @@ var modified_time = null
 var ifid = ""
 #Variables for editor:
 var project_saved = true
+
+enum sw_script_data_types {BOOLEAN, BNUMBER, VARIANT}
 
 #Basic Functions:
 
@@ -43,45 +41,10 @@ func unique_id(element_type = "encounter", length = 32):
 	unique_id_seeds[element_type] += 1
 	return result
 
-#func unique_id(length = 32):
-#	var result = "%x" % unique_id_seed
-#	result += "_" + str(OS.get_unix_time())
-#	result = result.sha1_text()
-#	result = result.left(length)
-#	unique_id_seed += 1
-#	return result
-##
-#func char_unique_id(length = 32):
-#	var result = "%x" % char_unique_id_seed
-#	result += "_" + str(OS.get_unix_time())
-#	result = result.sha1_text()
-#	result = result.left(length)
-#	char_unique_id_seed += 1
-#	return result
-#
-#func spool_unique_id(length = 16):
-#	var result = "%x" % spool_unique_id_seed
-#	result += "_" + str(OS.get_unix_time())
-#	result = result.sha1_text()
-#	result = result.left(length)
-#	spool_unique_id_seed += 1
-#	return result
-#
-#func ap_unique_id(length = 16):
-#	var result = "%x" % authored_property_unique_id_seed
-#	result += "_" + str(OS.get_unix_time())
-#	result = result.sha1_text()
-#	result = result.left(length)
-#	authored_property_unique_id_seed += 1
-#	return result
-
 func log_update():
 	modified_time = OS.get_unix_time()
 
 func clear():
-#	unique_id_seed = 0
-#	char_unique_id_seed = 0
-#	authored_property_unique_id_seed = 0
 	unique_id_seeds = {"character": 0, "encounter": 0, "spool": 0, "authored_property": 0}
 	storyworld_title = "New Storyworld"
 	storyworld_author = "Anonymous"
@@ -147,7 +110,7 @@ func add_all_authored_properties_from(original):
 		var new_index = unique_id_seeds["authored_property"]
 		unique_id_seeds["authored_property"] += 1
 		var copy = BNumberBlueprint.new(self, new_index, "", "", 0, 0)
-		copy.set_as_copy_of(property)
+		copy.set_as_copy_of(property, false) #create_mutual_links == false
 		add_authored_property(copy)
 
 #Characters:
@@ -159,12 +122,14 @@ func add_character(character):
 func delete_character(character):
 	characters.erase(character)
 	character_directory.erase(character)
+	for property in authored_properties:
+		property.affected_characters.erase(character)
 	character.call_deferred("free")
 
 func add_all_characters_from(original):
 	for character in original.characters:
 		var newbie = Actor.new(self, character.char_name, character.pronoun, character.bnumber_properties)
-		newbie.set_as_copy_of(character)
+		newbie.set_as_copy_of(character, false) #create_mutual_links == false
 		newbie.creation_index = character.creation_index
 		newbie.creation_time = character.creation_time
 		newbie.modified_time = OS.get_unix_time()
@@ -174,7 +139,7 @@ func add_all_characters_from(original):
 func import_characters(original_characters):
 	for character in original_characters:
 		var newbie = Actor.new(self, character.char_name, character.pronoun, character.bnumber_properties)
-		newbie.set_as_copy_of(character)
+		newbie.set_as_copy_of(character, false) #create_mutual_links == false
 		newbie.creation_index = character.creation_index
 		newbie.creation_time = character.creation_time
 		newbie.modified_time = OS.get_unix_time()
@@ -203,21 +168,21 @@ func delete_encounter(encounter):
 				each1.log_update()
 			if (each2.performability_script.search_and_replace(encounter, null)):
 				each1.log_update()
+	for spool in encounter.connected_spools:
+		spool.encounters.erase(encounter)
 	encounter.clear()
 	encounter.call_deferred("free")
 
 func add_all_encounters_from(original):
 	for encounter in original.encounters:
 		var copy = Encounter.new(self, "", "", "", 0, 0, null, [], 0)
-		copy.set_as_copy_of(encounter)
+		copy.set_as_copy_of(encounter, false) #create_mutual_links == false
 		add_encounter(copy)
-	for encounter in encounters:
-		encounter.remap(self)
 
 func import_encounters(original_encounters):
 	for encounter in original_encounters:
 		var copy = Encounter.new(self, "", "", "", 0, 0, null, [], 0)
-		copy.set_as_copy_of(encounter)
+		copy.set_as_copy_of(encounter, false) #create_mutual_links == false
 		add_encounter(copy)
 	for encounter in encounters:
 		encounter.remap(self)
@@ -242,9 +207,17 @@ func add_spool(spool):
 	spool_directory[spool.id] = spool
 
 func delete_spool(spool):
+	for encounter in spool.encounters:
+		encounter.connected_spools.erase(spool)
 	spools.erase(spool)
 	spool_directory.erase(spool)
 	spool.call_deferred("free")
+
+func add_all_spools_from(original):
+	for spool in original.spools:
+		var copy = Spool.new()
+		copy.set_as_copy_of(spool, false) #create_mutual_links == false
+		add_spool(copy)
 
 #Advanced Functions:
 
@@ -261,6 +234,11 @@ func set_as_copy_of(original):
 	for property_blueprint in authored_properties:
 		property_blueprint.remap(self)
 	add_all_encounters_from(original)
+	add_all_spools_from(original)
+	for encounter in encounters:
+		encounter.remap(self)
+	for spool in spools:
+		spool.remap(self)
 
 func sort_encounters(sort_method):
 	match sort_method:
@@ -371,7 +349,7 @@ func parse_reactions_data_v0_0_07_through_v0_0_15(data, incomplete_reactions, op
 				var new_nudge_operator = NudgeOperator.new(pointer1, point)
 				var new_script = ScriptManager.new(new_nudge_operator)
 				var pointer2 = BNumberPointer.new(character, [x["pValue"]])
-				var new_effect = AssignmentOperator.new(pointer2, new_script)
+				var new_effect = BNumberEffect.new(pointer2, new_script)
 				reaction.after_effects.append(new_effect)
 		elif (each.has_all(["deltaLove", "deltaTrust", "deltaFear"])):
 			#This section is included for backwards compatibility.
@@ -381,7 +359,7 @@ func parse_reactions_data_v0_0_07_through_v0_0_15(data, incomplete_reactions, op
 				var new_nudge_operator = NudgeOperator.new(pointer1, point)
 				var new_script = ScriptManager.new(new_nudge_operator)
 				var pointer2 = BNumberPointer.new(reaction.get_antagonist(), ["pBad_Good"])
-				var new_effect = AssignmentOperator.new(pointer2, new_script)
+				var new_effect = BNumberEffect.new(pointer2, new_script)
 				reaction.after_effects.append(new_effect)
 			if (0 != each["deltaTrust"]):
 				var pointer1 = BNumberPointer.new(reaction.get_antagonist(), ["pFalse_Honest"])
@@ -389,7 +367,7 @@ func parse_reactions_data_v0_0_07_through_v0_0_15(data, incomplete_reactions, op
 				var new_nudge_operator = NudgeOperator.new(pointer1, point)
 				var new_script = ScriptManager.new(new_nudge_operator)
 				var pointer2 = BNumberPointer.new(reaction.get_antagonist(), ["pFalse_Honest"])
-				var new_effect = AssignmentOperator.new(pointer2, new_script)
+				var new_effect = BNumberEffect.new(pointer2, new_script)
 				reaction.after_effects.append(new_effect)
 			if (0 != each["deltaFear"]):
 				var pointer1 = BNumberPointer.new(reaction.get_antagonist(), ["pTimid_Dominant"])
@@ -397,7 +375,7 @@ func parse_reactions_data_v0_0_07_through_v0_0_15(data, incomplete_reactions, op
 				var new_nudge_operator = NudgeOperator.new(pointer1, point)
 				var new_script = ScriptManager.new(new_nudge_operator)
 				var pointer2 = BNumberPointer.new(reaction.get_antagonist(), ["pTimid_Dominant"])
-				var new_effect = AssignmentOperator.new(pointer2, new_script)
+				var new_effect = BNumberEffect.new(pointer2, new_script)
 				reaction.after_effects.append(new_effect)
 		result.append(reaction)
 	return result
@@ -536,8 +514,6 @@ func parse_reactions_data_v0_0_21(reactions_data, option):
 	for reaction_data in reactions_data:
 		var graph_offset = Vector2(0, 0)
 		#Currently options and reactions are not visible in the graphview. This may be changed later on.
-		#if (reaction_data.has_all(["graph_offset_x", "graph_offset_y"])):
-		#	graph_offset = Vector2(reaction_data["graph_offset_x"], reaction_data["graph_offset_y"])
 		var reaction = Reaction.new(option, reaction_data["text"], reaction_data["desirability_script"], graph_offset)
 		reaction.consequence = reaction_data["consequence_id"]
 		if (reaction_data.has("after_effects")):
@@ -587,25 +563,25 @@ func load_from_json_v0_0_21(data_to_load):
 	#Parse scripts:
 	for encounter in encounters:
 		var new_script = ScriptManager.new(true)
-		new_script.load_from_json_v0_0_21(self, encounter.acceptability_script)
+		new_script.load_from_json_v0_0_21(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
 		encounter.acceptability_script = new_script
 		new_script = ScriptManager.new(0)
-		new_script.load_from_json_v0_0_21(self, encounter.desirability_script)
+		new_script.load_from_json_v0_0_21(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
 		encounter.desirability_script = new_script
 		for option in encounter.options:
 			new_script = ScriptManager.new(true)
-			new_script.load_from_json_v0_0_21(self, option.visibility_script)
+			new_script.load_from_json_v0_0_21(self, option.visibility_script, sw_script_data_types.BOOLEAN)
 			option.visibility_script = new_script
 			new_script = ScriptManager.new(true)
-			new_script.load_from_json_v0_0_21(self, option.performability_script)
+			new_script.load_from_json_v0_0_21(self, option.performability_script, sw_script_data_types.BOOLEAN)
 			option.performability_script = new_script
 			for reaction in option.reactions:
 				new_script = ScriptManager.new(0)
-				new_script.load_from_json_v0_0_21(self, reaction.desirability_script)
+				new_script.load_from_json_v0_0_21(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
 				reaction.desirability_script = new_script
 				var parsed_effects = []
 				for effect_data in reaction.after_effects:
-					var new_effect = AssignmentOperator.new()
+					var new_effect = BNumberEffect.new()
 					var effect_is_valid = new_effect.load_from_json_v0_0_21(self, effect_data)
 					if (effect_is_valid):
 						parsed_effects.append(new_effect)
@@ -653,7 +629,7 @@ func load_from_json_v0_0_21(data_to_load):
 				if (encounter_directory.has(encounter_id)):
 					var encounter = encounter_directory[encounter_id]
 					spool_to_add.encounters.append(encounter)
-					encounter.spool = spool_to_add
+					encounter.connected_spools.append(spool_to_add)
 			spool_to_add.id = entry["id"]
 			spool_to_add.creation_index = entry["creation_index"]
 			spool_to_add.creation_time = entry["creation_time"]
@@ -909,6 +885,9 @@ func compile_to_html(path):
 	file_data["encounters"] = []
 	for entry in encounters:
 		file_data["encounters"].append(entry.compile(self, false))
+	file_data["spools"] = []
+	for entry in spools:
+		file_data["spools"].append(entry.compile(self, false))
 	file_data["debug_mode"] = storyworld_debug_mode_on
 	file_data["display_mode"] = storyworld_display_mode
 	file_data["IFID"] = ifid

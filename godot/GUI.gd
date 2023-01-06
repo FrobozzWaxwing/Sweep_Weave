@@ -3,7 +3,7 @@ extends Control
 var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
-var sweepweave_version_number = "0.0.27"
+var sweepweave_version_number = "0.0.31"
 var storyworld = null
 
 func on_character_name_changed(character):
@@ -22,6 +22,7 @@ func load_project(file_text):
 	$VBC/EditorTabs/Characters/CharacterEditScreen.refresh_character_list()
 	if (0 < storyworld.characters.size()):
 		$VBC/EditorTabs/Characters/CharacterEditScreen.load_character(storyworld.characters[0])
+	$VBC/EditorTabs/Spools/SpoolEditScreen.refresh()
 	$VBC/EditorTabs/Settings/SettingsEditScreen.refresh()
 	$VBC/EditorTabs/Statistics/StatisticsScreen.refresh_statistical_overview()
 	$VBC/EditorTabs/GraphView/GraphViewScreen.refresh_graphview()
@@ -29,6 +30,7 @@ func load_project(file_text):
 	if (0 < storyworld.authored_properties.size()):
 		$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.load_authored_property(storyworld.authored_properties[0])
 	$VBC/EditorTabs/Play/PlayScreen.clear()
+	$StoryworldTroubleshooting/StoryworldValidationInterface.refresh()
 	storyworld.project_saved = true
 	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title)
 
@@ -48,13 +50,16 @@ func save_project(save_as = false):
 func new_storyworld():
 	if (null == storyworld):
 		storyworld = Storyworld.new("New Storyworld", "Anonymous", sweepweave_version_number)
+		$VBC/EditorTabs/Overview/EncounterOverviewScreen.storyworld = storyworld
 		$VBC/EditorTabs/Encounters/EncounterEditScreen.storyworld = storyworld
 		$VBC/EditorTabs/Characters/CharacterEditScreen.storyworld = storyworld
+		$VBC/EditorTabs/Spools/SpoolEditScreen.storyworld = storyworld
 		$VBC/EditorTabs/Settings/SettingsEditScreen.storyworld = storyworld
 		$VBC/EditorTabs/Statistics/StatisticsScreen.storyworld = storyworld
 		$VBC/EditorTabs/GraphView/GraphViewScreen.storyworld = storyworld
 		$VBC/EditorTabs/Play/PlayScreen.reference_storyworld = storyworld
 		$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.storyworld = storyworld
+		$StoryworldTroubleshooting/StoryworldValidationInterface.storyworld = storyworld
 	else:
 		storyworld.clear()
 		storyworld.sweepweave_version_number = sweepweave_version_number
@@ -62,19 +67,21 @@ func new_storyworld():
 	storyworld.init_classical_personality_model()
 	#Add at least one character to the storyworld.
 	var new_character = storyworld.create_default_character()
-	print("New character: " + new_character.char_name)
 	storyworld.add_character(new_character)
 	new_character.initialize_bnumber_properties(storyworld.characters, storyworld.authored_properties)
 	$VBC/EditorTabs/Characters/CharacterEditScreen.log_update(new_character)
 	$VBC/EditorTabs/Characters/CharacterEditScreen.refresh_character_list()
 	$VBC/EditorTabs/Characters/CharacterEditScreen.load_character(new_character)
 	$VBC/EditorTabs/Characters/CharacterEditScreen.refresh_property_list()
-	$VBC/EditorTabs/Encounters/EncounterEditScreen._on_AddButton_pressed() #Add at least on encounter to the storyworld.
+	$VBC/EditorTabs/Encounters/EncounterEditScreen._on_AddButton_pressed() #Add at least one encounter to the storyworld.
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_encounter_list()
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_bnumber_property_lists()
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_character_lists()
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.Clear_Encounter_Editing_Screen()
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.load_and_focus_first_encounter()
+	$VBC/EditorTabs/Overview/EncounterOverviewScreen.refresh()
+	$VBC/EditorTabs/Spools/SpoolEditScreen._on_AddButton_pressed() #Add at least one spool to the storyworld.
+	$VBC/EditorTabs/Spools/SpoolEditScreen.refresh()
 	$VBC/EditorTabs/Settings/SettingsEditScreen.refresh()
 	$VBC/EditorTabs/Statistics/StatisticsScreen.refresh_statistical_overview()
 	$VBC/EditorTabs/GraphView/GraphViewScreen.refresh_graphview()
@@ -82,6 +89,7 @@ func new_storyworld():
 	if (0 < storyworld.authored_properties.size()):
 		$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.load_authored_property(storyworld.authored_properties[0])
 	$VBC/EditorTabs/Play/PlayScreen.clear()
+	$StoryworldTroubleshooting/StoryworldValidationInterface.refresh()
 	current_project_path = ""
 	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title)
 	storyworld.project_saved = true
@@ -105,6 +113,9 @@ func _ready():
 	$VBC/EditorTabs/Characters/CharacterEditScreen.connect("character_deleted", $VBC/EditorTabs/Encounters/EncounterEditScreen, "replace_character")
 	$VBC/EditorTabs/Characters/CharacterEditScreen.connect("character_name_changed", self, "on_character_name_changed")
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.connect("refresh_graphview", $VBC/EditorTabs/GraphView/GraphViewScreen, "refresh_graphview")
+	$VBC/EditorTabs/Encounters/EncounterEditScreen.connect("refresh_encounter_list", $VBC/EditorTabs/Spools/SpoolEditScreen, "refresh")
+	$VBC/EditorTabs/Encounters/EncounterEditScreen.connect("refresh_encounter_list", $VBC/EditorTabs/Overview/EncounterOverviewScreen, "refresh")
+	$VBC/EditorTabs/Spools/SpoolEditScreen.connect("request_overview_change", $VBC/EditorTabs/Overview/EncounterOverviewScreen, "refresh")
 	$VBC/EditorTabs/GraphView/GraphViewScreen.connect("load_encounter_from_graphview", $VBC/EditorTabs/Encounters/EncounterEditScreen, "load_Encounter")
 	$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.connect("refresh_authored_property_lists", $VBC/EditorTabs/Characters/CharacterEditScreen, "refresh_property_list")
 	$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.connect("refresh_authored_property_lists", $VBC/EditorTabs/Encounters/EncounterEditScreen, "refresh_bnumber_property_lists")
@@ -193,6 +204,8 @@ func _on_mainmenu_item_pressed(id):
 		open_after_compiling = true
 		$CompileFileDialog.invalidate()
 		$CompileFileDialog.popup()
+	elif ("Validate and Troubleshoot" == item_name):
+		$StoryworldTroubleshooting.popup()
 	elif ("Quit" == item_name):
 		if(false == storyworld.project_saved):
 			$ConfirmQuit.popup()

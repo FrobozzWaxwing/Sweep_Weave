@@ -14,7 +14,9 @@ var is_an_ending_leaf = false
 var turn = 0
 var fully_explored = false
 var relationship_values = {}
-# {character: copy of bnumber_properties}
+# {character id: copy of bnumber_properties}
+var spool_statuses = {}
+# {spool id: copy of is_active}
 
 func set_pValues(storyworld):
 	#Clear out any old data.
@@ -30,6 +32,13 @@ func record_occurrences():
 		antagonist_choice.occurrences += 1
 	if (null != encounter):
 		encounter.occurrences += 1
+
+func record_spool_statuses(storyworld):
+	#Clear out any old data.
+	spool_statuses = {}
+	#Add new data.
+	for spool in storyworld.spools:
+		spool_statuses[spool.id] = spool.is_active
 
 #https://github.com/godotengine/godot/issues/19796
 #Trees have a strange system for getting the children of a tree item.

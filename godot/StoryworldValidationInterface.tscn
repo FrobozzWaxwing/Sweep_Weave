@@ -1,0 +1,105 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://StoryworldValidationInterface.gd" type="Script" id=1]
+[ext_resource path="res://ScriptEditScreen.tscn" type="PackedScene" id=2]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_clip_content = true
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0.109804, 0.0627451, 0.0196078, 1 )
+
+[node name="HBC" type="HBoxContainer" parent="ColorRect"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBC" type="VBoxContainer" parent="ColorRect/HBC"]
+margin_right = 681.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ColorRect/HBC/VBC"]
+margin_right = 681.0
+margin_bottom = 14.0
+text = "Storyworld Validation and Error Checking:"
+
+[node name="ValidateButton" type="Button" parent="ColorRect/HBC/VBC"]
+margin_top = 18.0
+margin_right = 134.0
+margin_bottom = 38.0
+size_flags_horizontal = 0
+text = "Validate storyworld"
+
+[node name="Label2" type="Label" parent="ColorRect/HBC/VBC"]
+visible = false
+margin_top = 42.0
+margin_right = 681.0
+margin_bottom = 56.0
+text = "Errors found in:"
+
+[node name="ErrorList" type="ItemList" parent="ColorRect/HBC/VBC"]
+visible = false
+margin_top = 42.0
+margin_right = 681.0
+margin_bottom = 592.0
+rect_min_size = Vector2( 300, 32 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="StoryworldValidationOverview" type="RichTextLabel" parent="ColorRect/HBC/VBC"]
+margin_top = 42.0
+margin_right = 681.0
+margin_bottom = 182.0
+rect_min_size = Vector2( 0, 140 )
+
+[node name="VBC2" type="VBoxContainer" parent="ColorRect/HBC"]
+margin_left = 685.0
+margin_right = 1366.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+
+[node name="OpenLinkedObjectButton" type="Button" parent="ColorRect/HBC/VBC2"]
+margin_right = 681.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Open linked object"
+
+[node name="OpenLinkedScriptButton" type="Button" parent="ColorRect/HBC/VBC2"]
+margin_top = 24.0
+margin_right = 681.0
+margin_bottom = 44.0
+size_flags_horizontal = 3
+text = "Open linked script"
+
+[node name="ErrorReportDisplay" type="RichTextLabel" parent="ColorRect/HBC/VBC2"]
+margin_top = 48.0
+margin_right = 681.0
+margin_bottom = 736.0
+rect_min_size = Vector2( 256, 100 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+fit_content_height = true
+
+[node name="ScriptEditWindow" type="AcceptDialog" parent="."]
+margin_right = 500.0
+margin_bottom = 500.0
+window_title = "Script Editor"
+resizable = true
+
+[node name="ScriptEditScreen" parent="ScriptEditWindow" instance=ExtResource( 2 )]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -36.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[connection signal="pressed" from="ColorRect/HBC/VBC/ValidateButton" to="." method="_on_ValidateButton_pressed"]
+[connection signal="item_selected" from="ColorRect/HBC/VBC/ErrorList" to="." method="_on_ErrorList_item_selected"]
+[connection signal="pressed" from="ColorRect/HBC/VBC2/OpenLinkedObjectButton" to="." method="_on_OpenLinkedObjectButton_pressed"]
+[connection signal="pressed" from="ColorRect/HBC/VBC2/OpenLinkedScriptButton" to="." method="_on_OpenLinkedScriptButton_pressed"]

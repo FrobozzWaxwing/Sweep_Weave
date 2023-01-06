@@ -3,7 +3,7 @@ class_name Encounter
 #Encounters are events that can occur during the course of a playthrough. When an encounter occurs, the "main_text" is first presented, then the player chooses an option, then the antagonist of the encounter chooses a reaction to the player character's actions. Once a reaction is chosen by the npc, the text of the reaction is displayed and the effects of the reaction are enacted. Then the system either selects another encounter to present, or the playthrough ends.
 
 var storyworld = null
-var spool = null
+var connected_spools = []
 var id = ""
 var title = ""
 var main_text = ""
@@ -30,10 +30,12 @@ func _init(in_storyworld, in_id, in_title, in_main_text, in_earliest_turn, in_la
 	title = in_title
 	main_text = in_main_text
 	var default = BooleanConstant.new(true)
-	var and_operator = BooleanOperator.new("AND", [default])
-	acceptability_script = ScriptManager.new(and_operator)
+#	var and_operator = BooleanOperator.new("AND", [default])
+#	acceptability_script = ScriptManager.new(and_operator)
+	acceptability_script = ScriptManager.new(default)
 	default = BNumberConstant.new(0)
-	desirability_script = ScriptManager.new(ArithmeticMeanOperator.new([default]))
+#	desirability_script = ScriptManager.new(ArithmeticMeanOperator.new([default]))
+	desirability_script = ScriptManager.new(default)
 	earliest_turn = in_earliest_turn
 	latest_turn = in_latest_turn
 	antagonist = in_antagonist
@@ -49,7 +51,7 @@ func get_index():
 	return -1
 
 func clear():
-	spool = null
+	connected_spools = []
 	storyworld = null
 	id = ""
 	title = ""
@@ -69,7 +71,7 @@ func clear():
 		option.clear()
 		option.call_deferred("free")
 
-func set_as_copy_of(original):
+func set_as_copy_of(original, create_mutual_links = true):
 	#Sets the properties of this encounter equal to the properties of the input encounter.
 	id = original.id
 	title = original.title
@@ -86,6 +88,12 @@ func set_as_copy_of(original):
 		option_copy.set_as_copy_of(option)
 		option_copy.encounter = self
 		options.append(option_copy)
+	for spool in original.connected_spools:
+		if (is_instance_valid(spool)):
+			connected_spools.append(spool)
+			if (create_mutual_links):
+				if (!spool.encounters.has(self)):
+					spool.encounters.append(self)
 
 func remap(to_storyworld):
 	storyworld = to_storyworld
@@ -108,6 +116,11 @@ func remap(to_storyworld):
 		option.visibility_script.remap(to_storyworld)
 		option.performability_script.remap(to_storyworld)
 		option.encounter = self
+	var new_connected_spools = []
+	for spool in connected_spools:
+		if (to_storyworld.spool_directory.has(spool.id)):
+			new_connected_spools.append(to_storyworld.spool_directory[spool.id])
+	connected_spools = new_connected_spools.duplicate()
 	acceptability_script.remap(to_storyworld)
 	desirability_script.remap(to_storyworld)
 
@@ -135,6 +148,31 @@ func has_search_text(searchterm):
 		if (option.has_search_text(searchterm)):
 			return true
 	return false
+
+func connected_characters():
+	var characters = {}
+	if (null != acceptability_script and acceptability_script is ScriptManager):
+		characters.merge(acceptability_script.find_all_characters_involved())
+	if (null != desirability_script and desirability_script is ScriptManager):
+		characters.merge(desirability_script.find_all_characters_involved())
+	for option in options:
+		if (null != option.visibility_script and option.visibility_script is ScriptManager):
+			characters.merge(option.visibility_script.find_all_characters_involved())
+		if (null != option.performability_script and option.performability_script is ScriptManager):
+			characters.merge(option.performability_script.find_all_characters_involved())
+		for reaction in option.reactions:
+			if (null != reaction.desirability_script and reaction.desirability_script is ScriptManager):
+				characters.merge(reaction.desirability_script.find_all_characters_involved())
+			for effect in reaction.after_effects:
+				if (effect is BNumberEffect):
+					if (null != effect.operand_0 and effect.operand_0 is BNumberPointer and null != effect.operand_0.character and effect.operand_0.character is Actor):
+						characters[effect.operand_0.character.char_name] = effect.operand_0.character
+					if (null != effect.operand_1 and effect.operand_1 is ScriptManager):
+						characters.merge(effect.operand_1.find_all_characters_involved())
+				elif (effect is SpoolEffect):
+					if (null != effect.setter_script and effect.setter_script is ScriptManager):
+						characters.merge(effect.setter_script.find_all_characters_involved())
+	return characters
 
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var result = {}

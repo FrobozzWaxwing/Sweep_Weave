@@ -21,6 +21,7 @@ func refresh_character_name(character):
 				child.set_item_text(index, character.char_name)
 
 func fill_character_selector(keyring_index, selector):
+	selector.clear()
 	if (null == selected_property or 0 == selected_property.keyring.size() or null == storyworld or 0 == storyworld.characters.size()):
 		return false
 	# If keyring_index is -1, this fills the root character selector.
@@ -40,11 +41,12 @@ func fill_character_selector(keyring_index, selector):
 	return true
 
 func refresh():
+	#This function refreshes the interface.
+	#The reset() function should be called at least once before this function, to create a bounded number property and initialize the editor.
 	if (null == selected_property or null == selected_property.character or 0 == selected_property.keyring.size() or null == storyworld):
 		return false
 	#Refresh character selector.
 	$Background/InverseParserHBC/RootCharacterSelector.visible = allow_root_character_editing
-	$Background/InverseParserHBC/RootCharacterSelector.clear()
 	fill_character_selector(-1, $Background/InverseParserHBC/RootCharacterSelector)
 	if (0 == selected_property.character.authored_property_directory.size()):
 		$Background/InverseParserHBC/RootCharacterSelector.visible = false
@@ -108,6 +110,7 @@ func change_keyring(keyring_index, option_index, option_metadata):
 	emit_signal("bnumber_property_selected", selected_property)
 
 func reset():
+	#This function resets the selected property to default, or creates a new property if necessary.
 	if (null != storyworld and storyworld is Storyworld):
 		if (0 < storyworld.characters.size() and 0 < storyworld.authored_property_directory.size()):
 			if (null != selected_property and is_instance_valid(selected_property)):
@@ -117,12 +120,6 @@ func reset():
 			else:
 				selected_property = storyworld.create_default_bnumber_pointer()
 				#Since this is a temporary pointer used by the interface, we need not set the "parent_operator" property.
-#			selected_property.character = storyworld.characters[0]
-#			selected_property.coefficient = 1
-#			selected_property.keyring = []
-#			selected_property.keyring.append(storyworld.authored_property_directory.keys()[0])
-#			for layer in range(storyworld.authored_property_directory.values()[0].depth):
-#				selected_property.keyring.append(selected_property.character.id)
 
 func _on_NegateToggleButton_pressed():
 	if (1 == selected_property.coefficient):

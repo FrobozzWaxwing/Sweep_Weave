@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://SpoolEditScreen.gd" type="Script" id=1]
 [ext_resource path="res://DragAndDropList.tscn" type="PackedScene" id=2]
+[ext_resource path="res://EventSelectionInterface.tscn" type="PackedScene" id=3]
 
 [node name="Control" type="Control"]
 anchor_right = 1.0
@@ -13,8 +14,133 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color( 0.403922, 0.352941, 0.376471, 1 )
 
-[node name="ItemList" parent="ColorRect" instance=ExtResource( 2 )]
-
 [node name="HBC" type="HBoxContainer" parent="ColorRect"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+
+[node name="Column1" type="VBoxContainer" parent="ColorRect/HBC"]
+margin_right = 452.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+
+[node name="HBC" type="HBoxContainer" parent="ColorRect/HBC/Column1"]
+margin_right = 452.0
+margin_bottom = 20.0
+
+[node name="AddButton" type="Button" parent="ColorRect/HBC/Column1/HBC"]
+margin_right = 20.0
+margin_bottom = 20.0
+text = "+"
+
+[node name="DeleteButton" type="Button" parent="ColorRect/HBC/Column1/HBC"]
+margin_left = 24.0
+margin_right = 41.0
+margin_bottom = 20.0
+text = "-"
+
+[node name="SpoolsLabel" type="Label" parent="ColorRect/HBC/Column1/HBC"]
+margin_left = 45.0
+margin_top = 3.0
+margin_right = 91.0
+margin_bottom = 17.0
+text = "Spools:"
+
+[node name="Spools" parent="ColorRect/HBC/Column1" instance=ExtResource( 2 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 24.0
+margin_right = 452.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Column2" type="VBoxContainer" parent="ColorRect/HBC"]
+margin_left = 456.0
+margin_right = 909.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+
+[node name="HBC" type="HBoxContainer" parent="ColorRect/HBC/Column2"]
+margin_right = 453.0
+margin_bottom = 40.0
+
+[node name="Label" type="Label" parent="ColorRect/HBC/Column2/HBC"]
+margin_top = 13.0
+margin_right = 81.0
+margin_bottom = 27.0
+text = "Spool Name:"
+
+[node name="SpoolNameEdit" type="LineEdit" parent="ColorRect/HBC/Column2/HBC"]
+margin_left = 85.0
+margin_right = 230.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+
+[node name="Label2" type="Label" parent="ColorRect/HBC/Column2/HBC"]
+margin_left = 234.0
+margin_top = 13.0
+margin_right = 373.0
+margin_bottom = 27.0
+text = "Active at start of play:"
+
+[node name="SpoolStartsActiveCheckBox" type="CheckButton" parent="ColorRect/HBC/Column2/HBC"]
+margin_left = 377.0
+margin_right = 453.0
+margin_bottom = 40.0
+
+[node name="HBC2" type="HBoxContainer" parent="ColorRect/HBC/Column2"]
+margin_top = 44.0
+margin_right = 453.0
+margin_bottom = 64.0
+
+[node name="AddEncounterButton" type="Button" parent="ColorRect/HBC/Column2/HBC2"]
+margin_right = 106.0
+margin_bottom = 20.0
+hint_tooltip = "Add encounter to current spool."
+text = "Add encounter"
+
+[node name="RemoveEncounterButton" type="Button" parent="ColorRect/HBC/Column2/HBC2"]
+margin_left = 110.0
+margin_right = 243.0
+margin_bottom = 20.0
+hint_tooltip = "Remove encounter from current spool."
+text = "Remove encounter"
+
+[node name="Encounters_on_current_spool" parent="ColorRect/HBC/Column2" instance=ExtResource( 2 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 68.0
+margin_right = 453.0
+margin_bottom = 736.0
+size_flags_vertical = 3
+
+[node name="Column3" type="VBoxContainer" parent="ColorRect/HBC"]
+margin_left = 913.0
+margin_right = 1366.0
+margin_bottom = 736.0
+size_flags_horizontal = 3
+
+[node name="ListofAllEncounters" parent="ColorRect/HBC/Column3" instance=ExtResource( 3 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 453.0
+margin_bottom = 736.0
+size_flags_vertical = 3
+
+[node name="SpoolDeletionConfirmationDialog" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+
+[node name="CannotDeleteSpoolNotification" type="AcceptDialog" parent="."]
+margin_right = 83.0
+margin_bottom = 58.0
+dialog_text = "Storyworlds require at least one spool."
+
+[connection signal="pressed" from="ColorRect/HBC/Column1/HBC/AddButton" to="." method="_on_AddButton_pressed"]
+[connection signal="pressed" from="ColorRect/HBC/Column1/HBC/DeleteButton" to="." method="_on_DeleteButton_pressed"]
+[connection signal="item_activated" from="ColorRect/HBC/Column1/Spools" to="." method="_on_Spools_item_activated"]
+[connection signal="text_changed" from="ColorRect/HBC/Column2/HBC/SpoolNameEdit" to="." method="_on_SpoolNameEdit_text_changed"]
+[connection signal="pressed" from="ColorRect/HBC/Column2/HBC/SpoolStartsActiveCheckBox" to="." method="_on_SpoolStartsActiveCheckBox_pressed"]
+[connection signal="pressed" from="ColorRect/HBC/Column2/HBC2/AddEncounterButton" to="." method="_on_AddEncounterButton_pressed"]
+[connection signal="pressed" from="ColorRect/HBC/Column2/HBC2/RemoveEncounterButton" to="." method="_on_RemoveEncounterButton_pressed"]
+[connection signal="confirmed" from="SpoolDeletionConfirmationDialog" to="." method="_on_SpoolDeletionConfirmationDialog_confirmed"]

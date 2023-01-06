@@ -34,7 +34,7 @@ func get_property_name():
 func log_update():
 	modified_time = OS.get_unix_time()
 
-func set_as_copy_of(original):
+func set_as_copy_of(original, create_mutual_links = true):
 	id = original.id
 	property_name = original.property_name
 	depth = original.depth
@@ -42,7 +42,11 @@ func set_as_copy_of(original):
 	attribution_target = original.attribution_target
 	affected_characters = []
 	for character in original.affected_characters:
-		affected_characters.append(character)
+		if (is_instance_valid(character)):
+			affected_characters.append(character)
+			if (create_mutual_links):
+				if (!character.authored_property_directory.has(self)):
+					character.index_authored_property(self)
 #	creation_index = original.creation_index
 #	creation_time = original.creation_time
 	modified_time = OS.get_unix_time()

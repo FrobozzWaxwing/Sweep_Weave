@@ -4,6 +4,7 @@ class_name SWOperator
 var input_type = sw_script_data_types.VARIANT
 var operator_type = "Generic Operation"
 var operands = []
+var minimum_number_of_operands = 0
 #If "can_add_operands" is true, this operator can employ an arbitrarily long list of operands, though it will require at least one operand to work as intended.
 #If "can_add_operands" is false, this operator has a set number of operands.
 var can_add_operands = false
@@ -44,11 +45,6 @@ func evaluate_operand_at_index(operand_index, leaf):
 	var operand = operands[operand_index]
 	return evaluate_operand(operand, leaf)
 
-#func get_value(leaf = null):
-#	# Some operators, particularly EventPointers and BooleanOperators that contain EventPointers, need access to the historybook.
-#	# The "leaf" variable grants EventPointers this access.
-#	return null
-
 func clear():
 	for operand in operands:
 		if (operand is SWScriptElement):
@@ -57,11 +53,12 @@ func clear():
 	operands.clear()
 
 func stringify_input_type():
-	#This is used for compiling storyworlds, so the strings are javascript data types.
 	if (sw_script_data_types.BOOLEAN == input_type):
-		return "boolean"
+		return "boolean" #Javascript datatype
 	elif (sw_script_data_types.BNUMBER == input_type):
-		return "number"
+		return "number" #Javascript datatype
+	elif (sw_script_data_types.VARIANT == input_type):
+		return "variant"
 	else:
 		return ""
 
@@ -101,3 +98,26 @@ func stringify_operand_at_index(operand_index):
 
 func data_to_string():
 	return "SweepWeave Script Operator"
+
+func validate(intended_script_output_datatype):
+	var validation_report = ""
+	if (operands.empty()):
+		validation_report += operator_type + " contains no operands."
+	elif (minimum_number_of_operands > operands.size()):
+		validation_report += operator_type + " contains only " + str(operands.size()) + " operands, while requiring at least " + str(minimum_number_of_operands) + "operands."
+	for operand in operands:
+		if (!(operand is SWScriptElement)):
+			if (null == operand):
+				validation_report += "\n" + "Operand is null."
+			if (TYPE_BOOL == typeof(operand) or TYPE_INT == typeof(operand) or TYPE_REAL == typeof(operand)):
+				validation_report += "\n" + "Operand is raw data, (" + str(operand) + ",) rather than a SweepWeave script element."
+		elif (!is_instance_valid(operand)):
+			validation_report += "\n" + "Operand has been deleted, but not properly nullified."
+		else:
+			var operand_report = operand.validate(intended_script_output_datatype)
+			if ("Passed." != operand_report):
+				validation_report += "\n" + operand_report
+	if ("" == validation_report):
+		return "Passed."
+	else:
+		return operator_type + validation_report

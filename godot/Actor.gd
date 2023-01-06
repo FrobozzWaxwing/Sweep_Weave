@@ -34,7 +34,7 @@ func index_authored_property(property):
 	authored_properties.append(property)
 	authored_property_directory[property.id] = property
 
-func set_as_copy_of(in_character):
+func set_as_copy_of(in_character, create_mutual_links = true):
 	id = in_character.id
 	char_name = in_character.char_name
 	pronoun = in_character.pronoun
@@ -45,6 +45,9 @@ func set_as_copy_of(in_character):
 	for property in in_character.authored_properties:
 		if (is_instance_valid(property)):
 			index_authored_property(property)
+			if (create_mutual_links):
+				if (!property.affected_characters.has(self)):
+					property.affected_characters.append(self)
 	var keys = bnumber_properties.keys()
 	for key in keys:
 		if (!authored_property_directory.has(key)):

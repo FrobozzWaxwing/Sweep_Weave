@@ -17,6 +17,7 @@ enum clipboard_task_types {NONE, CUT, COPY}
 var clipboard_task = clipboard_task_types.NONE
 
 signal refresh_graphview()
+signal refresh_encounter_list()
 
 func refresh_encounter_list():
 	$Column1/VScroll/EncountersList.clear()
@@ -30,6 +31,7 @@ func refresh_encounter_list():
 			$Column1/VScroll/EncountersList.add_item(entry.title)
 	if (0 == storyworld.encounters.size()):
 		Clear_Encounter_Editing_Screen()
+	emit_signal("refresh_encounter_list")
 
 func _on_SortMenu_item_selected(index):
 	var sort_method = $Column1/SortMenu.get_popup().get_item_text(index)
@@ -51,7 +53,7 @@ func list_option(option, cutoff = 50):
 			optionslist.set_item_tooltip(index, option.text)
 	optionslist.set_item_metadata(index, option)
 
-func refresh_option_list(cutoff = 50):
+func refresh_option_list(cutoff = 100):
 	$HSC/Column2/OptionsScroll/OptionsList.clear()
 	if (null != current_encounter):
 		for option in current_encounter.options:
@@ -73,7 +75,7 @@ func list_reaction(reaction, cutoff = 50):
 			reactionslist.set_item_tooltip(index, reaction.text)
 	reactionslist.set_item_metadata(index, reaction)
 
-func refresh_reaction_list(cutoff = 50):
+func refresh_reaction_list(cutoff = 100):
 	$HSC/Column3/ReactionsScroll/ReactionList.clear()
 	if (null != current_option):
 		for reaction in current_option.reactions:
@@ -140,14 +142,15 @@ func refresh_bnumber_property_lists():
 					$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents.operands[0])
 				if (current_reaction.desirability_script.contents.operands[1] is BNumberPointer):
 					$HSC/Column3/HBCTT/Trait2Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents.operands[1])
+			elif (current_reaction.desirability_script.contents is BNumberPointer):
+				$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents)
 	$HSC/Column3/HBCTT/Trait1Selector.allow_root_character_editing = true
 	$HSC/Column3/HBCTT/Trait1Selector.refresh()
 	$HSC/Column3/HBCTT/Trait2Selector.allow_root_character_editing = true
 	$HSC/Column3/HBCTT/Trait2Selector.refresh()
 	$EditEncounterSettings/DesideratumSelection/VBC/HBC/PropertySelector.reset()
 	$EditEncounterSettings/DesideratumSelection/VBC/HBC/PropertySelector.refresh()
-	$pValueChangeSelection/VBC/HBC/PropertySelector.reset()
-	$pValueChangeSelection/VBC/HBC/PropertySelector.refresh()
+	$EffectEditor/EffectEditorScreen.refresh()
 	refresh_reaction_after_effects_list()
 
 func load_Reaction(reaction):
@@ -163,7 +166,7 @@ func load_Reaction(reaction):
 	$HSC/Column3/HBCTT/Trait2Selector.reset()
 	if (null == reaction):
 		$HSC/Column3/ReactionText.text = ""
-		$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability blend weight: " + str(0)
+		$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
 		$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
 		$HSC/Column3/HBCConsequence/CurrentConsequence.text = "No consequence."
 		for each in $HSC/Column3.get_children():
@@ -178,21 +181,38 @@ func load_Reaction(reaction):
 			else:
 				each.visible = true
 		$HSC/Column3/ReactionText.text = reaction.text
-		if (reaction.desirability_script is ScriptManager
-			and reaction.desirability_script.contents is BlendOperator
-			and 3 == reaction.desirability_script.contents.operands.size()
-			and reaction.desirability_script.contents.operands[2] is BNumberConstant
-			and reaction.desirability_script.contents.operands[0] is BNumberPointer
-			and reaction.desirability_script.contents.operands[1] is BNumberPointer):
-			$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability blend weight: " + str(reaction.desirability_script.contents.operands[2].get_value())
-			$HSC/Column3/HBCLSL/BlendWeightSelector.operator.set_value(reaction.desirability_script.contents.operands[2].get_value())
-			$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
-			$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(reaction.desirability_script.contents.operands[0])
-			$HSC/Column3/HBCTT/Trait1Selector.refresh()
-			$HSC/Column3/HBCTT/Trait2Selector.selected_property.set_as_copy_of(reaction.desirability_script.contents.operands[1])
-			$HSC/Column3/HBCTT/Trait2Selector.refresh()
-			$HSC/Column3/HBCLSL.visible = true
-			$HSC/Column3/HBCTT.visible = true
+		if (reaction.desirability_script is ScriptManager):
+			if (reaction.desirability_script.contents is BlendOperator
+				and 3 == reaction.desirability_script.contents.operands.size()
+				and reaction.desirability_script.contents.operands[2] is BNumberConstant
+				and reaction.desirability_script.contents.operands[0] is BNumberPointer
+				and reaction.desirability_script.contents.operands[1] is BNumberPointer):
+				$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
+				$HSC/Column3/HBCLSL/BlendWeightSelector.operator.set_value(reaction.desirability_script.contents.operands[2].get_value())
+				$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
+				$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(reaction.desirability_script.contents.operands[0])
+				$HSC/Column3/HBCTT/Trait1Selector.refresh()
+				$HSC/Column3/HBCTT/Trait2Selector.selected_property.set_as_copy_of(reaction.desirability_script.contents.operands[1])
+				$HSC/Column3/HBCTT/Trait2Selector.refresh()
+				$HSC/Column3/HBCLSL/Label.visible = true
+				$HSC/Column3/HBCLSL/Label2.visible = true
+				$HSC/Column3/HBCLSL.visible = true
+				$HSC/Column3/HBCTT.visible = true
+			elif (reaction.desirability_script.contents is BNumberPointer):
+				$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
+				$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(reaction.desirability_script.contents)
+				$HSC/Column3/HBCTT/Trait1Selector.refresh()
+				$HSC/Column3/HBCTT/Trait2Selector.visible = false
+				$HSC/Column3/HBCLSL.visible = false
+				$HSC/Column3/HBCTT.visible = true
+			elif (reaction.desirability_script.contents is BNumberConstant):
+				$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
+				$HSC/Column3/HBCLSL/BlendWeightSelector.operator.set_value(reaction.desirability_script.contents.get_value())
+				$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
+				$HSC/Column3/HBCLSL/Label.visible = false
+				$HSC/Column3/HBCLSL/Label2.visible = false
+				$HSC/Column3/HBCLSL.visible = true
+				$HSC/Column3/HBCTT.visible = false
 		else:
 			$HSC/Column3/HBCLSL.visible = false
 			$HSC/Column3/HBCTT.visible = false
@@ -219,7 +239,6 @@ func load_Encounter(encounter):
 		Clear_Encounter_Editing_Screen()
 		return
 	current_encounter = encounter
-	print("Loading Encounter: " + encounter.title)
 	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = encounter.title
 	$HSC/Column2/EncounterMainTextEdit.text = encounter.main_text
 	$HSC/Column2/HBCTurn/VBC/EarliestTurn.value = encounter.earliest_turn
@@ -242,7 +261,6 @@ func Clear_Encounter_Editing_Screen():
 	current_encounter = null
 	current_option = null
 	current_reaction = null
-	print("Clearing Encounter Editing Screen.")
 	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = ""
 	$HSC/Column2/EncounterMainTextEdit.text = ""
 	$HSC/Column2/HBCTurn/VBC/EarliestTurn.value = 0
@@ -252,7 +270,7 @@ func Clear_Encounter_Editing_Screen():
 	$HSC/Column3/ReactionsScroll/ReactionList.clear()
 	$HSC/Column2/OptionText.text = ""
 	$HSC/Column3/ReactionText.text = ""
-	$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability blend weight: 0"
+	$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability"
 	$HSC/Column3/HBCConsequence/CurrentConsequence.text = ""
 	refresh_bnumber_property_lists()
 	load_Option(null)
@@ -459,7 +477,7 @@ func _on_AddOption_pressed():
 
 func _on_ConfirmOptionDeletion_confirmed():
 	for option in options_to_delete:
-		print("Deleting option: " + option.text.left(20))
+		print("Deleting option: " + option.get_truncated_text(20))
 		for encounter in storyworld.encounters:
 			if (encounter.acceptability_script.search_and_replace(option, null)):
 				log_update(encounter)
@@ -602,11 +620,6 @@ func _on_OptionsList_item_rmb_selected(index, at_position):
 	var mouse_position = get_global_mouse_position()
 	var context_menu = $HSC/Column2/OptionsScroll/OptionsList/OptionsContextMenu
 	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
-#		var text_of_selection = "\"" + $HSC/Column2/OptionsScroll/OptionsList.get_item_metadata(index).text
-#		if (text_of_selection != text_of_selection.left(14)):
-#			text_of_selection = text_of_selection.left(10) + "..."
-#		else:
-#			text_of_selection += "\""
 		var text_of_selection = "this."
 		context_menu.clear()
 		context_menu.add_item("Add option before " + text_of_selection, 0)
@@ -697,7 +710,7 @@ func delete_clipped_originals():
 	if (clipped_originals[0] is Option):
 		for object in clipped_originals:
 			if (object is Option):
-				print("Deleting option: " + object.text.left(20))
+				print("Deleting option: " + object.get_truncated_text(20))
 				for encounter in storyworld.encounters:
 					if (encounter.acceptability_script.search_and_replace(object, null)):
 						log_update(encounter)
@@ -719,7 +732,7 @@ func delete_clipped_originals():
 	elif (clipped_originals[0] is Reaction):
 		for object in clipped_originals:
 			if (object is Reaction):
-				print("Deleting reaction: " + object.text.left(20))
+				print("Deleting reaction: " + object.get_truncated_text(20))
 				for encounter in storyworld.encounters:
 					if (encounter.acceptability_script.search_and_replace(object, null)):
 						log_update(encounter)
@@ -824,7 +837,7 @@ func _on_AddReaction_pressed():
 
 func _on_ConfirmReactionDeletion_confirmed():
 	for reaction in reactions_to_delete:
-		print("Deleting reaction: " + reaction.text.left(25))
+		print("Deleting reaction: " + reaction.get_truncated_text(25))
 		for encounter in storyworld.encounters:
 			if (encounter.acceptability_script.search_and_replace(reaction, null)):
 				log_update(encounter)
@@ -936,9 +949,19 @@ func _on_ReactionText_text_changed():
 
 func _on_BlendWeightSelector_bnumber_value_changed(operator):
 	if (null != current_reaction and null != operator and operator is BNumberConstant):
-		current_reaction.desirability_script.contents.operands[2].set_value(operator.get_value())
-		$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability blend weight: " + str(current_reaction.desirability_script.contents.operands[2].get_value())
-		log_update(current_encounter)
+		if (current_reaction.desirability_script is ScriptManager):
+			if (current_reaction.desirability_script.contents is BlendOperator
+				and 3 == current_reaction.desirability_script.contents.operands.size()
+				and current_reaction.desirability_script.contents.operands[2] is BNumberConstant
+				and current_reaction.desirability_script.contents.operands[0] is BNumberPointer
+				and current_reaction.desirability_script.contents.operands[1] is BNumberPointer):
+				current_reaction.desirability_script.contents.operands[2].set_value(operator.get_value())
+				$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
+				log_update(current_encounter)
+			elif (current_reaction.desirability_script.contents is BNumberConstant):
+				current_reaction.desirability_script.contents.set_value(operator.get_value())
+				$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
+				log_update(current_encounter)
 
 func _on_Trait1Selector_bnumber_property_selected(selected_property):
 	if (null != current_reaction and null != selected_property):
@@ -946,6 +969,9 @@ func _on_Trait1Selector_bnumber_property_selected(selected_property):
 			if (current_reaction.desirability_script is ScriptManager):
 				if (current_reaction.desirability_script.contents is BlendOperator and 3 == current_reaction.desirability_script.contents.operands.size()):
 					current_reaction.desirability_script.contents.operands[0].set_as_copy_of(selected_property)
+					log_update(current_encounter)
+				elif (current_reaction.desirability_script.contents is BNumberPointer):
+					current_reaction.desirability_script.contents.set_as_copy_of(selected_property)
 					log_update(current_encounter)
 
 func _on_Trait2Selector_bnumber_property_selected(selected_property):
@@ -975,52 +1001,32 @@ func _on_RemoveConsequenceButton_pressed():
 		log_update(current_encounter)
 		emit_signal("refresh_graphview")
 
-func _on_pValueChangeAdd_pressed():
+func _on_AddEffect_pressed():
 	if (null != current_reaction):
 		if (null != storyworld and 0 < storyworld.characters.size() and 0 < storyworld.authored_properties.size()):
-			$pValueChangeSelection/VBC/HBC/PropertySelector.storyworld = storyworld
-			$pValueChangeSelection/VBC/HBC/PropertySelector.allow_root_character_editing = true
-			$pValueChangeSelection/VBC/HBC/PropertySelector.reset()
-			$pValueChangeSelection/VBC/HBC/PropertySelector.refresh()
-			var new_script = ScriptManager.new(BNumberConstant.new(0))
-			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.storyworld = storyworld
-			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.script_to_edit = new_script
-			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.allow_root_character_editing = true
-			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.allow_coefficient_editing = true
-			$pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.refresh_script_display()
-		$pValueChangeSelection.popup()
+			$EffectEditor/EffectEditorScreen.storyworld = storyworld
+			$EffectEditor/EffectEditorScreen.reset()
+		$EffectEditor.popup()
 	else:
 		print("No reaction currently selected.")
 
-func _on_pValueChangeSelection_confirmed():
+func _on_EffectEditor_confirmed():
 	if (null != current_reaction):
-		var pointer = BNumberPointer.new()
-		pointer.set_as_copy_of($pValueChangeSelection/VBC/HBC/PropertySelector.selected_property)
-		var new_change = AssignmentOperator.new(pointer, $pValueChangeSelection/VBC/AfterEffectScriptEditingInterface.script_to_edit)
-		current_reaction.after_effects.append(new_change)
+#		var pointer = BNumberPointer.new()
+#		pointer.set_as_copy_of($EffectEditor/TabContainer/BNumberProperty/VBC/PropertySelector.selected_property)
+#		var new_change = BNumberEffect.new(pointer, $EffectEditor/TabContainer/BNumberProperty/VBC/AfterEffectScriptEditingInterface.script_to_edit)
+#		current_reaction.after_effects.append(new_change)
+		var new_change = $EffectEditor/EffectEditorScreen.get_effect()
+		if (null != new_change):
+			current_reaction.after_effects.append(new_change)
 		refresh_reaction_after_effects_list()
 		log_update(current_encounter)
 	else:
 		print("No reaction currently selected.")
 
-#func _on_pValueChangeSelection_confirmed():
-#	if (null != current_reaction):
-#		var pointer = BNumberPointer.new()
-#		pointer.set_as_copy_of($pValueChangeSelection/VBC/HBC/PropertySelector.selected_property)
-#		var des_point = $pValueChangeSelection/VBC/PointSet.value
-#		var new_nudge_operator = NudgeOperator.new(pointer, des_point)
-#		var new_script = ScriptManager.new(new_nudge_operator)
-#		var new_change = AssignmentOperator.new(pointer, new_script)
-#		current_reaction.after_effects.append(new_change)
-#		refresh_reaction_after_effects_list()
-#		log_update(current_encounter)
-#	else:
-#		print("No reaction currently selected.")
-
-func _on_pValueChangeDelete_pressed():
+func _on_DeleteEffect_pressed():
 	var selected_change = $HSC/Column3/AfterReactionEffectsDisplay.get_selected_metadata()
-	print (selected_change)
-	if (null != selected_change and selected_change is AssignmentOperator):
+	if (null != selected_change and selected_change is SWEffect):
 		effect_to_delete = selected_change
 		var dialog_text = ""
 		dialog_text = "Are you sure you wish to delete the following reaction effect?"
@@ -1031,7 +1037,7 @@ func _on_pValueChangeDelete_pressed():
 func _on_ConfirmReactionEffectDeletion_confirmed():
 	if (current_reaction.after_effects.has(effect_to_delete)):
 		current_reaction.after_effects.erase(effect_to_delete)
-		if (effect_to_delete is AssignmentOperator):
+		if (effect_to_delete is SWEffect):
 			effect_to_delete.clear()
 			effect_to_delete.call_deferred("free")
 		log_update(current_encounter)
@@ -1042,11 +1048,6 @@ func _on_ReactionList_item_rmb_selected(index, at_position):
 	var mouse_position = get_global_mouse_position()
 	var context_menu = $HSC/Column3/ReactionsScroll/ReactionList/ReactionsContextMenu
 	if ($HSC/Column3/ReactionsScroll/ReactionList.is_anything_selected()):
-#		var text_of_selection = "\"" + $HSC/Column2/OptionsScroll/OptionsList.get_item_metadata(index).text
-#		if (text_of_selection != text_of_selection.left(14)):
-#			text_of_selection = text_of_selection.left(10) + "..."
-#		else:
-#			text_of_selection += "\""
 		var text_of_selection = "this."
 		context_menu.clear()
 		context_menu.add_item("Add reaction before " + text_of_selection, 0)
@@ -1427,9 +1428,7 @@ func _on_EditEncounterDesirabilityScriptButton_pressed():
 	$ScriptEditWindow.popup()
 
 func _on_ARDSEButton_pressed():
-	var title = current_reaction.text.left(40)
-	if (40 < current_reaction.text.length()):
-		title += "..."
+	var title = current_reaction.get_truncated_text(40)
 	title += " Desirability Script"
 	$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
 	$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
@@ -1466,9 +1465,7 @@ func _on_AfterReactionEffectsDisplay_item_activated():
 	pass
 
 func _on_EditOptionVisibilityScriptButton_pressed():
-	var title = current_option.text.left(40)
-	if (40 < current_option.text.length()):
-		title += "..."
+	var title = current_option.get_truncated_text(40)
 	title += " Visibility Script"
 	$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
 	$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
@@ -1478,9 +1475,7 @@ func _on_EditOptionVisibilityScriptButton_pressed():
 	$ScriptEditWindow.popup()
 
 func _on_EditOptionPerformabilityScriptButton_pressed():
-	var title = current_option.text.left(40)
-	if (40 < current_option.text.length()):
-		title += "..."
+	var title = current_option.get_truncated_text(40)
 	title += " Performability Script"
 	$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
 	$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld

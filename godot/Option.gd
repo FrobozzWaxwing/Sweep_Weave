@@ -14,15 +14,21 @@ func _init(in_encounter, in_text, in_graph_offset = Vector2(0, 0)):
 	encounter = in_encounter
 	text = in_text
 	var default = BooleanConstant.new(true)
-	visibility_script = ScriptManager.new(BooleanOperator.new("AND", [default]))
+	visibility_script = ScriptManager.new(default)
 	default = BooleanConstant.new(true)
-	performability_script = ScriptManager.new(BooleanOperator.new("AND", [default]))
+	performability_script = ScriptManager.new(default)
 	graph_offset = in_graph_offset
 
 func get_index():
 	if (null != encounter):
 		return encounter.options.find(self)
 	return -1
+
+func get_truncated_text(maximum_output_length = 20):
+	if (maximum_output_length >= text.length()):
+		return text
+	else:
+		return text.left(maximum_output_length - 3) + "..."
 
 func get_antagonist():
 	return encounter.antagonist

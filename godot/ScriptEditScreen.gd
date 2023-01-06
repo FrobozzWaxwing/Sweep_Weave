@@ -7,6 +7,7 @@ var allow_root_character_editing = false
 var allow_coefficient_editing = true
 var bnumberpointer_editor_scene = load("res://BNumberPropertySelector.tscn")
 var bnumberconstant_editor_scene = load("res://BNumberConstantEditingInterface.tscn")
+var spool_selector_scene = load("res://SpoolSelector.tscn")
 
 signal sw_script_changed(sw_script)
 
@@ -30,12 +31,16 @@ func recursively_add_to_script_display(root_display_branch, operator_to_add):
 		new_branch.set_text(0, "List")
 		for each in operator_to_add:
 			recursively_add_to_script_display(new_branch, each)
+	elif (operator_to_add is ArithmeticAbsoluteValueOperator):
+		new_branch.set_text(0, "Absolute Value of")
+		for each in operator_to_add.operands:
+			recursively_add_to_script_display(new_branch, each)
 	elif (operator_to_add is ArithmeticMeanOperator):
 		new_branch.set_text(0, "Arithmetic Mean of")
 		for each in operator_to_add.operands:
 			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is AssignmentOperator):
-		new_branch.set_text(0, "Set")
+	elif (operator_to_add is ArithmeticNegationOperator):
+		new_branch.set_text(0, "Arithmetic Negation of")
 		for each in operator_to_add.operands:
 			recursively_add_to_script_display(new_branch, each)
 	elif (operator_to_add is BlendOperator):
@@ -66,6 +71,8 @@ func recursively_add_to_script_display(root_display_branch, operator_to_add):
 		new_branch.set_text(0, "Nudge")
 		for each in operator_to_add.operands:
 			recursively_add_to_script_display(new_branch, each)
+	elif (operator_to_add is SpoolStatusPointer):
+		new_branch.set_text(0, operator_to_add.data_to_string())
 	return new_branch
 
 func refresh_script_display():
@@ -73,11 +80,14 @@ func refresh_script_display():
 	var root = $Background/VBC/HBC/VBC1/ScriptDisplay.create_item()
 	$Background/VBC/HBC/VBC1/ScriptDisplay.set_hide_root(true)
 	#Fill out the script display by using a recursive algorithm to run through the script tree.
-	if (null != script_to_edit and null != script_to_edit.contents):
+	if (null != script_to_edit):
 		recursively_add_to_script_display(root, script_to_edit.contents)
-	load_operator(null)
+		load_operator(script_to_edit.contents)
+	else:
+		load_operator(null)
 
 func refresh_operator_options_display(operator):
+	#This fills the options of the side panel of the script editing window.
 	$Background/VBC/HBC/AvailableOperatorList.clear()
 	if (null == operator):
 		return
@@ -87,13 +97,17 @@ func refresh_operator_options_display(operator):
 		$Background/VBC/HBC/AvailableOperatorList.add_item("False")
 		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(1, "Boolean constant: false.")
 		$Background/VBC/HBC/AvailableOperatorList.add_item("Event")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(2, "Has an encounter, option, and / or reaction occurred or not?")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(2, "Has an encounter, option, and / or reaction occurred during the playthrough?")
+		$Background/VBC/HBC/AvailableOperatorList.add_item("Spool Status")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(3, "Is a spool currently active?")
 		$Background/VBC/HBC/AvailableOperatorList.add_item("Not")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(3, "Logical inverse of operand.")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(4, "Logical inverse of operand.")
 		$Background/VBC/HBC/AvailableOperatorList.add_item("And")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(4, "Produces true if all operands are true.")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(5, "Produces true if all operands are true.")
 		$Background/VBC/HBC/AvailableOperatorList.add_item("Or")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(5, "Produces true if at least one operand is true.")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(6, "Produces true if at least one operand is true.")
+#		$Background/VBC/HBC/AvailableOperatorList.add_item("If Then")
+#		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(7, "If a condition is true, then return some result. Otherwise, return a different result.")
 #		$Background/VBC/HBC/AvailableOperatorList.add_item("XOr")
 #		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(6, "\"Exclusive or\" of two operands. Produces true if, and only if, one operand is true and the other is false.")
 #		$Background/VBC/HBC/AvailableOperatorList.add_item("Equals")
@@ -103,16 +117,20 @@ func refresh_operator_options_display(operator):
 		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(0, "A number above -1 and below 1, specified by the author.")
 		$Background/VBC/HBC/AvailableOperatorList.add_item("BNumber Property")
 		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(1, "A bounded number property associated with a specified character. Useful for tracking character traits and relationships between characters.")
+		$Background/VBC/HBC/AvailableOperatorList.add_item("Absolute Value")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(2, "The absolute value of the operand.")
 		$Background/VBC/HBC/AvailableOperatorList.add_item("Arithmetic Mean")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(2, "The arithmetic mean, or average, of all operands.")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(3, "The arithmetic mean, or average, of all operands.")
+		$Background/VBC/HBC/AvailableOperatorList.add_item("Arithmetic Negation")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(4, "The product of the operand and -1.")
 		$Background/VBC/HBC/AvailableOperatorList.add_item("Blend")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(3, "The weighted, arithmetic mean of two operands.")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(5, "The weighted, arithmetic mean of two operands.")
 #		$Background/VBC/HBC/AvailableOperatorList.add_item("Bounded Sum")
 #		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(4, "Converts each operand to a normal number, adds them all together, and converts the result back to a bounded number.")
 		$Background/VBC/HBC/AvailableOperatorList.add_item("Proximity to")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(4, "Returns a bounded number that is higher when the two operands are closer to equality and lower when the two operands are farther apart.")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(6, "Returns a bounded number that is higher when the two operands are closer to equality and lower when the two operands are farther apart.")
 		$Background/VBC/HBC/AvailableOperatorList.add_item("Nudge")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(5, "Returns x when delta equals 0, blends x with 1 when delta is greater than 0, and blends x with -1 when delta is less than 0.")
+		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(7, "Returns x when delta equals 0, blends x with 1 when delta is greater than 0, and blends x with -1 when delta is less than 0.")
 	if (TYPE_ARRAY == typeof(operator)
 		or (operator is SWOperator and operator.can_add_operands)):
 		#Operator can handle a varying number of operands. Each will need at least one operand to work as intended.
@@ -156,6 +174,17 @@ func load_operator(operator):
 		operator_editing_interface.refresh()
 		operator_editing_interface.connect("bnumber_property_selected", self, "on_operator_changed")
 		$Background/VBC/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
+	elif (operator is SpoolStatusPointer):
+		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
+		var operator_editing_interface = spool_selector_scene.instance()
+		operator_editing_interface.storyworld = storyworld
+		#Set the interface up to use a SpoolStatusPointer, rather than a SpoolPointer.
+		operator_editing_interface.reset("SpoolStatusPointer")
+		operator_editing_interface.allow_negation = true
+		operator_editing_interface.selected_pointer.set_as_copy_of(operator)
+		operator_editing_interface.refresh()
+		operator_editing_interface.connect("spool_selected", self, "on_operator_changed")
+		$Background/VBC/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 	else:
 		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = false
 	if (operator is SWScriptElement and operator.treeview_node is TreeItem):
@@ -187,6 +216,8 @@ func on_operator_changed(new_operator):
 		current_operator.set_value(new_operator.get_value())
 	elif (current_operator is BNumberPointer and new_operator is BNumberPointer):
 		current_operator.set_as_copy_of(new_operator)
+	elif (current_operator is SpoolStatusPointer and new_operator is SpoolStatusPointer):
+		current_operator.set_as_copy_of(new_operator)
 	var selected_display_element = $Background/VBC/HBC/VBC1/ScriptDisplay.get_selected()
 	if (null != selected_display_element and selected_display_element is TreeItem):
 		selected_display_element.set_text(0, current_operator.data_to_string())
@@ -208,10 +239,14 @@ func _on_AvailableOperatorList_item_activated(index):
 			change_made = true
 		"Event":
 			$EventSelectionDialog/EventSelectionInterface.storyworld = storyworld
-			$EventSelectionDialog/EventSelectionInterface.searchterm = ""
-			$EventSelectionDialog/EventSelectionInterface.blacklist.clear()
+			$EventSelectionDialog/EventSelectionInterface.reset()
 			$EventSelectionDialog/EventSelectionInterface.refresh()
 			$EventSelectionDialog.popup()
+		"Spool Status":
+			if (!storyworld.spools.empty()):
+				new_element = SpoolStatusPointer.new(storyworld.spools[0], false) #Second value, (negated,) being false means that the spool being active causes the pointer to return true.
+				replace_element(current_operator, new_element)
+				change_made = true
 		"Not":
 			var new_operands = []
 			new_operands.append(BooleanConstant.new(true))
@@ -246,6 +281,10 @@ func _on_AvailableOperatorList_item_activated(index):
 			new_element = BooleanOperator.new("EQUALS", new_operands)
 			replace_element(current_operator, new_element)
 			change_made = true
+		"If Then":
+			new_element = SWIfOperator.new(BooleanConstant.new(true), BNumberConstant.new(0), BNumberConstant.new(0))
+			replace_element(current_operator, new_element)
+			change_made = true
 		#Bounded number operators and pointers:
 		"Constant":
 			new_element = BNumberConstant.new(0)
@@ -255,10 +294,20 @@ func _on_AvailableOperatorList_item_activated(index):
 			new_element = storyworld.create_default_bnumber_pointer()
 			replace_element(current_operator, new_element)
 			change_made = true
+		"Absolute Value":
+			var new_operand = BNumberConstant.new(0)
+			new_element = ArithmeticAbsoluteValueOperator.new(new_operand)
+			replace_element(current_operator, new_element)
+			change_made = true
 		"Arithmetic Mean":
 			var new_operands = []
 			new_operands.append(BNumberConstant.new(0))
 			new_element = ArithmeticMeanOperator.new(new_operands)
+			replace_element(current_operator, new_element)
+			change_made = true
+		"Arithmetic Negation":
+			var new_operand = BNumberConstant.new(0)
+			new_element = ArithmeticNegationOperator.new(new_operand)
 			replace_element(current_operator, new_element)
 			change_made = true
 		"Blend":
@@ -301,6 +350,9 @@ func _on_AvailableOperatorList_item_activated(index):
 
 func _on_EventSelectionDialog_confirmed():
 	if (current_operator is SWScriptElement and (current_operator.sw_script_data_types.VARIANT == current_operator.output_type or current_operator.sw_script_data_types.BOOLEAN == current_operator.output_type)):
+		if (null == $EventSelectionDialog/EventSelectionInterface.selected_event.encounter):
+			#No event was selected, so there is no need to add a new operator.
+			return
 		var new_element = EventPointer.new()
 		new_element.set_as_copy_of($EventSelectionDialog/EventSelectionInterface.selected_event)
 		replace_element(current_operator, new_element)

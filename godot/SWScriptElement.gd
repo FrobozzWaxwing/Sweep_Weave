@@ -30,5 +30,18 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 	output["script_element_type"] = "Element"
 	return output
 
+func stringify_output_type():
+	if (sw_script_data_types.BOOLEAN == output_type):
+		return "boolean" #Javascript datatype
+	elif (sw_script_data_types.BNUMBER == output_type):
+		return "number" #Javascript datatype
+	elif (sw_script_data_types.VARIANT == output_type):
+		return "variant"
+	else:
+		return ""
+
 func data_to_string():
 	return "SweepWeave Script Element"
+
+func validate(intended_script_output_datatype):
+	return "Generic script element found."

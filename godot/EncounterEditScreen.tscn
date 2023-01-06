@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://SortMenu.gd" type="Script" id=1]
 [ext_resource path="res://custom_resources/arrow-up-circle.svg" type="Texture" id=2]
@@ -8,6 +8,7 @@
 [ext_resource path="res://ScriptEditScreen.tscn" type="PackedScene" id=6]
 [ext_resource path="res://BNumberConstantEditingInterface.tscn" type="PackedScene" id=7]
 [ext_resource path="res://DragAndDropList.tscn" type="PackedScene" id=8]
+[ext_resource path="res://EffectEditorScreen.tscn" type="PackedScene" id=9]
 
 [node name="Main" type="HSplitContainer"]
 anchor_right = 1.0
@@ -125,7 +126,7 @@ caret_blink_speed = 0.5
 [node name="EncounterMainTextEdit" type="TextEdit" parent="HSC/Column2"]
 margin_top = 28.0
 margin_right = 578.0
-margin_bottom = 432.0
+margin_bottom = 495.0
 rect_min_size = Vector2( 0, 320 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -134,9 +135,9 @@ smooth_scrolling = true
 wrap_enabled = true
 
 [node name="HBCEncounterSettingsButtons" type="HBoxContainer" parent="HSC/Column2"]
-margin_top = 436.0
+margin_top = 499.0
 margin_right = 578.0
-margin_bottom = 456.0
+margin_bottom = 519.0
 alignment = 1
 
 [node name="Edit_Encounter_Settings_Button" type="Button" parent="HSC/Column2/HBCEncounterSettingsButtons"]
@@ -152,6 +153,7 @@ margin_bottom = 20.0
 text = "Edit Encounter Desirability Script"
 
 [node name="HBCTurn" type="HBoxContainer" parent="HSC/Column2"]
+visible = false
 margin_top = 460.0
 margin_right = 578.0
 margin_bottom = 519.0
@@ -397,7 +399,7 @@ wrap_enabled = true
 margin_top = 326.0
 margin_right = 578.0
 margin_bottom = 340.0
-text = "Inclination blend weight: 0"
+text = "Reaction desirability:"
 
 [node name="HBCLSL" type="HBoxContainer" parent="HSC/Column3"]
 margin_top = 344.0
@@ -482,7 +484,7 @@ size_flags_horizontal = 0
 text = "Remove Consequence."
 align = 0
 
-[node name="HBCpValueChanges" type="HBoxContainer" parent="HSC/Column3"]
+[node name="HBCEffectButtons" type="HBoxContainer" parent="HSC/Column3"]
 margin_top = 516.0
 margin_right = 578.0
 margin_bottom = 536.0
@@ -490,18 +492,18 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="pValueChangeAdd" type="Button" parent="HSC/Column3/HBCpValueChanges"]
+[node name="AddEffect" type="Button" parent="HSC/Column3/HBCEffectButtons"]
 margin_right = 20.0
 margin_bottom = 20.0
 text = "+"
 
-[node name="pValueChangeDelete" type="Button" parent="HSC/Column3/HBCpValueChanges"]
+[node name="DeleteEffect" type="Button" parent="HSC/Column3/HBCEffectButtons"]
 margin_left = 24.0
 margin_right = 41.0
 margin_bottom = 20.0
 text = "-"
 
-[node name="BlendChangeHeadLabel" type="Label" parent="HSC/Column3/HBCpValueChanges"]
+[node name="ReactionEffectsLabel" type="Label" parent="HSC/Column3/HBCEffectButtons"]
 margin_left = 45.0
 margin_top = 3.0
 margin_right = 151.0
@@ -870,45 +872,18 @@ min_value = -1.0
 max_value = 1.0
 step = 0.01
 
-[node name="pValueChangeSelection" type="ConfirmationDialog" parent="."]
-margin_right = 512.0
-margin_bottom = 512.0
+[node name="EffectEditor" type="ConfirmationDialog" parent="."]
+margin_right = 768.0
+margin_bottom = 768.0
 rect_min_size = Vector2( 300, 70 )
 size_flags_horizontal = 3
 resizable = true
 
-[node name="VBC" type="VBoxContainer" parent="pValueChangeSelection"]
+[node name="EffectEditorScreen" parent="EffectEditor" instance=ExtResource( 9 )]
 margin_left = 8.0
 margin_top = 8.0
-margin_right = 504.0
-margin_bottom = 476.0
-size_flags_horizontal = 3
-
-[node name="Label" type="Label" parent="pValueChangeSelection/VBC"]
-margin_right = 284.0
-margin_bottom = 14.0
-text = "Set the following property::"
-
-[node name="HBC" type="HBoxContainer" parent="pValueChangeSelection/VBC"]
-margin_top = 18.0
-margin_right = 284.0
-margin_bottom = 42.0
-size_flags_horizontal = 3
-
-[node name="PropertySelector" parent="pValueChangeSelection/VBC/HBC" instance=ExtResource( 5 )]
-anchor_right = 0.0
-margin_left = 33.0
-margin_right = 206.0
-margin_bottom = 24.0
-rect_min_size = Vector2( 0, 32 )
-
-[node name="Label2" type="Label" parent="pValueChangeSelection/VBC"]
-margin_right = 40.0
-margin_bottom = 14.0
-text = "to the value of the following script:"
-
-[node name="AfterEffectScriptEditingInterface" parent="pValueChangeSelection/VBC" instance=ExtResource( 6 )]
-size_flags_vertical = 3
+margin_right = -8.0
+margin_bottom = -36.0
 
 [node name="ConfirmEncounterDeletion" type="ConfirmationDialog" parent="."]
 margin_right = 200.0
@@ -990,8 +965,8 @@ margin_bottom = -36.0
 [connection signal="pressed" from="HSC/Column3/ARDSEButton" to="." method="_on_ARDSEButton_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBCConsequence/ChangeConsequence" to="." method="_on_ChangeConsequence_pressed"]
 [connection signal="pressed" from="HSC/Column3/RemoveConsequenceButton" to="." method="_on_RemoveConsequenceButton_pressed"]
-[connection signal="pressed" from="HSC/Column3/HBCpValueChanges/pValueChangeAdd" to="." method="_on_pValueChangeAdd_pressed"]
-[connection signal="pressed" from="HSC/Column3/HBCpValueChanges/pValueChangeDelete" to="." method="_on_pValueChangeDelete_pressed"]
+[connection signal="pressed" from="HSC/Column3/HBCEffectButtons/AddEffect" to="." method="_on_AddEffect_pressed"]
+[connection signal="pressed" from="HSC/Column3/HBCEffectButtons/DeleteEffect" to="." method="_on_DeleteEffect_pressed"]
 [connection signal="item_activated" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_item_activated"]
 [connection signal="moved_item" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_moved_item"]
 [connection signal="pressed" from="EditOptionSettings/VBC/HBC/VBC/HBC/VisibilityPrereqAdd" to="." method="_on_VisibilityPrereqAdd_pressed"]
@@ -1005,7 +980,7 @@ margin_bottom = -36.0
 [connection signal="pressed" from="EditEncounterSettings/VBC/HBC/VBC2/HBC/DeleteDesideratum" to="." method="_on_DeleteDesideratum_pressed"]
 [connection signal="confirmed" from="EditEncounterSettings/EventSelection" to="." method="_on_EventSelection_confirmed"]
 [connection signal="confirmed" from="EditEncounterSettings/DesideratumSelection" to="." method="_on_DesideratumSelection_confirmed"]
-[connection signal="confirmed" from="pValueChangeSelection" to="." method="_on_pValueChangeSelection_confirmed"]
+[connection signal="confirmed" from="EffectEditor" to="." method="_on_EffectEditor_confirmed"]
 [connection signal="confirmed" from="ConfirmEncounterDeletion" to="." method="_on_ConfirmEncounterDeletion_confirmed"]
 [connection signal="confirmed" from="ConfirmOptionDeletion" to="." method="_on_ConfirmOptionDeletion_confirmed"]
 [connection signal="confirmed" from="ConfirmReactionDeletion" to="." method="_on_ConfirmReactionDeletion_confirmed"]

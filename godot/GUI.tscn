@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://GUI.gd" type="Script" id=1]
 [ext_resource path="res://MainMenu.gd" type="Script" id=2]
@@ -7,6 +7,9 @@
 [ext_resource path="res://SettingsEditScreen.tscn" type="PackedScene" id=5]
 [ext_resource path="res://DocumentationScreen.tscn" type="PackedScene" id=6]
 [ext_resource path="res://AuthoredPropertyCreationScreen.tscn" type="PackedScene" id=7]
+[ext_resource path="res://StoryworldValidationInterface.tscn" type="PackedScene" id=8]
+[ext_resource path="res://SpoolEditScreen.tscn" type="PackedScene" id=9]
+[ext_resource path="res://EncounterOverviewScreen.tscn" type="PackedScene" id=10]
 [ext_resource path="res://GraphViewScreen.tscn" type="PackedScene" id=11]
 [ext_resource path="res://PlayScreen.tscn" type="PackedScene" id=12]
 [ext_resource path="res://CharacterEditScreen.tscn" type="PackedScene" id=13]
@@ -45,7 +48,18 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Overview" type="Tabs" parent="VBC/EditorTabs"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="EncounterOverviewScreen" parent="VBC/EditorTabs/Overview" instance=ExtResource( 10 )]
+
 [node name="Encounters" type="Tabs" parent="VBC/EditorTabs"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
@@ -61,6 +75,13 @@ __meta__ = {
 
 [node name="EncounterEditScreen" parent="VBC/EditorTabs/Encounters" instance=ExtResource( 3 )]
 
+[node name="Spools" type="Tabs" parent="VBC/EditorTabs"]
+visible = false
+margin_right = 40.0
+margin_bottom = 24.0
+
+[node name="SpoolEditScreen" parent="VBC/EditorTabs/Spools" instance=ExtResource( 9 )]
+
 [node name="Characters" type="Tabs" parent="VBC/EditorTabs"]
 visible = false
 anchor_right = 1.0
@@ -68,7 +89,7 @@ anchor_bottom = 1.0
 margin_left = 4.0
 margin_top = 32.0
 margin_right = -4.0
-margin_bottom = -4.0
+margin_bottom = 32.0
 
 [node name="CharacterEditScreen" parent="VBC/EditorTabs/Characters" instance=ExtResource( 13 )]
 
@@ -162,8 +183,6 @@ resizable = true
 mode_overrides_title = false
 mode = 0
 access = 2
-current_dir = "/Creativity/Interactive Fiction/SweepWeave/godot"
-current_path = "/Creativity/Interactive Fiction/SweepWeave/godot/"
 
 [node name="SaveAsFileDialog" type="FileDialog" parent="."]
 margin_right = 512.0
@@ -171,9 +190,6 @@ margin_bottom = 512.0
 rect_min_size = Vector2( 200, 400 )
 resizable = true
 access = 2
-current_dir = "/Creativity/Interactive Fiction/SweepWeave/godot"
-current_file = "story.json"
-current_path = "/Creativity/Interactive Fiction/SweepWeave/godot/story.json"
 
 [node name="CompileFileDialog" type="FileDialog" parent="."]
 margin_right = 512.0
@@ -182,9 +198,6 @@ rect_min_size = Vector2( 200, 400 )
 window_title = "Compile to HTML"
 resizable = true
 access = 2
-current_dir = "/Creativity/Interactive Fiction/SweepWeave/godot"
-current_file = "story.html"
-current_path = "/Creativity/Interactive Fiction/SweepWeave/godot/story.html"
 
 [node name="ConfirmOpenWhenUnsaved" type="ConfirmationDialog" parent="."]
 margin_right = 700.0
@@ -211,8 +224,6 @@ resizable = true
 mode_overrides_title = false
 mode = 0
 access = 2
-current_dir = "/Creativity/Interactive Fiction/SweepWeave/godot"
-current_path = "/Creativity/Interactive Fiction/SweepWeave/godot/"
 
 [node name="About" type="AcceptDialog" parent="."]
 margin_right = 83.0
@@ -276,8 +287,6 @@ dialog_hide_on_ok = true
 mode_overrides_title = false
 mode = 1
 access = 2
-current_dir = "/Creativity/Interactive Fiction/SweepWeave/godot"
-current_path = "/Creativity/Interactive Fiction/SweepWeave/godot/"
 
 [node name="ConfirmImport" type="ConfirmationDialog" parent="."]
 margin_right = 550.0
@@ -298,6 +307,19 @@ anchor_right = 0.0
 anchor_bottom = 0.0
 margin_right = 534.0
 margin_bottom = 468.0
+
+[node name="StoryworldTroubleshooting" type="AcceptDialog" parent="."]
+margin_right = 700.0
+margin_bottom = 512.0
+rect_min_size = Vector2( 512, 512 )
+window_title = "Storyworld Validation and Troubleshooting"
+resizable = true
+
+[node name="StoryworldValidationInterface" parent="StoryworldTroubleshooting" instance=ExtResource( 8 )]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -36.0
 
 [connection signal="file_selected" from="LoadFileDialog" to="." method="_on_LoadFileDialog_file_selected"]
 [connection signal="file_selected" from="SaveAsFileDialog" to="." method="_on_SaveAsFileDialog_file_selected"]

@@ -6,7 +6,7 @@ var text = ""
 # The desirability script holds the "script" for calculating an antagonist's inclination to select this reaction.
 var desirability_script = null
 var consequence = null
-var after_effects = [] #Each array entry should be an AssignmentOperator.
+var after_effects = [] #Each array entry should be a SWEffect.
 #Variables for editor:
 var graph_offset = Vector2(0, 0)
 var occurrences = 0 #Number of times this reaction occurs during a rehearsal.
@@ -25,6 +25,12 @@ func get_index():
 	if (null != option):
 		return option.reactions.find(self)
 	return -1
+
+func get_truncated_text(maximum_output_length = 20):
+	if (maximum_output_length >= text.length()):
+		return text
+	else:
+		return text.left(maximum_output_length - 3) + "..."
 
 func get_antagonist():
 	if (null != option):
@@ -96,9 +102,17 @@ func set_as_copy_of(original):
 		change.call_deferred("free")
 	after_effects.clear()
 	for change in original.after_effects:
-		var change_copy = AssignmentOperator.new()
-		var succeeded = change_copy.set_as_copy_of(change)
-		if (succeeded):
-			after_effects.append(change_copy)
-		else:
-			change_copy.call_deferred("free")
+		if (change is BNumberEffect):
+			var change_copy = BNumberEffect.new()
+			var succeeded = change_copy.set_as_copy_of(change)
+			if (succeeded):
+				after_effects.append(change_copy)
+			else:
+				change_copy.call_deferred("free")
+		elif (change is SpoolEffect):
+			var change_copy = SpoolEffect.new()
+			var succeeded = change_copy.set_as_copy_of(change)
+			if (succeeded):
+				after_effects.append(change_copy)
+			else:
+				change_copy.call_deferred("free")
