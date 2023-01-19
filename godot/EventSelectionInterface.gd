@@ -41,17 +41,19 @@ func refresh():
 				if (display_options):
 					for option in encounter.options:
 						var entry_o = event_selection_tree.create_item(entry_e)
-						if ("" == option.text):
+						var text = option.get_text()
+						if ("" == text):
 							entry_o.set_text(0, "[Blank Option]")
 						else:
-							entry_o.set_text(0, option.text)
+							entry_o.set_text(0, text)
 						entry_o.set_metadata(0, {"encounter": encounter, "option": option, "reaction": null})
 						for reaction in option.reactions:
 							var entry_r = event_selection_tree.create_item(entry_o)
-							if ("" == reaction.text):
+							text = reaction.get_text()
+							if ("" == text):
 								entry_r.set_text(0, "[Blank Reaction]")
 							else:
-								entry_r.set_text(0, reaction.text)
+								entry_r.set_text(0, text)
 							entry_r.set_metadata(0, {"encounter": encounter, "option": option, "reaction": reaction})
 	$ColorRect/VBC/NegatedCheckBox.visible = display_negated_checkbox
 
@@ -67,12 +69,6 @@ func _on_EventTree_item_selected():
 		var encounter = metadata["encounter"]
 		var option = metadata["option"]
 		var reaction = metadata["reaction"]
-		var option_index = ""
-		if (null != option):
-			option_index = " / " + str(option.get_index())
-		var reaction_index = ""
-		if (null != reaction):
-			reaction_index = " / " + str(reaction.get_index())
 		selected_event.encounter = encounter
 		selected_event.option = option
 		selected_event.reaction = reaction

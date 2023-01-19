@@ -114,6 +114,21 @@ margin_right = 453.0
 margin_bottom = 736.0
 size_flags_vertical = 3
 
+[node name="NoSpoolMargin" type="HSeparator" parent="ColorRect/HBC/Column2"]
+visible = false
+margin_top = 732.0
+margin_right = 453.0
+margin_bottom = 736.0
+
+[node name="NoSpoolSelected" type="Label" parent="ColorRect/HBC/Column2"]
+visible = false
+margin_top = 722.0
+margin_right = 453.0
+margin_bottom = 736.0
+text = "Select a spool to display its encounters."
+align = 1
+autowrap = true
+
 [node name="Column3" type="VBoxContainer" parent="ColorRect/HBC"]
 margin_left = 913.0
 margin_right = 1366.0

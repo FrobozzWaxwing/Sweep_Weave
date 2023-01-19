@@ -122,17 +122,6 @@ margin_bottom = 60.0
 
 [node name="DocumentationScreen" parent="VBC/EditorTabs/Documentation" instance=ExtResource( 6 )]
 
-[node name="Statistics" type="Tabs" parent="VBC/EditorTabs"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 96.0
-margin_right = -4.0
-margin_bottom = 60.0
-
-[node name="StatisticsScreen" parent="VBC/EditorTabs/Statistics" instance=ExtResource( 14 )]
-
 [node name="GraphView" type="Tabs" parent="VBC/EditorTabs"]
 visible = false
 anchor_right = 1.0
@@ -320,6 +309,19 @@ margin_left = 8.0
 margin_top = 8.0
 margin_right = -8.0
 margin_bottom = -36.0
+
+[node name="Summary" type="AcceptDialog" parent="."]
+margin_right = 610.0
+margin_bottom = 310.0
+rect_min_size = Vector2( 256, 256 )
+window_title = "Storyworld Summary"
+resizable = true
+
+[node name="Statistics" parent="Summary" instance=ExtResource( 14 )]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 602.0
+margin_bottom = 274.0
 
 [connection signal="file_selected" from="LoadFileDialog" to="." method="_on_LoadFileDialog_file_selected"]
 [connection signal="file_selected" from="SaveAsFileDialog" to="." method="_on_SaveAsFileDialog_file_selected"]

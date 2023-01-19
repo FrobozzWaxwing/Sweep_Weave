@@ -120,8 +120,10 @@ margin_right = 200.0
 margin_bottom = 70.0
 
 [node name="VBC" type="VBoxContainer" parent="ConfirmRemoveAffectedCharactersWindow"]
-margin_right = 40.0
-margin_bottom = 40.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 192.0
+margin_bottom = 34.0
 
 [connection signal="text_changed" from="ColorRect/VBC/NameEdit" to="." method="_on_NameEdit_text_changed"]
 [connection signal="value_changed" from="ColorRect/VBC/HBC/DepthEdit" to="." method="_on_DepthEdit_value_changed"]

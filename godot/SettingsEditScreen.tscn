@@ -78,7 +78,14 @@ margin_right = 231.0
 margin_bottom = 40.0
 pressed = true
 
+[node name="CreationTimeLabel" type="Label" parent="."]
+visible = false
+margin_top = 206.0
+margin_right = 320.0
+margin_bottom = 220.0
+
 [node name="SWIFIDLabel" type="Label" parent="."]
+visible = false
 margin_top = 206.0
 margin_right = 320.0
 margin_bottom = 220.0

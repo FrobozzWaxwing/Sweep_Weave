@@ -3,7 +3,7 @@ extends Control
 var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
-var sweepweave_version_number = "0.0.31"
+var sweepweave_version_number = "0.0.34"
 var storyworld = null
 
 func on_character_name_changed(character):
@@ -12,23 +12,22 @@ func on_character_name_changed(character):
 #File Management
 
 func load_project(file_text):
-	storyworld.clear()
 	storyworld.load_from_json(file_text)
 	storyworld.sweepweave_version_number = sweepweave_version_number
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_encounter_list()
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.Clear_Encounter_Editing_Screen()
-	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_character_lists()
+	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_bnumber_property_lists()
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.load_and_focus_first_encounter()
 	$VBC/EditorTabs/Characters/CharacterEditScreen.refresh_character_list()
 	if (0 < storyworld.characters.size()):
 		$VBC/EditorTabs/Characters/CharacterEditScreen.load_character(storyworld.characters[0])
 	$VBC/EditorTabs/Spools/SpoolEditScreen.refresh()
 	$VBC/EditorTabs/Settings/SettingsEditScreen.refresh()
-	$VBC/EditorTabs/Statistics/StatisticsScreen.refresh_statistical_overview()
 	$VBC/EditorTabs/GraphView/GraphViewScreen.refresh_graphview()
 	$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.refresh_property_list()
 	if (0 < storyworld.authored_properties.size()):
 		$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.load_authored_property(storyworld.authored_properties[0])
+	$VBC/EditorTabs/Overview/EncounterOverviewScreen.refresh()
 	$VBC/EditorTabs/Play/PlayScreen.clear()
 	$StoryworldTroubleshooting/StoryworldValidationInterface.refresh()
 	storyworld.project_saved = true
@@ -55,7 +54,7 @@ func new_storyworld():
 		$VBC/EditorTabs/Characters/CharacterEditScreen.storyworld = storyworld
 		$VBC/EditorTabs/Spools/SpoolEditScreen.storyworld = storyworld
 		$VBC/EditorTabs/Settings/SettingsEditScreen.storyworld = storyworld
-		$VBC/EditorTabs/Statistics/StatisticsScreen.storyworld = storyworld
+		$Summary/Statistics.storyworld = storyworld
 		$VBC/EditorTabs/GraphView/GraphViewScreen.storyworld = storyworld
 		$VBC/EditorTabs/Play/PlayScreen.reference_storyworld = storyworld
 		$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.storyworld = storyworld
@@ -76,14 +75,15 @@ func new_storyworld():
 	$VBC/EditorTabs/Encounters/EncounterEditScreen._on_AddButton_pressed() #Add at least one encounter to the storyworld.
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_encounter_list()
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_bnumber_property_lists()
-	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_character_lists()
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.Clear_Encounter_Editing_Screen()
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.load_and_focus_first_encounter()
-	$VBC/EditorTabs/Overview/EncounterOverviewScreen.refresh()
 	$VBC/EditorTabs/Spools/SpoolEditScreen._on_AddButton_pressed() #Add at least one spool to the storyworld.
+	#Add encounter to spool.
+	storyworld.spools.front().encounters.append(storyworld.encounters.front())
+	storyworld.encounters.front().connected_spools.append(storyworld.spools.front())
 	$VBC/EditorTabs/Spools/SpoolEditScreen.refresh()
+	$VBC/EditorTabs/Overview/EncounterOverviewScreen.refresh()
 	$VBC/EditorTabs/Settings/SettingsEditScreen.refresh()
-	$VBC/EditorTabs/Statistics/StatisticsScreen.refresh_statistical_overview()
 	$VBC/EditorTabs/GraphView/GraphViewScreen.refresh_graphview()
 	$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.refresh_property_list()
 	if (0 < storyworld.authored_properties.size()):
@@ -108,15 +108,23 @@ func _ready():
 	new_storyworld()
 	$VBC/Menu.get_popup().connect("id_pressed", self, "_on_mainmenu_item_pressed")
 	$About/VBoxContainer/VersionMessage.text = "SweepWeave v." + sweepweave_version_number
-	$VBC/EditorTabs/Play/PlayScreen.connect("encounter_loaded", self, "load_Encounter_by_id")
+#	$VBC/EditorTabs/Play/PlayScreen.connect("encounter_loaded", self, "load_Encounter_by_id")
 	$VBC/EditorTabs/Characters/CharacterEditScreen.connect("new_character_created", $VBC/EditorTabs/Encounters/EncounterEditScreen, "add_character_to_lists")
 	$VBC/EditorTabs/Characters/CharacterEditScreen.connect("character_deleted", $VBC/EditorTabs/Encounters/EncounterEditScreen, "replace_character")
 	$VBC/EditorTabs/Characters/CharacterEditScreen.connect("character_name_changed", self, "on_character_name_changed")
+	$VBC/EditorTabs/Characters/CharacterEditScreen.connect("character_name_changed", self, "on_character_name_changed")
+	$VBC/EditorTabs/Characters/CharacterEditScreen.connect("refresh_authored_property_lists", $VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen, "refresh_property_list")
+	$VBC/EditorTabs/Characters/CharacterEditScreen.connect("refresh_authored_property_lists", $VBC/EditorTabs/Encounters/EncounterEditScreen, "refresh_bnumber_property_lists")
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.connect("refresh_graphview", $VBC/EditorTabs/GraphView/GraphViewScreen, "refresh_graphview")
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.connect("refresh_encounter_list", $VBC/EditorTabs/Spools/SpoolEditScreen, "refresh")
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.connect("refresh_encounter_list", $VBC/EditorTabs/Overview/EncounterOverviewScreen, "refresh")
 	$VBC/EditorTabs/Spools/SpoolEditScreen.connect("request_overview_change", $VBC/EditorTabs/Overview/EncounterOverviewScreen, "refresh")
-	$VBC/EditorTabs/GraphView/GraphViewScreen.connect("load_encounter_from_graphview", $VBC/EditorTabs/Encounters/EncounterEditScreen, "load_Encounter")
+	$VBC/EditorTabs/Spools/SpoolEditScreen.connect("request_overview_change", $VBC/EditorTabs/Encounters/EncounterEditScreen, "refresh_spool_lists")
+	$VBC/EditorTabs/Overview/EncounterOverviewScreen.connect("encounter_load_requested", self, "display_encounter")
+	$VBC/EditorTabs/Overview/EncounterOverviewScreen.connect("refresh_graphview", $VBC/EditorTabs/GraphView/GraphViewScreen, "refresh_graphview")
+	$VBC/EditorTabs/Overview/EncounterOverviewScreen.connect("refresh_encounter_list", $VBC/EditorTabs/Spools/SpoolEditScreen, "refresh")
+	$VBC/EditorTabs/Overview/EncounterOverviewScreen.connect("refresh_encounter_list", $VBC/EditorTabs/Encounters/EncounterEditScreen, "refresh_encounter_list")
+	$VBC/EditorTabs/GraphView/GraphViewScreen.connect("load_encounter_from_graphview", self, "display_encounter")
 	$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.connect("refresh_authored_property_lists", $VBC/EditorTabs/Characters/CharacterEditScreen, "refresh_property_list")
 	$VBC/EditorTabs/PersonalityModel/AuthoredPropertyCreationScreen.connect("refresh_authored_property_lists", $VBC/EditorTabs/Encounters/EncounterEditScreen, "refresh_bnumber_property_lists")
 
@@ -204,6 +212,9 @@ func _on_mainmenu_item_pressed(id):
 		open_after_compiling = true
 		$CompileFileDialog.invalidate()
 		$CompileFileDialog.popup()
+	elif ("Summary" == item_name):
+		$Summary/Statistics.refresh_statistical_overview()
+		$Summary.popup()
 	elif ("Validate and Troubleshoot" == item_name):
 		$StoryworldTroubleshooting.popup()
 	elif ("Quit" == item_name):
@@ -211,7 +222,7 @@ func _on_mainmenu_item_pressed(id):
 			$ConfirmQuit.popup()
 		else:
 			get_tree().quit()
-	print(item_name + " pressed")
+#	print(item_name + " pressed")
 
 func _on_OpenPatreonButton_pressed():
 	#This button is in the "About" popup.
@@ -275,11 +286,11 @@ func _on_CompileFileDialog_file_selected(path):
 #				encounter_branch.set_text(0, text)
 #				for option in encounter.options:
 #					var option_branch = $VBC/EditorTabs/Statistics/VBC/Occurrences.create_item(encounter_branch)
-#					text = option.text.left(10) + " (" + str(option.occurrences) + ")"
+#					text = option.get_text().left(10) + " (" + str(option.occurrences) + ")"
 #					option_branch.set_text(0, text)
 #					for reaction in option.reactions:
 #						var reaction_branch = $VBC/EditorTabs/Statistics/VBC/Occurrences.create_item(option_branch)
-#						text = reaction.text.left(10) + " (" + str(reaction.occurrences) + ")"
+#						text = reaction.get_text().left(10) + " (" + str(reaction.occurrences) + ")"
 #						reaction_branch.set_text(0, text)
 #
 #func _on_Test_Rehearsal_Button_pressed():
@@ -306,3 +317,8 @@ func _on_ConfirmImport_confirmed():
 	$VBC/EditorTabs/Characters/CharacterEditScreen.refresh_character_list()
 	storyworld.import_encounters($ConfirmImport/Margin/StoryworldMergingScreen.get_selected_encounters())
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.refresh_encounter_list()
+
+func display_encounter(encounter):
+	$VBC/EditorTabs/Encounters/EncounterEditScreen.load_Encounter(encounter)
+	if (null != encounter):
+		$VBC/EditorTabs.set_current_tab(1)

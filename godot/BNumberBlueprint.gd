@@ -31,6 +31,14 @@ func get_property_name():
 	else:
 		return "[Unnamed Property]"
 
+func applies_to(character):
+	if (possible_attribution_targets.ENTIRE_CAST == attribution_target):
+		return true
+	elif (possible_attribution_targets.CAST_MEMBERS == attribution_target):
+		if (affected_characters.has(character)):
+			return true
+	return false
+
 func log_update():
 	modified_time = OS.get_unix_time()
 
@@ -47,8 +55,6 @@ func set_as_copy_of(original, create_mutual_links = true):
 			if (create_mutual_links):
 				if (!character.authored_property_directory.has(self)):
 					character.index_authored_property(self)
-#	creation_index = original.creation_index
-#	creation_time = original.creation_time
 	modified_time = OS.get_unix_time()
 
 func remap(to_storyworld):
@@ -58,6 +64,15 @@ func remap(to_storyworld):
 	for character in old_affected_characters:
 		if (storyworld.character_directory.has(character.id)):
 			affected_characters.append(storyworld.character_directory[character.id])
+
+func replace_character_with_character(character_to_delete, replacement):
+	if (possible_attribution_targets.CAST_MEMBERS == attribution_target):
+		if (affected_characters.has(character_to_delete)):
+			affected_characters.erase(character_to_delete)
+			if (is_instance_valid(replacement) and !affected_characters.has(replacement)):
+				affected_characters.append(replacement)
+	elif (possible_attribution_targets.ENTIRE_CAST == attribution_target):
+		affected_characters.erase(character_to_delete)
 
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}

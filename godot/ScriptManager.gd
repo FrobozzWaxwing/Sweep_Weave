@@ -1,8 +1,9 @@
 extends Object
 class_name ScriptManager
 
-enum sw_script_data_types {BOOLEAN, BNUMBER, VARIANT}
+enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
 var contents = null
+var input_type = sw_script_data_types.VARIANT
 var output_type = sw_script_data_types.VARIANT
 var script_changed = false #Used by find and replace functions to track whether or not a change has been made to the script.
 
@@ -15,21 +16,17 @@ func set_contents(new_script):
 		contents = new_script
 		contents.parent_operator = self
 		output_type = contents.output_type
-	elif (TYPE_ARRAY == typeof(new_script)):
-		contents = []
-		for operand in new_script:
-			contents.append(operand)
-			if (operand is SWScriptElement):
-				operand.parent_operator = self
-		output_type = sw_script_data_types.VARIANT
 	elif (TYPE_BOOL == typeof(new_script)):
-		contents = new_script
+		contents = BooleanConstant.new(new_script)
 		output_type = sw_script_data_types.BOOLEAN
 	elif (TYPE_INT == typeof(new_script) or TYPE_REAL == typeof(new_script)):
-		contents = new_script
+		contents = BNumberConstant.new(new_script)
 		output_type = sw_script_data_types.BNUMBER
+	elif (TYPE_STRING == typeof(new_script)):
+		contents = StringConstant.new(new_script)
+		output_type = sw_script_data_types.STRING
 	else:
-		contents = new_script
+		contents = null
 		output_type = sw_script_data_types.VARIANT
 
 func deeply_copy(original):
@@ -49,8 +46,10 @@ func deeply_copy(original):
 		copy_of_element = []
 		for each in original:
 			copy_of_element.append(deeply_copy(each))
-	elif (original is ArithmeticAbsoluteValueOperator):
-		copy_of_element = ArithmeticAbsoluteValueOperator.new(copy_of_operands.pop_front())
+	elif (original is AbsoluteValueOperator):
+		copy_of_element = AbsoluteValueOperator.new(copy_of_operands.pop_front())
+	elif (original is ArithmeticComparator):
+		copy_of_element = ArithmeticComparator.new(original.operator_subtype_to_string(), copy_of_operands.pop_front(), copy_of_operands.pop_front())
 	elif (original is ArithmeticMeanOperator):
 		copy_of_element = ArithmeticMeanOperator.new(copy_of_operands)
 	elif (original is ArithmeticNegationOperator):
@@ -64,8 +63,8 @@ func deeply_copy(original):
 		copy_of_element.set_as_copy_of(original)
 	elif (original is BooleanConstant):
 		copy_of_element = BooleanConstant.new(original.get_value())
-	elif (original is BooleanOperator):
-		copy_of_element = BooleanOperator.new(original.operator_subtype_to_string(), copy_of_operands)
+	elif (original is BooleanComparator):
+		copy_of_element = BooleanComparator.new(original.operator_subtype_to_string(), copy_of_operands)
 	elif (original is BSumOperator):
 		copy_of_element = BSumOperator.new(copy_of_operands)
 	elif (original is Desideratum):
@@ -78,6 +77,26 @@ func deeply_copy(original):
 	elif (original is SpoolStatusPointer):
 		copy_of_element = SpoolStatusPointer.new()
 		copy_of_element.set_as_copy_of(original)
+	elif (original is StringConcatenationOperator):
+		copy_of_element = StringConcatenationOperator.new()
+		for operand in copy_of_operands:
+			copy_of_element.add_operand(operand)
+	elif(original is StringConstant):
+		copy_of_element = StringConstant.new(original.get_value())
+	elif (original is SWEqualsOperator):
+		copy_of_element = SWEqualsOperator.new(copy_of_operands)
+		copy_of_element.input_type = original.input_type
+	elif (original is SWIfOperator):
+		copy_of_element = SWIfOperator.new()
+		for operand in copy_of_operands:
+			copy_of_element.add_operand(operand)
+		copy_of_element.output_type = original.output_type
+	elif (original is SWMaxOperator):
+		copy_of_element = SWMaxOperator.new(copy_of_operands)
+	elif (original is SWMinOperator):
+		copy_of_element = SWMinOperator.new(copy_of_operands)
+	elif (original is SWNotOperator):
+		copy_of_element = SWNotOperator.new(copy_of_operands.pop_front())
 	return copy_of_element
 
 func set_as_copy_of(original):
@@ -240,7 +259,7 @@ func search_and_replace_onion(onion, search_term, replacement):
 			elif (replacement is BooleanConstant and onion.get_value() != replacement.get_value()):
 				script_changed = true
 				onion.set_value(replacement.get_value())
-	elif (onion is BooleanOperator):
+	elif (onion is BooleanComparator):
 		#print ("Script element was Boolean Operator.")
 		var copy = []
 		for each in onion.operands:
@@ -325,35 +344,55 @@ func search_and_replace(search_term, replacement):
 	return result
 
 func recursive_replace_character_with_character(onion, search_term, replacement):
-	if (search_term is Actor and replacement is Actor):
-		if (onion is BNumberPointer):
-			onion.replace_character_with_character(search_term, replacement)
-		elif (onion is SWOperator):
-			for operand in onion.operands:
-				recursive_replace_character_with_character(operand, search_term, replacement)
+	if (onion is BNumberPointer):
+		onion.replace_character_with_character(search_term, replacement)
+	elif (onion is SWOperator):
+		for operand in onion.operands:
+			recursive_replace_character_with_character(operand, search_term, replacement)
 
 func replace_character_with_character(search_term, replacement):
 	if (search_term is Actor and replacement is Actor):
 		recursive_replace_character_with_character(contents, search_term, replacement)
 
 func recursive_replace_property_with_pointer(onion, search_term, replacement):
-	if (search_term is BNumberBlueprint):
-		if (replacement is BNumberPointer):
-			if (onion is BNumberPointer):
-				if (onion.keyring.empty()):
-					print ("Found bnumber pointer with empty keyring.")
-				else:
-					var onion_property_id = onion.keyring[0]
-					if (onion_property_id == search_term.id):
-						print ("Replacing " + onion.data_to_string() + " with " + replacement.data_to_string() + ".")
-						onion.set_as_copy_of(replacement)
-			elif (onion is SWOperator):
-				for operand in onion.operands:
-					recursive_replace_property_with_pointer(operand, search_term, replacement)
+	if (onion is BNumberPointer):
+		if (!onion.keyring.empty() and onion.keyring.front() == search_term.id):
+			onion.set_as_copy_of(replacement)
+	elif (onion is SWOperator):
+		for operand in onion.operands:
+			recursive_replace_property_with_pointer(operand, search_term, replacement)
 
 func replace_property_with_pointer(search_term, replacement):
 	if (search_term is BNumberBlueprint and replacement is BNumberPointer):
 		recursive_replace_property_with_pointer(contents, search_term, replacement)
+
+func recursive_replace_character_and_property_with_pointer(onion, search_character, search_property, replacement):
+	if (onion is BNumberPointer):
+		if (!onion.keyring.empty() and onion.character == search_character and onion.keyring.front() == search_property.id):
+			onion.set_as_copy_of(replacement)
+	elif (onion is SWOperator):
+		for operand in onion.operands:
+			recursive_replace_character_and_property_with_pointer(operand, search_character, search_property, replacement)
+
+func replace_character_and_property_with_pointer(search_character, search_property, replacement):
+	if (search_character is Actor and search_property is BNumberBlueprint and replacement is BNumberPointer):
+		recursive_replace_character_and_property_with_pointer(contents, search_character, search_property, replacement)
+
+func recursive_has_search_text(onion, searchterm):
+	if (onion is StringConstant):
+		var text = onion.get_value()
+		if (TYPE_STRING == typeof(text) and searchterm in text):
+			return true
+	elif (onion is SWOperator):
+		for operand in onion.operands:
+			if (recursive_has_search_text(operand, searchterm)):
+				return true
+	return false
+
+func has_search_text(searchterm):
+	if (TYPE_STRING == typeof(searchterm) and sw_script_data_types.STRING == output_type):
+		return recursive_has_search_text(contents, searchterm)
+	return false
 
 func count_eventpointers(element = contents):
 	if (element is EventPointer):
@@ -376,6 +415,25 @@ func count_bnumberpointers(element = contents):
 		return number_of_pointers
 	else:
 		return 0
+
+func recursive_wordcount(onion):
+	if (onion is StringConstant):
+		var text = onion.get_value()
+		if (TYPE_STRING == typeof(text)):
+			var regex = RegEx.new()
+			regex.compile("\\S+") # Negated whitespace character class.
+			return regex.search_all(text).size()
+	elif (onion is SWOperator):
+		var sum = 0
+		for operand in onion.operands:
+			sum += recursive_wordcount(onion)
+		return sum
+	return 0
+
+func wordcount():
+	if (sw_script_data_types.STRING == output_type):
+		return recursive_wordcount(contents)
+	return 0
 
 func recursive_find_all_eventpointers(element, results):
 	if (element is EventPointer):
@@ -453,6 +511,8 @@ func stringify_datatype(datatype):
 		return "boolean"
 	elif (sw_script_data_types.BNUMBER == datatype):
 		return "bounded number"
+	elif (sw_script_data_types.STRING == datatype):
+		return "string"
 	elif (sw_script_data_types.VARIANT == datatype):
 		return "variant"
 	else:
@@ -468,68 +528,77 @@ func data_to_string():
 		result = contents.data_to_string()
 	return result
 
-func recursive_load_from_json_v0_0_21(storyworld, data_to_load):
+func proofread(element):
+	if (element is SWOperator):
+		if (element.minimum_number_of_operands < element.operands.size() and 0 < element.minimum_number_of_operands):
+			if (sw_script_data_types.BNUMBER == element.input_type):
+				for i in range(element.operands.size(), element.minimum_number_of_operands):
+					element.add_operand(BNumberConstant.new(0))
+			elif (sw_script_data_types.BOOLEAN == element.input_type):
+				for i in range(element.operands.size(), element.minimum_number_of_operands):
+					element.add_operand(BooleanConstant.new(true))
+	return element
+
+func recursive_load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
+	var element = null
 	if (TYPE_BOOL == typeof(data_to_load)):
 		#Data should be either a boolean value, (true or false,) or a dictionary.
-		return BooleanConstant.new(data_to_load)
-	if (TYPE_DICTIONARY != typeof(data_to_load) or !data_to_load.has("script_element_type")):
-		return null
-	if ("Pointer" == data_to_load["script_element_type"] and data_to_load.has("pointer_type")):
+		element = BooleanConstant.new(data_to_load)
+	elif (TYPE_DICTIONARY != typeof(data_to_load) or !data_to_load.has("script_element_type")):
+		element = null
+	elif ("Pointer" == data_to_load["script_element_type"] and data_to_load.has("pointer_type")):
 		if ("Bounded Number Constant" == data_to_load["pointer_type"] and data_to_load.has("value")):
-			return BNumberConstant.new(data_to_load["value"])
+			element = BNumberConstant.new(data_to_load["value"])
 		elif ("Bounded Number Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["character", "coefficient", "keyring"]) and storyworld.character_directory.has(data_to_load["character"])):
 			var character = storyworld.character_directory[data_to_load["character"]]
-			var script_element = BNumberPointer.new(character, data_to_load["keyring"])
-			script_element.coefficient = data_to_load["coefficient"]
-			return script_element
+			element = BNumberPointer.new(character, data_to_load["keyring"])
+			element.coefficient = data_to_load["coefficient"]
 		elif ("Event Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["negated", "spool", "encounter", "option", "reaction"]) and TYPE_BOOL == typeof(data_to_load["negated"])):
-			var script_element = EventPointer.new()
-			script_element.negated = data_to_load["negated"]
+			element = EventPointer.new()
+			element.negated = data_to_load["negated"]
 			if (TYPE_STRING == typeof(data_to_load["spool"]) and storyworld.spool_directory.has(data_to_load["spool"])):
-				script_element.spool = storyworld.spool_directory[data_to_load["spool"]]
+				element.spool = storyworld.spool_directory[data_to_load["spool"]]
 			if (TYPE_STRING == typeof(data_to_load["encounter"]) and storyworld.encounter_directory.has(data_to_load["encounter"])):
-				script_element.encounter = storyworld.encounter_directory[data_to_load["encounter"]]
+				element.encounter = storyworld.encounter_directory[data_to_load["encounter"]]
 				if (TYPE_INT == typeof(data_to_load["option"]) or TYPE_REAL == typeof(data_to_load["option"])):
 					var option_index = data_to_load["option"]
-					var maximum = script_element.encounter.options.size()
+					var maximum = element.encounter.options.size()
 					if (0 <= option_index and option_index < maximum):
-						script_element.option = script_element.encounter.options[option_index]
+						element.option = element.encounter.options[option_index]
 						if (TYPE_INT == typeof(data_to_load["reaction"]) or TYPE_REAL == typeof(data_to_load["reaction"])):
 							var reaction_index = data_to_load["reaction"]
-							maximum = script_element.option.reactions.size()
+							maximum = element.option.reactions.size()
 							if (0 <= reaction_index and reaction_index < maximum):
-								script_element.reaction = script_element.option.reactions[data_to_load["reaction"]]
-#							else:
-#								print ("Reaction index (" + str(reaction_index) + ") is out of range (0 to " + str(maximum - 1) + ".)")
+								element.reaction = element.option.reactions[data_to_load["reaction"]]
 						else:
 							print ("Reaction index is not a number.")
-#					else:
-#						print ("Option index (" + str(option_index) + ") is out of range (0 to " + str(maximum - 1) + ".)")
 				else:
 					print ("Option index is not a number.")
-			return script_element
 	elif ("Operator" == data_to_load["script_element_type"] and data_to_load.has_all(["operator_type", "operands"])):
+		#Parse operands:
 		var operands = []
 		for operand in data_to_load["operands"]:
-			var parsed_operand = recursive_load_from_json_v0_0_21(storyworld, operand)
+			var parsed_operand = recursive_load_from_json_v0_0_21_through_v0_0_29(storyworld, operand)
 			if (null != parsed_operand and parsed_operand is SWScriptElement):
 				operands.append(parsed_operand)
+		#Create operator:
 		if ("Arithmetic Mean" == data_to_load["operator_type"]):
-			return ArithmeticMeanOperator.new(operands)
+			element = ArithmeticMeanOperator.new(operands)
 		elif ("Blend" == data_to_load["operator_type"] and 3 == operands.size()):
-			return BlendOperator.new(operands.pop_front(), operands.pop_front(), operands.pop_front())
+			element = BlendOperator.new(operands.pop_front(), operands.pop_front(), operands.pop_front())
 		elif ("Boolean Comparator" == data_to_load["operator_type"] and data_to_load.has("operator_subtype")):
-			return BooleanOperator.new(data_to_load["operator_subtype"], operands)
-		elif ("Bounded Sum" == data_to_load["operator_type"]):
-			return BSumOperator.new(operands)
+			if ("NOT" == data_to_load["operator_subtype"]):
+				element = SWNotOperator.new(operands.pop_front())
+			else:
+				element = BooleanComparator.new(data_to_load["operator_subtype"], operands)
 		elif ("Desideratum" == data_to_load["operator_type"] and 2 == operands.size()):
-			return Desideratum.new(operands.pop_front(), operands.pop_front())
+			element = Desideratum.new(operands.pop_front(), operands.pop_front())
 		elif ("Nudge" == data_to_load["operator_type"] and 2 == operands.size()):
-			return NudgeOperator.new(operands.pop_front(), operands.pop_front())
-	return null
+			element = NudgeOperator.new(operands.pop_front(), operands.pop_front())
+	return proofread(element)
 
-func load_from_json_v0_0_21(storyworld, data_to_load, expected_output_datatype):
-	var parsed_script = recursive_load_from_json_v0_0_21(storyworld, data_to_load)
+func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load, expected_output_datatype):
+	var parsed_script = recursive_load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load)
 	if (null == parsed_script):
 		if (sw_script_data_types.BNUMBER == expected_output_datatype):
 			print ("Warning, script has null or invalid contents. Setting script contents to bounded number constant to match expected output datatype.")
@@ -537,6 +606,108 @@ func load_from_json_v0_0_21(storyworld, data_to_load, expected_output_datatype):
 		elif (sw_script_data_types.BOOLEAN == expected_output_datatype):
 			print ("Warning, script has null or invalid contents. Setting script contents to boolean constant to match expected output datatype.")
 			set_contents(BooleanConstant.new(false))
+		else:
+			print ("Warning, script has null or invalid contents. Please try running storyworld validation lizard to find broken scripts.")
+			set_contents(null)
+	else:
+		set_contents(parsed_script)
+
+func recursive_load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load):
+	var element = null
+	if (TYPE_BOOL == typeof(data_to_load)):
+		#Data should be either a boolean value, (true or false,) or a dictionary.
+		element = BooleanConstant.new(data_to_load)
+	elif (TYPE_DICTIONARY != typeof(data_to_load) or !data_to_load.has("script_element_type")):
+		element = null
+	elif ("Pointer" == data_to_load["script_element_type"] and data_to_load.has("pointer_type")):
+		if ("Bounded Number Constant" == data_to_load["pointer_type"] and data_to_load.has("value")):
+			element = BNumberConstant.new(data_to_load["value"])
+		elif ("Bounded Number Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["character", "coefficient", "keyring"]) and storyworld.character_directory.has(data_to_load["character"])):
+			var character = storyworld.character_directory[data_to_load["character"]]
+			element = BNumberPointer.new(character, data_to_load["keyring"])
+			element.coefficient = data_to_load["coefficient"]
+		elif ("Event Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["negated", "spool", "encounter", "option", "reaction"]) and TYPE_BOOL == typeof(data_to_load["negated"])):
+			element = EventPointer.new()
+			element.negated = data_to_load["negated"]
+			if (TYPE_STRING == typeof(data_to_load["spool"]) and storyworld.spool_directory.has(data_to_load["spool"])):
+				element.spool = storyworld.spool_directory[data_to_load["spool"]]
+			if (TYPE_STRING == typeof(data_to_load["encounter"]) and storyworld.encounter_directory.has(data_to_load["encounter"])):
+				element.encounter = storyworld.encounter_directory[data_to_load["encounter"]]
+				if (TYPE_STRING == typeof(data_to_load["option"]) and storyworld.option_directory.has(data_to_load["option"])):
+					element.option = storyworld.option_directory[data_to_load["option"]]
+					if (TYPE_STRING == typeof(data_to_load["reaction"]) and storyworld.reaction_directory.has(data_to_load["reaction"])):
+						element.reaction = storyworld.reaction_directory[data_to_load["reaction"]]
+		elif ("Spool Status Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["spool", "negated"]) and storyworld.spool_directory.has(data_to_load["spool"])):
+			element = SpoolStatusPointer.new()
+			element.spool = storyworld.spool_directory[data_to_load["spool"]]
+			element.negated = data_to_load["negated"]
+		elif ("Spool Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["spool"]) and storyworld.spool_directory.has(data_to_load["spool"])):
+			element = SpoolPointer.new()
+			element.spool = storyworld.spool_directory[data_to_load["spool"]]
+		elif ("String Constant" == data_to_load["pointer_type"] and data_to_load.has("value")):
+			element = StringConstant.new(data_to_load["value"])
+	elif ("Operator" == data_to_load["script_element_type"] and data_to_load.has_all(["operator_type", "operands"])):
+		#Parse operands:
+		var operands = []
+		for operand in data_to_load["operands"]:
+			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_0_35(storyworld, operand)
+			if (null != parsed_operand and parsed_operand is SWScriptElement):
+				operands.append(parsed_operand)
+		#Create operator:
+		if ("Absolute Value" == data_to_load["operator_type"]):
+			element = AbsoluteValueOperator.new(operands.pop_front())
+		elif ("Arithmetic Comparator" == data_to_load["operator_type"] and data_to_load.has("operator_subtype")):
+			element = ArithmeticComparator.new(data_to_load["operator_subtype"], operands.pop_front(), operands.pop_front())
+		elif ("Arithmetic Mean" == data_to_load["operator_type"]):
+			element = ArithmeticMeanOperator.new(operands)
+		elif ("Arithmetic Negation" == data_to_load["operator_type"]):
+			element = ArithmeticNegationOperator.new(operands.pop_front())
+		elif ("Blend" == data_to_load["operator_type"] and 3 == operands.size()):
+			element = BlendOperator.new(operands.pop_front(), operands.pop_front(), operands.pop_front())
+		elif ("Boolean Comparator" == data_to_load["operator_type"] and data_to_load.has("operator_subtype")):
+			element = BooleanComparator.new(data_to_load["operator_subtype"], operands)
+		elif ("Concatenate" == data_to_load["operator_type"]):
+			element = StringConcatenationOperator.new(operands)
+		elif ("Desideratum" == data_to_load["operator_type"] and 2 == operands.size()):
+			element = Desideratum.new(operands.pop_front(), operands.pop_front())
+		elif ("Equals" == data_to_load["operator_type"]):
+			element = SWEqualsOperator.new(operands)
+			#SWEqualsOperator.input_type will be set according to first operand.
+		elif ("If Then" == data_to_load["operator_type"]):
+			element = SWIfOperator.new()
+			for operand in operands:
+				element.add_operand(operand)
+			if (1 < operands.size()):
+				var operand = operands[1]
+				if (operand is SWScriptElement):
+					if (sw_script_data_types.BNUMBER == operand.output_type):
+						element.output_type = sw_script_data_types.BNUMBER
+					elif (sw_script_data_types.BOOLEAN == operand.output_type):
+						element.output_type = sw_script_data_types.BOOLEAN
+					elif (sw_script_data_types.STRING == operand.output_type):
+						element.output_type = sw_script_data_types.STRING
+		elif ("Maximum of" == data_to_load["operator_type"]):
+			element = SWMaxOperator.new(operands)
+		elif ("Minimum of" == data_to_load["operator_type"]):
+			element = SWMinOperator.new(operands)
+		elif ("Not" == data_to_load["operator_type"]):
+			element = SWNotOperator.new(operands.pop_front())
+		elif ("Nudge" == data_to_load["operator_type"] and 2 == operands.size()):
+			element = NudgeOperator.new(operands.pop_front(), operands.pop_front())
+	return proofread(element)
+
+func load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load, expected_output_datatype):
+	var parsed_script = recursive_load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load)
+	if (null == parsed_script):
+		if (sw_script_data_types.BNUMBER == expected_output_datatype):
+			print ("Warning, script has null or invalid contents. Setting script contents to bounded number constant to match expected output datatype.")
+			set_contents(BNumberConstant.new(0))
+		elif (sw_script_data_types.BOOLEAN == expected_output_datatype):
+			print ("Warning, script has null or invalid contents. Setting script contents to boolean constant to match expected output datatype.")
+			set_contents(BooleanConstant.new(false))
+		elif (sw_script_data_types.STRING == expected_output_datatype):
+			print ("Warning, script has null or invalid contents. Setting script contents to string constant to match expected output datatype.")
+			set_contents(StringConstant.new(""))
 		else:
 			print ("Warning, script has null or invalid contents. Please try running storyworld validation lizard to find broken scripts.")
 			set_contents(null)

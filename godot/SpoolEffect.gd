@@ -5,7 +5,7 @@ class_name SpoolEffect
 var spool = null
 var setter_script = null
 
-enum sw_script_data_types {BOOLEAN, BNUMBER, VARIANT}
+enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
 
 func _init(in_spool = null, in_setter_script = null):
 	effect_type = "Spool Effect"
@@ -90,23 +90,22 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 	output["to"] = setter_script.compile(parent_storyworld, include_editor_only_variables)
 	return output
 
-func load_from_json_v0_0_30(storyworld, data_to_load):
+func load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load):
 	clear()
 	if (data_to_load.has_all(["Set", "to"])):
-		if (data_to_load["Set"].has_all(["pointer_type", "spool"]) and "Spool Pointer" == data_to_load["Set"]["pointer_type"] and TYPE_STRING == typeof(data_to_load["Set"]["spool"]) and storyworld.spool_directory.has(data_to_load["Set"]["spool"])):
-			var script_element = SpoolPointer.new(storyworld.spool_directory[data_to_load["Set"]["spool"]])
+		if (TYPE_STRING == typeof(data_to_load["Set"]) and storyworld.spool_directory.has(data_to_load["Set"])):
+			var script_element = SpoolPointer.new(storyworld.spool_directory[data_to_load["Set"]])
 			script_element.parent_operator = self
 			spool = script_element
-		if (data_to_load["to"].has("script_element_type")):
-			var script = ScriptManager.new()
-			var output_datatype = sw_script_data_types.VARIANT
-			if (null != spool and spool is SWPointer):
-				if (spool.output_type == sw_script_data_types.BNUMBER):
-					output_datatype = sw_script_data_types.BNUMBER
-				elif (spool.output_type == sw_script_data_types.BOOLEAN):
-					output_datatype = sw_script_data_types.BOOLEAN
-			script.load_from_json_v0_0_21(storyworld, data_to_load["to"], output_datatype)
-			setter_script = script
+		var script = ScriptManager.new()
+		var output_datatype = sw_script_data_types.VARIANT
+		if (null != spool and spool is SWPointer):
+			if (spool.output_type == sw_script_data_types.BNUMBER):
+				output_datatype = sw_script_data_types.BNUMBER
+			elif (spool.output_type == sw_script_data_types.BOOLEAN):
+				output_datatype = sw_script_data_types.BOOLEAN
+		script.load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load["to"], output_datatype)
+		setter_script = script
 	if (null != spool and spool is SpoolPointer and null != setter_script and setter_script is ScriptManager):
 		return true
 	else:
@@ -123,7 +122,7 @@ func validate(intended_script_output_datatype):
 		if (null == setter_script):
 			validation_report += "\"To\" operand is null."
 		elif (setter_script is ScriptManager):
-			var to_report = setter_script.validate(spool.output_type)
+			var to_report = setter_script.validate(sw_script_data_types.BOOLEAN)
 			if ("Passed." != to_report):
 				validation_report += "\"To\" operand errors:\n" + to_report
 		else:

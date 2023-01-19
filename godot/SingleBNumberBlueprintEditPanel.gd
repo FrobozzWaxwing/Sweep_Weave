@@ -31,6 +31,28 @@ func add_character_to_affected_characters(character):
 func remove_character_from_affected_characters(character):
 	current_authored_property.affected_characters.erase(character)
 	character.delete_property_from_bnumber_properties(current_authored_property)
+	if (null != storyworld):
+		#Search scripts and replace any bnumber pointers that include the character and property in question.
+		for encounter in storyworld.encounters:
+			var replacement = storyworld.create_default_bnumber_pointer()
+			encounter.acceptability_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
+			encounter.desirability_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
+			for option in encounter.options:
+				option.visibility_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
+				option.performability_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
+				for reaction in option.reactions:
+					reaction.desirability_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
+					var effects = reaction.after_effects.duplicate()
+					for effect in effects:
+						if (effect is BNumberEffect):
+							if (effect.operand_0.keyring.front() == current_authored_property.id and effect.operand_0.character == character):
+								effect.clear()
+								reaction.after_effects.erase(effect)
+								effect.call_deferred("free")
+							else:
+								effect.operand_1.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
+						elif (effect is SpoolEffect):
+							effect.setter_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
 	emit_signal("affected_character_removed", current_authored_property, character)
 
 func _on_NameEdit_text_changed(new_text):

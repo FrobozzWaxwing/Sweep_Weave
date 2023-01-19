@@ -34,6 +34,8 @@ func refresh_property_list():
 		$ColorRect/VBC/HBC/VBC1/PropertyList.add_item(property_blueprint.get_property_name())
 		$ColorRect/VBC/HBC/VBC1/PropertyList.set_item_metadata(item_index, property_blueprint)
 		item_index += 1
+	if (!storyworld.authored_properties.empty()):
+		load_authored_property(storyworld.authored_properties[0])
 
 func refresh_property_name(property_blueprint):
 	var index = storyworld.authored_properties.find(property_blueprint)
@@ -139,22 +141,26 @@ func _on_ConfirmPropertyDeletionWindow_confirmed():
 		print ("Replacing " + property_blueprint.get_property_name() + " with " + replacement.data_to_string() + ".")
 		#Search scripts and replace the properties that we're deleting with the replacement pointer.
 		for encounter in storyworld.encounters:
+			encounter.acceptability_script.replace_property_with_pointer(property_blueprint, replacement)
 			encounter.desirability_script.replace_property_with_pointer(property_blueprint, replacement)
 			for option in encounter.options:
+				option.visibility_script.replace_property_with_pointer(property_blueprint, replacement)
+				option.performability_script.replace_property_with_pointer(property_blueprint, replacement)
 				for reaction in option.reactions:
 					reaction.desirability_script.replace_property_with_pointer(property_blueprint, replacement)
 					print (reaction.desirability_script.data_to_string())
 					for effect in reaction.after_effects:
-						if (effect.operand_0.get_ap_blueprint().id == property_blueprint.id):
-							effect.operand_0.set_as_copy_of(replacement)
-						effect.operand_1.replace_property_with_pointer(property_blueprint, replacement)
+						if (effect is BNumberEffect):
+							if (effect.operand_0.get_ap_blueprint().id == property_blueprint.id):
+								effect.operand_0.set_as_copy_of(replacement)
+							effect.operand_1.replace_property_with_pointer(property_blueprint, replacement)
+						elif (effect is SpoolEffect):
+							effect.setter_script.replace_property_with_pointer(property_blueprint, replacement)
 		#Delete property.
 		storyworld.delete_authored_property(property_blueprint)
 	#Update interface.
 	log_update()
 	refresh_property_list()
-	if (!storyworld.authored_properties.empty()):
-		load_authored_property(storyworld.authored_properties[0])
 	emit_signal("refresh_authored_property_lists")
 
 func _on_PropertyList_item_activated(index):

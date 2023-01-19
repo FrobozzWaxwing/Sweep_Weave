@@ -9,6 +9,7 @@ var character_to_delete = null #We want to set this up as a gloabal variable for
 signal new_character_created(character)
 signal character_name_changed(character)
 signal character_deleted(deleted_character, replacement)
+signal refresh_authored_property_lists()
 
 func _ready():
 	pass
@@ -89,7 +90,7 @@ func _on_DeleteCharacter_pressed():
 			var selection = $HBC/VBC/Scroll/CharacterList.get_selected_items()
 			var dialog_text = 'Are you sure you wish to delete the character: "'
 			character_to_delete = storyworld.characters[selection[0]]
-			dialog_text += character_to_delete.char_name + '"? If so, please select a new character to serve as the antagonist for every encounter currently employing "' + character_to_delete.char_name + '" as antagonist.'
+			dialog_text += character_to_delete.char_name + '"? If so, please select a character to replace them with in every script currently employing them.'
 			$ConfirmCharacterDeletion.dialog_text = dialog_text
 			$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.clear()
 			var option_index = 0
@@ -106,31 +107,34 @@ func _on_DeleteCharacter_pressed():
 func _on_ConfirmCharacterDeletion_confirmed():
 	if ($HBC/VBC/Scroll/CharacterList.is_anything_selected()):
 		var replacement = $ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.get_selected_metadata()
-		print("Replacing: \"" + character_to_delete.char_name + "\" with \"" + replacement.char_name + "\" in all scripts.")
+		#Replace character in authored properties:
+		for property in storyworld.authored_properties:
+			property.replace_character_with_character(character_to_delete, replacement)
+			if (!replacement.authored_property_directory.has(property)):
+				replacement.add_property_to_bnumber_properties(property, storyworld.characters)
+		#Replace character in scripts:
 		for encounter in storyworld.encounters:
-			if (encounter.antagonist == character_to_delete):
-				encounter.antagonist = replacement
-				log_update(encounter)
-			print(encounter.title + " Desirability Script")
+			encounter.acceptability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
 			encounter.desirability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
 			for option in encounter.options:
+				option.visibility_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
+				option.performability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
 				for reaction in option.reactions:
-					print(reaction.text.left(25) + " Desirability Script")
 					reaction.desirability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
 					for effect in reaction.after_effects:
 						if (effect is BNumberEffect):
 							effect.operand_0.replace_character_with_character(character_to_delete, replacement) #BNumberPointer
 							effect.operand_1.replace_character_with_character(character_to_delete, replacement) #ScriptManager
-		for authored_property in storyworld.authored_properties:
-			authored_property.affected_characters.erase(character_to_delete)
-		storyworld.characters.erase(character_to_delete)
-		character_to_delete.call_deferred("free")
+						elif (effect is SpoolEffect):
+							effect.setter_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
+		storyworld.delete_character(character_to_delete)
 		log_update(null)
 		refresh_character_list()
 		if (0 < storyworld.characters.size()):
 			$HBC/VBC/Scroll/CharacterList.select(0)
 			load_character(storyworld.characters[0])
 		emit_signal("character_deleted", character_to_delete, replacement)
+		emit_signal("refresh_authored_property_lists")
 
 func _on_CharacterList_item_selected(index):
 	if (0 < storyworld.characters.size()):

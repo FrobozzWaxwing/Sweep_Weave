@@ -16,6 +16,15 @@ func refresh():
 		refresh_spools_list()
 		if (!storyworld.spools.empty()):
 			display_spool(storyworld.spools[0])
+		else:
+			current_spool = null
+			$ColorRect/HBC/Column1/Spools.clear()
+			$ColorRect/HBC/Column1/Spools.list_to_display.clear()
+			for child in $ColorRect/HBC/Column2.get_children():
+				if ($ColorRect/HBC/Column2/NoSpoolSelected == child or $ColorRect/HBC/Column2/NoSpoolMargin == child):
+					child.visible = true
+				else:
+					child.visible = false
 		refresh_list_of_all_encounters()
 
 func refresh_spools_list():
@@ -32,6 +41,11 @@ func refresh_spools_list():
 
 func display_spool(spool:Spool):
 	current_spool = spool
+	for child in $ColorRect/HBC/Column2.get_children():
+		if ($ColorRect/HBC/Column2/NoSpoolSelected == child or $ColorRect/HBC/Column2/NoSpoolMargin == child):
+			child.visible = false
+		else:
+			child.visible = true
 	$ColorRect/HBC/Column2/Encounters_on_current_spool.clear()
 	$ColorRect/HBC/Column2/Encounters_on_current_spool.list_to_display.clear()
 	if (null != spool and spool is Spool):
@@ -116,6 +130,7 @@ func _on_SpoolDeletionConfirmationDialog_confirmed():
 		if (!storyworld.spools.empty()):
 			display_spool(storyworld.spools[0])
 			$ColorRect/HBC/Column1/Spools.select_first_item()
+		emit_signal("request_overview_change")
 
 func _on_Spool_rearranged_via_draganddrop(item, from_index, to_index):
 	if (null == storyworld):
@@ -157,3 +172,4 @@ func _on_RemoveEncounterButton_pressed():
 		storyworld.project_saved = false
 		#Refresh display:
 		display_spool(current_spool)
+		emit_signal("request_overview_change")

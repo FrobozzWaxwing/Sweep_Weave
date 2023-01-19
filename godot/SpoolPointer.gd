@@ -51,13 +51,16 @@ func deactivate():
 		return false
 
 func compile(parent_storyworld, include_editor_only_variables = false):
-	var output = {}
-	output["script_element_type"] = "Pointer"
-	output["pointer_type"] = pointer_type
+#	var output = {}
+#	output["script_element_type"] = "Pointer"
+#	output["pointer_type"] = pointer_type
+#	if (spool is Spool):
+#		output["spool"] = spool.id
+#	else:
+#		output["spool"] = null
+	var output = null
 	if (spool is Spool):
-		output["spool"] = spool.id
-	else:
-		output["spool"] = null
+		output = spool.id
 	return output
 
 func data_to_string():

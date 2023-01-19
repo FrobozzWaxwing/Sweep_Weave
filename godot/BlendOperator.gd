@@ -6,6 +6,8 @@ func _init(in_operand_0, in_operand_1, in_weight):
 	minimum_number_of_operands = 3
 	input_type = sw_script_data_types.BNUMBER
 	output_type = sw_script_data_types.BNUMBER
+	can_add_operands = false
+	minimum_number_of_operands = 3
 	add_operand(in_operand_0)
 	add_operand(in_operand_1)
 	add_operand(in_weight)

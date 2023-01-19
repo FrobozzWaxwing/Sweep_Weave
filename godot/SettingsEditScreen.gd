@@ -13,7 +13,6 @@ func refresh():
 			$HBC2/DisplayModeSwitch.pressed = false
 		1:
 			$HBC2/DisplayModeSwitch.pressed = true
-	$SWIFIDLabel.text = "Storyworld IFID: " + storyworld.ifid
 
 func log_update():
 	#No arguments for this version of the function, as the settings screen never changes encounters or characters, and thus never needs to log an update on either type of object.

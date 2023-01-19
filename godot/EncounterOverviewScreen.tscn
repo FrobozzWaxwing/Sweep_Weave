@@ -17,11 +17,43 @@ color = Color( 0.423529, 0.301961, 0.4, 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="SearchBar" type="HBoxContainer" parent="ColorRect/VBC"]
+[node name="HFlowContainer" type="HFlowContainer" parent="ColorRect/VBC"]
 margin_right = 1366.0
 margin_bottom = 24.0
 
-[node name="Label" type="Label" parent="ColorRect/VBC/SearchBar"]
+[node name="AddEncounterButton" type="Button" parent="ColorRect/VBC/HFlowContainer"]
+margin_right = 20.0
+margin_bottom = 24.0
+hint_tooltip = "Add a new encounter to the storyworld."
+text = "+"
+
+[node name="DeleteEncounterButton" type="Button" parent="ColorRect/VBC/HFlowContainer"]
+margin_left = 24.0
+margin_right = 41.0
+margin_bottom = 24.0
+hint_tooltip = "Delete selected encounter from the storyworld."
+text = "-"
+
+[node name="EditEncounterButton" type="Button" parent="ColorRect/VBC/HFlowContainer"]
+margin_left = 45.0
+margin_right = 81.0
+margin_bottom = 24.0
+hint_tooltip = "Edit selected encounter."
+text = "Edit"
+
+[node name="DuplicateEncounterButton" type="Button" parent="ColorRect/VBC/HFlowContainer"]
+margin_left = 85.0
+margin_right = 158.0
+margin_bottom = 24.0
+hint_tooltip = "Duplicate selected encounter."
+text = "Duplicate"
+
+[node name="SearchBar" type="HBoxContainer" parent="ColorRect/VBC/HFlowContainer"]
+margin_left = 162.0
+margin_right = 543.0
+margin_bottom = 24.0
+
+[node name="Label" type="Label" parent="ColorRect/VBC/HFlowContainer/SearchBar"]
 margin_top = 5.0
 margin_right = 121.0
 margin_bottom = 19.0
@@ -29,7 +61,7 @@ hint_tooltip = "Press enter after entering search term in order to filter events
 mouse_filter = 1
 text = "Search Encounters:"
 
-[node name="LineEdit" type="LineEdit" parent="ColorRect/VBC/SearchBar"]
+[node name="LineEdit" type="LineEdit" parent="ColorRect/VBC/HFlowContainer/SearchBar"]
 margin_left = 125.0
 margin_right = 381.0
 margin_bottom = 24.0
@@ -37,31 +69,51 @@ rect_min_size = Vector2( 256, 0 )
 hint_tooltip = "Press enter after entering search term in order to filter encounters by search term."
 placeholder_text = "Enter search term"
 
-[node name="SortBar" type="HBoxContainer" parent="ColorRect/VBC"]
-margin_top = 28.0
-margin_right = 1366.0
-margin_bottom = 48.0
+[node name="SortBar" type="HBoxContainer" parent="ColorRect/VBC/HFlowContainer"]
+margin_left = 547.0
+margin_right = 628.0
+margin_bottom = 24.0
 
-[node name="Label" type="Label" parent="ColorRect/VBC/SortBar"]
-margin_top = 3.0
+[node name="Label" type="Label" parent="ColorRect/VBC/HFlowContainer/SortBar"]
+margin_top = 5.0
 margin_right = 48.0
-margin_bottom = 17.0
+margin_bottom = 19.0
 text = "Sort by:"
 
-[node name="SortMenu" type="OptionButton" parent="ColorRect/VBC/SortBar"]
+[node name="SortMenu" type="OptionButton" parent="ColorRect/VBC/HFlowContainer/SortBar"]
 margin_left = 52.0
 margin_right = 81.0
-margin_bottom = 20.0
+margin_bottom = 24.0
 script = ExtResource( 1 )
 
 [node name="EncounterList" type="Tree" parent="ColorRect/VBC"]
-margin_top = 52.0
+margin_top = 28.0
 margin_right = 1366.0
 margin_bottom = 736.0
 size_flags_vertical = 3
 columns = 6
 column_titles_visible = true
 hide_root = true
+select_mode = 2
 
-[connection signal="text_entered" from="ColorRect/VBC/SearchBar/LineEdit" to="." method="_on_LineEdit_text_entered"]
-[connection signal="item_selected" from="ColorRect/VBC/SortBar/SortMenu" to="." method="_on_SortMenu_item_selected"]
+[node name="ConfirmEncounterDeletion" type="ConfirmationDialog" parent="."]
+margin_right = 256.0
+margin_bottom = 200.0
+rect_min_size = Vector2( 200, 100 )
+window_title = "Are you sure?"
+resizable = true
+
+[node name="EncountersToDelete" type="ItemList" parent="ConfirmEncounterDeletion"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 248.0
+margin_bottom = 164.0
+
+[connection signal="pressed" from="ColorRect/VBC/HFlowContainer/AddEncounterButton" to="." method="_on_AddEncounterButton_pressed"]
+[connection signal="pressed" from="ColorRect/VBC/HFlowContainer/DeleteEncounterButton" to="." method="_on_DeleteEncounterButton_pressed"]
+[connection signal="pressed" from="ColorRect/VBC/HFlowContainer/EditEncounterButton" to="." method="_on_EditEncounterButton_pressed"]
+[connection signal="pressed" from="ColorRect/VBC/HFlowContainer/DuplicateEncounterButton" to="." method="_on_DuplicateEncounterButton_pressed"]
+[connection signal="text_entered" from="ColorRect/VBC/HFlowContainer/SearchBar/LineEdit" to="." method="_on_LineEdit_text_entered"]
+[connection signal="item_selected" from="ColorRect/VBC/HFlowContainer/SortBar/SortMenu" to="." method="_on_SortMenu_item_selected"]
+[connection signal="item_activated" from="ColorRect/VBC/EncounterList" to="." method="_on_EncounterList_item_activated"]
+[connection signal="confirmed" from="ConfirmEncounterDeletion" to="." method="_on_ConfirmEncounterDeletion_confirmed"]

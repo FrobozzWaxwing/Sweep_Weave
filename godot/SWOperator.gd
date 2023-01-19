@@ -4,10 +4,10 @@ class_name SWOperator
 var input_type = sw_script_data_types.VARIANT
 var operator_type = "Generic Operation"
 var operands = []
-var minimum_number_of_operands = 0
 #If "can_add_operands" is true, this operator can employ an arbitrarily long list of operands, though it will require at least one operand to work as intended.
 #If "can_add_operands" is false, this operator has a set number of operands.
 var can_add_operands = false
+var minimum_number_of_operands = 0
 
 func _init():
 	pass
@@ -17,6 +17,15 @@ func add_operand(operand):
 	if (operand is SWScriptElement):
 		operand.parent_operator = self
 		operand.script_index = operands.size() - 1
+
+func erase_operand(operand_to_erase):
+	operands.remove(operand_to_erase.script_index)
+	for i in range(operand_to_erase.script_index, operands.size()):
+		var operand = operands[i]
+		if (operand is SWScriptElement):
+			operand.script_index = i
+	operand_to_erase.clear()
+	operand_to_erase.call_deferred("free")
 
 func remap(storyworld):
 	var result = true
@@ -47,7 +56,7 @@ func evaluate_operand_at_index(operand_index, leaf):
 
 func clear():
 	for operand in operands:
-		if (operand is SWScriptElement):
+		if (null != operand and operand is SWScriptElement):
 			operand.clear()
 			operand.call_deferred("free")
 	operands.clear()
@@ -57,6 +66,8 @@ func stringify_input_type():
 		return "boolean" #Javascript datatype
 	elif (sw_script_data_types.BNUMBER == input_type):
 		return "number" #Javascript datatype
+	elif (sw_script_data_types.STRING == output_type):
+		return "string" #Javascript datatype
 	elif (sw_script_data_types.VARIANT == input_type):
 		return "variant"
 	else:
@@ -102,9 +113,9 @@ func data_to_string():
 func validate(intended_script_output_datatype):
 	var validation_report = ""
 	if (operands.empty()):
-		validation_report += operator_type + " contains no operands."
+		validation_report += " contains no operands."
 	elif (minimum_number_of_operands > operands.size()):
-		validation_report += operator_type + " contains only " + str(operands.size()) + " operands, while requiring at least " + str(minimum_number_of_operands) + "operands."
+		validation_report += " contains only " + str(operands.size()) + " operands, while requiring at least " + str(minimum_number_of_operands) + "operands."
 	for operand in operands:
 		if (!(operand is SWScriptElement)):
 			if (null == operand):

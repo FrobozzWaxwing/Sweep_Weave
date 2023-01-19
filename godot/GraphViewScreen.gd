@@ -18,7 +18,7 @@ func load_encounter_in_graphview(encounter, zoom_level):
 	encounter_graph_node.set_my_encounter(encounter)
 	encounter_graph_node.offset += encounter.graph_position
 	encounter_graph_node.title = encounter.title
-	encounter_graph_node.set_excerpt(encounter.main_text.left(64))
+	encounter_graph_node.set_excerpt(encounter.get_text().left(128))
 	encounter_graph_node.add_to_group("graphview_nodes")
 	encounter_graph_node.connect("load_encounter_from_graphview", self, "load_Encounter")
 	$GraphEdit.add_child(encounter_graph_node)

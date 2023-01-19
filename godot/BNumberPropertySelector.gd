@@ -2,7 +2,7 @@ extends Control
 
 var storyworld = null
 var selected_property = null
-var allow_root_character_editing = false
+var allow_root_character_editing = true
 var allow_coefficient_editing = false
 var KeyringOptionButton = load("res://KeyringOptionButton.tscn")
 
@@ -133,5 +133,11 @@ func _on_NegateToggleButton_pressed():
 func _on_RootCharacterSelector_item_selected(index):
 	var metadata = $Background/InverseParserHBC/RootCharacterSelector.get_item_metadata(index)
 	if (metadata is Actor):
-		selected_property.character = metadata
+		var blueprint = selected_property.get_ap_blueprint()
+		if (null != blueprint and blueprint.applies_to(metadata)):
+			selected_property.character = metadata
+		else:
+			reset()
+			selected_property.character = metadata
+		refresh()
 		emit_signal("bnumber_property_selected", selected_property)

@@ -66,23 +66,20 @@ function getRadioVal(form, name) {
 
 //Define what an encounter consists of:
 class Encounter {
-    constructor(id, title, main_text, acceptability_script, desirability_script, earliest_turn, latest_turn, antagonist) {
+    constructor(id, title, text_script, acceptability_script, desirability_script) {
         this.id = id;//a string that uniquely identifies this encounter, used for dictionary keys.
         this.title = title;//string
-        this.main_text = main_text;//string
+        this.text_script = text_script;
         this.acceptability_script = acceptability_script
         this.desirability_script = desirability_script
-        this.earliest_turn = earliest_turn;//integer
-        this.latest_turn = latest_turn;//integer
-        this.antagonist = antagonist;//integer
         this.options = [];//array
     }
 }
 
 //Define an option and its associated reactions:
 class Player_Option {
-    constructor(text, visibility_script, performability_script, reactions) {
-        this.text = text;//string
+    constructor(text_script, visibility_script, performability_script, reactions) {
+        this.text_script = text_script;
         this.visibility_script = visibility_script;
         this.performability_script = performability_script;
         this.reactions = reactions;//array
@@ -90,8 +87,8 @@ class Player_Option {
 }
 
 class Character_Reaction {
-    constructor(text, desirability_script, consequence) {
-        this.text = text;//Text to display to player if reaction is chosen.
+    constructor(text_script, desirability_script, consequence) {
+        this.text_script = text_script;//Text to display to player if reaction is chosen.
         this.desirability_script = desirability_script;
         this.consequence = consequence;//An encounter that must happen next if reaction is chosen.
         this.after_effects = [];
@@ -194,9 +191,7 @@ var spool_directory = {};
 //We need to keep track of the present encounter.
 var current_page = null;
 var next_page = "wild";//"wild" means a page is chosen semi-randomly; other values specify specific pages.
-var current_antagonist = 0;
 var turn = 0;
-var current_scene = "wild";//"wild" means the current scene is ignored when selecting an encounter; encounters with any scene are acceptable.
 var text_buffer = "";//Used to store the text of a reaction so that it can be displayed at the start of the next encounter. Also used when encounters are broken into sections to store the text so far displayed.
 
 //Here is the database of characters.
@@ -224,7 +219,7 @@ function parseReactionsData(data){
     var reactions = [];
     var each;
     for (each of data){
-        var new_reaction = new Character_Reaction(each["text"], each["desirability_script"], each["consequence_id"]);
+        var new_reaction = new Character_Reaction(each["text_script"], each["desirability_script"], each["consequence_id"]);
         for (x of each["after_effects"]){
             new_reaction.after_effects.push(x);
         }
@@ -237,7 +232,7 @@ function parseOptionsData(data){
     var options = [];
     var each;
     for (each of data){
-        options.push(new Player_Option(each["text"], each["visibility_script"], each["performability_script"], parseReactionsData(each["reactions"])));
+        options.push(new Player_Option(each["text_script"], each["visibility_script"], each["performability_script"], parseReactionsData(each["reactions"])));
     }
     return options;
 }
@@ -276,8 +271,8 @@ function importGameData(){
     importSpoolData();
     var eachEn;
     for (eachEn of storyworld_data.encounters){
-        //id, title, main_text, earliest_turn, latest_turn, antagonist, options
-        x_event = new Encounter(eachEn["id"], eachEn["title"], eachEn["main_text"], eachEn["acceptability_script"], eachEn["desirability_script"], eachEn["earliest_turn"], eachEn["latest_turn"], eachEn["antagonist"]);
+        //id, title, text_script, earliest_turn, latest_turn, antagonist, options
+        x_event = new Encounter(eachEn["id"], eachEn["title"], eachEn["text_script"], eachEn["acceptability_script"], eachEn["desirability_script"]);
         x_event.options = parseOptionsData(eachEn["options"]);
         encounters[eachEn["id"]] = x_event;
     }
@@ -452,182 +447,8 @@ function eventHasOccurred(encounter, option, reaction){
     return false;
 }
 
-function compare_pValue_to_constant(who, pValue_id, operator, constant){
-    if (characters[who] == void 0){//If character is undefined
-        return false;
-    }
-    var pValue = characters[who].lookup(pValue_id);
-    if ("==" == operator && pValue == constant){
-        return true;
-    } else if ("<" == operator && pValue < constant){
-        return true;
-    } else if ("<=" == operator && pValue <= constant){
-        return true;
-    } else if (">" == operator && pValue > constant){
-        return true;
-    } else if (">=" == operator && pValue >= constant){
-        return true;
-    }
-    return false;
-}
-
-function compare_pValue_to_pValue(who1, pValue1_id, operator, who2, pValue2_id){
-    if (characters[who1] == void 0 || characters[who2] == void 0){//If either character is undefined
-        return false;
-    }
-    var pValue1 = characters[who1].lookup(pValue1_id);
-    var pValue2 = characters[who2].lookup(pValue2_id);
-    if ("==" == operator && pValue1 == pValue2){
-        return true;
-    } else if ("<" == operator && pValue1 < pValue2){
-        return true;
-    } else if ("<=" == operator && pValue1 <= pValue2){
-        return true;
-    } else if (">" == operator && pValue1 > pValue2){
-        return true;
-    } else if (">=" == operator && pValue1 >= pValue2){
-        return true;
-    }
-    return false;
-}
-
-function query_max_pValue(pValue){
-    var max_character;
-    var max_pValue = -1;
-    var x;
-    for (x in characters){
-        if (characters[x].lookup(pValue) >= max_pValue){
-            max_character = x;
-            max_pValue = characters[x].lookup(pValue);
-        }
-    }
-    return [max_character, max_pValue];
-}
-
-function query_min_pValue(pValue){
-    var min_character;
-    var min_pValue = 1;
-    var x;
-    for (x in characters){
-        if (characters[x].lookup(pValue) <= min_pValue){
-            min_character = x;
-            min_pValue = characters[x].lookup(pValue);
-        }
-    }
-    return [min_character, min_pValue];
-}
-
-function query_median_pValue(pValue){
-    var unsorted_array = [];
-    var x;
-    for (x of characters){
-        unsorted_array.push(x.lookup(pValue));
-    }
-    var mid = Math.ceil(unsorted_array.length / 2);
-    var sorted_array = unsorted_array.sort();
-    var median = sorted_array.length % 2 == 0 ? (sorted_array[mid] + sorted_array[mid - 1]) / 2 : sorted_array[mid - 1];
-    return median;
-}
-
-function query_mean_pValue(pValue){
-    var sum = 0;
-    var x;
-    for (x of characters){
-        sum += x.lookup(pValue);
-    }
-    return sum / characters.length;
-}
-
-function compare_statistic_to_constant(prerequisite){
-    var statistic;
-    var operator = prerequisite["operator"];
-    var constant = prerequisite["constant"];
-    if ("maximum" == prerequisite["who1"]){
-        statistic = query_max_pValue(prerequisite["pValue1"])[1];
-    } else if ("minimum" == prerequisite["who1"]){
-        statistic = query_min_pValue(prerequisite["pValue1"])[1];
-    } else if ("median" == prerequisite["who1"]){
-        statistic = query_median_pValue(prerequisite["pValue1"]);
-    } else if ("mean" == prerequisite["who1"]){
-        statistic = query_mean_pValue(prerequisite["pValue1"]);
-    }
-    if ("==" == operator && statistic == constant){
-        return true;
-    } else if ("<" == operator && statistic < constant){
-        return true;
-    } else if ("<=" == operator && statistic <= constant){
-        return true;
-    } else if (">" == operator && statistic > constant){
-        return true;
-    } else if (">=" == operator && statistic >= constant){
-        return true;
-    }
-    return false;
-}
-
-function compare_statistic_to_pValue(prerequisite){
-    var statistic;
-    var operator = prerequisite["operator"];
-    var constant = prerequisite["constant"];
-    var who2 = prerequisite["who2"];
-    var pValue;
-    if ("maximum" == prerequisite["who1"]){
-        statistic = query_max_pValue(prerequisite["pValue1"])[1];
-    } else if ("minimum" == prerequisite["who1"]){
-        statistic = query_min_pValue(prerequisite["pValue1"])[1];
-    } else if ("median" == prerequisite["who1"]){
-        statistic = query_median_pValue(prerequisite["pValue1"]);
-    } else if ("mean" == prerequisite["who1"]){
-        statistic = query_mean_pValue(prerequisite["pValue1"]);
-    }
-    pValue = characters[who2].lookup(prerequisite["pValue2"]);
-    if ("==" == operator && statistic == pValue){
-        return true;
-    } else if ("<" == operator && statistic < pValue){
-        return true;
-    } else if ("<=" == operator && statistic <= pValue){
-        return true;
-    } else if (">" == operator && statistic > pValue){
-        return true;
-    } else if (">=" == operator && statistic >= pValue){
-        return true;
-    }
-    return false;
-}
-
-function evaluatePrerequisite(prerequisite){
-    switch (prerequisite["prereq_type"]){
-        case 0:
-            //Ask whether or not an event has occurred.
-            return eventHasOccurred(prerequisite["encounter"], prerequisite["option"], prerequisite["reaction"]);
-            break;
-        case 1:
-            //Ask whether or not a scene is active.
-            if (current_scene == prerequisite["encounter_scene"] || current_scene == "wild"){
-                return true;
-            } else {
-                return false;
-            }
-            break;
-        case 2:
-            //pValue to constant
-            return compare_pValue_to_constant(prerequisite["who1"], prerequisite["pValue1"], prerequisite["operator"], prerequisite["constant"])
-            break;
-        case 3:
-            //pValue to pValue
-            return compare_pValue_to_pValue(prerequisite["who1"], prerequisite["pValue1"], prerequisite["operator"], prerequisite["who2"], prerequisite["pValue2"])
-            break;
-        case 4:
-            //pValueStat to constant.
-            return compare_statistic_to_constant(prerequisite);
-            break;
-        case 5:
-            //pValueStat to pValue.
-            return compare_statistic_to_pValue(prerequisite);
-            break;
-        default:
-            return false;
-    }
+function clampBNumber(num){
+    return Math.min(Math.max(num, -0.99), 0.99);
 }
 
 function blend(x, y, w){
@@ -640,11 +461,7 @@ function blend(x, y, w){
 function nudge(x, delta){
     const result = x * (1 - Math.abs(delta)) + delta;
     console.log("Nudge " + x.toString() + " by " + delta.toString() + " equals " + result);
-    return result;
-}
-
-function clampBNumber(num){
-    return Math.min(Math.max(num, -0.99), 0.99);
+    return clampBNumber(result);
 }
 
 function evaluateSWScript(script){
@@ -652,10 +469,12 @@ function evaluateSWScript(script){
         return script;
     } else if (null !== script && "object" == typeof script && Object.hasOwn(script, "script_element_type")){
         console.log("Evaluating script: " + JSON.stringify(script));
+        //Track whether or not script result is poisoned.
+        let poison = false;
         if ("Pointer" == script["script_element_type"] && Object.hasOwn(script, "pointer_type")){
             //console.log("Script is a pointer.");
             if ("Bounded Number Constant" == script["pointer_type"] && Object.hasOwn(script, "value")){
-                console.log("Script is a bounded number constant, with a value of " + script["value"].toString() + ".");
+                //console.log("Script is a bounded number constant, with a value of " + script["value"].toString() + ".");
                 return script["value"];
             } else if ("Bounded Number Pointer" == script["pointer_type"] && Object.hasOwn(script, "character") && Object.hasOwn(script, "coefficient") && Object.hasOwn(script, "keyring")){
                 let character = characters[script["character"]];
@@ -673,6 +492,8 @@ function evaluateSWScript(script){
                 }
             } else if ("Spool Status Pointer" == script["pointer_type"] && Object.hasOwn(script, "negated") && Object.hasOwn(script, "spool")){
                 return (!script["negated"] == spool_directory[script["spool"]].currently_active);
+            } else if ("String Constant" == script["pointer_type"] && Object.hasOwn(script, "value")){
+                return script["value"];
             }
         } else if ("Operator" == script["script_element_type"] && Object.hasOwn(script, "operator_type") && Object.hasOwn(script, "operands") && Object.hasOwn(script, "input_type")){
             //console.log("Script is an operator.");
@@ -684,6 +505,8 @@ function evaluateSWScript(script){
                 //Check whether or not the operand is valid before adding it to the list of evaluated operands.
                 if (null !== parsed_operand && script["input_type"] == typeof parsed_operand){
                     evaluated_operands.push(parsed_operand);
+                } else {
+                    poison = true;
                 }
             }
             operands_length = evaluated_operands.length;
@@ -711,10 +534,27 @@ function evaluateSWScript(script){
             } else if ("Blend" == script["operator_type"] && 3 == operands_length){
                 let result = blend(evaluated_operands[0], evaluated_operands[1], evaluated_operands[2]);
                 return result;
-            } else if ("Boolean Comparator" == script["operator_type"] && Object.hasOwn(script, "operator_subtype") && 1 <= operands_length){
-                if ("NOT" == script["operator_subtype"] && 1 <= operands_length){
-                    return !evaluated_operands[0];
-                } else if ("AND" == script["operator_subtype"]){
+            } else if ("Arithmetic Comparator" == script["operator_type"] && Object.hasOwn(script, "operator_subtype") && 2 <= operands_length){
+                if ("GT" == script["operator_subtype"]){
+                    return (evaluated_operands[0] > evaluated_operands[1]);
+                } else if ("GTE" == script["operator_subtype"]){
+                    return (evaluated_operands[0] >= evaluated_operands[1]);
+                } else if ("LT" == script["operator_subtype"]){
+                    return (evaluated_operands[0] < evaluated_operands[1]);
+                } else if ("LTE" == script["operator_subtype"]){
+                    return (evaluated_operands[0] <= evaluated_operands[1]);
+                }
+            } else if ("Equals" == script["operator_type"] && 2 <= operands_length){
+                let target_value = evaluated_operands[0];
+                for (let index = 1; index < operands_length; index++) {
+                    evaluated_operand = evaluated_operands[index];
+                    if (target_value != evaluated_operand){
+                        return false;
+                    }
+                }
+                return true;
+            } else if ("Boolean Comparator" == script["operator_type"] && Object.hasOwn(script, "operator_subtype") && 2 <= operands_length){
+                if ("AND" == script["operator_subtype"]){
                     let result = true;
                     for (let index = 0; index < operands_length; index++) {
                         evaluated_operand = evaluated_operands[index];
@@ -731,12 +571,23 @@ function evaluateSWScript(script){
                 } else if ("XOR" == script["operator_subtype"] && 2 <= operands_length){
                     return (evaluated_operands[0] != evaluated_operands[1]);
                 }
-//            } else if ("Bounded Sum" == script["operator_type"]){
-//                return blend(x, y, w);
             } else if ("Desideratum" == script["operator_type"] && 3 == operands_length){
                 return clampBNumber(0.99 - Math.abs(evaluated_operands[0] - evaluated_operands[1]));
             } else if ("Nudge" == script["operator_type"] && 2 == operands_length){
                 return nudge(evaluated_operands[0], evaluated_operands[1]);
+            } else if ("Maximum of" == script["operator_type"] && 1 <= operands_length){
+                return Math.max(...evaluated_operands);
+            } else if ("Minimum of" == script["operator_type"] && 1 <= operands_length){
+                return Math.min(...evaluated_operands);
+            } else if ("Not" == script["operator_type"] && 1 <= operands_length){
+                return !evaluated_operands[0];
+            } else if ("If Then" == script["operator_type"] && 3 <= operands_length && !poison){
+                for (let index = 0; index < (operands_length-1); index += 2) {
+                    if (evaluated_operands[index]){
+                        return evaluated_operands[index+1];
+                    }
+                }
+                return evaluated_operands[operands_length-1];
             }
         }
     }
@@ -757,7 +608,7 @@ function enactEffect(effect_data){
         } else if ("Spool Effect" == effect_data["effect_type"]){
             let value = evaluateSWScript(effect_data["to"]);
             if (null !== value && "boolean" == typeof value){
-                spool_directory[effect_data["Set"]["spool"]].currently_active = value;
+                spool_directory[effect_data["Set"]].currently_active = value;
             }
         }
     }
@@ -772,10 +623,9 @@ function enactEffect(effect_data){
 function loadEncounter(encounter_id, record = true) {
     //This function can either take a string as input, in which case it treats the string as the encounter name and looks up the encounter in the encounters database, or it can take an encounter as input, thereby skipping the database lookup.
     var encounter = encounters[encounter_id];
-    console.log("Turn: " + turn + ' Displaying encounter: "' + encounter.title + '" Antagonist: ' + characters[encounter.antagonist].name);
+    console.log("Turn: " + turn + ' Displaying encounter: "' + encounter.title);
     current_page = encounter;//Track which encounter we're in.
     next_page = "start";//Set the next encounter to be semi-random.
-    current_antagonist = encounter.antagonist;//integer
     var encounter_sections = [];
     
     //Now we change the main encounter text to what it needs to be.
@@ -788,24 +638,25 @@ function loadEncounter(encounter_id, record = true) {
         //In display mode 1, when a player chooses an option, the game clears the screen and displays the reaction text followed by the text of the next encounter.
         current_main_text += text_buffer + "";//text_buffer should be holding the text of the reaction that needs displayed.
     }
-    if (storyworld_data["debug_mode"]){
-        //If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-        current_main_text += "<b>(" + encounter.title + ")</b><br>" + characters[current_antagonist].printCharRelationships("<br>") + "<br>";
-    }
+//    if (storyworld_data["debug_mode"]){
+//        //If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
+//        current_main_text += "<b>(" + encounter.title + ")</b><br>" + characters[current_antagonist].printCharRelationships("<br>") + "<br>";
+//    }
     var continue_regex = /\[\[.*\|continue\]\]/gim;
-    if (-1 != encounter.main_text.search(continue_regex)){
+    let encounter_text = evaluateSWScript(encounter.text_script);
+    if (-1 != encounter_text.search(continue_regex)){
         //If the encounter's main text is split into sections:
         //Add the first section to the text buffer,
-        encounter_sections = encounter.main_text.split(continue_regex);
+        encounter_sections = encounter_text.split(continue_regex);
         current_main_text += encounter_sections[0];
         text_buffer = current_main_text;
         //And compile the html code for the continue button.
         continue_button_label = '<a href="javascript:continueFromBreak(1)">';
-        var button_code = encounter.main_text.match(continue_regex)[0];
+        var button_code = encounter_text.match(continue_regex)[0];
         continue_button_label += button_code.split(/(\[\[|\|continue\]\])/gi)[2];
         continue_button_label += "</a>";
     } else {
-        current_main_text += encounter.main_text;
+        current_main_text += encounter_text;
     }
     document.getElementById("encounter_text").innerHTML = current_main_text + continue_button_label;
     //Now we go through the options one by one, creating links for each.
@@ -819,16 +670,17 @@ function loadEncounter(encounter_id, record = true) {
         option_visible = evaluateSWScript(option.visibility_script);
         option_performable = evaluateSWScript(option.performability_script);
         if (option_visible){
+            let option_text = evaluateSWScript(option.text_script);
             if (option_performable){
                 entry = '&gt; <a href="javascript:executeOption(';
                 entry = entry + index.toString();
                 entry = entry + ')">';
-                entry = entry + option.text;
+                entry = entry + option_text;
                 entry = entry + '</a><br>';
                 compiled_options = compiled_options + entry;
             } else {
                 entry = '&gt; <del>';
-                entry = entry + option.text;
+                entry = entry + option_text;
                 entry = entry + '</del><br>';
                 compiled_options = compiled_options + entry;
             }
@@ -868,9 +720,10 @@ function continueFromBreak(step){
     var button_code = "";
     var encounter_sections = [];
     var code_blocks = [];
-    if (-1 != encounter.main_text.search(continue_regex)){
-        encounter_sections = encounter.main_text.split(continue_regex);
-        code_blocks = encounter.main_text.match(continue_regex);
+    let encounter_text = evaluateSWScript(encounter.text_script);
+    if (-1 != encounter_text.search(continue_regex)){
+        encounter_sections = encounter_text.split(continue_regex);
+        code_blocks = encounter_text.match(continue_regex);
     }
     text_buffer += encounter_sections[step];
     if (encounter_sections.length <= (step + 1)){
@@ -899,7 +752,7 @@ function executeOption(which){
         if (null === latestInclination || "number" != typeof latestInclination){
             continue
         }
-        console.log('Reaction: "' + reaction.text.substr(0, 24) + '..." Inclination: ' + latestInclination.toString());
+        console.log('Reaction: "' + index.toString() + '..." Inclination: ' + latestInclination.toString());
         if (latestInclination >= topInclination){
             topInclination = latestInclination;
             workingChoice = index;
@@ -924,13 +777,14 @@ function executeOption(which){
         slow_historybook[turn] = {"encounter": current_page.id, "option": which, "reaction": workingChoice};
     }
     //Change text of options list to show only the text of the option chosen by the player.
-    document.getElementById("options_list").innerHTML = '&gt; ' + current_page.options[parseInt(which)].text;
+    let option_text = evaluateSWScript(current_page.options[parseInt(which)].text_script);
+    document.getElementById("options_list").innerHTML = '&gt; ' + option_text;
     if (storyworld_data["debug_mode"]){//If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-        text_buffer = characters[current_antagonist].printCharRelationships("<br>") + "<br>";
+        text_buffer = "";//characters[current_antagonist].printCharRelationships("<br>") + "<br>";
     } else {
         text_buffer = "";
     }
-    let reaction_text = reactions[workingChoice].text;
+    let reaction_text = evaluateSWScript(reactions[workingChoice].text_script);
     if ("string" == typeof reaction_text && "" != reaction_text){
         text_buffer += reaction_text + "<br><br>";
     }
@@ -977,9 +831,9 @@ function writeEncounterToTranscript(encounter_name, option, reaction){
     encounter = encounters[encounter_name];
     if ('undefined' == typeof encounter.options[option] || 'undefined' == typeof encounter.options[option].reactions[reaction]){
         //Test for corrupted savefile, or other errors.
-        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + encounter.main_text + "<p>" + '&gt; ' + "Option and/or reaction undefined." + "</p>";
+        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + evaluateSWScript(encounter.text_script) + "<p>" + '&gt; ' + "Option and/or reaction undefined." + "</p>";
     } else {
-        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + encounter.main_text + "<p>" + '&gt; ' + encounter.options[option].text + "</p><p>" + encounter.options[option].reactions[reaction].text + "</p>";
+        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + evaluateSWScript(encounter.text_script) + "<p>" + '&gt; ' + evaluateSWScript(encounter.options[option].text_script) + "</p><p>" + evaluateSWScript(encounter.options[option].reactions[reaction].text_script) + "</p>";
     }
 }
 
@@ -1164,10 +1018,10 @@ function startNewGame(ask_for_confirmation = true){
         slow_historybook = [];
         quick_historybook = {};
         playthrough_transcript = "";
+        text_buffer = "";
         turn = 0;
         current_page = null;
         next_page = "wild";
-        current_antagonist = 0;
         displaySaveProfile();
         importCharacterData();//Reset Character relations.
         for (spool of spools){

@@ -140,7 +140,7 @@ margin_right = 578.0
 margin_bottom = 519.0
 alignment = 1
 
-[node name="Edit_Encounter_Settings_Button" type="Button" parent="HSC/Column2/HBCEncounterSettingsButtons"]
+[node name="EditEncounterAcceptabilityScriptButton" type="Button" parent="HSC/Column2/HBCEncounterSettingsButtons"]
 margin_left = 61.0
 margin_right = 292.0
 margin_bottom = 20.0
@@ -454,7 +454,7 @@ rect_min_size = Vector2( 0, 32 )
 margin_top = 444.0
 margin_right = 578.0
 margin_bottom = 464.0
-text = "Advanced Reaction Desirability Script Editor"
+text = "Edit Reaction Desirability Script"
 
 [node name="HBCConsequence" type="HBoxContainer" parent="HSC/Column3"]
 margin_top = 468.0
@@ -479,7 +479,7 @@ mouse_filter = 1
 margin_top = 492.0
 margin_right = 158.0
 margin_bottom = 512.0
-hint_tooltip = "This sets the reaction's consequence to \"wild,\" so that, if this reaction occurs, the interpreter chooses the next encounter semi-randomly."
+hint_tooltip = "This sets the reaction's consequence to null, such that, if this reaction occurs, the interpreter chooses the next encounter via encounter acceptability and desirability scripts."
 size_flags_horizontal = 0
 text = "Remove Consequence."
 align = 0
@@ -528,350 +528,6 @@ margin_right = 250.0
 margin_bottom = 667.0
 text = "Select an option to load its reactions."
 
-[node name="EditOptionSettings" type="AcceptDialog" parent="."]
-margin_right = 292.0
-margin_bottom = 320.0
-rect_min_size = Vector2( 256, 0 )
-window_title = ""
-resizable = true
-
-[node name="VBC" type="VBoxContainer" parent="EditOptionSettings"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 524.0
-margin_bottom = 284.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="HBC" type="HBoxContainer" parent="EditOptionSettings/VBC"]
-margin_right = 288.0
-margin_bottom = 114.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-alignment = 1
-
-[node name="VBC" type="VBoxContainer" parent="EditOptionSettings/VBC/HBC"]
-margin_left = 12.0
-margin_right = 142.0
-margin_bottom = 114.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="HBC" type="HBoxContainer" parent="EditOptionSettings/VBC/HBC/VBC"]
-margin_right = 130.0
-margin_bottom = 20.0
-
-[node name="VisibilityPrereqAdd" type="Button" parent="EditOptionSettings/VBC/HBC/VBC/HBC"]
-margin_right = 20.0
-margin_bottom = 20.0
-text = "+"
-
-[node name="VisibilityPrerequisites" type="Label" parent="EditOptionSettings/VBC/HBC/VBC/HBC"]
-margin_left = 24.0
-margin_top = 3.0
-margin_right = 109.0
-margin_bottom = 17.0
-hint_tooltip = "All of these prerequisites must be met, or this option will be hidden from the player."
-mouse_filter = 1
-text = "Visibility Prerequisites"
-
-[node name="VisibilityPrereqDelete" type="Button" parent="EditOptionSettings/VBC/HBC/VBC/HBC"]
-margin_left = 113.0
-margin_right = 130.0
-margin_bottom = 20.0
-text = "-"
-
-[node name="Scroll" type="ScrollContainer" parent="EditOptionSettings/VBC/HBC/VBC"]
-margin_top = 24.0
-margin_right = 130.0
-margin_bottom = 114.0
-rect_min_size = Vector2( 0, 90 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-scroll_horizontal_enabled = false
-
-[node name="VisibilityPrerequisiteList" type="ItemList" parent="EditOptionSettings/VBC/HBC/VBC/Scroll"]
-margin_right = 256.0
-margin_bottom = 90.0
-rect_min_size = Vector2( 256, 90 )
-hint_tooltip = "All of these prerequisites must be met, or this option will be hidden from the player."
-size_flags_horizontal = 3
-size_flags_vertical = 3
-select_mode = 1
-auto_height = true
-
-[node name="VBC2" type="VBoxContainer" parent="EditOptionSettings/VBC/HBC"]
-margin_left = 146.0
-margin_right = 276.0
-margin_bottom = 114.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="HBC" type="HBoxContainer" parent="EditOptionSettings/VBC/HBC/VBC2"]
-margin_right = 130.0
-margin_bottom = 20.0
-
-[node name="PerformabilityPrereqAdd" type="Button" parent="EditOptionSettings/VBC/HBC/VBC2/HBC"]
-margin_right = 20.0
-margin_bottom = 20.0
-text = "+"
-
-[node name="PerformabilityPrereq" type="Label" parent="EditOptionSettings/VBC/HBC/VBC2/HBC"]
-margin_left = 24.0
-margin_top = 3.0
-margin_right = 93.0
-margin_bottom = 17.0
-hint_tooltip = "All of these prerequisites must be met in order for the player to select this option. If any are not met, the option will be struck through, and will not be clickable."
-mouse_filter = 1
-text = "Performability Prerequisites"
-
-[node name="PerformabilityPrereqDelete" type="Button" parent="EditOptionSettings/VBC/HBC/VBC2/HBC"]
-margin_left = 97.0
-margin_right = 114.0
-margin_bottom = 20.0
-text = "-"
-
-[node name="Scroll" type="ScrollContainer" parent="EditOptionSettings/VBC/HBC/VBC2"]
-margin_top = 24.0
-margin_right = 130.0
-margin_bottom = 114.0
-rect_min_size = Vector2( 0, 90 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-scroll_horizontal_enabled = false
-
-[node name="PerformabilityPrerequisiteList" type="ItemList" parent="EditOptionSettings/VBC/HBC/VBC2/Scroll"]
-margin_right = 256.0
-margin_bottom = 90.0
-rect_min_size = Vector2( 256, 90 )
-hint_tooltip = "All of these prerequisites must be met in order for the player to select this option. If any are not met, the option will be struck through, and will not be clickable."
-size_flags_horizontal = 3
-size_flags_vertical = 3
-select_mode = 1
-auto_height = true
-
-[node name="EventSelection" type="ConfirmationDialog" parent="EditOptionSettings"]
-visible = true
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 524.0
-margin_bottom = 284.0
-rect_min_size = Vector2( 276, 276 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-window_title = "Select an event."
-resizable = true
-
-[node name="VBC" type="VBoxContainer" parent="EditOptionSettings/EventSelection"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 508.0
-margin_bottom = 240.0
-
-[node name="EventTree" type="Tree" parent="EditOptionSettings/EventSelection/VBC"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 264.0
-margin_bottom = 136.0
-rect_min_size = Vector2( 256, 128 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="NegatedCheckBox" type="CheckBox" parent="EditOptionSettings/EventSelection/VBC"]
-margin_right = 81.0
-margin_bottom = 40.0
-text = "Negated"
-
-[node name="EditEncounterSettings" type="AcceptDialog" parent="."]
-margin_right = 512.0
-margin_bottom = 512.0
-rect_min_size = Vector2( 256, 0 )
-window_title = ""
-resizable = true
-
-[node name="VBC" type="VBoxContainer" parent="EditEncounterSettings"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 504.0
-margin_bottom = 476.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="HBC" type="HBoxContainer" parent="EditEncounterSettings/VBC"]
-margin_right = 288.0
-margin_bottom = 114.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-alignment = 1
-
-[node name="VBC" type="VBoxContainer" parent="EditEncounterSettings/VBC/HBC"]
-margin_left = 12.0
-margin_right = 142.0
-margin_bottom = 114.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="HBC" type="HBoxContainer" parent="EditEncounterSettings/VBC/HBC/VBC"]
-margin_right = 130.0
-margin_bottom = 20.0
-
-[node name="PrereqAdd" type="Button" parent="EditEncounterSettings/VBC/HBC/VBC/HBC"]
-margin_right = 20.0
-margin_bottom = 20.0
-text = "+"
-
-[node name="Prerequisites" type="Label" parent="EditEncounterSettings/VBC/HBC/VBC/HBC"]
-margin_left = 24.0
-margin_top = 3.0
-margin_right = 109.0
-margin_bottom = 17.0
-hint_tooltip = "All prerequisite encounters must have occured before the present encounter can occur, unless the present encounter occurs as a consequence of a character reaction."
-mouse_filter = 1
-text = "Prerequisites"
-
-[node name="PrereqDelete" type="Button" parent="EditEncounterSettings/VBC/HBC/VBC/HBC"]
-margin_left = 113.0
-margin_right = 130.0
-margin_bottom = 20.0
-text = "-"
-
-[node name="Scroll" type="ScrollContainer" parent="EditEncounterSettings/VBC/HBC/VBC"]
-margin_top = 24.0
-margin_right = 130.0
-margin_bottom = 114.0
-rect_min_size = Vector2( 0, 90 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-scroll_horizontal_enabled = false
-
-[node name="PrerequisiteList" type="ItemList" parent="EditEncounterSettings/VBC/HBC/VBC/Scroll"]
-margin_right = 256.0
-margin_bottom = 90.0
-rect_min_size = Vector2( 256, 90 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-select_mode = 1
-auto_height = true
-
-[node name="VBC2" type="VBoxContainer" parent="EditEncounterSettings/VBC/HBC"]
-visible = false
-margin_left = 146.0
-margin_right = 276.0
-margin_bottom = 114.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="HBC" type="HBoxContainer" parent="EditEncounterSettings/VBC/HBC/VBC2"]
-margin_right = 130.0
-margin_bottom = 20.0
-
-[node name="AddDesideratum" type="Button" parent="EditEncounterSettings/VBC/HBC/VBC2/HBC"]
-margin_right = 20.0
-margin_bottom = 20.0
-text = "+"
-
-[node name="Desiderata" type="Label" parent="EditEncounterSettings/VBC/HBC/VBC2/HBC"]
-margin_left = 24.0
-margin_top = 3.0
-margin_right = 93.0
-margin_bottom = 17.0
-hint_tooltip = "If any disqualifier encounters have occured, then the present encounter cannot occur, unless the present encounter occurs as a consequence of a character reaction."
-mouse_filter = 1
-text = "Target Conditions"
-
-[node name="DeleteDesideratum" type="Button" parent="EditEncounterSettings/VBC/HBC/VBC2/HBC"]
-margin_left = 97.0
-margin_right = 114.0
-margin_bottom = 20.0
-text = "-"
-
-[node name="Scroll" type="ScrollContainer" parent="EditEncounterSettings/VBC/HBC/VBC2"]
-margin_top = 24.0
-margin_right = 130.0
-margin_bottom = 114.0
-rect_min_size = Vector2( 0, 90 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-scroll_horizontal_enabled = false
-
-[node name="DesiderataList" type="ItemList" parent="EditEncounterSettings/VBC/HBC/VBC2/Scroll"]
-margin_right = 256.0
-margin_bottom = 90.0
-rect_min_size = Vector2( 256, 90 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-select_mode = 1
-auto_height = true
-
-[node name="EventSelection" type="ConfirmationDialog" parent="EditEncounterSettings"]
-visible = true
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 504.0
-margin_bottom = 476.0
-rect_min_size = Vector2( 276, 276 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-window_title = "Select an event."
-resizable = true
-
-[node name="VBC" type="VBoxContainer" parent="EditEncounterSettings/EventSelection"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 488.0
-margin_bottom = 432.0
-
-[node name="EventTree" type="Tree" parent="EditEncounterSettings/EventSelection/VBC"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 264.0
-margin_bottom = 136.0
-rect_min_size = Vector2( 256, 128 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="NegatedCheckBox" type="CheckBox" parent="EditEncounterSettings/EventSelection/VBC"]
-margin_right = 81.0
-margin_bottom = 40.0
-text = "Negated"
-
-[node name="DesideratumSelection" type="ConfirmationDialog" parent="EditEncounterSettings"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 504.0
-margin_bottom = 476.0
-size_flags_horizontal = 3
-window_title = "Set New Target Condition"
-resizable = true
-
-[node name="VBC" type="VBoxContainer" parent="EditEncounterSettings/DesideratumSelection"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 488.0
-margin_bottom = 432.0
-
-[node name="HBC" type="HBoxContainer" parent="EditEncounterSettings/DesideratumSelection/VBC"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 508.0
-margin_bottom = 240.0
-size_flags_horizontal = 3
-
-[node name="PropertySelector" parent="EditEncounterSettings/DesideratumSelection/VBC/HBC" instance=ExtResource( 5 )]
-rect_min_size = Vector2( 0, 32 )
-
-[node name="PointSet" type="SpinBox" parent="EditEncounterSettings/DesideratumSelection/VBC"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 82.0
-margin_bottom = 32.0
-size_flags_vertical = 0
-min_value = -1.0
-max_value = 1.0
-step = 0.01
-
 [node name="EffectEditor" type="ConfirmationDialog" parent="."]
 margin_right = 768.0
 margin_bottom = 768.0
@@ -886,11 +542,18 @@ margin_right = -8.0
 margin_bottom = -36.0
 
 [node name="ConfirmEncounterDeletion" type="ConfirmationDialog" parent="."]
-margin_right = 200.0
-margin_bottom = 70.0
+margin_right = 256.0
+margin_bottom = 200.0
+rect_min_size = Vector2( 200, 100 )
 resizable = true
 dialog_text = "Are you sure you want to delete these encounters?"
 dialog_autowrap = true
+
+[node name="EncountersToDelete" type="ItemList" parent="ConfirmEncounterDeletion"]
+margin_left = 8.0
+margin_top = 39.0
+margin_right = 248.0
+margin_bottom = 164.0
 
 [node name="ConfirmOptionDeletion" type="ConfirmationDialog" parent="."]
 margin_right = 200.0
@@ -914,9 +577,9 @@ resizable = true
 dialog_autowrap = true
 
 [node name="ScriptEditWindow" type="AcceptDialog" parent="."]
-margin_right = 500.0
+margin_right = 700.0
 margin_bottom = 500.0
-rect_min_size = Vector2( 500, 500 )
+rect_min_size = Vector2( 300, 300 )
 window_title = "Script Editor"
 resizable = true
 
@@ -934,7 +597,7 @@ margin_bottom = -36.0
 [connection signal="item_activated" from="Column1/VScroll/EncountersList" to="." method="_on_EncountersList_item_activated"]
 [connection signal="text_changed" from="HSC/Column2/HBCTitle/EncounterTitleEdit" to="." method="_on_EncounterTitleEdit_text_changed"]
 [connection signal="text_changed" from="HSC/Column2/EncounterMainTextEdit" to="." method="_on_EncounterMainTextEdit_text_changed"]
-[connection signal="pressed" from="HSC/Column2/HBCEncounterSettingsButtons/Edit_Encounter_Settings_Button" to="." method="_on_Edit_Encounter_Settings_Button_pressed"]
+[connection signal="pressed" from="HSC/Column2/HBCEncounterSettingsButtons/EditEncounterAcceptabilityScriptButton" to="." method="_on_EditEncounterAcceptabilityScriptButton_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCEncounterSettingsButtons/EditEncounterDesirabilityScriptButton" to="." method="_on_EditEncounterDesirabilityScriptButton_pressed"]
 [connection signal="value_changed" from="HSC/Column2/HBCTurn/VBC/EarliestTurn" to="." method="_on_EarliestTurn_value_changed"]
 [connection signal="value_changed" from="HSC/Column2/HBCTurn/VBC2/LatestTurn" to="." method="_on_LatestTurn_value_changed"]
@@ -959,7 +622,6 @@ margin_bottom = -36.0
 [connection signal="multi_selected" from="HSC/Column3/ReactionsScroll/ReactionList" to="." method="_on_ReactionList_multi_selected"]
 [connection signal="id_pressed" from="HSC/Column3/ReactionsScroll/ReactionList/ReactionsContextMenu" to="." method="_on_ReactionsContextMenu_id_pressed"]
 [connection signal="text_changed" from="HSC/Column3/ReactionText" to="." method="_on_ReactionText_text_changed"]
-[connection signal="bnumber_value_changed" from="HSC/Column3/HBCLSL/BlendWeightSelector" to="." method="_on_BlendWeightSelector_bnumber_value_changed"]
 [connection signal="bnumber_property_selected" from="HSC/Column3/HBCTT/Trait1Selector" to="." method="_on_Trait1Selector_bnumber_property_selected"]
 [connection signal="bnumber_property_selected" from="HSC/Column3/HBCTT/Trait2Selector" to="." method="_on_Trait2Selector_bnumber_property_selected"]
 [connection signal="pressed" from="HSC/Column3/ARDSEButton" to="." method="_on_ARDSEButton_pressed"]
@@ -969,17 +631,6 @@ margin_bottom = -36.0
 [connection signal="pressed" from="HSC/Column3/HBCEffectButtons/DeleteEffect" to="." method="_on_DeleteEffect_pressed"]
 [connection signal="item_activated" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_item_activated"]
 [connection signal="moved_item" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_moved_item"]
-[connection signal="pressed" from="EditOptionSettings/VBC/HBC/VBC/HBC/VisibilityPrereqAdd" to="." method="_on_VisibilityPrereqAdd_pressed"]
-[connection signal="pressed" from="EditOptionSettings/VBC/HBC/VBC/HBC/VisibilityPrereqDelete" to="." method="_on_VisibilityPrereqDelete_pressed"]
-[connection signal="pressed" from="EditOptionSettings/VBC/HBC/VBC2/HBC/PerformabilityPrereqAdd" to="." method="_on_PerformabilityPrereqAdd_pressed"]
-[connection signal="pressed" from="EditOptionSettings/VBC/HBC/VBC2/HBC/PerformabilityPrereqDelete" to="." method="_on_PerformabilityPrereqDelete_pressed"]
-[connection signal="confirmed" from="EditOptionSettings/EventSelection" to="." method="_on_OptionEventSelection_confirmed"]
-[connection signal="pressed" from="EditEncounterSettings/VBC/HBC/VBC/HBC/PrereqAdd" to="." method="_on_PrereqAdd_pressed"]
-[connection signal="pressed" from="EditEncounterSettings/VBC/HBC/VBC/HBC/PrereqDelete" to="." method="_on_PrereqDelete_pressed"]
-[connection signal="pressed" from="EditEncounterSettings/VBC/HBC/VBC2/HBC/AddDesideratum" to="." method="_on_AddDesideratum_pressed"]
-[connection signal="pressed" from="EditEncounterSettings/VBC/HBC/VBC2/HBC/DeleteDesideratum" to="." method="_on_DeleteDesideratum_pressed"]
-[connection signal="confirmed" from="EditEncounterSettings/EventSelection" to="." method="_on_EventSelection_confirmed"]
-[connection signal="confirmed" from="EditEncounterSettings/DesideratumSelection" to="." method="_on_DesideratumSelection_confirmed"]
 [connection signal="confirmed" from="EffectEditor" to="." method="_on_EffectEditor_confirmed"]
 [connection signal="confirmed" from="ConfirmEncounterDeletion" to="." method="_on_ConfirmEncounterDeletion_confirmed"]
 [connection signal="confirmed" from="ConfirmOptionDeletion" to="." method="_on_ConfirmOptionDeletion_confirmed"]

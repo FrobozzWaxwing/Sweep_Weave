@@ -7,7 +7,7 @@ class_name BNumberEffect
 var operand_0 = null
 var operand_1 = null
 
-enum sw_script_data_types {BOOLEAN, BNUMBER, VARIANT}
+enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
 
 func _init(in_operand_0 = null, in_operand_1 = null):
 	effect_type = "Bounded Number Effect"
@@ -98,7 +98,7 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 	output["to"] = operand_1.compile(parent_storyworld, include_editor_only_variables)
 	return output
 
-func load_from_json_v0_0_21(storyworld, data_to_load):
+func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
 	clear()
 	if (data_to_load.has_all(["Set", "to"])):
 		if (data_to_load["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == data_to_load["Set"]["pointer_type"] and TYPE_STRING == typeof(data_to_load["Set"]["character"]) and storyworld.character_directory.has(data_to_load["Set"]["character"])):
@@ -115,7 +115,31 @@ func load_from_json_v0_0_21(storyworld, data_to_load):
 					output_datatype = sw_script_data_types.BNUMBER
 				elif (operand_0.output_type == sw_script_data_types.BOOLEAN):
 					output_datatype = sw_script_data_types.BOOLEAN
-			script.load_from_json_v0_0_21(storyworld, data_to_load["to"], output_datatype)
+			script.load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load["to"], output_datatype)
+			operand_1 = script
+	if (null != operand_0 and operand_0 is BNumberPointer and null != operand_1 and operand_1 is ScriptManager):
+		return true
+	else:
+		return false
+
+func load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load):
+	clear()
+	if (data_to_load.has_all(["Set", "to"])):
+		if (data_to_load["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == data_to_load["Set"]["pointer_type"] and TYPE_STRING == typeof(data_to_load["Set"]["character"]) and storyworld.character_directory.has(data_to_load["Set"]["character"])):
+			var character = storyworld.character_directory[data_to_load["Set"]["character"]]
+			var script_element = BNumberPointer.new(character, data_to_load["Set"]["keyring"])
+			script_element.coefficient = data_to_load["Set"]["coefficient"]
+			script_element.parent_operator = self
+			operand_0 = script_element
+		if (data_to_load["to"].has("script_element_type")):
+			var script = ScriptManager.new()
+			var output_datatype = sw_script_data_types.VARIANT
+			if (null != operand_0 and operand_0 is SWPointer):
+				if (operand_0.output_type == sw_script_data_types.BNUMBER):
+					output_datatype = sw_script_data_types.BNUMBER
+				elif (operand_0.output_type == sw_script_data_types.BOOLEAN):
+					output_datatype = sw_script_data_types.BOOLEAN
+			script.load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load["to"], output_datatype)
 			operand_1 = script
 	if (null != operand_0 and operand_0 is BNumberPointer and null != operand_1 and operand_1 is ScriptManager):
 		return true
@@ -133,7 +157,7 @@ func validate(intended_script_output_datatype):
 		if (null == operand_1):
 			validation_report += "Effect \"to\" operand is null."
 		else:
-			var to_report = operand_1.validate(operand_0.output_type)
+			var to_report = operand_1.validate(sw_script_data_types.BNUMBER)
 			if ("Passed." != to_report):
 				validation_report += "Effect \"to\" operand errors:\n" + to_report
 	if ("" == validation_report):

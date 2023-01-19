@@ -1,7 +1,7 @@
 extends Object
 class_name SWScriptElement
 
-enum sw_script_data_types {BOOLEAN, BNUMBER, VARIANT}
+enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
 
 #A script consists of a tree of operators and pointers.
 #"parent_operator" refers to the operator or script manager containing the present operator or pointer.
@@ -21,7 +21,7 @@ func remap(storyworld):
 	return true
 
 func get_value(leaf = null):
-	# Some operators, particularly EventPointers and BooleanOperators that contain EventPointers, need access to the historybook.
+	# Some operators, particularly EventPointers and BooleanComparators that contain EventPointers, need access to the historybook.
 	# The "leaf" variable grants EventPointers this access.
 	return null
 
@@ -35,6 +35,8 @@ func stringify_output_type():
 		return "boolean" #Javascript datatype
 	elif (sw_script_data_types.BNUMBER == output_type):
 		return "number" #Javascript datatype
+	elif (sw_script_data_types.STRING == output_type):
+		return "string" #Javascript datatype
 	elif (sw_script_data_types.VARIANT == output_type):
 		return "variant"
 	else:

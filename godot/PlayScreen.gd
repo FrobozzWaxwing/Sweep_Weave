@@ -28,9 +28,6 @@ func refresh_historybook():
 		index += 1
 
 func refresh_castbook(next_page = null):
-	var current_antagonist = null
-	if (null != page_to_display.get_metadata(0).encounter):
-		current_antagonist = page_to_display.get_metadata(0).encounter.antagonist
 	$Layout/L2/VBC/Scroll_Cast/Castbook.clear()
 	var root = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item()
 	$Layout/L2/VBC/Scroll_Cast/Castbook.set_hide_root(true)
@@ -39,10 +36,7 @@ func refresh_castbook(next_page = null):
 		if (character.is_queued_for_deletion()):
 			continue
 		var listing = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item(root)
-		if (null != current_antagonist and character == current_antagonist):
-			listing.set_text(0, character.char_name + " (Antagonist)")
-		else:
-			listing.set_text(0, character.char_name)
+		listing.set_text(0, character.char_name)
 		#The method_actor character is used to look up bounded number properties in historybook entries.
 		var method_actor = Actor.new(rehearsal.storyworld, "Placeholder", "they / them")
 		if (null != next_page):
@@ -58,9 +52,6 @@ func refresh_castbook(next_page = null):
 				if (null != next_page):
 					if (character.get_bnumber_property(keyring) != method_actor.get_bnumber_property(keyring)):
 						text += " -> " + str(method_actor.get_bnumber_property(keyring))
-#					for change in next_page.get_metadata(0).relationship_values:
-#						if (character == change.character and bnumber_property == change.pValue and character.get_bnumber_property([bnumber_property]) != change.point):
-#							text += " -> " + str(change.point)
 				entry.set_text(0, text)
 			elif (0 < bnumber_property.depth):
 				var entry_text = bnumber_property.get_property_name() + ": "
@@ -109,11 +100,12 @@ func refresh_encountertitle():
 func refresh_maintext():
 	var text = ""
 	if (null != page_to_display.get_metadata(0).player_choice):
-		text += "> " + page_to_display.get_metadata(0).player_choice.text + "\n"
+		text += "> " + page_to_display.get_metadata(0).player_choice.get_text(page_to_display.get_parent()) + "\n"
 	if (null != page_to_display.get_metadata(0).antagonist_choice):
-		text += page_to_display.get_metadata(0).antagonist_choice.text + "\n"
+		text += page_to_display.get_metadata(0).antagonist_choice.get_text(page_to_display.get_parent()) + "\n"
 	if (null != page_to_display.get_metadata(0).encounter):
-		text += page_to_display.get_metadata(0).encounter.main_text
+		text += page_to_display.get_metadata(0).encounter.get_text(page_to_display)
+		print(page_to_display.get_metadata(0).encounter.text_script.data_to_string())
 	else:
 		text += "The End."
 	$Layout/L2/ColorRect/VBC/MainText.set_bbcode(text)
@@ -139,25 +131,15 @@ func refresh_optionslist():
 	for option in page_to_display.get_metadata(0).encounter.options:
 		var option_visible = option.visibility_script.get_value(page_to_display)
 		var option_open = option.performability_script.get_value(page_to_display)
-#		var option_visible = true
-#		var option_open = true
-#		for prerequisite in option.visibility_prerequisites:
-#			if (!rehearsal.evaluate_prerequisite(prerequisite, page_to_display)):
-#				option_visible = false
-#				break
-#		for prerequisite in option.performability_prerequisites:
-#			if (!rehearsal.evaluate_prerequisite(prerequisite, page_to_display)):
-#				option_open = false
-#				break
 		if (option_visible and option_open):
-			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.text)
+			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.get_text(page_to_display))
 			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.set_item_metadata(all_options_index, page_children[open_options_index])
 			open_options_index += 1
 		elif (option_visible):
-			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.text + " (Visible but closed off.)")
+			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.get_text(page_to_display) + " (Visible but closed off.)")
 			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.set_item_metadata(all_options_index, "(Visible but closed off.)")
 		else:
-			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.text + " (Invisible.)")
+			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.get_text(page_to_display) + " (Invisible.)")
 			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.set_item_metadata(all_options_index, "(Invisible.)")
 		all_options_index += 1
 
@@ -169,7 +151,6 @@ func refresh_reaction_inclinations(option):
 	else:
 		$Layout/L2/VBC/Scroll_Reactions.visible = true
 	var table = []
-	var character = option.encounter.antagonist
 	var index = 0
 	for reaction in option.reactions:
 		var entry = []
@@ -184,7 +165,7 @@ func refresh_reaction_inclinations(option):
 	for entry in table:
 		if (3 == entry.size()):
 			var reaction = entry[0]
-			var text = reaction.text.left(30) + " (Inc: " + str(entry[1]) + ")"
+			var text = reaction.get_text(page_to_display).left(30) + " (Inc: " + str(entry[1]) + ")"
 			var reaction_entry = $Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.create_item(root)
 			reaction_entry.set_text(0, text)
 			reaction_entry.set_metadata(0, reaction)
@@ -244,7 +225,7 @@ func _on_OptionsList_item_selected(index):
 	refresh_reaction_inclinations(option_page.get_metadata(0).player_choice)
 	var result_text = ""
 	if (null != option_page.get_metadata(0).antagonist_choice):
-		result_text += "Reaction: " + option_page.get_metadata(0).antagonist_choice.text.left(30) + " "
+		result_text += "Reaction: " + option_page.get_metadata(0).antagonist_choice.get_text(page_to_display).left(30) + " "
 	else:
 		result_text += "Reaction: Null "
 	if (null != option_page.get_metadata(0).encounter):

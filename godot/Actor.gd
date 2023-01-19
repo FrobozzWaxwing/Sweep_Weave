@@ -120,7 +120,6 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 #Layer 2:	Character.bnumber_properties["Property Name"]["Character ID"]["Character ID"] = Float
 #And so forth.
 
-#func add_property_to_bnumber_properties(property, default_value = 0, characters = storyworld.characters, personality_model = storyworld.personality_model):
 func add_property_to_bnumber_properties(property_blueprint, characters = storyworld.characters):
 	index_authored_property(property_blueprint)
 	if (0 == property_blueprint.depth):

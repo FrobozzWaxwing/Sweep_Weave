@@ -2,12 +2,37 @@ extends Control
 
 var storyworld = null
 var searchterm = ""
+var encounters_to_delete = []
+
+signal encounter_load_requested(encounter)
+signal refresh_graphview()
+signal refresh_encounter_list()
+
+#Utility functions:
+
+func log_update(encounter = null):
+	#If encounter == null, then the project as a whole is being updated, rather than a specific encounter, or an encounter has been added, deleted, or duplicated.
+	if (null != encounter):
+		encounter.log_update()
+	storyworld.log_update()
+	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	storyworld.project_saved = false
+
+func get_selected_encounters():
+	var selected_encounters = []
+	var row = $ColorRect/VBC/EncounterList.get_next_selected(null)
+	while (null != row):
+		var encounter = row.get_metadata(0)
+		if (encounter is Encounter):
+			selected_encounters.append(encounter)
+		row = $ColorRect/VBC/EncounterList.get_next_selected(row)
+	return selected_encounters
 
 # Encounter Title | Number of Options | Number of Reactions | Characters Involved | Associated Spools | Word Count | Creation Time | Modified Time
 
 func _ready():
-	if (0 < $ColorRect/VBC/SortBar/SortMenu.get_item_count()):
-		$ColorRect/VBC/SortBar/SortMenu.select(0)
+	if (0 < $ColorRect/VBC/HFlowContainer/SortBar/SortMenu.get_item_count()):
+		$ColorRect/VBC/HFlowContainer/SortBar/SortMenu.select(0)
 	$ColorRect/VBC/EncounterList.set_column_title(0, "Title")
 	$ColorRect/VBC/EncounterList.set_column_expand(0, true)
 	$ColorRect/VBC/EncounterList.set_column_min_width(0, 3)
@@ -17,10 +42,10 @@ func _ready():
 	$ColorRect/VBC/EncounterList.set_column_title(2, "Reactions")
 	$ColorRect/VBC/EncounterList.set_column_expand(2, true)
 	$ColorRect/VBC/EncounterList.set_column_min_width(2, 1)
-	$ColorRect/VBC/EncounterList.set_column_title(3, "Characters Involved")
+	$ColorRect/VBC/EncounterList.set_column_title(3, "Characters")
 	$ColorRect/VBC/EncounterList.set_column_expand(3, true)
 	$ColorRect/VBC/EncounterList.set_column_min_width(3, 3)
-	$ColorRect/VBC/EncounterList.set_column_title(4, "Associated Spools")
+	$ColorRect/VBC/EncounterList.set_column_title(4, "Spools")
 	$ColorRect/VBC/EncounterList.set_column_expand(4, true)
 	$ColorRect/VBC/EncounterList.set_column_min_width(4, 3)
 	$ColorRect/VBC/EncounterList.set_column_title(5, "Word Count")
@@ -28,6 +53,8 @@ func _ready():
 	$ColorRect/VBC/EncounterList.set_column_min_width(5, 1)
 	#$ColorRect/VBC/EncounterList.set_column_title(6, "Creation Time")
 	#$ColorRect/VBC/EncounterList.set_column_title(7, "Modified Time")
+	$ConfirmEncounterDeletion.get_ok().text = "Yes"
+	$ConfirmEncounterDeletion.get_cancel().text = "No"
 
 onready var table_of_encounters = get_node("ColorRect/VBC/EncounterList")
 
@@ -83,7 +110,7 @@ func refresh():
 			entry.set_text(5, str(encounter.wordcount()))
 
 func _on_SortMenu_item_selected(index):
-	var sort_method = $ColorRect/VBC/SortBar/SortMenu.get_popup().get_item_text(index)
+	var sort_method = $ColorRect/VBC/HFlowContainer/SortBar/SortMenu.get_popup().get_item_text(index)
 	storyworld.sort_encounters(sort_method)
 	refresh()
 	#if ("Word Count" == sort_method || "Rev. Word Count" == sort_method):
@@ -95,3 +122,58 @@ func _on_LineEdit_text_entered(new_text):
 	searchterm = new_text
 	print("Searching events for \"" + new_text + "\"")
 	refresh()
+
+func _on_EncounterList_item_activated():
+	var encounter = table_of_encounters.get_selected().get_metadata(0)
+	if (encounter is Encounter):
+		emit_signal("encounter_load_requested", encounter)
+
+func _on_AddEncounterButton_pressed():
+	var new_encounter = storyworld.create_new_generic_encounter()
+	storyworld.add_encounter(new_encounter)
+	log_update(new_encounter)
+	refresh()
+	emit_signal("refresh_graphview")
+	emit_signal("refresh_encounter_list")
+	emit_signal("encounter_load_requested", new_encounter)
+
+func _on_DeleteEncounterButton_pressed():
+	encounters_to_delete.clear()
+	encounters_to_delete = get_selected_encounters()
+	if (!encounters_to_delete.empty()):
+		var dialog_text = ""
+		if (1 == encounters_to_delete.size()):
+			dialog_text = "Are you sure you wish to delete the following encounter?"
+		else:
+			dialog_text = "Are you sure you wish to delete the following encounters?"
+		$ConfirmEncounterDeletion/EncountersToDelete.clear()
+		for each in encounters_to_delete:
+			$ConfirmEncounterDeletion/EncountersToDelete.add_item(each.title)
+		$ConfirmEncounterDeletion.dialog_text = dialog_text
+		$ConfirmEncounterDeletion.popup()
+
+func _on_ConfirmEncounterDeletion_confirmed():
+	for each in encounters_to_delete:
+		storyworld.delete_encounter(each)
+	log_update(null)
+	refresh()
+	emit_signal("refresh_graphview")
+	emit_signal("refresh_encounter_list")
+	emit_signal("encounter_load_requested", null) #Clear encounter editing screen.
+
+func _on_EditEncounterButton_pressed():
+	var selected_encounters = get_selected_encounters()
+	if (!selected_encounters.empty()):
+		emit_signal("encounter_load_requested", selected_encounters.front())
+
+func _on_DuplicateEncounterButton_pressed():
+	var selected_encounters = get_selected_encounters()
+	if (!selected_encounters.empty()):
+		var encounter_to_load = null
+		for encounter in selected_encounters:
+			encounter_to_load = storyworld.duplicate_encounter(encounter)
+		log_update(null)
+		refresh()
+		emit_signal("refresh_graphview")
+		emit_signal("refresh_encounter_list")
+		emit_signal("encounter_load_requested", encounter_to_load)

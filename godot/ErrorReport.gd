@@ -3,8 +3,8 @@ class_name ErrorReport
 
 var reported_object = null
 var reported_script = null
-#enum sw_script_data_types {BOOLEAN, BNUMBER, VARIANT}
-enum report_types {ACCEPTABILITY, DESIRABILITY, VISIBILITY, PERFORMABILITY, EFFECT}
+#enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
+enum report_types {TEXT, ACCEPTABILITY, DESIRABILITY, VISIBILITY, PERFORMABILITY, EFFECT}
 var script_type = null
 var error_summary = ""
 var error_details = ""

@@ -2,9 +2,6 @@ extends Object
 class_name EncounterSorter
 
 static func sort_a_z(a, b):
-#	if a.title < b.title:
-#		return true
-#	return false
 	if (a.title < b.title):
 		return true
 	elif (a.title == b.title && a.id < b.id):
@@ -12,6 +9,8 @@ static func sort_a_z(a, b):
 	return false
 static func sort_z_a(a, b):
 	if a.title > b.title:
+		return true
+	elif (a.title == b.title && a.id > b.id):
 		return true
 	return false
 static func sort_created(a, b):
@@ -50,14 +49,6 @@ static func sort_l_turn(a, b):
 	return false
 static func sort_r_l_turn(a, b):
 	if a.latest_turn > b.latest_turn:
-		return true
-	return false
-static func sort_antagonist(a, b):
-	if a.antagonist.char_name < b.antagonist.char_name:
-		return true
-	return false
-static func sort_r_antagonist(a, b):
-	if a.antagonist.char_name > b.antagonist.char_name:
 		return true
 	return false
 static func sort_options(a, b):

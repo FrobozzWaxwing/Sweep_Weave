@@ -81,12 +81,12 @@ func data_to_string(cutoff = 20):
 		if (null == player_choice):
 			result += "null"
 		else:
-			result += player_choice.text.left(cutoff)
+			result += player_choice.get_text(tree_node).left(cutoff)
 		result += " R: "
 		if (null == antagonist_choice):
 			result += "null"
 		else:
-			result += antagonist_choice.text.left(cutoff)
+			result += antagonist_choice.get_text(tree_node).left(cutoff)
 	result += " E: "
 	if (null == encounter):
 		result += "null"

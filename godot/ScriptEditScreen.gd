@@ -31,8 +31,12 @@ func recursively_add_to_script_display(root_display_branch, operator_to_add):
 		new_branch.set_text(0, "List")
 		for each in operator_to_add:
 			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is ArithmeticAbsoluteValueOperator):
+	elif (operator_to_add is AbsoluteValueOperator):
 		new_branch.set_text(0, "Absolute Value of")
+		for each in operator_to_add.operands:
+			recursively_add_to_script_display(new_branch, each)
+	elif (operator_to_add is ArithmeticComparator):
+		new_branch.set_text(0, operator_to_add.operator_subtype_to_longstring())
 		for each in operator_to_add.operands:
 			recursively_add_to_script_display(new_branch, each)
 	elif (operator_to_add is ArithmeticMeanOperator):
@@ -46,14 +50,17 @@ func recursively_add_to_script_display(root_display_branch, operator_to_add):
 	elif (operator_to_add is BlendOperator):
 		new_branch.set_text(0, "Blend of")
 		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
+			var operand_branch = recursively_add_to_script_display(new_branch, each)
+			if (2 == each.script_index):
+				var text = "(Weight) " + operand_branch.get_text(0)
+				operand_branch.set_text(0, text)
 	elif (operator_to_add is BNumberConstant):
 		new_branch.set_text(0, operator_to_add.data_to_string())
 	elif (operator_to_add is BNumberPointer):
 		new_branch.set_text(0, operator_to_add.data_to_string())
 	elif (operator_to_add is BooleanConstant):
 		new_branch.set_text(0, operator_to_add.data_to_string())
-	elif (operator_to_add is BooleanOperator):
+	elif (operator_to_add is BooleanComparator):
 		new_branch.set_text(0, operator_to_add.operator_subtype_to_string())
 		for each in operator_to_add.operands:
 			recursively_add_to_script_display(new_branch, each)
@@ -70,9 +77,43 @@ func recursively_add_to_script_display(root_display_branch, operator_to_add):
 	elif (operator_to_add is NudgeOperator):
 		new_branch.set_text(0, "Nudge")
 		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
+			var operand_branch = recursively_add_to_script_display(new_branch, each)
+			if (1 == each.script_index):
+				var text = "(Weight) " + operand_branch.get_text(0)
+				operand_branch.set_text(0, text)
 	elif (operator_to_add is SpoolStatusPointer):
 		new_branch.set_text(0, operator_to_add.data_to_string())
+	elif (operator_to_add is SWEqualsOperator):
+		new_branch.set_text(0, "Equals")
+		for each in operator_to_add.operands:
+			recursively_add_to_script_display(new_branch, each)
+	elif (operator_to_add is SWIfOperator):
+		new_branch.set_text(0, "If Then")
+		for n in range(operator_to_add.operands.size()):
+			var operand = operator_to_add.operands[n]
+			var operand_branch = recursively_add_to_script_display(new_branch, operand)
+			var text = ""
+			if (0 == n):
+				text = "(If) " + operand_branch.get_text(0)
+			elif (1 == n % 2):
+				text = "(Then) " + operand_branch.get_text(0)
+			elif (0 == n % 2 and n != (operator_to_add.operands.size()-1)):
+				text = "(Else If) " + operand_branch.get_text(0)
+			else:
+				text = "(Else) " + operand_branch.get_text(0)
+			operand_branch.set_text(0, text)
+	elif (operator_to_add is SWMaxOperator):
+		new_branch.set_text(0, "Maximum of")
+		for each in operator_to_add.operands:
+			recursively_add_to_script_display(new_branch, each)
+	elif (operator_to_add is SWMinOperator):
+		new_branch.set_text(0, "Minimum of")
+		for each in operator_to_add.operands:
+			recursively_add_to_script_display(new_branch, each)
+	elif (operator_to_add is SWNotOperator):
+		new_branch.set_text(0, "Not")
+		for each in operator_to_add.operands:
+			recursively_add_to_script_display(new_branch, each)
 	return new_branch
 
 func refresh_script_display():
@@ -86,64 +127,56 @@ func refresh_script_display():
 	else:
 		load_operator(null)
 
+func add_option_to_toolbox(text, hint):
+	var index = $Background/VBC/HBC/AvailableOperatorList.get_item_count()
+	$Background/VBC/HBC/AvailableOperatorList.add_item(text)
+	$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(index, hint)
+
 func refresh_operator_options_display(operator):
 	#This fills the options of the side panel of the script editing window.
 	$Background/VBC/HBC/AvailableOperatorList.clear()
 	if (null == operator):
 		return
-	if (TYPE_BOOL == typeof(operator) or (operator is SWScriptElement and operator.sw_script_data_types.BOOLEAN == operator.output_type)):
-		$Background/VBC/HBC/AvailableOperatorList.add_item("True")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(0, "Boolean constant: true.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("False")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(1, "Boolean constant: false.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Event")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(2, "Has an encounter, option, and / or reaction occurred during the playthrough?")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Spool Status")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(3, "Is a spool currently active?")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Not")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(4, "Logical inverse of operand.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("And")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(5, "Produces true if all operands are true.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Or")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(6, "Produces true if at least one operand is true.")
-#		$Background/VBC/HBC/AvailableOperatorList.add_item("If Then")
-#		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(7, "If a condition is true, then return some result. Otherwise, return a different result.")
-#		$Background/VBC/HBC/AvailableOperatorList.add_item("XOr")
-#		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(6, "\"Exclusive or\" of two operands. Produces true if, and only if, one operand is true and the other is false.")
-#		$Background/VBC/HBC/AvailableOperatorList.add_item("Equals")
-#		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(7, "Produces true if all operands are equal, and false otherwise.")
-	elif (TYPE_INT == typeof(operator) or TYPE_REAL == typeof(operator) or (operator is SWScriptElement and operator.sw_script_data_types.BNUMBER == operator.output_type)):
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Constant")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(0, "A number above -1 and below 1, specified by the author.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("BNumber Property")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(1, "A bounded number property associated with a specified character. Useful for tracking character traits and relationships between characters.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Absolute Value")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(2, "The absolute value of the operand.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Arithmetic Mean")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(3, "The arithmetic mean, or average, of all operands.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Arithmetic Negation")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(4, "The product of the operand and -1.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Blend")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(5, "The weighted, arithmetic mean of two operands.")
-#		$Background/VBC/HBC/AvailableOperatorList.add_item("Bounded Sum")
-#		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(4, "Converts each operand to a normal number, adds them all together, and converts the result back to a bounded number.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Proximity to")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(6, "Returns a bounded number that is higher when the two operands are closer to equality and lower when the two operands are farther apart.")
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Nudge")
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(7, "Returns x when delta equals 0, blends x with 1 when delta is greater than 0, and blends x with -1 when delta is less than 0.")
-	if (TYPE_ARRAY == typeof(operator)
-		or (operator is SWOperator and operator.can_add_operands)):
-		#Operator can handle a varying number of operands. Each will need at least one operand to work as intended.
-		$Background/VBC/HBC/AvailableOperatorList.add_item("Add new operand")
-		var index = $Background/VBC/HBC/AvailableOperatorList.get_item_count() - 1
-		$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(index, "Add a new operand to the selected operator.")
 	if (operator is SWScriptElement):
-		if ((operator.parent_operator is ScriptManager and TYPE_ARRAY == typeof(operator.parent_operator.contents))
-			or (operator.parent_operator is SWOperator and operator.parent_operator.can_add_operands and 2 <= operator.parent_operator.operands.size())):
+		if (operator.sw_script_data_types.BOOLEAN == operator.output_type):
+			add_option_to_toolbox("True", "Boolean constant: true.")
+			add_option_to_toolbox("False", "Boolean constant: false.")
+			add_option_to_toolbox("Event", "Has an encounter, option, and / or reaction occurred during the playthrough?")
+			add_option_to_toolbox("Spool Status", "Is a spool currently active?")
+			add_option_to_toolbox("Not", "Logical negation of operand.")
+			add_option_to_toolbox("And", "Produces true if all operands are true.")
+			add_option_to_toolbox("Or", "Produces true if at least one operand is true.")
+#			add_option_to_toolbox("XOr", "\"Exclusive or\" of two operands. Produces true if, and only if, one operand is true and the other is false.")
+			add_option_to_toolbox("Equals (Boolean)", "Produces true if all operands are equal in value. Takes Boolean values as inputs.")
+			add_option_to_toolbox("Equals (BNumber)", "Produces true if all operands are equal in value. Takes bounded numbers as inputs.")
+			add_option_to_toolbox("Greater than", "Produces true if first operand is greater than second operand.")
+			add_option_to_toolbox("Greater than or Equal to", "Produces true if first operand is greater than or equal to second operand.")
+			add_option_to_toolbox("Less than", "Produces true if first operand is less than second operand.")
+			add_option_to_toolbox("Less than or Equal to", "Produces true if first operand is less than or equal to second operand.")
+		elif (operator.sw_script_data_types.BNUMBER == operator.output_type):
+			add_option_to_toolbox("Constant", "A number above -1 and below 1, specified by the author.")
+			add_option_to_toolbox("BNumber Property", "A bounded number property associated with a specified character. Useful for tracking character traits and relationships between characters.")
+			add_option_to_toolbox("Absolute Value", "The absolute value of the operand.")
+			add_option_to_toolbox("Arithmetic Mean", "The arithmetic mean, or average, of all operands.")
+			add_option_to_toolbox("Arithmetic Negation", "The product of the operand and -1.")
+			add_option_to_toolbox("Blend", "The weighted, arithmetic mean of two operands.")
+#			add_option_to_toolbox("Bounded Sum", "Converts each operand to a normal number, adds them all together, and converts the result back to a bounded number.")
+			add_option_to_toolbox("Proximity to", "Returns a bounded number that is higher when the two operands are closer to equality and lower when the two operands are farther apart.")
+			add_option_to_toolbox("Maximum", "Returns the highest value of all operands.")
+			add_option_to_toolbox("Minimum", "Returns the lowest value of all operands.")
+			add_option_to_toolbox("Nudge", "Returns x when delta equals 0, blends x with 1 when delta is greater than 0, and blends x with -1 when delta is less than 0.")
+		add_option_to_toolbox("If Then", "If a condition is true, then return some result. Otherwise, return a different result.")
+	if (operator is SWOperator and operator.can_add_operands):
+		#Operator can handle a varying number of operands. Each will need at least one operand to work as intended.
+		add_option_to_toolbox("Add new operand", "Add a new operand to the selected operator.")
+	if (operator is SWScriptElement):
+		if (operator.parent_operator is SWOperator and operator.parent_operator.can_add_operands and operator.parent_operator.minimum_number_of_operands < operator.parent_operator.operands.size()):
 			#Parent operator can handle a varying number of operands. Each will need at least one operand to work as intended.
-			$Background/VBC/HBC/AvailableOperatorList.add_item("Delete")
-			var index = $Background/VBC/HBC/AvailableOperatorList.get_item_count() - 1
-			$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(index, "Delete the selected operator and all nested operands from the script.")
+			if (operator.parent_operator is SWIfOperator):
+				if (operator.script_index != (operator.parent_operator.operands.size() -1)):
+					add_option_to_toolbox("Delete", "Delete the selected operator and all nested operands from the script.")
+			else:
+				add_option_to_toolbox("Delete", "Delete the selected operator and all nested operands from the script.")
 
 func load_operator(operator):
 	current_operator = operator
@@ -153,6 +186,24 @@ func load_operator(operator):
 		each.call_deferred("free")
 	if (null == operator):
 		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = false
+	elif (operator is ArithmeticComparator):
+		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
+		var operator_editing_interface = OptionButton.new()
+		operator_editing_interface.add_item("Greater than")
+		operator_editing_interface.add_item("Greater than or Equal to")
+		operator_editing_interface.add_item("Less than")
+		operator_editing_interface.add_item("Less than or Equal to")
+		operator_editing_interface.connect("item_selected", self, "on_operator_changed")
+		$Background/VBC/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
+		operator_editing_interface.select(operator.operator_subtype)
+	elif (operator is BooleanComparator):
+		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
+		var operator_editing_interface = OptionButton.new()
+		operator_editing_interface.add_item("And")
+		operator_editing_interface.add_item("Or")
+		operator_editing_interface.connect("item_selected", self, "on_operator_changed")
+		$Background/VBC/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
+		operator_editing_interface.select(operator.operator_subtype)
 	elif (operator is BNumberConstant):
 		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
 		var operator_editing_interface = bnumberconstant_editor_scene.instance()
@@ -212,7 +263,11 @@ func _on_ScriptDisplay_item_selected():
 	load_operator(operator)
 
 func on_operator_changed(new_operator):
-	if (current_operator is BNumberConstant and new_operator is BNumberConstant):
+	if (current_operator is ArithmeticComparator and TYPE_INT == typeof(new_operator)):
+		current_operator.operator_subtype = new_operator
+	elif (current_operator is BooleanComparator and TYPE_INT == typeof(new_operator)):
+		current_operator.operator_subtype = new_operator
+	elif (current_operator is BNumberConstant and new_operator is BNumberConstant):
 		current_operator.set_value(new_operator.get_value())
 	elif (current_operator is BNumberPointer and new_operator is BNumberPointer):
 		current_operator.set_as_copy_of(new_operator)
@@ -220,7 +275,31 @@ func on_operator_changed(new_operator):
 		current_operator.set_as_copy_of(new_operator)
 	var selected_display_element = $Background/VBC/HBC/VBC1/ScriptDisplay.get_selected()
 	if (null != selected_display_element and selected_display_element is TreeItem):
-		selected_display_element.set_text(0, current_operator.data_to_string())
+		if (current_operator.parent_operator is SWIfOperator):
+			var text = current_operator.data_to_string()
+			if (0 == current_operator.script_index):
+				text = "(If) " + text
+			elif (1 == current_operator.script_index % 2):
+				text = "(Then) " + text
+			elif (0 == current_operator.script_index % 2 and current_operator.script_index != (current_operator.parent_operator.operands.size()-1)):
+				text = "(Else If) " + text
+			else:
+				text = "(Else) " + text
+			selected_display_element.set_text(0, text)
+		elif (current_operator.parent_operator is BlendOperator):
+			if (2 == current_operator.script_index):
+				var text = "(Weight) " + current_operator.data_to_string()
+				selected_display_element.set_text(0, text)
+			else:
+				selected_display_element.set_text(0, current_operator.data_to_string())
+		elif (current_operator.parent_operator is NudgeOperator):
+			if (1 == current_operator.script_index):
+				var text = "(Weight) " + current_operator.data_to_string()
+				selected_display_element.set_text(0, text)
+			else:
+				selected_display_element.set_text(0, current_operator.data_to_string())
+		else:
+			selected_display_element.set_text(0, current_operator.data_to_string())
 	emit_signal("sw_script_changed", script_to_edit)
 
 func _on_AvailableOperatorList_item_activated(index):
@@ -248,43 +327,72 @@ func _on_AvailableOperatorList_item_activated(index):
 				replace_element(current_operator, new_element)
 				change_made = true
 		"Not":
-			var new_operands = []
-			new_operands.append(BooleanConstant.new(true))
-			new_element = BooleanOperator.new("NOT", new_operands)
+			new_element = SWNotOperator.new(BooleanConstant.new(true))
 			replace_element(current_operator, new_element)
 			change_made = true
 		"And":
 			var new_operands = []
 			new_operands.append(BooleanConstant.new(true))
 			new_operands.append(BooleanConstant.new(true))
-			new_element = BooleanOperator.new("AND", new_operands)
+			new_element = BooleanComparator.new("AND", new_operands)
 			replace_element(current_operator, new_element)
 			change_made = true
 		"Or":
 			var new_operands = []
 			new_operands.append(BooleanConstant.new(true))
 			new_operands.append(BooleanConstant.new(true))
-			new_element = BooleanOperator.new("OR", new_operands)
+			new_element = BooleanComparator.new("OR", new_operands)
 			replace_element(current_operator, new_element)
 			change_made = true
 		"XOr":
 			var new_operands = []
 			new_operands.append(BooleanConstant.new(true))
 			new_operands.append(BooleanConstant.new(true))
-			new_element = BooleanOperator.new("XOR", new_operands)
+			new_element = BooleanComparator.new("XOR", new_operands)
 			replace_element(current_operator, new_element)
 			change_made = true
-		"Equals":
+		"Equals (Boolean)":
 			var new_operands = []
 			new_operands.append(BooleanConstant.new(true))
 			new_operands.append(BooleanConstant.new(true))
-			new_element = BooleanOperator.new("EQUALS", new_operands)
+			new_element = SWEqualsOperator.new(new_operands)
+			replace_element(current_operator, new_element)
+			change_made = true
+		"Equals (BNumber)":
+			var new_operands = []
+			new_operands.append(BNumberConstant.new(0))
+			new_operands.append(BNumberConstant.new(0))
+			new_element = SWEqualsOperator.new(new_operands)
+			replace_element(current_operator, new_element)
+			change_made = true
+		"Greater than":
+			new_element = ArithmeticComparator.new("GT", BNumberConstant.new(0), BNumberConstant.new(0))
+			replace_element(current_operator, new_element)
+			change_made = true
+		"Greater than or Equal to":
+			new_element = ArithmeticComparator.new("GTE", BNumberConstant.new(0), BNumberConstant.new(0))
+			replace_element(current_operator, new_element)
+			change_made = true
+		"Less than":
+			new_element = ArithmeticComparator.new("LT", BNumberConstant.new(0), BNumberConstant.new(0))
+			replace_element(current_operator, new_element)
+			change_made = true
+		"Less than or Equal to":
+			new_element = ArithmeticComparator.new("LTE", BNumberConstant.new(0), BNumberConstant.new(0))
 			replace_element(current_operator, new_element)
 			change_made = true
 		"If Then":
-			new_element = SWIfOperator.new(BooleanConstant.new(true), BNumberConstant.new(0), BNumberConstant.new(0))
-			replace_element(current_operator, new_element)
-			change_made = true
+			if (current_operator is SWScriptElement):
+				if (current_operator.sw_script_data_types.BOOLEAN == current_operator.output_type):
+					new_element = SWIfOperator.new(BooleanConstant.new(true), BooleanConstant.new(true), BooleanConstant.new(false))
+					new_element.output_type = current_operator.output_type
+					replace_element(current_operator, new_element)
+					change_made = true
+				elif (current_operator.sw_script_data_types.BNUMBER == current_operator.output_type):
+					new_element = SWIfOperator.new(BooleanConstant.new(true), BNumberConstant.new(0), BNumberConstant.new(0))
+					new_element.output_type = current_operator.output_type
+					replace_element(current_operator, new_element)
+					change_made = true
 		#Bounded number operators and pointers:
 		"Constant":
 			new_element = BNumberConstant.new(0)
@@ -296,11 +404,12 @@ func _on_AvailableOperatorList_item_activated(index):
 			change_made = true
 		"Absolute Value":
 			var new_operand = BNumberConstant.new(0)
-			new_element = ArithmeticAbsoluteValueOperator.new(new_operand)
+			new_element = AbsoluteValueOperator.new(new_operand)
 			replace_element(current_operator, new_element)
 			change_made = true
 		"Arithmetic Mean":
 			var new_operands = []
+			new_operands.append(BNumberConstant.new(0))
 			new_operands.append(BNumberConstant.new(0))
 			new_element = ArithmeticMeanOperator.new(new_operands)
 			replace_element(current_operator, new_element)
@@ -318,6 +427,20 @@ func _on_AvailableOperatorList_item_activated(index):
 			new_element = Desideratum.new(storyworld.create_default_bnumber_pointer(), BNumberConstant.new(0))
 			replace_element(current_operator, new_element)
 			change_made = true
+		"Maximum":
+			var new_operands = []
+			new_operands.append(BNumberConstant.new(0))
+			new_operands.append(BNumberConstant.new(0))
+			new_element = SWMaxOperator.new(new_operands)
+			replace_element(current_operator, new_element)
+			change_made = true
+		"Minimum":
+			var new_operands = []
+			new_operands.append(BNumberConstant.new(0))
+			new_operands.append(BNumberConstant.new(0))
+			new_element = SWMinOperator.new(new_operands)
+			replace_element(current_operator, new_element)
+			change_made = true
 		"Nudge":
 			new_element = NudgeOperator.new(storyworld.create_default_bnumber_pointer(), BNumberConstant.new(0))
 			replace_element(current_operator, new_element)
@@ -325,7 +448,19 @@ func _on_AvailableOperatorList_item_activated(index):
 		#Add and delete
 		"Add new operand":
 			if (current_operator is SWOperator and current_operator.can_add_operands):
-				if (current_operator.sw_script_data_types.BOOLEAN == current_operator.input_type):
+				if (current_operator is SWIfOperator):
+					#If the selected operator is an if-then statement, then add a new conditional.
+					if (current_operator.sw_script_data_types.BOOLEAN == current_operator.output_type):
+						new_element = BooleanConstant.new(true)
+						var conditional_result = BooleanConstant.new(true)
+						current_operator.add_conditional(new_element, conditional_result)
+						change_made = true
+					elif (current_operator.sw_script_data_types.BNUMBER == current_operator.output_type):
+						new_element = BooleanConstant.new(true)
+						var conditional_result = BNumberConstant.new(0)
+						current_operator.add_conditional(new_element, conditional_result)
+						change_made = true
+				elif (current_operator.sw_script_data_types.BOOLEAN == current_operator.input_type):
 					new_element = BooleanConstant.new(true)
 					current_operator.add_operand(new_element)
 					change_made = true
@@ -335,14 +470,15 @@ func _on_AvailableOperatorList_item_activated(index):
 					change_made = true
 		"Delete":
 			if (current_operator is SWScriptElement):
-				if ((current_operator.parent_operator is ScriptManager and TYPE_ARRAY == typeof(current_operator.parent_operator.contents))
-					or (current_operator.parent_operator is SWOperator and current_operator.parent_operator.can_add_operands and 2 <= current_operator.parent_operator.operands.size())):
-					print ("Delete")
-					new_element = current_operator.parent_operator
-					current_operator.parent_operator.operands.erase(current_operator)
-					current_operator.clear()
-					current_operator.call_deferred("free")
-					change_made = true
+				if (current_operator.parent_operator is SWOperator and current_operator.parent_operator.can_add_operands and current_operator.parent_operator.minimum_number_of_operands < current_operator.parent_operator.operands.size()):
+					if (current_operator.parent_operator is SWIfOperator):
+						new_element = current_operator.parent_operator
+						new_element.remove_conditional(current_operator.script_index)
+						change_made = true
+					else:
+						new_element = current_operator.parent_operator
+						new_element.erase_operand(current_operator)
+						change_made = true
 	if (change_made):
 		refresh_script_display()
 		load_operator(new_element)

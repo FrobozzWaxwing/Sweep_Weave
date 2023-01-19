@@ -1,73 +1,17 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://custom_resources/rotate-cw.svg" type="Texture" id=1]
 [ext_resource path="res://StatisticsScreen.gd" type="Script" id=2]
 
 [node name="VBC" type="VBoxContainer"]
 margin_right = 40.0
 margin_bottom = 40.0
 script = ExtResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="RefreshStats" type="Button" parent="."]
-margin_right = 148.0
-margin_bottom = 30.0
-text = "Refresh Statistics"
-icon = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="StatEncounters" type="Label" parent="."]
-margin_top = 34.0
-margin_right = 148.0
-margin_bottom = 48.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="StatOptions" type="Label" parent="."]
-margin_top = 52.0
-margin_right = 148.0
-margin_bottom = 66.0
-
-[node name="StatReactions" type="Label" parent="."]
-margin_top = 70.0
-margin_right = 148.0
-margin_bottom = 84.0
-
-[node name="StatCharacters" type="Label" parent="."]
-margin_top = 88.0
-margin_right = 148.0
-margin_bottom = 102.0
-
-[node name="StatWords" type="Label" parent="."]
-margin_top = 106.0
-margin_right = 148.0
-margin_bottom = 120.0
-
-[node name="StatEarliestTurn" type="Label" parent="."]
-margin_top = 124.0
-margin_right = 148.0
-margin_bottom = 138.0
-
-[node name="StatLatestTurn" type="Label" parent="."]
-margin_top = 142.0
-margin_right = 148.0
-margin_bottom = 156.0
-
-[node name="Test_Rehearsal_Button" type="CheckButton" parent="."]
-visible = false
-margin_right = 12.0
-margin_bottom = 20.0
-text = "Automatic Rehearsal"
-
-[node name="Occurrences" type="Tree" parent="."]
-visible = false
+[node name="StatTree" type="Tree" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
-rect_min_size = Vector2( 128, 256 )
-
-[connection signal="pressed" from="RefreshStats" to="." method="_on_RefreshStats_pressed"]
+rect_min_size = Vector2( 0, 32 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 2
+hide_root = true

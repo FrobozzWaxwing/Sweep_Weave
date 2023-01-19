@@ -128,7 +128,7 @@ func validate(intended_script_output_datatype):
 	elif (null != character and character is Actor and is_instance_valid(character)):
 		if (!character.bnumber_properties.has(keyring[0])):
 			report += "\n" + "Character does not possess the property that this pointer refers to."
-		elif (get_value(null)):
+		elif (null == get_value(null)):
 			report += "\n" + "Value is null."
 	if ("" == report):
 		return "Passed."

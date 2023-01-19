@@ -2,7 +2,8 @@ extends Object
 class_name Option
 
 var encounter = null #The encounter this option is associatied with.
-var text = ""
+var id = ""
+var text_script = null
 var visibility_script = null
 var performability_script = null
 var reactions = []
@@ -10,9 +11,10 @@ var reactions = []
 var graph_offset = Vector2(0, 0)
 var occurrences = 0 #Number of times this option occurs during a rehearsal.
 
-func _init(in_encounter, in_text, in_graph_offset = Vector2(0, 0)):
+func _init(in_encounter, in_id, in_text, in_graph_offset = Vector2(0, 0)):
 	encounter = in_encounter
-	text = in_text
+	id = in_id
+	text_script = ScriptManager.new(StringConstant.new(in_text))
 	var default = BooleanConstant.new(true)
 	visibility_script = ScriptManager.new(default)
 	default = BooleanConstant.new(true)
@@ -24,17 +26,26 @@ func get_index():
 		return encounter.options.find(self)
 	return -1
 
+func get_text(leaf = null):
+	if (text_script is ScriptManager):
+		if (text_script.sw_script_data_types.STRING == text_script.output_type):
+			return text_script.get_value(leaf)
+	return ""
+
+func set_text(new_text):
+	if (text_script is ScriptManager):
+		if (text_script.contents is StringConstant):
+			text_script.contents.set_value(new_text)
+
 func get_truncated_text(maximum_output_length = 20):
+	var text = get_text()
 	if (maximum_output_length >= text.length()):
 		return text
 	else:
 		return text.left(maximum_output_length - 3) + "..."
 
-func get_antagonist():
-	return encounter.antagonist
-
 func has_search_text(searchterm):
-	if (searchterm in text):
+	if (text_script.has_search_text(searchterm)):
 		return true
 	else:
 		for reaction in reactions:
@@ -44,7 +55,8 @@ func has_search_text(searchterm):
 
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var result = {}
-	result["text"] = text
+	result["id"] = id
+	result["text_script"] = text_script.compile(parent_storyworld, include_editor_only_variables)
 	result["visibility_script"] = null
 	if (null != visibility_script and visibility_script is ScriptManager):
 		result["visibility_script"] = visibility_script.compile(parent_storyworld, include_editor_only_variables)
@@ -62,7 +74,7 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 
 func clear():
 	encounter = null
-	text = ""
+	text_script.clear()
 	graph_offset = Vector2(0, 0)
 	visibility_script.clear()
 	visibility_script.call_deferred("free")
@@ -74,9 +86,11 @@ func clear():
 		reaction.clear()
 		reaction.call_deferred("free")
 
-func set_as_copy_of(original):
+func set_as_copy_of(original, copy_id = true):
 	encounter = original.encounter
-	text = original.text
+	if (copy_id):
+		id = original.id
+	text_script.set_as_copy_of(original.text_script)
 	graph_offset = original.graph_offset
 	if (null == visibility_script):
 		visibility_script = ScriptManager.new()
@@ -85,9 +99,16 @@ func set_as_copy_of(original):
 		performability_script = ScriptManager.new()
 	performability_script.set_as_copy_of(original.performability_script)
 	reactions = []
-	for each in original.reactions:
-		var new_desirability_script = ScriptManager.new(0)
-		var new_reaction = Reaction.new(null, "", new_desirability_script)
-		new_reaction.set_as_copy_of(each)
+	for reaction in original.reactions:
+		var new_desirability_script = ScriptManager.new()
+		var id = ""
+		if (copy_id):
+			id = reaction.id
+		elif (null != encounter and null != encounter.storyworld):
+			id = encounter.storyworld.unique_id("reaction", 32)
+		else:
+			id = "r" + UUID.v4()
+		var new_reaction = Reaction.new(self, id, "", new_desirability_script)
+		new_reaction.set_as_copy_of(reaction, false)
 		new_reaction.option = self
 		reactions.append(new_reaction)

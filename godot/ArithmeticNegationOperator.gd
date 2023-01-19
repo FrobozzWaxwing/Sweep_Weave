@@ -6,6 +6,7 @@ func _init(in_operand = null):
 	input_type = sw_script_data_types.BNUMBER
 	output_type = sw_script_data_types.BNUMBER
 	can_add_operands = false
+	minimum_number_of_operands = 1
 	if (null != in_operand):
 		add_operand(in_operand)
 
