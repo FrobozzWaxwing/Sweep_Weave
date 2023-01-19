@@ -105,6 +105,8 @@ func _ready():
 	$CompileFileDialog.set_current_dir(OS.get_executable_path().get_base_dir())
 	$CompileFileDialog.set_current_file("story.html")
 	$CompileFileDialog.set_filters(PoolStringArray(["*.html ; HTML Files","*.htm ; HTM Files"]))
+	$About.get_ok().set_text("Read MIT License")
+	$About.get_cancel().set_text("Close")
 	new_storyworld()
 	$VBC/Menu.get_popup().connect("id_pressed", self, "_on_mainmenu_item_pressed")
 	$About/VBoxContainer/VersionMessage.text = "SweepWeave v." + sweepweave_version_number
@@ -322,3 +324,7 @@ func display_encounter(encounter):
 	$VBC/EditorTabs/Encounters/EncounterEditScreen.load_Encounter(encounter)
 	if (null != encounter):
 		$VBC/EditorTabs.set_current_tab(1)
+
+func _on_About_confirmed():
+	#Used to bring up MIT License message.
+	$MITLicenseDialog.popup()

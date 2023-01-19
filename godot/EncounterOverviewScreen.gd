@@ -53,8 +53,8 @@ func _ready():
 	$ColorRect/VBC/EncounterList.set_column_min_width(5, 1)
 	#$ColorRect/VBC/EncounterList.set_column_title(6, "Creation Time")
 	#$ColorRect/VBC/EncounterList.set_column_title(7, "Modified Time")
-	$ConfirmEncounterDeletion.get_ok().text = "Yes"
-	$ConfirmEncounterDeletion.get_cancel().text = "No"
+	$ConfirmEncounterDeletion.get_ok().set_text("Yes")
+	$ConfirmEncounterDeletion.get_cancel().set_text("No")
 
 onready var table_of_encounters = get_node("ColorRect/VBC/EncounterList")
 
