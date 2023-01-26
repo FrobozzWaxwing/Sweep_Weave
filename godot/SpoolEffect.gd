@@ -2,92 +2,80 @@ extends SWEffect
 class_name SpoolEffect
 #An object used to activate and deactivate spools.
 
-var spool = null
-var setter_script = null
 
 enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
 
-func _init(in_spool = null, in_setter_script = null):
+func _init(in_assignee = null, in_assignment_script = null):
 	effect_type = "Spool Effect"
-	if (in_spool is SpoolPointer):
-		spool = in_spool
-		spool.parent_operator = self
-	if (in_setter_script is ScriptManager):
-		setter_script = in_setter_script
+	if (in_assignee is SpoolPointer):
+		assignee = in_assignee
+		assignee.parent_operator = self
+	if (in_assignment_script is ScriptManager):
+		assignment_script = in_assignment_script
 
 func enact(leaf = null):
-	if (null != spool and spool is SpoolPointer and null != setter_script and setter_script is ScriptManager):
+	if (null != assignee and assignee is SpoolPointer and null != assignment_script and assignment_script is ScriptManager):
 		var activate_spool = null
-		activate_spool = setter_script.get_value(leaf)
+		activate_spool = assignment_script.get_value(leaf, false)
 		if (null != activate_spool):
 			if (true == activate_spool):
 				print("test")
-				spool.activate()
+				assignee.activate()
 			else:
-				spool.deactivate()
+				assignee.deactivate()
 			return true
 	return false #An error occurred.
 
 func set_as_copy_of(original):
 	var success = true
-	if (spool is SpoolPointer and original.spool is SpoolPointer):
-		spool.set_as_copy_of(original.spool)
-	elif (null == spool and original.spool is SpoolPointer):
-		spool = SpoolPointer.new()
-		spool.set_as_copy_of(original.spool)
+	if (assignee is SpoolPointer and original.assignee is SpoolPointer):
+		assignee.set_as_copy_of(original.assignee)
+	elif (null == assignee and original.assignee is SpoolPointer):
+		assignee = SpoolPointer.new()
+		assignee.set_as_copy_of(original.assignee)
 	else:
 		success = false
-	if (setter_script is ScriptManager and original.setter_script is ScriptManager):
-		setter_script.set_as_copy_of(original.setter_script)
-	elif (null == setter_script and original.setter_script is ScriptManager):
-		setter_script = ScriptManager.new()
-		setter_script.set_as_copy_of(original.setter_script)
+	if (assignment_script is ScriptManager and original.assignment_script is ScriptManager):
+		assignment_script.set_as_copy_of(original.assignment_script)
+	elif (null == assignment_script and original.assignment_script is ScriptManager):
+		assignment_script = ScriptManager.new()
+		assignment_script.set_as_copy_of(original.assignment_script)
 	else:
 		success = false
 	return success
 
 func remap(storyworld):
 	var result = true
-	if (spool is SWScriptElement):
-		var check = spool.remap(storyworld)
+	if (assignee is SWScriptElement):
+		var check = assignee.remap(storyworld)
 		result = (result and check)
-	if (setter_script is ScriptManager):
-		var check = setter_script.remap(storyworld)
+	if (assignment_script is ScriptManager):
+		var check = assignment_script.remap(storyworld)
 		result = (result and check)
 	return result
 
-func clear():
-	if (spool is SWScriptElement):
-		spool.clear()
-		spool.call_deferred("free")
-	spool = null
-	if (setter_script is ScriptManager):
-		setter_script.clear()
-		setter_script.call_deferred("free")
-	setter_script = null
-
 func data_to_string():
 	var result = "Set "
-	if (spool is SWScriptElement):
-		result += spool.data_to_string() + " is_active"
+	if (assignee is SWScriptElement):
+		result += assignee.data_to_string() + " is_active"
 	else:
 		result += "[invalid operand]"
 	result += " to "
-	if (setter_script is ScriptManager):
-		result += setter_script.data_to_string()
+	if (assignment_script is ScriptManager):
+		result += assignment_script.data_to_string()
 	else:
 		result += "[invalid script]"
 	result += "."
 	return result
 
 func compile(parent_storyworld, include_editor_only_variables = false):
-	if (!(spool is SpoolPointer and setter_script is ScriptManager)):
+	if (!(assignee is SpoolPointer and assignment_script is ScriptManager)):
 		print ("Error, attempted to compile invalid Setter.")
 		return null
 	var output = {}
 	output["effect_type"] = effect_type
-	output["Set"] = spool.compile(parent_storyworld, include_editor_only_variables)
-	output["to"] = setter_script.compile(parent_storyworld, include_editor_only_variables)
+	output["Set"] = assignee.compile(parent_storyworld, include_editor_only_variables)
+	output["to"] = assignment_script.compile(parent_storyworld, include_editor_only_variables)
 	return output
 
 func load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load):
@@ -96,33 +84,33 @@ func load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load):
 		if (TYPE_STRING == typeof(data_to_load["Set"]) and storyworld.spool_directory.has(data_to_load["Set"])):
 			var script_element = SpoolPointer.new(storyworld.spool_directory[data_to_load["Set"]])
 			script_element.parent_operator = self
-			spool = script_element
+			assignee = script_element
 		var script = ScriptManager.new()
 		var output_datatype = sw_script_data_types.VARIANT
-		if (null != spool and spool is SWPointer):
-			if (spool.output_type == sw_script_data_types.BNUMBER):
+		if (null != assignee and assignee is SWPointer):
+			if (assignee.output_type == sw_script_data_types.BNUMBER):
 				output_datatype = sw_script_data_types.BNUMBER
-			elif (spool.output_type == sw_script_data_types.BOOLEAN):
+			elif (assignee.output_type == sw_script_data_types.BOOLEAN):
 				output_datatype = sw_script_data_types.BOOLEAN
 		script.load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load["to"], output_datatype)
-		setter_script = script
-	if (null != spool and spool is SpoolPointer and null != setter_script and setter_script is ScriptManager):
+		assignment_script = script
+	if (null != assignee and assignee is SpoolPointer and null != assignment_script and assignment_script is ScriptManager):
 		return true
 	else:
 		return false
 
 func validate(intended_script_output_datatype):
 	var validation_report = ""
-	if (null == spool):
+	if (null == assignee):
 		validation_report += "Null spool."
-	elif (spool is SWPointer):
-		var set_report = spool.validate(intended_script_output_datatype)
+	elif (assignee is SWPointer):
+		var set_report = assignee.validate(intended_script_output_datatype)
 		if ("Passed." != set_report):
 			validation_report += "\"Set\" operand errors:\n" + set_report
-		if (null == setter_script):
+		if (null == assignment_script):
 			validation_report += "\"To\" operand is null."
-		elif (setter_script is ScriptManager):
-			var to_report = setter_script.validate(sw_script_data_types.BOOLEAN)
+		elif (assignment_script is ScriptManager):
+			var to_report = assignment_script.validate(sw_script_data_types.BOOLEAN)
 			if ("Passed." != to_report):
 				validation_report += "\"To\" operand errors:\n" + to_report
 		else:

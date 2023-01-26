@@ -10,10 +10,14 @@ func _init(in_operand = null):
 	if (null != in_operand):
 		add_operand(in_operand)
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	var output = null
 	if (0 == operands.size()):
 		print ("Warning: arithmetic negation operator has no operands.")
-		return null
-	var operand_value = evaluate_operand(operands.front(), leaf)
-	if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
-		return -1 * operand_value
+	else:
+		var operand_value = evaluate_operand(operands.front(), leaf, report)
+		if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
+			output = -1 * operand_value
+	if (report):
+		report_value(output)
+	return output

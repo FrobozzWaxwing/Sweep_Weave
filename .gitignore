@@ -8,6 +8,24 @@ godot/custom_resources/*.import
 /godot/.mono/
 /godot/data_*/
 
+godot/custom_resources/NotoMono-Regular.tres
+godot/custom_resources/NotoMono-Regular.ttf
+godot/custom_resources/NotoSerif-Bold.tres
+godot/custom_resources/NotoSerif-Bold.ttf
+godot/custom_resources/NotoSerif-BoldItalic.tres
+godot/custom_resources/NotoSerif-BoldItalic.ttf
+godot/custom_resources/NotoSerif-Italic.tres
+godot/custom_resources/NotoSerif-Italic.ttf
+godot/custom_resources/NotoSerif-Regular.tres
+godot/custom_resources/NotoSerif-Regular.ttf
+godot/custom_resources/arrow-down-circle.svg
+godot/custom_resources/arrow-down-circle.svg.import
+godot/custom_resources/arrow-up-circle.svg
+godot/custom_resources/arrow-up-circle.svg.import
+godot/custom_resources/rotate-cw.svg
+godot/custom_resources/rotate-cw.svg.import
+godot/custom_resources/edit-3.svg
+godot/custom_resources/edit-3.svg.import
 *.exe
 *.pck
 

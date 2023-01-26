@@ -45,14 +45,14 @@ func remove_character_from_affected_characters(character):
 					var effects = reaction.after_effects.duplicate()
 					for effect in effects:
 						if (effect is BNumberEffect):
-							if (effect.operand_0.keyring.front() == current_authored_property.id and effect.operand_0.character == character):
+							if (effect.assignee.keyring.front() == current_authored_property.id and effect.assignee.character == character):
 								effect.clear()
 								reaction.after_effects.erase(effect)
 								effect.call_deferred("free")
 							else:
-								effect.operand_1.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
+								effect.assignment_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
 						elif (effect is SpoolEffect):
-							effect.setter_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
+							effect.assignment_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
 	emit_signal("affected_character_removed", current_authored_property, character)
 
 func _on_NameEdit_text_changed(new_text):

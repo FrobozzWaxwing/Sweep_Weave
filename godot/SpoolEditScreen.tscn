@@ -140,7 +140,6 @@ anchor_right = 0.0
 anchor_bottom = 0.0
 margin_right = 453.0
 margin_bottom = 736.0
-size_flags_vertical = 3
 
 [node name="SpoolDeletionConfirmationDialog" type="ConfirmationDialog" parent="."]
 margin_right = 200.0
@@ -153,7 +152,7 @@ dialog_text = "Storyworlds require at least one spool."
 
 [connection signal="pressed" from="ColorRect/HBC/Column1/HBC/AddButton" to="." method="_on_AddButton_pressed"]
 [connection signal="pressed" from="ColorRect/HBC/Column1/HBC/DeleteButton" to="." method="_on_DeleteButton_pressed"]
-[connection signal="item_activated" from="ColorRect/HBC/Column1/Spools" to="." method="_on_Spools_item_activated"]
+[connection signal="item_selected" from="ColorRect/HBC/Column1/Spools" to="." method="_on_Spools_item_selected"]
 [connection signal="text_changed" from="ColorRect/HBC/Column2/HBC/SpoolNameEdit" to="." method="_on_SpoolNameEdit_text_changed"]
 [connection signal="pressed" from="ColorRect/HBC/Column2/HBC/SpoolStartsActiveCheckBox" to="." method="_on_SpoolStartsActiveCheckBox_pressed"]
 [connection signal="pressed" from="ColorRect/HBC/Column2/HBC2/AddEncounterButton" to="." method="_on_AddEncounterButton_pressed"]

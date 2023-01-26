@@ -134,14 +134,14 @@ func _on_ValidateButton_pressed():
 					var details = "Error found in Encounter \"" + encounter.title + "\" / option \"" + option.get_text() + "\" performability script is null."
 					var new_error_report = ErrorReport.new(option, option.performability_script, "performability", summary, details)
 					list_error(new_error_report)
-					number_of_invalid_option_visibility_scripts += 1
+					number_of_invalid_option_performability_scripts += 1
 				else:
 					var option_visibility_script_validation_report = option.performability_script.validate(sw_script_data_types.BOOLEAN)
 					if ("Passed." != option_visibility_script_validation_report):
 						var summary = "Option \"" + option.get_truncated_text(20) + "\" performability script."
 						var new_error_report = ErrorReport.new(option, option.performability_script, "performability", summary, "Error found in " + summary + "\n\n" + option_visibility_script_validation_report)
 						list_error(new_error_report)
-						number_of_invalid_option_visibility_scripts += 1
+						number_of_invalid_option_performability_scripts += 1
 				for reaction in option.reactions:
 					if (!(reaction is Reaction)):
 						number_of_invalid_reactions += 1
@@ -179,7 +179,7 @@ func _on_ValidateButton_pressed():
 						var reaction_effect_validation_report = effect.validate(sw_script_data_types.VARIANT)
 						if ("Passed." != reaction_effect_validation_report):
 							var summary = "Effect (" + effect.data_to_string() + ")"
-							var new_error_report = ErrorReport.new(effect, effect.operand_1, "effect", summary, "Error found in " + summary + "\n\n" + reaction_effect_validation_report)
+							var new_error_report = ErrorReport.new(effect, effect.asssignment_script, "effect", summary, "Error found in " + summary + "\n\n" + reaction_effect_validation_report)
 							list_error(new_error_report)
 							number_of_invalid_reaction_effects += 1
 	$ColorRect/HBC/VBC/ValidateButton.text = "Validate storyworld"
@@ -278,7 +278,7 @@ func _on_ErrorList_item_selected(index):
 						$ColorRect/HBC/VBC2/OpenLinkedScriptButton.text = "Open desirability script."
 			elif (error_report.reported_object is SWEffect):
 				if (null != error_report.reported_script and error_report.reported_script is ScriptManager):
-					if (error_report.reported_object.operand_1 == error_report.reported_script):
+					if (error_report.reported_object.asssignment_script == error_report.reported_script):
 						$ColorRect/HBC/VBC2/OpenLinkedScriptButton.visible = true
 						$ColorRect/HBC/VBC2/OpenLinkedScriptButton.text = "Open effect \"to\" script."
 			elif (error_report.reported_object is Actor):
@@ -345,7 +345,7 @@ func _on_OpenLinkedScriptButton_pressed():
 				open = true
 				title += " desirability script."
 		elif (current_error_report.reported_object is SWEffect):
-			if (current_error_report.reported_object.operand_1 == current_error_report.reported_script):
+			if (current_error_report.reported_object.asssignment_script == current_error_report.reported_script):
 				open = true
 				title += "Effect \"to\" script."
 	if (open):

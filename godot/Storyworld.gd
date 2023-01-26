@@ -155,21 +155,34 @@ func add_encounter(encounter):
 	encounter_directory[encounter.id] = encounter
 
 func delete_encounter(encounter):
-	#print("Deleting encounter: " + encounter.title)
 	encounters.erase(encounter)
 	encounter_directory.erase(encounter)
 	for each1 in encounters:
-		if (each1.acceptability_script.search_and_replace(encounter, null)):
+		if (each1.acceptability_script.delete_encounter(encounter)):
+			each1.log_update()
+		if (each1.desirability_script.delete_encounter(encounter)):
+			each1.log_update()
+		if (each1.text_script.delete_encounter(encounter)):
 			each1.log_update()
 		for each2 in each1.options:
+			if (each2.visibility_script.delete_encounter(encounter)):
+				each1.log_update()
+			if (each2.performability_script.delete_encounter(encounter)):
+				each1.log_update()
+			if (each2.text_script.delete_encounter(encounter)):
+				each1.log_update()
 			for each3 in each2.reactions:
 				if (each3.consequence == encounter):
 					each3.consequence = null
 					each1.log_update()
-			if (each2.visibility_script.search_and_replace(encounter, null)):
-				each1.log_update()
-			if (each2.performability_script.search_and_replace(encounter, null)):
-				each1.log_update()
+				if (each3.desirability_script.delete_encounter(encounter)):
+					each1.log_update()
+				if (each3.text_script.delete_encounter(encounter)):
+					each1.log_update()
+				for effect in each3.after_effects:
+					if (effect is SWEffect and effect.assignment_script is ScriptManager):
+						if (effect.assignment_script.delete_encounter(encounter)):
+							each1.log_update()
 	for spool in encounter.connected_spools:
 		spool.encounters.erase(encounter)
 	encounter.clear()
@@ -200,6 +213,56 @@ func duplicate_encounter(encounter):
 	new_encounter.modified_time = OS.get_unix_time()
 	add_encounter(new_encounter)
 	return new_encounter
+
+func delete_option_from_scripts(option):
+	for each1 in encounters:
+		if (each1.acceptability_script.delete_option(option)):
+			each1.log_update()
+		if (each1.desirability_script.delete_option(option)):
+			each1.log_update()
+		if (each1.text_script.delete_option(option)):
+			each1.log_update()
+		for each2 in each1.options:
+			if (each2.visibility_script.delete_option(option)):
+				each1.log_update()
+			if (each2.performability_script.delete_option(option)):
+				each1.log_update()
+			if (each2.text_script.delete_option(option)):
+				each1.log_update()
+			for each3 in each2.reactions:
+				if (each3.desirability_script.delete_option(option)):
+					each1.log_update()
+				if (each3.text_script.delete_option(option)):
+					each1.log_update()
+				for effect in each3.after_effects:
+					if (effect is SWEffect and effect.assignment_script is ScriptManager):
+						if (effect.assignment_script.delete_option(option)):
+							each1.log_update()
+
+func delete_reaction_from_scripts(reaction):
+	for each1 in encounters:
+		if (each1.acceptability_script.delete_reaction(reaction)):
+			each1.log_update()
+		if (each1.desirability_script.delete_reaction(reaction)):
+			each1.log_update()
+		if (each1.text_script.delete_reaction(reaction)):
+			each1.log_update()
+		for each2 in each1.options:
+			if (each2.visibility_script.delete_reaction(reaction)):
+				each1.log_update()
+			if (each2.performability_script.delete_reaction(reaction)):
+				each1.log_update()
+			if (each2.text_script.delete_reaction(reaction)):
+				each1.log_update()
+			for each3 in each2.reactions:
+				if (each3.desirability_script.delete_reaction(reaction)):
+					each1.log_update()
+				if (each3.text_script.delete_reaction(reaction)):
+					each1.log_update()
+				for effect in each3.after_effects:
+					if (effect is SWEffect and effect.assignment_script is ScriptManager):
+						if (effect.assignment_script.delete_reaction(reaction)):
+							each1.log_update()
 
 #Spools:
 
@@ -469,12 +532,14 @@ func load_from_json_v0_0_07_through_v0_0_15(data_to_load):
 			var new_option = Option.new(new_encounter, unique_id("option", 32), each["text"], graph_offset)
 			new_option.reactions = parse_reactions_data_v0_0_07_through_v0_0_15(each["reactions"], incomplete_reactions, new_option, antagonist)
 			if (typeof(each) == TYPE_DICTIONARY && each.has("visibility_prerequisites") && each.has("performability_prerequisites")):
-				new_option.visibility_script.set_contents(BooleanComparator.new("And"))
-				new_option.performability_script.set_contents(BooleanComparator.new("And"))
-				for prerequisite in each["visibility_prerequisites"]:
-					new_option.visibility_script.contents.operands.append(prerequisite)
-				for prerequisite in each["performability_prerequisites"]:
-					new_option.performability_script.contents.operands.append(prerequisite)
+				if (!each["visibility_prerequisites"].empty()):
+					new_option.visibility_script.set_contents(BooleanComparator.new("And"))
+					for prerequisite in each["visibility_prerequisites"]:
+						new_option.visibility_script.contents.operands.append(prerequisite)
+				if (!each["performability_prerequisites"].empty()):
+					new_option.performability_script.set_contents(BooleanComparator.new("And"))
+					for prerequisite in each["performability_prerequisites"]:
+						new_option.performability_script.contents.operands.append(prerequisite)
 			new_encounter.options.append(new_option)
 			option_directory[new_option.id] = new_option
 		#Add encounter to database:
@@ -488,9 +553,11 @@ func load_from_json_v0_0_07_through_v0_0_15(data_to_load):
 			var data = entry.acceptability_script.contents.operands.duplicate(true)
 			entry.acceptability_script.contents.operands.clear()
 			for prereq in data:
-				if (typeof(prereq) == TYPE_DICTIONARY):
+				if (prereq is SWScriptElement):
+					entry.acceptability_script.contents.add_operand(prereq)
+				elif (typeof(prereq) == TYPE_DICTIONARY):
 					if (encounter_directory.has(prereq["encounter"])):
-						entry.acceptability_script.contents.operands.append(parse_prerequisite_data_v0_0_07_through_v0_0_15(prereq))
+						entry.acceptability_script.contents.add_operand(parse_prerequisite_data_v0_0_07_through_v0_0_15(prereq))
 	for each in encounters:
 		for option in each.options:
 			if (option.visibility_script.contents is BooleanComparator):
@@ -499,13 +566,14 @@ func load_from_json_v0_0_07_through_v0_0_15(data_to_load):
 				for prereq in data:
 					if (typeof(prereq) == TYPE_DICTIONARY):
 						if (encounter_directory.has(prereq["encounter"])):
-							option.visibility_script.contents.operands.append(parse_prerequisite_data_v0_0_07_through_v0_0_15(prereq))
-				data = option.performability_script.contents.operands.duplicate(true)
+							option.visibility_script.contents.add_operand(parse_prerequisite_data_v0_0_07_through_v0_0_15(prereq))
+			if (option.performability_script.contents is BooleanComparator):
+				var data = option.performability_script.contents.operands.duplicate(true)
 				option.performability_script.contents.operands.clear()
 				for prereq in data:
 					if (typeof(prereq) == TYPE_DICTIONARY):
 						if (encounter_directory.has(prereq["encounter"])):
-							option.performability_script.contents.operands.append(parse_prerequisite_data_v0_0_07_through_v0_0_15(prereq))
+							option.performability_script.contents.add_operand(parse_prerequisite_data_v0_0_07_through_v0_0_15(prereq))
 	if (data_to_load.has("unique_id_seed")):
 		unique_id_seeds["encounter"] = data_to_load.unique_id_seed
 	if (data_to_load.has("char_unique_id_seed")):

@@ -11,7 +11,9 @@ func _init(in_value = ""):
 	output_type = sw_script_data_types.STRING
 	set_value(in_value)
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	if (report):
+		report_value(value)
 	return value
 
 func set_value(in_value):

@@ -22,6 +22,7 @@ func _init(in_storyworld, in_creation_index, in_id, in_property_name, in_depth =
 	property_name = in_property_name
 	depth = in_depth
 	default_value = in_default_value
+	creation_index = in_creation_index
 	creation_time = OS.get_unix_time()
 	modified_time = OS.get_unix_time()
 

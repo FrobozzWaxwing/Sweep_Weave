@@ -14,115 +14,13 @@ signal sw_script_changed(sw_script)
 func _ready():
 	pass
 
-func recursively_add_to_script_display(root_display_branch, operator_to_add):
-	var new_branch = $Background/VBC/HBC/VBC1/ScriptDisplay.create_item(root_display_branch)
-	#Store operator into script display via tree item metadata.
-	new_branch.set_metadata(0, operator_to_add)
-	if (operator_to_add is SWScriptElement):
-		operator_to_add.treeview_node = new_branch
-	#Set text of item based on operator type, and recursively add operands as tree branches.
-	if (null == operator_to_add):
-		new_branch.set_text(0, "Null")
-	elif (TYPE_BOOL == typeof(operator_to_add)):
-		new_branch.set_text(0, str(operator_to_add))
-	elif (TYPE_INT == typeof(operator_to_add) or TYPE_REAL == typeof(operator_to_add)):
-		new_branch.set_text(0, str(operator_to_add))
-	elif (TYPE_ARRAY == typeof(operator_to_add)):
-		new_branch.set_text(0, "List")
-		for each in operator_to_add:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is AbsoluteValueOperator):
-		new_branch.set_text(0, "Absolute Value of")
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is ArithmeticComparator):
-		new_branch.set_text(0, operator_to_add.operator_subtype_to_longstring())
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is ArithmeticMeanOperator):
-		new_branch.set_text(0, "Arithmetic Mean of")
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is ArithmeticNegationOperator):
-		new_branch.set_text(0, "Arithmetic Negation of")
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is BlendOperator):
-		new_branch.set_text(0, "Blend of")
-		for each in operator_to_add.operands:
-			var operand_branch = recursively_add_to_script_display(new_branch, each)
-			if (2 == each.script_index):
-				var text = "(Weight) " + operand_branch.get_text(0)
-				operand_branch.set_text(0, text)
-	elif (operator_to_add is BNumberConstant):
-		new_branch.set_text(0, operator_to_add.data_to_string())
-	elif (operator_to_add is BNumberPointer):
-		new_branch.set_text(0, operator_to_add.data_to_string())
-	elif (operator_to_add is BooleanConstant):
-		new_branch.set_text(0, operator_to_add.data_to_string())
-	elif (operator_to_add is BooleanComparator):
-		new_branch.set_text(0, operator_to_add.operator_subtype_to_string())
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is BSumOperator):
-		new_branch.set_text(0, "Bounded Sum of")
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is Desideratum):
-		new_branch.set_text(0, "Proximity to")
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is EventPointer):
-		new_branch.set_text(0, operator_to_add.summarize())
-	elif (operator_to_add is NudgeOperator):
-		new_branch.set_text(0, "Nudge")
-		for each in operator_to_add.operands:
-			var operand_branch = recursively_add_to_script_display(new_branch, each)
-			if (1 == each.script_index):
-				var text = "(Weight) " + operand_branch.get_text(0)
-				operand_branch.set_text(0, text)
-	elif (operator_to_add is SpoolStatusPointer):
-		new_branch.set_text(0, operator_to_add.data_to_string())
-	elif (operator_to_add is SWEqualsOperator):
-		new_branch.set_text(0, "Equals")
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is SWIfOperator):
-		new_branch.set_text(0, "If Then")
-		for n in range(operator_to_add.operands.size()):
-			var operand = operator_to_add.operands[n]
-			var operand_branch = recursively_add_to_script_display(new_branch, operand)
-			var text = ""
-			if (0 == n):
-				text = "(If) " + operand_branch.get_text(0)
-			elif (1 == n % 2):
-				text = "(Then) " + operand_branch.get_text(0)
-			elif (0 == n % 2 and n != (operator_to_add.operands.size()-1)):
-				text = "(Else If) " + operand_branch.get_text(0)
-			else:
-				text = "(Else) " + operand_branch.get_text(0)
-			operand_branch.set_text(0, text)
-	elif (operator_to_add is SWMaxOperator):
-		new_branch.set_text(0, "Maximum of")
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is SWMinOperator):
-		new_branch.set_text(0, "Minimum of")
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	elif (operator_to_add is SWNotOperator):
-		new_branch.set_text(0, "Not")
-		for each in operator_to_add.operands:
-			recursively_add_to_script_display(new_branch, each)
-	return new_branch
-
 func refresh_script_display():
 	$Background/VBC/HBC/VBC1/ScriptDisplay.clear()
 	var root = $Background/VBC/HBC/VBC1/ScriptDisplay.create_item()
 	$Background/VBC/HBC/VBC1/ScriptDisplay.set_hide_root(true)
 	#Fill out the script display by using a recursive algorithm to run through the script tree.
 	if (null != script_to_edit):
-		recursively_add_to_script_display(root, script_to_edit.contents)
+		$Background/VBC/HBC/VBC1/ScriptDisplay.recursively_add_to_script_display(root, script_to_edit.contents)
 		load_operator(script_to_edit.contents)
 	else:
 		load_operator(null)
@@ -254,7 +152,6 @@ func replace_element(old_element, new_element):
 				parent.contents[index] = new_element
 		new_element.parent_operator = parent
 		new_element.script_index = index
-#		new_element.treeview_node = old_element.treeview_node
 		old_element.clear()
 		old_element.call_deferred("free")
 
@@ -263,43 +160,40 @@ func _on_ScriptDisplay_item_selected():
 	load_operator(operator)
 
 func on_operator_changed(new_operator):
+	var text = " "
 	if (current_operator is ArithmeticComparator and TYPE_INT == typeof(new_operator)):
 		current_operator.operator_subtype = new_operator
+		text += current_operator.operator_subtype_to_longstring()
 	elif (current_operator is BooleanComparator and TYPE_INT == typeof(new_operator)):
 		current_operator.operator_subtype = new_operator
+		text += current_operator.operator_subtype_to_string()
 	elif (current_operator is BNumberConstant and new_operator is BNumberConstant):
 		current_operator.set_value(new_operator.get_value())
+		text += current_operator.data_to_string()
 	elif (current_operator is BNumberPointer and new_operator is BNumberPointer):
 		current_operator.set_as_copy_of(new_operator)
+		text += current_operator.data_to_string()
 	elif (current_operator is SpoolStatusPointer and new_operator is SpoolStatusPointer):
 		current_operator.set_as_copy_of(new_operator)
+		text += current_operator.data_to_string()
 	var selected_display_element = $Background/VBC/HBC/VBC1/ScriptDisplay.get_selected()
 	if (null != selected_display_element and selected_display_element is TreeItem):
 		if (current_operator.parent_operator is SWIfOperator):
-			var text = current_operator.data_to_string()
 			if (0 == current_operator.script_index):
-				text = "(If) " + text
+				text = " (If)" + text
 			elif (1 == current_operator.script_index % 2):
-				text = "(Then) " + text
+				text = " (Then)" + text
 			elif (0 == current_operator.script_index % 2 and current_operator.script_index != (current_operator.parent_operator.operands.size()-1)):
-				text = "(Else If) " + text
+				text = " (Else If)" + text
 			else:
-				text = "(Else) " + text
-			selected_display_element.set_text(0, text)
+				text = " (Else)" + text
 		elif (current_operator.parent_operator is BlendOperator):
 			if (2 == current_operator.script_index):
-				var text = "(Weight) " + current_operator.data_to_string()
-				selected_display_element.set_text(0, text)
-			else:
-				selected_display_element.set_text(0, current_operator.data_to_string())
+				text = " (Weight)" + text
 		elif (current_operator.parent_operator is NudgeOperator):
 			if (1 == current_operator.script_index):
-				var text = "(Weight) " + current_operator.data_to_string()
-				selected_display_element.set_text(0, text)
-			else:
-				selected_display_element.set_text(0, current_operator.data_to_string())
-		else:
-			selected_display_element.set_text(0, current_operator.data_to_string())
+				text = " (Weight)" + text
+		selected_display_element.set_text(0, text)
 	emit_signal("sw_script_changed", script_to_edit)
 
 func _on_AvailableOperatorList_item_activated(index):
@@ -323,7 +217,7 @@ func _on_AvailableOperatorList_item_activated(index):
 			$EventSelectionDialog.popup()
 		"Spool Status":
 			if (!storyworld.spools.empty()):
-				new_element = SpoolStatusPointer.new(storyworld.spools[0], false) #Second value, (negated,) being false means that the spool being active causes the pointer to return true.
+				new_element = SpoolStatusPointer.new(storyworld.spools.front(), false) #Second value, (negated,) being false means that the spool being active causes the pointer to return true.
 				replace_element(current_operator, new_element)
 				change_made = true
 		"Not":

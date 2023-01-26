@@ -12,11 +12,15 @@ func _init(in_spool = null, in_negated = false):
 		spool = in_spool
 	negated = in_negated
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	var output = null
 	if (spool is Spool):
-		return spool.is_active
+		output = spool.is_active
 	else:
-		return null
+		output = null
+	if (report):
+		report_value(output)
+	return output
 
 func set_as_copy_of(original):
 	if (null == original.spool):
@@ -36,6 +40,7 @@ func remap(to_storyworld):
 		return false
 
 func clear():
+	treeview_node = null
 	spool = null
 	negated = false
 

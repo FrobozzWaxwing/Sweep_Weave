@@ -753,7 +753,7 @@ function executeOption(which){
             continue
         }
         console.log('Reaction: "' + index.toString() + '..." Inclination: ' + latestInclination.toString());
-        if (latestInclination >= topInclination){
+        if (latestInclination > topInclination){
             topInclination = latestInclination;
             workingChoice = index;
         }

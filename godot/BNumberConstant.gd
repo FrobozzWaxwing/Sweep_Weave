@@ -10,8 +10,11 @@ func _init(in_value):
 	output_type = sw_script_data_types.BNUMBER
 	set_value(in_value)
 
-func get_value(leaf = null):
-	return clamp(value, lower_boundary, upper_boundary)
+func get_value(leaf = null, report = false):
+	var output = clamp(value, lower_boundary, upper_boundary)
+	if (report):
+		report_value(output)
+	return output
 
 func set_value(in_value):
 	if (TYPE_INT == typeof(in_value) or TYPE_REAL == typeof(in_value)):

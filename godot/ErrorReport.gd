@@ -17,7 +17,9 @@ func _init(in_reported_object, in_reported_script, in_script_type, in_error_summ
 	error_details = in_error_details
 
 func set_script_type(in_script_type):
-	if (in_script_type.matchn("acceptability")):
+	if (in_script_type.matchn("text")):
+		script_type = report_types.TEXT
+	elif (in_script_type.matchn("acceptability")):
 		script_type = report_types.ACCEPTABILITY
 	elif (in_script_type.matchn("desirability")):
 		script_type = report_types.DESIRABILITY

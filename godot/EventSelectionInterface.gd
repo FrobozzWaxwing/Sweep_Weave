@@ -33,6 +33,8 @@ func refresh():
 		if (!blacklist.has(encounter)):
 			if ("" == searchterm or encounter.has_search_text(searchterm)):
 				var entry_e = event_selection_tree.create_item(root)
+				if (selected_event is EventPointer and encounter == selected_event.encounter):
+					entry_e.select(0)
 				if ("" == encounter.title):
 					entry_e.set_text(0, "[Untitled]")
 				else:

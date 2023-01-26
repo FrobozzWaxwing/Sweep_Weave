@@ -6,21 +6,23 @@
 [ext_resource path="res://custom_resources/NotoSerif-Bold.tres" type="DynamicFont" id=4]
 [ext_resource path="res://custom_resources/NotoSerif-BoldItalic.tres" type="DynamicFont" id=5]
 
-[node name="ScrollContainer" type="ScrollContainer"]
+[node name="Background" type="ColorRect"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_right = -8.0
-margin_bottom = -8.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-scroll_horizontal_enabled = false
+color = Color( 0.882353, 0.843137, 0.960784, 1 )
 
 [node name="RichTextLabel" type="RichTextLabel" parent="."]
-margin_right = 1358.0
-margin_bottom = 728.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
 rect_min_size = Vector2( 320, 640 )
+focus_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+custom_colors/default_color = Color( 0, 0, 0, 1 )
+custom_colors/selection_color = Color( 0.639216, 0.564706, 1, 1 )
 custom_fonts/mono_font = ExtResource( 3 )
 custom_fonts/bold_italics_font = ExtResource( 5 )
 custom_fonts/italics_font = ExtResource( 2 )
@@ -291,6 +293,7 @@ You can contact me through Chris Crawford's interactive storytelling workgroup o
 
 Thanks, and peace to you.
 ~Sasha Fenn"
+selection_enabled = true
 __meta__ = {
 "_edit_use_anchors_": false
 }

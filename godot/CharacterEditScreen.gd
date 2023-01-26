@@ -123,10 +123,10 @@ func _on_ConfirmCharacterDeletion_confirmed():
 					reaction.desirability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
 					for effect in reaction.after_effects:
 						if (effect is BNumberEffect):
-							effect.operand_0.replace_character_with_character(character_to_delete, replacement) #BNumberPointer
-							effect.operand_1.replace_character_with_character(character_to_delete, replacement) #ScriptManager
+							effect.assignee.replace_character_with_character(character_to_delete, replacement) #BNumberPointer
+							effect.assignment_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
 						elif (effect is SpoolEffect):
-							effect.setter_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
+							effect.assignment_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
 		storyworld.delete_character(character_to_delete)
 		log_update(null)
 		refresh_character_list()

@@ -14,40 +14,27 @@ func _init(in_operator_subtype = "GT", in_x = null, in_y = null):
 	add_operand(in_x)
 	add_operand(in_y)
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	var output = null
 	if (0 == operands.size()):
 		print ("Warning: arithmetic comparator has no operands.")
-		return null
-	var x = evaluate_operand_at_index(0, leaf)
-	var y = evaluate_operand_at_index(1, leaf)
+	var x = evaluate_operand_at_index(0, leaf, report)
+	var y = evaluate_operand_at_index(1, leaf, report)
 	if ((TYPE_INT == typeof(x) or TYPE_REAL == typeof(x)) and (TYPE_INT == typeof(y) or TYPE_REAL == typeof(y))):
 		if (operator_subtypes.GT == operator_subtype):
-			if (x > y):
-				return true
-			else:
-				return false
+			output = (x > y)
 		elif (operator_subtypes.GTE == operator_subtype):
-			if (x >= y):
-				return true
-			else:
-				return false
+			output = (x >= y)
 		elif (operator_subtypes.LT == operator_subtype):
-			if (x < y):
-				return true
-			else:
-				return false
+			output = (x < y)
 		elif (operator_subtypes.LTE == operator_subtype):
-			if (x <= y):
-				return true
-			else:
-				return false
+			output = (x <= y)
 		elif (operator_subtypes.EQUALS == operator_subtype):
 			#Unused.
-			if (x == y):
-				return true
-			else:
-				return false
-	return null
+			output = (x == y)
+	if (report):
+		report_value(output)
+	return output
 
 func operator_subtype_to_longstring():
 	if (operator_subtypes.GT == operator_subtype):

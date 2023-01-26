@@ -53,6 +53,13 @@ func set_text(new_text):
 		if (text_script.contents is StringConstant):
 			text_script.contents.set_value(new_text)
 
+func calculate_desirability(leaf, report):
+	var result = null
+	if (null != desirability_script and desirability_script is ScriptManager):
+		#If everything is working as intended, desirability_script will always contain either a ScriptManager object or a null value.
+		result = desirability_script.get_value(leaf, report)
+	return result
+
 func clear():
 	connected_spools = []
 	storyworld = null
@@ -175,13 +182,13 @@ func connected_characters():
 				characters.merge(reaction.text_script.find_all_characters_involved())
 			for effect in reaction.after_effects:
 				if (effect is BNumberEffect):
-					if (null != effect.operand_0 and effect.operand_0 is BNumberPointer and null != effect.operand_0.character and effect.operand_0.character is Actor):
-						characters[effect.operand_0.character.id] = effect.operand_0.character
-					if (null != effect.operand_1 and effect.operand_1 is ScriptManager):
-						characters.merge(effect.operand_1.find_all_characters_involved())
+					if (null != effect.assignee and effect.assignee is BNumberPointer and null != effect.assignee.character and effect.assignee.character is Actor):
+						characters[effect.assignee.character.id] = effect.assignee.character
+					if (null != effect.assignment_script and effect.assignment_script is ScriptManager):
+						characters.merge(effect.assignment_script.find_all_characters_involved())
 				elif (effect is SpoolEffect):
-					if (null != effect.setter_script and effect.setter_script is ScriptManager):
-						characters.merge(effect.setter_script.find_all_characters_involved())
+					if (null != effect.assignment_script and effect.assignment_script is ScriptManager):
+						characters.merge(effect.assignment_script.find_all_characters_involved())
 	return characters
 
 func compile(parent_storyworld, include_editor_only_variables = false):

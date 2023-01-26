@@ -15,7 +15,7 @@ func refresh():
 	if (null != storyworld):
 		refresh_spools_list()
 		if (!storyworld.spools.empty()):
-			display_spool(storyworld.spools[0])
+			display_spool(storyworld.spools.front())
 		else:
 			current_spool = null
 			$ColorRect/HBC/Column1/Spools.clear()
@@ -39,6 +39,15 @@ func refresh_spools_list():
 			$ColorRect/HBC/Column1/Spools.list_to_display.append(entry)
 	$ColorRect/HBC/Column1/Spools.refresh()
 
+func add_spool_to_list(spool):
+	if (null != storyworld):
+		var display_text = spool.spool_name
+		if ("" == display_text):
+			display_text = "[Untitled Spool]"
+		var entry = {"text": display_text, "metadata": spool}
+		$ColorRect/HBC/Column1/Spools.list_to_display.append(entry)
+	$ColorRect/HBC/Column1/Spools.refresh()
+
 func display_spool(spool:Spool):
 	current_spool = spool
 	for child in $ColorRect/HBC/Column2.get_children():
@@ -59,6 +68,11 @@ func display_spool(spool:Spool):
 			$ColorRect/HBC/Column2/Encounters_on_current_spool.list_to_display.append(entry)
 	$ColorRect/HBC/Column2/Encounters_on_current_spool.refresh()
 
+func load_and_focus_first_spool():
+	if (0 < storyworld.spools.size()):
+		display_spool(storyworld.spools.front())
+		$ColorRect/HBC/Column1/Spools.select_first_item()
+
 func refresh_list_of_all_encounters():
 	$ColorRect/HBC/Column3/ListofAllEncounters.storyworld = storyworld
 	$ColorRect/HBC/Column3/ListofAllEncounters.display_options = false
@@ -78,10 +92,11 @@ func create_new_spool():
 
 func _on_AddButton_pressed():
 	current_spool = create_new_spool()
-	refresh_spools_list()
+	add_spool_to_list(current_spool)
 	display_spool(current_spool)
+	$ColorRect/HBC/Column1/Spools.select_last_item()
 
-func _on_Spools_item_activated():
+func _on_Spools_item_selected():
 	display_spool($ColorRect/HBC/Column1/Spools.get_selected_metadata())
 
 func _on_SpoolNameEdit_text_changed(new_text):
@@ -128,7 +143,7 @@ func _on_SpoolDeletionConfirmationDialog_confirmed():
 		storyworld.project_saved = false
 		refresh_spools_list()
 		if (!storyworld.spools.empty()):
-			display_spool(storyworld.spools[0])
+			display_spool(storyworld.spools.front())
 			$ColorRect/HBC/Column1/Spools.select_first_item()
 		emit_signal("request_overview_change")
 

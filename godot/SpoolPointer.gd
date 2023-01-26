@@ -8,7 +8,7 @@ func _init(in_spool = null):
 	output_type = sw_script_data_types.VARIANT
 	set_value(in_spool)
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
 	return spool
 
 func set_value(in_spool):
@@ -34,6 +34,7 @@ func remap(to_storyworld):
 		return false
 
 func clear():
+	treeview_node = null
 	spool = null
 
 func activate():

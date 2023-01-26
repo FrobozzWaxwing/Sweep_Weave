@@ -89,11 +89,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Compiler.gd"
 }, {
-"base": "Object",
-"class": "ContentSelectionQueue",
-"language": "GDScript",
-"path": "res://ContentSelectionQueue.gd"
-}, {
 "base": "SWOperator",
 "class": "Desideratum",
 "language": "GDScript",
@@ -271,7 +266,6 @@ _global_script_class_icons={
 "BooleanConstant": "",
 "CharacterSorter": "",
 "Compiler": "",
-"ContentSelectionQueue": "",
 "Desideratum": "",
 "Encounter": "",
 "EncounterSorter": "",

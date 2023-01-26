@@ -24,7 +24,7 @@ func load_authored_property(property_blueprint):
 	$ColorRect/VBC/HBC/BNumberEditPanel.current_authored_property = property_blueprint
 	$PropertyCreationWindow/VBC/BNumberEditPanel.creating_new_property = false
 	$ColorRect/VBC/HBC/BNumberEditPanel.refresh()
-	if (0 < storyworld.authored_properties.size()):
+	if (!storyworld.authored_properties.empty()):
 		$ColorRect/VBC/HBC/VBC1/PropertyList.select(storyworld.authored_properties.find(property_blueprint))
 
 func refresh_property_list():
@@ -35,7 +35,7 @@ func refresh_property_list():
 		$ColorRect/VBC/HBC/VBC1/PropertyList.set_item_metadata(item_index, property_blueprint)
 		item_index += 1
 	if (!storyworld.authored_properties.empty()):
-		load_authored_property(storyworld.authored_properties[0])
+		load_authored_property(storyworld.authored_properties.front())
 
 func refresh_property_name(property_blueprint):
 	var index = storyworld.authored_properties.find(property_blueprint)
@@ -65,6 +65,7 @@ func _on_PropertyCreationWindow_confirmed():
 	storyworld.add_authored_property(property)
 	log_update(property)
 	refresh_property_list()
+	load_authored_property(property)
 	emit_signal("refresh_authored_property_lists")
 
 func _on_DeleteButton_pressed():
@@ -151,11 +152,11 @@ func _on_ConfirmPropertyDeletionWindow_confirmed():
 					print (reaction.desirability_script.data_to_string())
 					for effect in reaction.after_effects:
 						if (effect is BNumberEffect):
-							if (effect.operand_0.get_ap_blueprint().id == property_blueprint.id):
-								effect.operand_0.set_as_copy_of(replacement)
-							effect.operand_1.replace_property_with_pointer(property_blueprint, replacement)
+							if (effect.assignee.get_ap_blueprint().id == property_blueprint.id):
+								effect.assignee.set_as_copy_of(replacement)
+							effect.assignment_script.replace_property_with_pointer(property_blueprint, replacement)
 						elif (effect is SpoolEffect):
-							effect.setter_script.replace_property_with_pointer(property_blueprint, replacement)
+							effect.assignment_script.replace_property_with_pointer(property_blueprint, replacement)
 		#Delete property.
 		storyworld.delete_authored_property(property_blueprint)
 	#Update interface.

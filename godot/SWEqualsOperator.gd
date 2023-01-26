@@ -17,10 +17,11 @@ func _init(in_operands = []):
 	for operand in in_operands:
 		add_operand(operand)
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	var output = null
 	var target_value = null
 	for operand in operands:
-		var operand_value = evaluate_operand(operand, leaf)
+		var operand_value = evaluate_operand(operand, leaf, report)
 		if (null == target_value):
 			target_value = operand_value
 			continue
@@ -28,16 +29,21 @@ func get_value(leaf = null):
 			continue
 		elif (typeof(target_value) != typeof(operand_value)):
 			#Poison.
-			return null
+			output = null
+			break
 		elif (target_value == operand_value):
 			continue
 		elif (target_value != operand_value):
-			return false
+			output = false
+			break
 	if (null != target_value):
-		return true
+		output = true
 	else:
 		#Poison.
-		return null
+		output = null
+	if (report):
+		report_value(output)
+	return output
 
 func data_to_string():
 	var result = "Equals ("

@@ -11,9 +11,13 @@ func _init(in_character = null, in_keyring = []):
 	character = in_character
 	keyring = in_keyring.duplicate()
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	var output = null
 	if (null != character and character is Actor):
-		return coefficient * character.get_bnumber_property(keyring)
+		output = coefficient * character.get_bnumber_property(keyring)
+	if (report):
+		report_value(output)
+	return output
 
 func set_value(value):
 	if (null != character and character is Actor):

@@ -10,11 +10,13 @@ func _init(in_operands = []):
 	for operand in in_operands:
 		add_operand(operand)
 
-func get_value(leaf = null):
-	var value = ""
+func get_value(leaf = null, report = false):
+	var output = ""
 	for operand in operands:
-		value += evaluate_operand(operand, leaf)
-	return value
+		output += evaluate_operand(operand, leaf, report)
+	if (report):
+		report_value(output)
+	return output
 
 func data_to_string():
-	return get_value(null)
+	return get_value(null, false)

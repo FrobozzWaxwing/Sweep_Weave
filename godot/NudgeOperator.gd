@@ -11,11 +11,15 @@ func _init(in_operand_0 = null, in_operand_1 = null):
 	add_operand(in_operand_0)
 	add_operand(in_operand_1)
 
-func get_value(leaf = null):
-	var value_0 = evaluate_operand_at_index(0, leaf)
-	var value_1 = evaluate_operand_at_index(1, leaf)
-	var result = (value_0 * (1 - abs(value_1))) + value_1
-	return result
+func get_value(leaf = null, report = false):
+	var output = null
+	var value_0 = evaluate_operand_at_index(0, leaf, report)
+	var value_1 = evaluate_operand_at_index(1, leaf, report)
+	if (null != value_0 and null != value_1):
+		output = (value_0 * (1 - abs(value_1))) + value_1
+	if (report):
+		report_value(output)
+	return output
 
 func data_to_string():
 	var result = "Nudge ("

@@ -46,15 +46,11 @@ func get_truncated_text(maximum_output_length = 20):
 	else:
 		return text.left(maximum_output_length - 3) + "..."
 
-func calculate_desirability():
+func calculate_desirability(leaf, report):
 	var result = null
-	if (null == desirability_script):
-		result = null
-	elif (desirability_script is ScriptManager):
+	if (null != desirability_script and desirability_script is ScriptManager):
 		#If everything is working as intended, desirability_script will always contain either a ScriptManager object or a null value.
-		result = desirability_script.get_value()
-	else:
-		result = null
+		result = desirability_script.get_value(leaf, report)
 	return result
 
 func has_search_text(searchterm):

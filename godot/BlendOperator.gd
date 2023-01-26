@@ -12,13 +12,15 @@ func _init(in_operand_0, in_operand_1, in_weight):
 	add_operand(in_operand_1)
 	add_operand(in_weight)
 
-func get_value(leaf = null):
-	var value_0 = evaluate_operand_at_index(0, leaf)
-	var value_1 = evaluate_operand_at_index(1, leaf)
-	var value_weight = evaluate_operand_at_index(2, leaf)
+func get_value(leaf = null, report = false):
+	var value_0 = evaluate_operand_at_index(0, leaf, report)
+	var value_1 = evaluate_operand_at_index(1, leaf, report)
+	var value_weight = evaluate_operand_at_index(2, leaf, report)
 	var normalized_weight = ((value_weight + 1) / 2)
-	var result = (value_0 * (1 - normalized_weight)) + (value_1 * normalized_weight)
-	return result
+	var output = (value_0 * (1 - normalized_weight)) + (value_1 * normalized_weight)
+	if (report):
+		report_value(output)
+	return output
 
 func data_to_string():
 	var result = "Blend of "

@@ -15,15 +15,23 @@ func _init():
 	pass
 
 func clear():
-	pass
+	treeview_node = null
 
 func remap(storyworld):
+	treeview_node = null
 	return true
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
 	# Some operators, particularly EventPointers and BooleanComparators that contain EventPointers, need access to the historybook.
 	# The "leaf" variable grants EventPointers this access.
-	return null
+	var output = null
+	if (report):
+		report_value(output)
+	return output
+
+func report_value(output):
+	if (null != treeview_node and treeview_node is TreeItem):
+		treeview_node.set_text(1, str(output))
 
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}

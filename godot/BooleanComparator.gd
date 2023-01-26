@@ -2,10 +2,10 @@ extends SWOperator
 class_name BooleanComparator
 #Takes boolean values or operators as inputs and outputs true, false, or null.
 
-enum operator_subtypes {AND, OR, XOR}
+enum operator_subtypes {AND, OR}
 var operator_subtype = operator_subtypes.AND
 
-func _init(in_operator_subtype = "And", in_operands = [true]):
+func _init(in_operator_subtype = "And", in_operands = []):
 	operator_type = "Boolean Comparator"
 	input_type = sw_script_data_types.BOOLEAN
 	output_type = sw_script_data_types.BOOLEAN
@@ -18,62 +18,34 @@ func operator_subtype_to_string():
 		return "And"
 	elif (operator_subtypes.OR == operator_subtype):
 		return "Or"
-	elif (operator_subtypes.XOR == operator_subtype):
-		return "XOr"
 	else:
 		return "NULL"
 
-func test_operand(operand, leaf = null):
-	if (null == operand or null == operator_subtype):
-		print ("Cannot evaluate boolean operator.")
-		return null
-	var result = null
-	if (operand is SWScriptElement):
-		result = operand.get_value(leaf)
-		if (TYPE_BOOL != typeof(result)):
-			if (TYPE_INT == typeof(result) or TYPE_REAL == typeof(result)):
-				result = bool(result)
-			else:
-				return null
-	elif (TYPE_INT == typeof(operand) or TYPE_REAL == typeof(operand)):
-		result = bool(operand)
-	elif (TYPE_BOOL == typeof(operand)):
-		result = operand
-	else:
-		return null
-	return result
-
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	var output = null
 	if (operator_subtypes.AND == operator_subtype):
+		output = true
 		for operand in operands:
-			var value = test_operand(operand, leaf)
-			if (null == value):
+			var value = evaluate_operand(operand, leaf, report)
+			if (null == value or TYPE_BOOL != typeof(value)):
+				#Poison
 				continue
 			elif (!value):
-				return false
-		return true
+				output = false
+				break
 	elif (operator_subtypes.OR == operator_subtype):
+		output = false
 		for operand in operands:
-			var value = test_operand(operand, leaf)
-			if (null == value):
+			var value = evaluate_operand(operand, leaf, report)
+			if (null == value or TYPE_BOOL != typeof(value)):
+				#Poison
 				continue
 			elif (value):
-				return true
-		return false
-	elif (operator_subtypes.XOR == operator_subtype):
-		if (2 <= operands.size()):
-			var value_0 = test_operand(operands[0], leaf)
-			var value_1 = test_operand(operands[1], leaf)
-			if (null == value_0 or null == value_1):
-				return null
-			elif (value_0 != value_1):
-				return true
-			else:
-				return false
-		else:
-			return null
-	else:
-		return null
+				output = true
+				break
+	if (report):
+		report_value(output)
+	return output
 
 func set_operator_subtype(in_operator_subtype):
 	if (in_operator_subtype.matchn("And")):
@@ -84,10 +56,6 @@ func set_operator_subtype(in_operator_subtype):
 		can_add_operands = true
 		minimum_number_of_operands = 2
 		operator_subtype = operator_subtypes.OR
-	elif (in_operator_subtype.matchn("XOr")):
-		can_add_operands = false
-		minimum_number_of_operands = 2
-		operator_subtype = operator_subtypes.XOR
 	else:
 		operator_subtype = null
 

@@ -22,6 +22,7 @@ split_offset = -500
 script = ExtResource( 4 )
 
 [node name="Column1" type="VBoxContainer" parent="."]
+visible = false
 margin_right = 167.0
 margin_bottom = 727.0
 rect_pivot_offset = Vector2( -285, -37 )
@@ -61,11 +62,6 @@ margin_top = 48.0
 margin_right = 167.0
 margin_bottom = 68.0
 
-[node name="Edit" type="Button" parent="Column1/HBC2"]
-margin_right = 36.0
-margin_bottom = 20.0
-text = "Edit"
-
 [node name="Duplicate" type="Button" parent="Column1/HBC2"]
 margin_left = 40.0
 margin_right = 113.0
@@ -90,7 +86,6 @@ select_mode = 1
 auto_height = true
 
 [node name="HSC" type="HSplitContainer" parent="."]
-margin_left = 179.0
 margin_right = 1347.0
 margin_bottom = 727.0
 rect_min_size = Vector2( 64, 0 )
@@ -98,7 +93,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Column2" type="VBoxContainer" parent="HSC"]
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 727.0
 rect_min_size = Vector2( 32, 0 )
 rect_pivot_offset = Vector2( -285, -37 )
@@ -106,7 +101,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="HBCTitle" type="HBoxContainer" parent="HSC/Column2"]
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 24.0
 
 [node name="Label" type="Label" parent="HSC/Column2/HBCTitle"]
@@ -115,7 +110,7 @@ margin_bottom = 19.0
 
 [node name="EncounterTitleEdit" type="LineEdit" parent="HSC/Column2/HBCTitle"]
 margin_left = 4.0
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 240, 0 )
 size_flags_horizontal = 3
@@ -125,7 +120,7 @@ caret_blink_speed = 0.5
 
 [node name="EncounterMainTextEdit" type="TextEdit" parent="HSC/Column2"]
 margin_top = 28.0
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 495.0
 rect_min_size = Vector2( 0, 320 )
 size_flags_horizontal = 3
@@ -136,19 +131,19 @@ wrap_enabled = true
 
 [node name="HBCEncounterSettingsButtons" type="HBoxContainer" parent="HSC/Column2"]
 margin_top = 499.0
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 519.0
 alignment = 1
 
 [node name="EditEncounterAcceptabilityScriptButton" type="Button" parent="HSC/Column2/HBCEncounterSettingsButtons"]
-margin_left = 61.0
-margin_right = 292.0
+margin_left = 105.0
+margin_right = 336.0
 margin_bottom = 20.0
 text = "Edit Encounter Acceptability Script"
 
 [node name="EditEncounterDesirabilityScriptButton" type="Button" parent="HSC/Column2/HBCEncounterSettingsButtons"]
-margin_left = 296.0
-margin_right = 517.0
+margin_left = 340.0
+margin_right = 561.0
 margin_bottom = 20.0
 text = "Edit Encounter Desirability Script"
 
@@ -216,52 +211,52 @@ margin_bottom = 38.0
 
 [node name="HBCTurn2" type="HBoxContainer" parent="HSC/Column2"]
 margin_top = 523.0
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 553.0
 size_flags_horizontal = 3
 alignment = 1
 
 [node name="AddOption" type="Button" parent="HSC/Column2/HBCTurn2"]
-margin_left = 197.0
-margin_right = 217.0
+margin_left = 241.0
+margin_right = 261.0
 margin_bottom = 30.0
 text = "+"
 
 [node name="DeleteOption" type="Button" parent="HSC/Column2/HBCTurn2"]
-margin_left = 221.0
-margin_right = 238.0
+margin_left = 265.0
+margin_right = 282.0
 margin_bottom = 30.0
 text = "-"
 
 [node name="Label" type="Label" parent="HSC/Column2/HBCTurn2"]
-margin_left = 242.0
+margin_left = 286.0
 margin_top = 8.0
-margin_right = 301.0
+margin_right = 345.0
 margin_bottom = 22.0
 text = "Options: "
 align = 1
 
 [node name="MoveOptionUpButton" type="Button" parent="HSC/Column2/HBCTurn2"]
-margin_left = 305.0
-margin_right = 341.0
+margin_left = 349.0
+margin_right = 385.0
 margin_bottom = 30.0
 icon = ExtResource( 2 )
 
 [node name="MoveOptionDownButton" type="Button" parent="HSC/Column2/HBCTurn2"]
-margin_left = 345.0
-margin_right = 381.0
+margin_left = 389.0
+margin_right = 425.0
 margin_bottom = 30.0
 icon = ExtResource( 3 )
 
 [node name="OptionsScroll" type="ScrollContainer" parent="HSC/Column2"]
 margin_top = 557.0
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 657.0
 rect_min_size = Vector2( 264, 100 )
 scroll_horizontal_enabled = false
 
 [node name="OptionsList" type="ItemList" parent="HSC/Column2/OptionsScroll"]
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 100.0
 rect_min_size = Vector2( 264, 100 )
 size_flags_horizontal = 3
@@ -276,13 +271,13 @@ margin_bottom = 20.0
 
 [node name="OptTxtLabel" type="Label" parent="HSC/Column2"]
 margin_top = 661.0
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 675.0
 text = "Text of option: "
 
 [node name="OptionText" type="LineEdit" parent="HSC/Column2"]
 margin_top = 679.0
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 703.0
 rect_min_size = Vector2( 200, 0 )
 caret_blink = true
@@ -297,25 +292,25 @@ text = "Edit Option Settings"
 
 [node name="HBCOptionSettingsButtons" type="HBoxContainer" parent="HSC/Column2"]
 margin_top = 707.0
-margin_right = 578.0
+margin_right = 667.0
 margin_bottom = 727.0
 alignment = 1
 
 [node name="EditOptionVisibilityScriptButton" type="Button" parent="HSC/Column2/HBCOptionSettingsButtons"]
-margin_left = 86.0
-margin_right = 269.0
+margin_left = 131.0
+margin_right = 314.0
 margin_bottom = 20.0
 text = "Edit Option Visibility Script"
 
 [node name="EditOptionPerformabilityScriptButton" type="Button" parent="HSC/Column2/HBCOptionSettingsButtons"]
-margin_left = 273.0
-margin_right = 491.0
+margin_left = 318.0
+margin_right = 536.0
 margin_bottom = 20.0
 text = "Edit Option Performability Script"
 
 [node name="Column3" type="VBoxContainer" parent="HSC"]
-margin_left = 590.0
-margin_right = 1168.0
+margin_left = 679.0
+margin_right = 1347.0
 margin_bottom = 727.0
 grow_horizontal = 0
 rect_min_size = Vector2( 32, 0 )
@@ -325,7 +320,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="HBC" type="HBoxContainer" parent="HSC/Column3"]
-margin_right = 578.0
+margin_right = 668.0
 margin_bottom = 30.0
 
 [node name="AddReaction" type="Button" parent="HSC/Column3/HBC"]
@@ -360,13 +355,13 @@ icon = ExtResource( 3 )
 
 [node name="ReactionsScroll" type="ScrollContainer" parent="HSC/Column3"]
 margin_top = 34.0
-margin_right = 578.0
+margin_right = 668.0
 margin_bottom = 114.0
 rect_min_size = Vector2( 235, 80 )
 scroll_horizontal_enabled = false
 
 [node name="ReactionList" type="ItemList" parent="HSC/Column3/ReactionsScroll"]
-margin_right = 578.0
+margin_right = 668.0
 margin_bottom = 80.0
 rect_min_size = Vector2( 250, 80 )
 size_flags_horizontal = 3
@@ -382,29 +377,29 @@ margin_bottom = 20.0
 
 [node name="Label" type="Label" parent="HSC/Column3"]
 margin_top = 118.0
-margin_right = 578.0
+margin_right = 668.0
 margin_bottom = 132.0
 text = "Reaction text:"
 
 [node name="ReactionText" type="TextEdit" parent="HSC/Column3"]
 margin_top = 136.0
-margin_right = 578.0
-margin_bottom = 322.0
+margin_right = 668.0
+margin_bottom = 344.0
 rect_min_size = Vector2( 0, 100 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 wrap_enabled = true
 
 [node name="IncBlendWeightLabel" type="Label" parent="HSC/Column3"]
-margin_top = 326.0
-margin_right = 578.0
-margin_bottom = 340.0
+margin_top = 348.0
+margin_right = 668.0
+margin_bottom = 362.0
 text = "Reaction desirability:"
 
 [node name="HBCLSL" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 344.0
-margin_right = 578.0
-margin_bottom = 404.0
+margin_top = 366.0
+margin_right = 668.0
+margin_bottom = 426.0
 alignment = 1
 
 [node name="Label" type="Label" parent="HSC/Column3/HBCLSL"]
@@ -418,76 +413,60 @@ align = 1
 [node name="BlendWeightSelector" parent="HSC/Column3/HBCLSL" instance=ExtResource( 7 )]
 anchor_right = 0.0
 margin_left = 32.0
-margin_right = 546.0
+margin_right = 636.0
 margin_bottom = 60.0
 rect_min_size = Vector2( 0, 60 )
 
 [node name="Label2" type="Label" parent="HSC/Column3/HBCLSL"]
-margin_left = 550.0
+margin_left = 640.0
 margin_top = 14.0
-margin_right = 578.0
+margin_right = 668.0
 margin_bottom = 45.0
 text = "Trait
 #2"
 align = 1
 
 [node name="HBCTT" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 408.0
-margin_right = 578.0
-margin_bottom = 440.0
+margin_top = 430.0
+margin_right = 668.0
+margin_bottom = 462.0
 alignment = 1
 
 [node name="Trait1Selector" parent="HSC/Column3/HBCTT" instance=ExtResource( 5 )]
 anchor_right = 0.0
-margin_right = 287.0
+margin_right = 332.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 0, 32 )
 
 [node name="Trait2Selector" parent="HSC/Column3/HBCTT" instance=ExtResource( 5 )]
 anchor_right = 0.0
-margin_left = 291.0
-margin_right = 578.0
+margin_left = 336.0
+margin_right = 668.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 0, 32 )
 
 [node name="ARDSEButton" type="Button" parent="HSC/Column3"]
-margin_top = 444.0
-margin_right = 578.0
-margin_bottom = 464.0
+margin_top = 466.0
+margin_right = 668.0
+margin_bottom = 486.0
 text = "Edit Reaction Desirability Script"
 
 [node name="HBCConsequence" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 468.0
-margin_right = 578.0
-margin_bottom = 488.0
+margin_top = 490.0
+margin_right = 668.0
+margin_bottom = 490.0
 
 [node name="ChangeConsequence" type="Button" parent="HSC/Column3/HBCConsequence"]
+visible = false
 margin_right = 152.0
 margin_bottom = 20.0
 hint_tooltip = "This sets the reaction's consequence to the first currently selected encounter, (selected in the encounter list on the far left of the screen.)"
 text = "Change Consequence:"
 
-[node name="CurrentConsequence" type="Label" parent="HSC/Column3/HBCConsequence"]
-margin_left = 156.0
-margin_top = 3.0
-margin_right = 156.0
-margin_bottom = 17.0
-hint_tooltip = "The reaction's consequence occurs next, even if it could not normally occur due to turn count or prerequisites."
-mouse_filter = 1
-
-[node name="RemoveConsequenceButton" type="Button" parent="HSC/Column3"]
-margin_top = 492.0
-margin_right = 158.0
-margin_bottom = 512.0
-hint_tooltip = "This sets the reaction's consequence to null, such that, if this reaction occurs, the interpreter chooses the next encounter via encounter acceptability and desirability scripts."
-size_flags_horizontal = 0
-text = "Remove Consequence."
-align = 0
-
 [node name="HBCEffectButtons" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 516.0
-margin_right = 578.0
-margin_bottom = 536.0
+margin_top = 494.0
+margin_right = 668.0
+margin_bottom = 514.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -515,8 +494,8 @@ text = "Reaction effects:"
 [node name="AfterReactionEffectsDisplay" parent="HSC/Column3" instance=ExtResource( 8 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 540.0
-margin_right = 578.0
+margin_top = 518.0
+margin_right = 668.0
 margin_bottom = 727.0
 rect_min_size = Vector2( 0, 50 )
 size_flags_vertical = 3
@@ -533,6 +512,7 @@ margin_right = 768.0
 margin_bottom = 768.0
 rect_min_size = Vector2( 300, 70 )
 size_flags_horizontal = 3
+window_title = "Effect Editor"
 resizable = true
 
 [node name="EffectEditorScreen" parent="EffectEditor" instance=ExtResource( 9 )]
@@ -592,9 +572,9 @@ margin_bottom = -36.0
 [connection signal="pressed" from="Column1/HBC/AddButton" to="." method="_on_AddButton_pressed"]
 [connection signal="pressed" from="Column1/HBC/DeleteButton" to="." method="_on_DeleteButton_pressed"]
 [connection signal="item_selected" from="Column1/SortMenu" to="." method="_on_SortMenu_item_selected"]
-[connection signal="pressed" from="Column1/HBC2/Edit" to="." method="_on_Edit_pressed"]
 [connection signal="pressed" from="Column1/HBC2/Duplicate" to="." method="_on_Duplicate_pressed"]
-[connection signal="item_activated" from="Column1/VScroll/EncountersList" to="." method="_on_EncountersList_item_activated"]
+[connection signal="item_selected" from="Column1/VScroll/EncountersList" to="." method="_on_EncountersList_item_selected"]
+[connection signal="multi_selected" from="Column1/VScroll/EncountersList" to="." method="_on_EncountersList_multi_selected"]
 [connection signal="text_changed" from="HSC/Column2/HBCTitle/EncounterTitleEdit" to="." method="_on_EncounterTitleEdit_text_changed"]
 [connection signal="text_changed" from="HSC/Column2/EncounterMainTextEdit" to="." method="_on_EncounterMainTextEdit_text_changed"]
 [connection signal="pressed" from="HSC/Column2/HBCEncounterSettingsButtons/EditEncounterAcceptabilityScriptButton" to="." method="_on_EditEncounterAcceptabilityScriptButton_pressed"]
@@ -622,11 +602,11 @@ margin_bottom = -36.0
 [connection signal="multi_selected" from="HSC/Column3/ReactionsScroll/ReactionList" to="." method="_on_ReactionList_multi_selected"]
 [connection signal="id_pressed" from="HSC/Column3/ReactionsScroll/ReactionList/ReactionsContextMenu" to="." method="_on_ReactionsContextMenu_id_pressed"]
 [connection signal="text_changed" from="HSC/Column3/ReactionText" to="." method="_on_ReactionText_text_changed"]
+[connection signal="bnumber_value_changed" from="HSC/Column3/HBCLSL/BlendWeightSelector" to="." method="_on_BlendWeightSelector_bnumber_value_changed"]
 [connection signal="bnumber_property_selected" from="HSC/Column3/HBCTT/Trait1Selector" to="." method="_on_Trait1Selector_bnumber_property_selected"]
 [connection signal="bnumber_property_selected" from="HSC/Column3/HBCTT/Trait2Selector" to="." method="_on_Trait2Selector_bnumber_property_selected"]
 [connection signal="pressed" from="HSC/Column3/ARDSEButton" to="." method="_on_ARDSEButton_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBCConsequence/ChangeConsequence" to="." method="_on_ChangeConsequence_pressed"]
-[connection signal="pressed" from="HSC/Column3/RemoveConsequenceButton" to="." method="_on_RemoveConsequenceButton_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBCEffectButtons/AddEffect" to="." method="_on_AddEffect_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBCEffectButtons/DeleteEffect" to="." method="_on_DeleteEffect_pressed"]
 [connection signal="item_activated" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_item_activated"]

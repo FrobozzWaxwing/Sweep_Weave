@@ -39,14 +39,20 @@ func remove_conditional(in_index):
 		if (operand is SWScriptElement):
 			operand.script_index = i
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	var output = null
 	var stop = operands.size() - 1
 	for index in range(0, stop, 2):
-		var condition_result = evaluate_operand_at_index(index, leaf)
+		var condition_result = evaluate_operand_at_index(index, leaf, report)
 		if (condition_result):
 			var result_index = index + 1
-			return evaluate_operand_at_index(result_index, leaf)
-	return evaluate_operand_at_index(stop, leaf)
+			output = evaluate_operand_at_index(result_index, leaf, report)
+			break
+	if (null == output):
+		output = evaluate_operand_at_index(stop, leaf, report)
+	if (report):
+		report_value(output)
+	return output
 
 func data_to_string():
 	var result = "If "

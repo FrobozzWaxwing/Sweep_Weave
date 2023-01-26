@@ -3,6 +3,8 @@ extends ColorRect
 var rehearsal = null
 var reference_storyworld = null
 var page_to_display = null
+#Display options:
+var display_spoolbook = true
 
 func reset_rehearsal():
 	if (null == rehearsal):
@@ -10,11 +12,43 @@ func reset_rehearsal():
 	else:
 		rehearsal.clear_all_data()
 		rehearsal.storyworld.set_as_copy_of(reference_storyworld)
-		rehearsal.initial_pValues.set_pValues(rehearsal.storyworld)
+		rehearsal.initial_pValues.record_character_states(rehearsal.storyworld)
 	page_to_display = null
 
+func refresh_spoolbook(next_page = null):
+	$Layout/VBC/Spoolbook.clear()
+	var root = $Layout/VBC/Spoolbook.create_item()
+	$Layout/VBC/Spoolbook.set_hide_root(true)
+	if (display_spoolbook):
+		$Layout/VBC/Spoolbook_Label.visible = true
+		$Layout/VBC/Spoolbook.visible = true
+		if (null != rehearsal and null != rehearsal.current_page):
+			for spool in rehearsal.storyworld.spools:
+				var spool_entry = $Layout/VBC/Spoolbook.create_item(root)
+				spool_entry.set_text(0, spool.spool_name)
+				var text = ""
+				if (spool.is_active):
+					text += "active"
+				else:
+					text += "inactive"
+				if (null != next_page and next_page.spool_statuses.has(spool.id)):
+					if (spool.is_active != next_page.spool_statuses[spool.id]):
+						text += " -> "
+						if (next_page.spool_statuses[spool.id]):
+							text += "active"
+						else:
+							text += "inactive"
+				spool_entry.set_text(1, text)
+	else:
+		$Layout/VBC/Spoolbook_Label.visible = false
+		$Layout/VBC/Spoolbook.visible = false
+
+func set_display_spoolbook(checked):
+	display_spoolbook = checked
+	refresh_spoolbook()
+
 func refresh_historybook():
-	$Layout/VBC/Scroll_History/Historybook.clear()
+	$Layout/VBC/Historybook.clear()
 	var current_page = rehearsal.current_page
 	var page_list = []
 	while (null != current_page):
@@ -23,27 +57,26 @@ func refresh_historybook():
 	page_list.invert()
 	var index = 0
 	for page in page_list:
-		$Layout/VBC/Scroll_History/Historybook.add_item(page.get_metadata(0).data_to_string())
-		$Layout/VBC/Scroll_History/Historybook.set_item_metadata(index, page)
+		$Layout/VBC/Historybook.add_item(page.stringify_encounter())
+		$Layout/VBC/Historybook.set_item_metadata(index, page)
 		index += 1
 
 func refresh_castbook(next_page = null):
-	$Layout/L2/VBC/Scroll_Cast/Castbook.clear()
-	var root = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item()
-	$Layout/L2/VBC/Scroll_Cast/Castbook.set_hide_root(true)
+	$Layout/L2/VBC/Castbook.clear()
+	var root = $Layout/L2/VBC/Castbook.create_item()
+	$Layout/L2/VBC/Castbook.set_hide_root(true)
 	var cast = rehearsal.storyworld.characters
 	for character in cast:
 		if (character.is_queued_for_deletion()):
 			continue
-		var listing = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item(root)
+		var listing = $Layout/L2/VBC/Castbook.create_item(root)
 		listing.set_text(0, character.char_name)
 		#The method_actor character is used to look up bounded number properties in historybook entries.
 		var method_actor = Actor.new(rehearsal.storyworld, "Placeholder", "they / them")
 		if (null != next_page):
-			var record = next_page.get_metadata(0)
-			method_actor.bnumber_properties = record.relationship_values[character.id].duplicate(true)
+			method_actor.bnumber_properties = next_page.relationship_values[character.id].duplicate(true)
 		for bnumber_property in character.authored_properties:
-			var entry = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item(listing)
+			var entry = $Layout/L2/VBC/Castbook.create_item(listing)
 			var keyring = []
 			keyring.append(bnumber_property.id)
 			entry.set_metadata(0, keyring)
@@ -64,7 +97,7 @@ func refresh_castbook(next_page = null):
 					if (layer < bnumber_property.depth - 1):
 						for branch in current_layer_items:
 							for perceived_character in cast:
-								var leaf = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item(branch)
+								var leaf = $Layout/L2/VBC/Castbook.create_item(branch)
 								keyring = branch.get_metadata(0).duplicate()
 								keyring.append(perceived_character.id)
 								leaf.set_metadata(0, keyring)
@@ -74,7 +107,7 @@ func refresh_castbook(next_page = null):
 					elif (layer == bnumber_property.depth - 1):
 						for branch in current_layer_items:
 							for perceived_character in cast:
-								var leaf = $Layout/L2/VBC/Scroll_Cast/Castbook.create_item(branch)
+								var leaf = $Layout/L2/VBC/Castbook.create_item(branch)
 								keyring = branch.get_metadata(0).duplicate()
 								keyring.append(perceived_character.id)
 								leaf.set_metadata(0, keyring)
@@ -89,89 +122,202 @@ func refresh_castbook(next_page = null):
 
 func refresh_encountertitle():
 	var display_turn = " (Turn: Null)"
-	if (null != page_to_display.get_metadata(0).turn):
-		display_turn = " (Turn: " + str(page_to_display.get_metadata(0).turn) + ")"
-	if (null == page_to_display.get_metadata(0).encounter):
+	if (null != page_to_display.turn):
+		display_turn = " (Turn: " + str(page_to_display.turn) + ")"
+	if (null == page_to_display.encounter):
 		$Layout/L2/ColorRect/VBC/EncounterTitle.text = "(The End.)" + display_turn
 	else:
-		$Layout/L2/ColorRect/VBC/EncounterTitle.text = page_to_display.get_metadata(0).encounter.title + display_turn
+		$Layout/L2/ColorRect/VBC/EncounterTitle.text = page_to_display.encounter.title + display_turn
 	return $Layout/L2/ColorRect/VBC/EncounterTitle.text
 
 func refresh_maintext():
 	var text = ""
-	if (null != page_to_display.get_metadata(0).player_choice):
-		text += "> " + page_to_display.get_metadata(0).player_choice.get_text(page_to_display.get_parent()) + "\n"
-	if (null != page_to_display.get_metadata(0).antagonist_choice):
-		text += page_to_display.get_metadata(0).antagonist_choice.get_text(page_to_display.get_parent()) + "\n"
-	if (null != page_to_display.get_metadata(0).encounter):
-		text += page_to_display.get_metadata(0).encounter.get_text(page_to_display)
-		print(page_to_display.get_metadata(0).encounter.text_script.data_to_string())
+	if (null != page_to_display.player_choice):
+		text += "> " + page_to_display.player_choice.get_text(page_to_display.get_parent()) + "\n"
+	if (null != page_to_display.antagonist_choice):
+		text += page_to_display.antagonist_choice.get_text(page_to_display.get_parent()) + "\n"
+	if (null != page_to_display.encounter):
+		text += page_to_display.encounter.get_text(page_to_display)
 	else:
 		text += "The End."
 	$Layout/L2/ColorRect/VBC/MainText.set_bbcode(text)
 	return text
 
-#https://github.com/godotengine/godot/issues/19796
-#Trees have a strange system for getting the children of a tree item.
-func get_item_children(item:TreeItem)->Array:
-	item = item.get_children()
-	var children = []
-	while item:
-		children.append(item)
-		item = item.get_next()
-	return children
-
 func refresh_optionslist():
-	$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.clear()
-	if (null == page_to_display.get_metadata(0).encounter):
+	$Layout/L2/ColorRect/VBC/OptionsList.clear()
+	if (null == page_to_display.encounter):
 		return
 	var all_options_index = 0
 	var open_options_index = 0
-	var page_children = get_item_children(page_to_display)
-	for option in page_to_display.get_metadata(0).encounter.options:
+	var page_children = page_to_display.get_children()
+	for option in page_to_display.encounter.options:
 		var option_visible = option.visibility_script.get_value(page_to_display)
 		var option_open = option.performability_script.get_value(page_to_display)
 		if (option_visible and option_open):
-			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.get_text(page_to_display))
-			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.set_item_metadata(all_options_index, page_children[open_options_index])
+			$Layout/L2/ColorRect/VBC/OptionsList.add_item(option.get_text(page_to_display))
+			$Layout/L2/ColorRect/VBC/OptionsList.set_item_metadata(all_options_index, page_children[open_options_index])
 			open_options_index += 1
 		elif (option_visible):
-			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.get_text(page_to_display) + " (Visible but closed off.)")
-			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.set_item_metadata(all_options_index, "(Visible but closed off.)")
+			$Layout/L2/ColorRect/VBC/OptionsList.add_item(option.get_text(page_to_display) + " (Visible but closed off.)")
+			$Layout/L2/ColorRect/VBC/OptionsList.set_item_metadata(all_options_index, "(Visible but closed off.)")
 		else:
-			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.add_item(option.get_text(page_to_display) + " (Invisible.)")
-			$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.set_item_metadata(all_options_index, "(Invisible.)")
+			$Layout/L2/ColorRect/VBC/OptionsList.add_item(option.get_text(page_to_display) + " (Invisible.)")
+			$Layout/L2/ColorRect/VBC/OptionsList.set_item_metadata(all_options_index, "(Invisible.)")
 		all_options_index += 1
 
-func refresh_reaction_inclinations(option):
-	$Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.clear()
+func load_options_script_report():
+	$OptionScriptReportWindow/ScriptDisplay.clear()
+	if (null == page_to_display or null == page_to_display.encounter):
+		return
+	var root = $OptionScriptReportWindow/ScriptDisplay.create_item()
+	$OptionScriptReportWindow/ScriptDisplay.set_hide_root(true)
+	for option in page_to_display.encounter.options:
+		var option_entry = $OptionScriptReportWindow/ScriptDisplay.create_item(root)
+		var visible_entry = $OptionScriptReportWindow/ScriptDisplay.create_item(option_entry)
+		$OptionScriptReportWindow/ScriptDisplay.recursively_add_to_script_display(visible_entry, option.visibility_script.contents)
+		var open_entry = $OptionScriptReportWindow/ScriptDisplay.create_item(option_entry)
+		$OptionScriptReportWindow/ScriptDisplay.recursively_add_to_script_display(open_entry, option.performability_script.contents)
+		var option_visible = option.visibility_script.get_value(page_to_display, true)
+		var option_open = option.performability_script.get_value(page_to_display, true)
+		var text = option.get_text(page_to_display).left(40)
+		if (option_visible):
+			if (!option_open):
+				text += " (Visible but closed off.)"
+		else:
+			text += " (Invisible.)"
+		option_entry.set_text(0, text)
+		visible_entry.set_text(0, "Visibility")
+		visible_entry.set_text(1, str(option_visible))
+		open_entry.set_text(0, "Performability")
+		open_entry.set_text(1, str(option_open))
+	$OptionScriptReportWindow.popup()
+
+func report_encounter_scripts(entry):
+	#Used by load_encounter_selection_report() to fill table.
+	if (5 == entry.size()):
+		var encounter = entry[0]
+		var spool_entry = entry[3]
+		var encounter_entry = $EncounterScriptReportWindow/VBC/ScriptDisplay.create_item(spool_entry)
+		encounter_entry.set_text(0, encounter.title)
+		var occurred = entry[4]
+		var occurred_entry = $EncounterScriptReportWindow/VBC/ScriptDisplay.create_item(encounter_entry)
+		occurred_entry.set_text(0, "Has occurred before")
+		occurred_entry.set_text(1, str(occurred))
+		var acceptability_entry = $EncounterScriptReportWindow/VBC/ScriptDisplay.create_item(encounter_entry)
+		$Layout/L2/VBC/Reaction_Inclinations.recursively_add_to_script_display(acceptability_entry, encounter.acceptability_script.contents)
+		#Recalculate the encounter's acceptability in order to fill the display with the value produced by each operator.
+		var acceptable = encounter.acceptability_script.get_value(page_to_display, true)
+		acceptability_entry.set_text(0, "Acceptability")
+		acceptability_entry.set_text(1, str(acceptable))
+		var desirability_entry = $EncounterScriptReportWindow/VBC/ScriptDisplay.create_item(encounter_entry)
+		$Layout/L2/VBC/Reaction_Inclinations.recursively_add_to_script_display(desirability_entry, encounter.desirability_script.contents)
+		#Recalculate the encounter's desirability in order to fill the display with the value produced by each operator.
+		var desirability = encounter.calculate_desirability(page_to_display, true)
+		desirability_entry.set_text(0, "Desirability")
+		desirability_entry.set_text(1, str(desirability))
+
+func load_encounter_selection_report():
+	$EncounterScriptReportWindow/VBC/ConsequenceReport.set_text("")
+	$EncounterScriptReportWindow/VBC/ScriptDisplay.clear()
+	if (null == page_to_display):
+		return
+	var temporary_record = HB_Record.new()
+	temporary_record.set_as_copy_of(page_to_display)
+	temporary_record.encounter = null
+	temporary_record.branch_records.clear()
+	#List results:
+	var text = ""
+	if (null == temporary_record.player_choice):
+		text += "Start of play\n"
+	else:
+		var previous_page = page_to_display.get_parent()
+		if (null != previous_page):
+			text += "Previous encounter: " + previous_page.encounter.title.left(100) + "\n"
+		text += "Option chosen: " + temporary_record.stringify_option(50) + "\n"
+		text += "Reaction chosen: " + temporary_record.stringify_reaction(50) + "\n"
+	var selected_encounter = null
+	if (null != temporary_record.antagonist_choice and null != temporary_record.antagonist_choice.consequence):
+		#If the reaction of the last encounter led to a consequence encounter, that consequence occurs next.
+		selected_encounter = temporary_record.antagonist_choice.consequence
+		text += "Reaction consequence: " + selected_encounter.title.left(100) + "\n"
+#	elif(false):
+#		selected_encounter = null
+#		text += "Encounter consequence: " + selected_encounter.title.left(100) + "\n"
+	#List scripts:
+	var root = $EncounterScriptReportWindow/VBC/ScriptDisplay.create_item()
+	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_hide_root(true)
+	var acceptable_encounters = []
+	var unacceptable_encounters = []
+	var checked = {}
+	var active_spool_count = 0
+	var index = 0
+	for spool in rehearsal.storyworld.spools:
+		if (spool.is_active):
+			var spool_entry = null
+			active_spool_count += 1
+			for encounter in spool.encounters:
+				if (!checked.has(encounter.id)):
+					checked[encounter.id] = true
+					var entry = []
+					entry.append(encounter)
+					entry.append(encounter.calculate_desirability(temporary_record, false))
+					entry.append(index)
+					if (null == spool_entry):
+						spool_entry = $EncounterScriptReportWindow/VBC/ScriptDisplay.create_item(root)
+						spool_entry.set_text(0, spool.spool_name)
+					entry.append(spool_entry)
+					var occurred = rehearsal.has_occurred_on_branch(encounter, temporary_record)
+					entry.append(occurred)
+					if (!occurred and encounter.acceptability_script.get_value(temporary_record)):
+						acceptable_encounters.append(entry)
+					else:
+						unacceptable_encounters.append(entry)
+					index += 1
+	text += "Active spools: " + str(active_spool_count) + "\n"
+	text += "Acceptable encounters: " + str(acceptable_encounters.size()) + "\n"
+	acceptable_encounters.sort_custom(InclinationSorter, "sort_descending")
+	for entry in acceptable_encounters:
+		report_encounter_scripts(entry)
+	unacceptable_encounters.sort_custom(InclinationSorter, "sort_descending")
+	for entry in unacceptable_encounters:
+		report_encounter_scripts(entry)
+	if (null != page_to_display.encounter):
+		text += "Encounter chosen: " + page_to_display.stringify_encounter(100)
+	else:
+		text += "The End."
+	$EncounterScriptReportWindow/VBC/ConsequenceReport.append_bbcode(text)
+	$EncounterScriptReportWindow.popup()
+
+func refresh_reaction_inclinations(option = null):
+	$Layout/L2/VBC/Reaction_Inclinations.clear()
 	if (null == option):
-		$Layout/L2/VBC/Scroll_Reactions.visible = false
+		$Layout/L2/VBC/Reaction_Inclinations.visible = false
 		return
 	else:
-		$Layout/L2/VBC/Scroll_Reactions.visible = true
+		$Layout/L2/VBC/Reaction_Inclinations.visible = true
 	var table = []
 	var index = 0
 	for reaction in option.reactions:
 		var entry = []
 		entry.append(reaction)
-		entry.append(reaction.calculate_desirability())
+		entry.append(reaction.calculate_desirability(page_to_display, false))
 		entry.append(index)
 		table.append(entry)
 		index += 1
 	table.sort_custom(InclinationSorter, "sort_descending")
-	var root = $Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.create_item()
-	$Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.set_hide_root(true)
+	var root = $Layout/L2/VBC/Reaction_Inclinations.create_item()
+	$Layout/L2/VBC/Reaction_Inclinations.set_hide_root(true)
 	for entry in table:
 		if (3 == entry.size()):
 			var reaction = entry[0]
-			var text = reaction.get_text(page_to_display).left(30) + " (Inc: " + str(entry[1]) + ")"
-			var reaction_entry = $Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.create_item(root)
+			var text = reaction.get_text(page_to_display).left(30)
+			var reaction_entry = $Layout/L2/VBC/Reaction_Inclinations.create_item(root)
+			$Layout/L2/VBC/Reaction_Inclinations.recursively_add_to_script_display(reaction_entry, reaction.desirability_script.contents)
 			reaction_entry.set_text(0, text)
 			reaction_entry.set_metadata(0, reaction)
-			text = reaction.desirability_script.contents.data_to_string()
-			var inclination_entry = $Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.create_item(reaction_entry)
-			inclination_entry.set_text(0, text)
+			#Recalculate the reaction's desirability in order to fill the display with the value produced by each operator.
+			var inclination = reaction.calculate_desirability(page_to_display, true)
+			reaction_entry.set_text(1, str(inclination))
 
 signal encounter_loaded(id)
 
@@ -180,74 +326,99 @@ func load_Page(page):
 	rehearsal.step_playthrough(page)
 	refresh_encountertitle()
 	refresh_maintext()
-	refresh_castbook()
 	refresh_optionslist()
-	refresh_reaction_inclinations(null)
-	$Layout/L2/VBC/Result_Label.visible = false
-	$Layout/L2/VBC/Result_Display.visible = false
-	$Layout/L2/VBC/Result_Display.text = ""
-	if (null != page and null != page.get_metadata(0) and null != page.get_metadata(0).encounter and null != page.get_metadata(0).encounter.id):
-		emit_signal("encounter_loaded", page.get_metadata(0).encounter.id)
+	refresh_spoolbook()
+	refresh_historybook()
+	refresh_castbook()
+	refresh_reaction_inclinations()
+	$Layout/L2/ColorRect/VBC/ScriptReportButtonsHBC.visible = true
+	$Layout/L2/VBC/Resulting_Reaction.visible = false
+	$Layout/L2/VBC/Resulting_Reaction.text = ""
+	$Layout/L2/VBC/Resulting_Encounter.visible = false
+	$Layout/L2/VBC/Resulting_Encounter.text = ""
+	if (null != page and null != page.encounter and page.encounter is Encounter):
+		emit_signal("encounter_loaded", page.encounter.id)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass
+	$Layout/VBC/Spoolbook.set_column_expand(0, true)
+	$Layout/VBC/Spoolbook.set_column_min_width(0, 1)
+	$Layout/VBC/Spoolbook.set_column_expand(1, true)
+	$Layout/VBC/Spoolbook.set_column_min_width(1, 1)
+	$Layout/L2/VBC/Reaction_Inclinations.set_column_expand(0, true)
+	$Layout/L2/VBC/Reaction_Inclinations.set_column_min_width(0, 9)
+	$Layout/L2/VBC/Reaction_Inclinations.set_column_expand(1, true)
+	$Layout/L2/VBC/Reaction_Inclinations.set_column_min_width(1, 1)
+	$OptionScriptReportWindow/ScriptDisplay.set_column_expand(0, true)
+	$OptionScriptReportWindow/ScriptDisplay.set_column_min_width(0, 4)
+	$OptionScriptReportWindow/ScriptDisplay.set_column_expand(1, true)
+	$OptionScriptReportWindow/ScriptDisplay.set_column_min_width(1, 1)
+	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_expand(0, true)
+	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_min_width(0, 4)
+	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_expand(1, true)
+	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_min_width(1, 1)
 
 func clear():
 	$Layout/L2/ColorRect/VBC/Play_Button.text = "Start"
-	$Layout/VBC/Scroll_History/Historybook.clear()
+	$Layout/VBC/Spoolbook.clear()
+	$Layout/VBC/Historybook.clear()
 	$Layout/L2/ColorRect/VBC/EncounterTitle.text = ""
 	$Layout/L2/ColorRect/VBC/MainText.set_bbcode("")
-	$Layout/L2/VBC/Scroll_Cast/Castbook.clear()
-	$Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.clear()
-	$Layout/L2/VBC/Scroll_Reactions/Reaction_Inclinations.clear()
-	$Layout/L2/VBC/Result_Label.visible = false
-	$Layout/L2/VBC/Result_Display.visible = false
-	$Layout/L2/VBC/Result_Display.text = ""
+	$Layout/L2/VBC/Castbook.clear()
+	$Layout/L2/ColorRect/VBC/OptionsList.clear()
+	$Layout/L2/VBC/Reaction_Inclinations.clear()
+	$EncounterScriptReportWindow/VBC/ScriptDisplay.clear()
+	$OptionScriptReportWindow/ScriptDisplay.clear()
+	$Layout/L2/ColorRect/VBC/ScriptReportButtonsHBC.visible = false
+	$Layout/L2/VBC/Resulting_Reaction.visible = false
+	$Layout/L2/VBC/Resulting_Reaction.text = ""
+	$Layout/L2/VBC/Resulting_Encounter.visible = false
+	$Layout/L2/VBC/Resulting_Encounter.text = ""
 
 func _on_Play_Button_pressed():
 	$Layout/L2/ColorRect/VBC/Play_Button.text = "Restart"
 	reset_rehearsal()
 	rehearsal.begin_playthrough()
 	load_Page(rehearsal.current_page)
-	refresh_historybook()
 
 func _on_OptionsList_item_selected(index):
-	var option_page = $Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.get_item_metadata(index)
+	var option_page = $Layout/L2/ColorRect/VBC/OptionsList.get_item_metadata(index)
 	if (TYPE_STRING == typeof(option_page)):
-		$Layout/L2/VBC/Result_Label.visible = false
-		$Layout/L2/VBC/Result_Display.visible = true
-		$Layout/L2/VBC/Result_Display.text = "Option cannot be chosen by the player."
+		$Layout/L2/VBC/Resulting_Reaction.visible = false
+		$Layout/L2/VBC/Resulting_Reaction.text = ""
+		$Layout/L2/VBC/Resulting_Encounter.visible = true
+		$Layout/L2/VBC/Resulting_Encounter.text = "Option cannot be chosen by the player."
+		refresh_spoolbook()
 		refresh_castbook()
-		refresh_reaction_inclinations(null)
+		refresh_reaction_inclinations()
 		return
+	refresh_spoolbook(option_page)
 	refresh_castbook(option_page)
-	refresh_reaction_inclinations(option_page.get_metadata(0).player_choice)
-	var result_text = ""
-	if (null != option_page.get_metadata(0).antagonist_choice):
-		result_text += "Reaction: " + option_page.get_metadata(0).antagonist_choice.get_text(page_to_display).left(30) + " "
-	else:
-		result_text += "Reaction: Null "
-	if (null != option_page.get_metadata(0).encounter):
-		result_text += "Encounter: " + option_page.get_metadata(0).encounter.title + "."
-	else:
-		result_text += "Encounter: Null."
-	$Layout/L2/VBC/Result_Label.visible = true
-	$Layout/L2/VBC/Result_Display.visible = true
-	$Layout/L2/VBC/Result_Display.text = result_text
+	refresh_reaction_inclinations(option_page.player_choice)
+	$Layout/L2/VBC/Resulting_Reaction.visible = true
+	$Layout/L2/VBC/Resulting_Reaction.text = "Reaction: " + option_page.stringify_reaction()
+	$Layout/L2/VBC/Resulting_Encounter.visible = true
+	$Layout/L2/VBC/Resulting_Encounter.text = "Encounter: " + option_page.stringify_encounter()
 
 func _on_OptionsList_item_activated(index):
-	var option_page = $Layout/L2/ColorRect/VBC/Scroll_Options/OptionsList.get_item_metadata(index)
+	var option_page = $Layout/L2/ColorRect/VBC/OptionsList.get_item_metadata(index)
 	if (TYPE_STRING == typeof(option_page)):
-		$Layout/L2/VBC/Result_Label.visible = false
-		$Layout/L2/VBC/Result_Display.visible = true
-		$Layout/L2/VBC/Result_Display.text = "Option cannot be chosen by the player."
+		$Layout/L2/VBC/Resulting_Reaction.visible = false
+		$Layout/L2/VBC/Resulting_Reaction.text = ""
+		$Layout/L2/VBC/Resulting_Encounter.visible = true
+		$Layout/L2/VBC/Resulting_Encounter.text = "Option cannot be chosen by the player."
+		refresh_spoolbook()
 		refresh_castbook()
-		refresh_reaction_inclinations(null)
+		refresh_reaction_inclinations()
 		return
 	load_Page(option_page)
-	refresh_historybook()
 
 func _on_Historybook_item_activated(index):
-	var historybook_page = $Layout/VBC/Scroll_History/Historybook.get_item_metadata(index)
+	var historybook_page = $Layout/VBC/Historybook.get_item_metadata(index)
 	load_Page(historybook_page)
+
+func _on_OptionScriptReportButton_pressed():
+	load_options_script_report()
+
+func _on_EncounterSelectionReportButton_pressed():
+	load_encounter_selection_report()

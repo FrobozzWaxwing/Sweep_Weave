@@ -36,12 +36,14 @@ func add_row_to_StatTree(root, label, value):
 func refresh_statistical_overview():
 	var sum_options = 0
 	var sum_reactions = 0
+	var sum_effects = 0
 	var sum_words = 0
 	var regex = RegEx.new()
 	regex.compile("\\S+") # Negated whitespace character class.
 	for x in storyworld.encounters:
 		for y in x.options:
 			for z in y.reactions:
+				sum_effects += z.after_effects.size()
 				sum_words += z.text_script.wordcount()
 			sum_reactions += y.reactions.size()
 			sum_words += y.text_script.wordcount()
@@ -50,14 +52,17 @@ func refresh_statistical_overview():
 		sum_words += x.text_script.wordcount()
 	for x in storyworld.characters:
 		sum_words += regex.search_all(x.char_name).size()
+	$StatTree.clear()
 	var root = $StatTree.create_item()
 	add_row_to_StatTree(root, "Title: ", storyworld.storyworld_title)
 	add_row_to_StatTree(root, "Author: ", storyworld.storyworld_author)
 	add_row_to_StatTree(root, "Creation Date: ", readable_date(storyworld.creation_time))
+	add_row_to_StatTree(root, "Last Modified Date: ", readable_date(storyworld.modified_time))
 	add_row_to_StatTree(root, "IFID: ", storyworld.ifid)
 	add_row_to_StatTree(root, "Total number of encounters: ", str(storyworld.encounters.size()))
 	add_row_to_StatTree(root, "Total number of options: ", str(sum_options))
 	add_row_to_StatTree(root, "Total number of reactions: ", str(sum_reactions))
+	add_row_to_StatTree(root, "Total number of effects: ", str(sum_effects))
 	add_row_to_StatTree(root, "Total number of characters: ", str(storyworld.characters.size()))
 	add_row_to_StatTree(root, "Total number of spools: ", str(storyworld.spools.size()))
 	add_row_to_StatTree(root, "Total number of properties: ", str(storyworld.authored_properties.size()))

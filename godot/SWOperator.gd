@@ -35,26 +35,23 @@ func remap(storyworld):
 			result = (result and check)
 	return result
 
-func evaluate_operand(operand, leaf):
+func evaluate_operand(operand, leaf, report):
 	var result = null
-	if (null == operand):
-		result = null
-	elif (TYPE_BOOL == typeof(operand) or TYPE_INT == typeof(operand) or TYPE_REAL == typeof(operand)):
-		result = operand
-	elif (operand is SWScriptElement):
-		result = operand.get_value(leaf)
+	if (operand is SWScriptElement):
+		result = operand.get_value(leaf, report)
 	if (null == result):
 		print ("Warning: Invalid operand.")
 	return result
 
-func evaluate_operand_at_index(operand_index, leaf):
+func evaluate_operand_at_index(operand_index, leaf, report):
 	if (null == operand_index or operand_index >= operands.size()):
 		#Operator does not contain an operand at the index specified.
 		return null
 	var operand = operands[operand_index]
-	return evaluate_operand(operand, leaf)
+	return evaluate_operand(operand, leaf, report)
 
 func clear():
+	treeview_node = null
 	for operand in operands:
 		if (null != operand and operand is SWScriptElement):
 			operand.clear()
@@ -115,7 +112,7 @@ func validate(intended_script_output_datatype):
 	if (operands.empty()):
 		validation_report += " contains no operands."
 	elif (minimum_number_of_operands > operands.size()):
-		validation_report += " contains only " + str(operands.size()) + " operands, while requiring at least " + str(minimum_number_of_operands) + "operands."
+		validation_report += " contains only " + str(operands.size()) + " operands, while requiring at least " + str(minimum_number_of_operands) + " operands."
 	for operand in operands:
 		if (!(operand is SWScriptElement)):
 			if (null == operand):

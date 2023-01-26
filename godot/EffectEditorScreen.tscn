@@ -1,47 +1,55 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://EffectEditorScreen.gd" type="Script" id=1]
 [ext_resource path="res://SpoolSelector.tscn" type="PackedScene" id=2]
 [ext_resource path="res://BNumberPropertySelector.tscn" type="PackedScene" id=3]
 [ext_resource path="res://ScriptEditScreen.tscn" type="PackedScene" id=4]
+[ext_resource path="res://EventSelectionInterface.tscn" type="PackedScene" id=5]
 
 [node name="Control" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource( 1 )
 
 [node name="TabContainer" type="TabContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
-[node name="BNumberProperty" type="Tabs" parent="TabContainer"]
+[node name="BNumberProperty" type="ColorRect" parent="TabContainer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 4.0
 margin_top = 32.0
 margin_right = -4.0
 margin_bottom = -4.0
+color = Color( 0.0941176, 0.0941176, 0.0941176, 1 )
 
 [node name="VBC" type="VBoxContainer" parent="TabContainer/BNumberProperty"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_right = -8.0
+margin_bottom = -36.0
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="TabContainer/BNumberProperty/VBC"]
-margin_right = 1358.0
+margin_right = 1350.0
 margin_bottom = 14.0
 text = "Set the following property:"
 
 [node name="PropertySelector" parent="TabContainer/BNumberProperty/VBC" instance=ExtResource( 3 )]
 anchor_right = 0.0
 margin_top = 18.0
-margin_right = 1358.0
+margin_right = 1350.0
 margin_bottom = 50.0
 rect_min_size = Vector2( 0, 32 )
 
 [node name="Label2" type="Label" parent="TabContainer/BNumberProperty/VBC"]
 margin_top = 54.0
-margin_right = 1358.0
+margin_right = 1350.0
 margin_bottom = 68.0
 text = "to the value of the following script:"
 
@@ -49,11 +57,11 @@ text = "to the value of the following script:"
 anchor_right = 0.0
 anchor_bottom = 0.0
 margin_top = 72.0
-margin_right = 1358.0
-margin_bottom = 700.0
+margin_right = 1350.0
+margin_bottom = 664.0
 size_flags_vertical = 3
 
-[node name="SpoolStatus" type="Tabs" parent="TabContainer"]
+[node name="SpoolStatus" type="ColorRect" parent="TabContainer"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -61,6 +69,7 @@ margin_left = 4.0
 margin_top = 32.0
 margin_right = -4.0
 margin_bottom = -4.0
+color = Color( 0.0941176, 0.0941176, 0.0941176, 1 )
 
 [node name="VBC" type="VBoxContainer" parent="TabContainer/SpoolStatus"]
 anchor_right = 1.0
@@ -93,3 +102,25 @@ margin_top = 72.0
 margin_right = 1358.0
 margin_bottom = 700.0
 size_flags_vertical = 3
+
+[node name="NextPage" type="ColorRect" parent="TabContainer"]
+visible = false
+margin_right = 40.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color( 0.0980392, 0.0980392, 0.0980392, 1 )
+
+[node name="VBC" type="VBoxContainer" parent="TabContainer/NextPage"]
+margin_right = 40.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="NextPageOptionButton" type="OptionButton" parent="TabContainer/NextPage/VBC"]
+margin_right = 29.0
+margin_bottom = 20.0
+
+[node name="EncounterSelector" parent="TabContainer/NextPage/VBC" instance=ExtResource( 5 )]
+
+[connection signal="item_selected" from="TabContainer/NextPage/VBC/NextPageOptionButton" to="." method="_on_NextPageOptionButton_item_selected"]

@@ -10,7 +10,9 @@ func _init(in_value = ""):
 	output_type = sw_script_data_types.STRING
 	set_value(in_value)
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	if (report):
+		report_value(value)
 	return value
 
 func set_value(in_value):
@@ -19,6 +21,10 @@ func set_value(in_value):
 	else:
 		print ("Cannot set a string constant to a non-string value.")
 		value = ""
+
+func clear():
+	treeview_node = null
+	value = ""
 
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}

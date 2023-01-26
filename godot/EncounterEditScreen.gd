@@ -15,6 +15,9 @@ var clipboard = [] #Copies of the clipped data.
 var clipped_originals = [] #References to the original objects that were clipped.
 enum clipboard_task_types {NONE, CUT, COPY}
 var clipboard_task = clipboard_task_types.NONE
+#Display options:
+#Track whether or not to display the quick reaction desirability script editor.
+var display_reaction_qdse = true
 
 signal refresh_graphview()
 signal refresh_encounter_list()
@@ -39,6 +42,13 @@ func _on_SortMenu_item_selected(index):
 			update_wordcount(each)
 	refresh_encounter_list()
 	emit_signal("refresh_encounter_list")
+
+func set_display_encounter_list(display):
+	$Column1.visible = display
+
+func set_display_reaction_qdse(display):
+	display_reaction_qdse = display
+	refresh_quick_reaction_scripting_interface()
 
 func list_option(option, cutoff = 50):
 	var optionslist = $HSC/Column2/OptionsScroll/OptionsList
@@ -138,7 +148,7 @@ func refresh_quick_reaction_scripting_interface():
 		$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
 		$HSC/Column3/HBCTT/Trait1Selector.refresh()
 		$HSC/Column3/HBCTT/Trait2Selector.refresh()
-	else:
+	elif (display_reaction_qdse):
 		if (current_reaction.desirability_script is ScriptManager):
 			if (current_reaction.desirability_script.contents is BlendOperator
 				and 3 == current_reaction.desirability_script.contents.operands.size()
@@ -151,6 +161,7 @@ func refresh_quick_reaction_scripting_interface():
 				$HSC/Column3/HBCTT/Trait1Selector.refresh()
 				$HSC/Column3/HBCTT/Trait2Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents.operands[1])
 				$HSC/Column3/HBCTT/Trait2Selector.refresh()
+				$HSC/Column3/IncBlendWeightLabel.visible = true
 				$HSC/Column3/HBCTT/Trait2Selector.visible = true
 				$HSC/Column3/HBCLSL/Label.visible = true
 				$HSC/Column3/HBCLSL/Label2.visible = true
@@ -159,28 +170,48 @@ func refresh_quick_reaction_scripting_interface():
 			elif (current_reaction.desirability_script.contents is BNumberPointer):
 				$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents)
 				$HSC/Column3/HBCTT/Trait1Selector.refresh()
+				$HSC/Column3/IncBlendWeightLabel.visible = true
 				$HSC/Column3/HBCTT/Trait2Selector.visible = false
 				$HSC/Column3/HBCLSL.visible = false
 				$HSC/Column3/HBCTT.visible = true
 			elif (current_reaction.desirability_script.contents is BNumberConstant):
 				$HSC/Column3/HBCLSL/BlendWeightSelector.operator.set_value(current_reaction.desirability_script.contents.get_value())
 				$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
+				$HSC/Column3/IncBlendWeightLabel.visible = true
 				$HSC/Column3/HBCLSL/Label.visible = false
 				$HSC/Column3/HBCLSL/Label2.visible = false
 				$HSC/Column3/HBCLSL.visible = true
 				$HSC/Column3/HBCTT.visible = false
 			else:
+				$HSC/Column3/IncBlendWeightLabel.visible = false
 				$HSC/Column3/HBCLSL.visible = false
 				$HSC/Column3/HBCTT.visible = false
 		else:
+			$HSC/Column3/IncBlendWeightLabel.visible = false
 			$HSC/Column3/HBCLSL.visible = false
 			$HSC/Column3/HBCTT.visible = false
+	else:
+		$HSC/Column3/IncBlendWeightLabel.visible = false
+		$HSC/Column3/HBCLSL.visible = false
+		$HSC/Column3/HBCTT.visible = false
+
+func refresh_reaction_consequence_display():
+	if (null != current_reaction and current_reaction is Reaction):
+		if (null == current_reaction.consequence):
+			$HSC/Column3/HBCConsequence/ChangeConsequence.visible = false
+			$HSC/Column3/HBCConsequence/ChangeConsequence.set_text("")
+		elif (current_reaction.consequence is Encounter):
+			$HSC/Column3/HBCConsequence/ChangeConsequence.set_text("Next page set to: " + current_reaction.consequence.title)
+			$HSC/Column3/HBCConsequence/ChangeConsequence.visible = true
+		else:
+			#Error:
+			$HSC/Column3/HBCConsequence/ChangeConsequence.visible = false
+			$HSC/Column3/HBCConsequence/ChangeConsequence.set_text("")
 
 func load_Reaction(reaction):
 	current_reaction = reaction
 	if (null == reaction):
 		$HSC/Column3/ReactionText.text = ""
-		$HSC/Column3/HBCConsequence/CurrentConsequence.text = "No consequence."
 		for each in $HSC/Column3.get_children():
 			if ($HSC/Column3/Null_Reaction_Label == each):
 				each.visible = true
@@ -188,15 +219,12 @@ func load_Reaction(reaction):
 				each.visible = false
 	else:
 		$HSC/Column3/ReactionText.text = reaction.get_text()
-		if (null == reaction.consequence):
-			$HSC/Column3/HBCConsequence/CurrentConsequence.text = "No consequence."
-		else:
-			$HSC/Column3/HBCConsequence/CurrentConsequence.text = reaction.consequence.title
 		for each in $HSC/Column3.get_children():
 			if ($HSC/Column3/Null_Reaction_Label == each):
 				each.visible = false
 			else:
 				each.visible = true
+	refresh_reaction_consequence_display()
 	refresh_quick_reaction_scripting_interface()
 	refresh_reaction_after_effects_list()
 
@@ -246,14 +274,13 @@ func Clear_Encounter_Editing_Screen():
 	$HSC/Column3/ReactionsScroll/ReactionList.clear()
 	$HSC/Column2/OptionText.text = ""
 	$HSC/Column3/ReactionText.text = ""
-	$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability"
-	$HSC/Column3/HBCConsequence/CurrentConsequence.text = ""
+	$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
 	refresh_bnumber_property_lists()
 	load_Option(null)
 
 func load_and_focus_first_encounter():
 	if (0 < storyworld.encounters.size()):
-		load_Encounter(storyworld.encounters[0])
+		load_Encounter(storyworld.encounters.front())
 		$Column1/VScroll/EncountersList.select(0)
 
 func log_update(encounter = null):
@@ -263,6 +290,7 @@ func log_update(encounter = null):
 	storyworld.log_update()
 	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
+	emit_signal("refresh_encounter_list")
 
 func _on_AddButton_pressed():
 	var new_encounter = storyworld.create_new_generic_encounter()
@@ -270,21 +298,13 @@ func _on_AddButton_pressed():
 	log_update(new_encounter)
 	refresh_encounter_list()
 	emit_signal("refresh_graphview")
-	emit_signal("refresh_encounter_list")
 	current_encounter = null
 	current_option = null
 	current_reaction = null
 	load_Encounter(new_encounter)
 	$Column1/VScroll/EncountersList.select(storyworld.encounters.find(new_encounter))
 
-func _on_Edit_pressed():
-	if ($Column1/VScroll/EncountersList.is_anything_selected()):
-		var selection = $Column1/VScroll/EncountersList.get_selected_items()
-		var encounter_index = selection[0]
-		var encounter_to_edit = storyworld.encounters[encounter_index]
-		load_Encounter(encounter_to_edit)
-
-func _on_EncountersList_item_activated(index):
+func _on_EncountersList_multi_selected(index, selected):
 	var encounter_to_edit = storyworld.encounters[index]
 	print("Loading Encounter: " + encounter_to_edit.title)
 	load_Encounter(encounter_to_edit)
@@ -304,7 +324,6 @@ func _on_Duplicate_pressed():
 		log_update(null)
 		refresh_encounter_list()
 		emit_signal("refresh_graphview")
-		emit_signal("refresh_encounter_list")
 		if (encounter_to_edit != null):
 			load_Encounter(encounter_to_edit)
 			$Column1/VScroll/EncountersList.select(storyworld.encounters.find(encounter_to_edit))
@@ -317,7 +336,6 @@ func _on_EncounterTitleEdit_text_changed(new_text):
 		log_update(current_encounter)
 		refresh_encounter_list()
 		emit_signal("refresh_graphview")
-		emit_signal("refresh_encounter_list")
 
 func _on_EncounterMainTextEdit_text_changed():
 	#Change encounter main text
@@ -328,32 +346,28 @@ func _on_EncounterMainTextEdit_text_changed():
 		emit_signal("refresh_graphview")
 
 func _on_ConfirmEncounterDeletion_confirmed():
-	var encounter_to_select = null
-	var selection_index = storyworld.encounters.find(current_encounter) - 1
+	var encounter_to_select = current_encounter
+	var starting_index = storyworld.encounters.find(current_encounter)
 	if (null != current_encounter and encounters_to_delete.has(current_encounter) and encounters_to_delete.size() < storyworld.encounters.size()):
-		while (-1 < selection_index):
-			if (encounters_to_delete.has(storyworld.encounters[selection_index])):
-				selection_index -= 1
-			else:
-				encounter_to_select = storyworld.encounters[selection_index]
+		for index in range(starting_index, storyworld.encounters.size()):
+			if (!encounters_to_delete.has(storyworld.encounters[index])):
+				encounter_to_select = storyworld.encounters[index]
 				break
-		if (null == encounter_to_select):
-			selection_index = storyworld.encounters.find(current_encounter) + 1
-			while (selection_index < storyworld.encounters.size()):
-				if (encounters_to_delete.has(storyworld.encounters[selection_index])):
-					selection_index += 1
-				else:
-					encounter_to_select = storyworld.encounters[selection_index]
+		if (encounter_to_select == current_encounter):
+			for index in range(starting_index, -1, -1):
+				if (!encounters_to_delete.has(storyworld.encounters[index])):
+					encounter_to_select = storyworld.encounters[index]
 					break
+		if (encounter_to_select == current_encounter):
+			encounter_to_select = null
 		load_Encounter(encounter_to_select)
 	for each in encounters_to_delete:
 		storyworld.delete_encounter(each)
 	log_update(null)
 	refresh_encounter_list()
 	if (null != encounter_to_select):
-		$Column1/VScroll/EncountersList.select(selection_index)
+		$Column1/VScroll/EncountersList.select(storyworld.encounters.find(encounter_to_select))
 	emit_signal("refresh_graphview")
-	emit_signal("refresh_encounter_list")
 
 func _on_DeleteButton_pressed():
 	if ($Column1/VScroll/EncountersList.is_anything_selected()):
@@ -398,20 +412,13 @@ func _on_AddOption_pressed():
 
 func _on_ConfirmOptionDeletion_confirmed():
 	for option in options_to_delete:
-		print("Deleting option: " + option.get_truncated_text(20))
-		for encounter in storyworld.encounters:
-			if (encounter.acceptability_script.search_and_replace(option, null)):
-				log_update(encounter)
-			for each in encounter.options:
-				if (each.visibility_script.search_and_replace(option, null)):
-					log_update(encounter)
-				if (each.performability_script.search_and_replace(option, null)):
-					log_update(encounter)
-		current_encounter.options.erase(option)
+		storyworld.delete_option_from_scripts(option)
+		option.encounter.options.erase(option)
+		option.clear()
 		option.call_deferred("free")
 	refresh_option_list()
-	if (0 < current_encounter.options.size()):
-		load_Option(current_encounter.options[0])
+	if (!current_encounter.options.empty()):
+		load_Option(current_encounter.options.front())
 		$HSC/Column2/OptionsScroll/OptionsList.select(0)
 	else:
 		load_Option(null)
@@ -624,17 +631,11 @@ func delete_clipped_originals():
 		for object in clipped_originals:
 			if (object is Option):
 				print("Deleting option: " + object.get_truncated_text(20))
-				for encounter in storyworld.encounters:
-					if (encounter.acceptability_script.search_and_replace(object, null)):
-						log_update(encounter)
-					for option in encounter.options:
-						if (option.visibility_script.search_and_replace(object, null)):
-							log_update(encounter)
-						if (option.performability_script.search_and_replace(object, null)):
-							log_update(encounter)
+				storyworld.delete_option_from_scripts(object)
 				object.encounter.options.erase(object)
 				update_wordcount(object.encounter)
 				log_update(object.encounter)
+				object.clear()
 				object.call_deferred("free")
 		refresh_option_list()
 		if (0 < current_encounter.options.size()):
@@ -646,17 +647,11 @@ func delete_clipped_originals():
 		for object in clipped_originals:
 			if (object is Reaction):
 				print("Deleting reaction: " + object.get_truncated_text(20))
-				for encounter in storyworld.encounters:
-					if (encounter.acceptability_script.search_and_replace(object, null)):
-						log_update(encounter)
-					for option in encounter.options:
-						if (option.visibility_script.search_and_replace(object, null)):
-							log_update(encounter)
-						if (option.performability_script.search_and_replace(object, null)):
-							log_update(encounter)
+				storyworld.delete_reaction_from_scripts(object)
 				object.option.reactions.erase(object)
 				update_wordcount(object.option.encounter)
 				log_update(object.option.encounter)
+				object.clear()
 				object.call_deferred("free")
 		refresh_reaction_list()
 		if (0 < current_option.reactions.size()):
@@ -734,15 +729,9 @@ func _on_AddReaction_pressed():
 func _on_ConfirmReactionDeletion_confirmed():
 	for reaction in reactions_to_delete:
 		print("Deleting reaction: " + reaction.get_truncated_text(25))
-		for encounter in storyworld.encounters:
-			if (encounter.acceptability_script.search_and_replace(reaction, null)):
-				log_update(encounter)
-			for option in encounter.options:
-				if (option.visibility_script.search_and_replace(reaction, null)):
-					log_update(encounter)
-				if (option.performability_script.search_and_replace(reaction, null)):
-					log_update(encounter)
-		current_option.reactions.erase(reaction)
+		storyworld.delete_reaction_from_scripts(reaction)
+		reaction.option.reactions.erase(reaction)
+		reaction.clear()
 		reaction.call_deferred("free")
 	load_Option(current_option)
 	if (null != current_option and 0 < current_option.reactions.size()):
@@ -871,29 +860,18 @@ func _on_Trait2Selector_bnumber_property_selected(selected_property):
 					log_update(current_encounter)
 
 func _on_ChangeConsequence_pressed():
-	if (null != current_reaction):
-		if ($Column1/VScroll/EncountersList.is_anything_selected()):
-			var selection = $Column1/VScroll/EncountersList.get_selected_items()
-			if (storyworld.encounters[selection[0]] == current_encounter):
-				print("An encounter cannot serve as a consequence for itself.")
-			else:
-				current_reaction.consequence = storyworld.encounters[selection[0]]
-				$HSC/Column3/HBCConsequence/CurrentConsequence.text = current_reaction.consequence.title
-				log_update(current_encounter)
-				emit_signal("refresh_graphview")
-
-func _on_RemoveConsequenceButton_pressed():
-	if (null != current_reaction):
-		current_reaction.consequence = null
-		$HSC/Column3/HBCConsequence/CurrentConsequence.text = "No consequence."
-		log_update(current_encounter)
-		emit_signal("refresh_graphview")
+	if (null != current_reaction and current_reaction is Reaction):
+		$EffectEditor/EffectEditorScreen.storyworld = storyworld
+		$EffectEditor/EffectEditorScreen.reset()
+		$EffectEditor/EffectEditorScreen.load_effect(current_reaction.consequence)
+		$EffectEditor.popup()
 
 func _on_AddEffect_pressed():
 	if (null != current_reaction):
 		if (null != storyworld and 0 < storyworld.characters.size() and 0 < storyworld.authored_properties.size()):
 			$EffectEditor/EffectEditorScreen.storyworld = storyworld
 			$EffectEditor/EffectEditorScreen.reset()
+		effect_to_delete = null
 		$EffectEditor.popup()
 	else:
 		print("No reaction currently selected.")
@@ -902,9 +880,25 @@ func _on_EffectEditor_confirmed():
 	if (null != current_reaction):
 		var new_change = $EffectEditor/EffectEditorScreen.get_effect()
 		if (null != new_change):
-			current_reaction.after_effects.append(new_change)
-		refresh_reaction_after_effects_list()
-		log_update(current_encounter)
+			if (new_change is SWEffect):
+				var index = -1
+				if (null != effect_to_delete):
+					index = current_reaction.after_effects.find(effect_to_delete)
+				if (-1 == index):
+					current_reaction.after_effects.append(new_change)
+					refresh_reaction_after_effects_list()
+					log_update(current_encounter)
+				else:
+					current_reaction.after_effects[index] = new_change
+					refresh_reaction_after_effects_list()
+					log_update(current_encounter)
+				effect_to_delete = null
+			elif (new_change is EventPointer):
+				if (null == new_change.encounter or new_change.encounter is Encounter):
+					current_reaction.consequence = new_change.encounter
+					refresh_reaction_consequence_display()
+					log_update(current_encounter)
+					emit_signal("refresh_graphview")
 	else:
 		print("No reaction currently selected.")
 
@@ -1112,14 +1106,10 @@ func _on_ARDSEButton_pressed():
 	$ScriptEditWindow.popup()
 
 func _on_ScriptEditScreen_sw_script_changed(sw_script):
-	if (current_encounter.acceptability_script == sw_script):
-		emit_signal("refresh_graphview")
-		log_update(current_encounter)
-	if (current_encounter.desirability_script == sw_script):
-		log_update(current_encounter)
 	if (current_reaction.desirability_script == sw_script):
 		load_Reaction(current_reaction)
-		log_update(current_encounter)
+	emit_signal("refresh_graphview")
+	log_update(current_encounter)
 
 func _on_AfterReactionEffectsDisplay_moved_item(item, from_index, to_index):
 	if (null == current_reaction):
@@ -1136,7 +1126,16 @@ func _on_AfterReactionEffectsDisplay_moved_item(item, from_index, to_index):
 		current_reaction.after_effects.append(effect)
 
 func _on_AfterReactionEffectsDisplay_item_activated():
-	pass
+	if (null != current_reaction):
+		if (null != storyworld):
+			$EffectEditor/EffectEditorScreen.storyworld = storyworld
+			$EffectEditor/EffectEditorScreen.reset()
+			var effect = $HSC/Column3/AfterReactionEffectsDisplay.get_selected_metadata()
+			$EffectEditor/EffectEditorScreen.load_effect(effect)
+			effect_to_delete = effect
+			$EffectEditor.popup()
+	else:
+		print("No reaction currently selected.")
 
 func _on_EditOptionVisibilityScriptButton_pressed():
 	if (null != current_option and current_option is Option):
@@ -1159,4 +1158,5 @@ func _on_EditOptionPerformabilityScriptButton_pressed():
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
 		$ScriptEditWindow.popup()
+
 

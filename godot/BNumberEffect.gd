@@ -2,100 +2,77 @@ extends SWEffect
 class_name BNumberEffect
 #An object used to set variables, such as bounded number properties.
 
-# Variable to set: operand_0 (Should be a BNumberPointer.)
-# What to set it to: operand_1 (Should be a ScriptManager.)
-var operand_0 = null
-var operand_1 = null
+# Variable to set: assignee (Should be a BNumberPointer.)
+# What to set it to: assignment_script (Should be a ScriptManager.)
 
 enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
 
-func _init(in_operand_0 = null, in_operand_1 = null):
+func _init(in_assignee = null, in_assignment_script = null):
 	effect_type = "Bounded Number Effect"
-	if (in_operand_0 is BNumberPointer):
-		operand_0 = in_operand_0
-		operand_0.parent_operator = self
-	if (in_operand_1 is ScriptManager):
-		operand_1 = in_operand_1
-
-func get_value(leaf = null):
-	#This will return the value of the second operand, but will not change the value of the first operand.
-	if (null == operand_1):
-		return null
-	var value = 0
-	if (operand_1 is ScriptManager):
-		value = operand_1.get_value(leaf)
-	else:
-		return null
-	return value
+	if (in_assignee is BNumberPointer):
+		assignee = in_assignee
+		assignee.parent_operator = self
+	if (in_assignment_script is ScriptManager):
+		assignment_script = in_assignment_script
 
 func enact(leaf = null):
-	if (null != operand_0 and operand_0 is BNumberPointer):
-		var result = get_value(leaf)
+	if (null != assignee and assignee is BNumberPointer and assignment_script is ScriptManager):
+		var result = assignment_script.get_value(leaf, false)
 		if (null != result):
-			operand_0.set_value(result)
+			assignee.set_value(result)
 			return true
 	return false #An error occurred.
 
 func set_as_copy_of(original):
 	var success = true
-	if (operand_0 is BNumberPointer and original.operand_0 is BNumberPointer):
-		operand_0.set_as_copy_of(original.operand_0)
-	elif (null == operand_0 and original.operand_0 is BNumberPointer):
-		operand_0 = BNumberPointer.new()
-		operand_0.set_as_copy_of(original.operand_0)
+	if (assignee is BNumberPointer and original.assignee is BNumberPointer):
+		assignee.set_as_copy_of(original.assignee)
+	elif (null == assignee and original.assignee is BNumberPointer):
+		assignee = BNumberPointer.new()
+		assignee.set_as_copy_of(original.assignee)
 	else:
 		success = false
-	if (operand_1 is ScriptManager and original.operand_1 is ScriptManager):
-		operand_1.set_as_copy_of(original.operand_1)
-	elif (null == operand_1 and original.operand_1 is ScriptManager):
-		operand_1 = ScriptManager.new()
-		operand_1.set_as_copy_of(original.operand_1)
+	if (assignment_script is ScriptManager and original.assignment_script is ScriptManager):
+		assignment_script.set_as_copy_of(original.assignment_script)
+	elif (null == assignment_script and original.assignment_script is ScriptManager):
+		assignment_script = ScriptManager.new()
+		assignment_script.set_as_copy_of(original.assignment_script)
 	else:
 		success = false
 	return success
 
 func remap(storyworld):
 	var result = true
-	if (operand_0 is SWScriptElement):
-		var check = operand_0.remap(storyworld)
+	if (assignee is SWScriptElement):
+		var check = assignee.remap(storyworld)
 		result = (result and check)
-	if (operand_1 is ScriptManager):
-		var check = operand_1.remap(storyworld)
+	if (assignment_script is ScriptManager):
+		var check = assignment_script.remap(storyworld)
 		result = (result and check)
 	return result
 
-func clear():
-	if (operand_0 is SWScriptElement):
-		operand_0.clear()
-		operand_0.call_deferred("free")
-	operand_0 = null
-	if (operand_1 is ScriptManager):
-		operand_1.clear()
-		operand_1.call_deferred("free")
-	operand_1 = null
-
 func data_to_string():
 	var result = "Set "
-	if (operand_0 is BNumberPointer):
-		result += operand_0.data_to_string()
+	if (assignee is BNumberPointer):
+		result += assignee.data_to_string()
 	else:
 		result += "[invalid operand]"
 	result += " to "
-	if (operand_1 is ScriptManager):
-		result += operand_1.data_to_string()
+	if (assignment_script is ScriptManager):
+		result += assignment_script.data_to_string()
 	else:
 		result += "[invalid script]"
 	result += "."
 	return result
 
 func compile(parent_storyworld, include_editor_only_variables = false):
-	if (!(operand_0 is BNumberPointer and operand_1 is ScriptManager)):
+	if (!(assignee is BNumberPointer and assignment_script is ScriptManager)):
 		print ("Error, attempted to compile invalid Setter.")
 		return null
 	var output = {}
 	output["effect_type"] = effect_type
-	output["Set"] = operand_0.compile(parent_storyworld, include_editor_only_variables)
-	output["to"] = operand_1.compile(parent_storyworld, include_editor_only_variables)
+	output["Set"] = assignee.compile(parent_storyworld, include_editor_only_variables)
+	output["to"] = assignment_script.compile(parent_storyworld, include_editor_only_variables)
 	return output
 
 func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
@@ -106,18 +83,18 @@ func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
 			var script_element = BNumberPointer.new(character, data_to_load["Set"]["keyring"])
 			script_element.coefficient = data_to_load["Set"]["coefficient"]
 			script_element.parent_operator = self
-			operand_0 = script_element
+			assignee = script_element
 		if (data_to_load["to"].has("script_element_type")):
 			var script = ScriptManager.new()
 			var output_datatype = sw_script_data_types.VARIANT
-			if (null != operand_0 and operand_0 is SWPointer):
-				if (operand_0.output_type == sw_script_data_types.BNUMBER):
+			if (null != assignee and assignee is SWPointer):
+				if (assignee.output_type == sw_script_data_types.BNUMBER):
 					output_datatype = sw_script_data_types.BNUMBER
-				elif (operand_0.output_type == sw_script_data_types.BOOLEAN):
+				elif (assignee.output_type == sw_script_data_types.BOOLEAN):
 					output_datatype = sw_script_data_types.BOOLEAN
 			script.load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load["to"], output_datatype)
-			operand_1 = script
-	if (null != operand_0 and operand_0 is BNumberPointer and null != operand_1 and operand_1 is ScriptManager):
+			assignment_script = script
+	if (null != assignee and assignee is BNumberPointer and null != assignment_script and assignment_script is ScriptManager):
 		return true
 	else:
 		return false
@@ -130,34 +107,34 @@ func load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load):
 			var script_element = BNumberPointer.new(character, data_to_load["Set"]["keyring"])
 			script_element.coefficient = data_to_load["Set"]["coefficient"]
 			script_element.parent_operator = self
-			operand_0 = script_element
+			assignee = script_element
 		if (data_to_load["to"].has("script_element_type")):
 			var script = ScriptManager.new()
 			var output_datatype = sw_script_data_types.VARIANT
-			if (null != operand_0 and operand_0 is SWPointer):
-				if (operand_0.output_type == sw_script_data_types.BNUMBER):
+			if (null != assignee and assignee is SWPointer):
+				if (assignee.output_type == sw_script_data_types.BNUMBER):
 					output_datatype = sw_script_data_types.BNUMBER
-				elif (operand_0.output_type == sw_script_data_types.BOOLEAN):
+				elif (assignee.output_type == sw_script_data_types.BOOLEAN):
 					output_datatype = sw_script_data_types.BOOLEAN
 			script.load_from_json_v0_0_34_through_v0_0_35(storyworld, data_to_load["to"], output_datatype)
-			operand_1 = script
-	if (null != operand_0 and operand_0 is BNumberPointer and null != operand_1 and operand_1 is ScriptManager):
+			assignment_script = script
+	if (null != assignee and assignee is BNumberPointer and null != assignment_script and assignment_script is ScriptManager):
 		return true
 	else:
 		return false
 
 func validate(intended_script_output_datatype):
 	var validation_report = ""
-	if (null == operand_0):
+	if (null == assignee):
 		validation_report += "Effect \"set\" operand is null."
-	elif (operand_0 is SWPointer):
-		var set_report = operand_0.validate(intended_script_output_datatype)
+	elif (assignee is SWPointer):
+		var set_report = assignee.validate(intended_script_output_datatype)
 		if ("Passed." != set_report):
 			validation_report += "Effect \"set\" operand errors:\n" + set_report
-		if (null == operand_1):
+		if (null == assignment_script):
 			validation_report += "Effect \"to\" operand is null."
 		else:
-			var to_report = operand_1.validate(sw_script_data_types.BNUMBER)
+			var to_report = assignment_script.validate(sw_script_data_types.BNUMBER)
 			if ("Passed." != to_report):
 				validation_report += "Effect \"to\" operand errors:\n" + to_report
 	if ("" == validation_report):

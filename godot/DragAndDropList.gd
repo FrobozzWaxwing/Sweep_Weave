@@ -8,6 +8,7 @@ extends Tree
 #						{"text": "Gamma", "metadata": "Gamma_"},
 #						{"text": "Delta", "metadata": "Delta_"}]
 var list_to_display = []
+var last_item = null
 
 signal moved_item(item, from_index, to_index)
 
@@ -28,6 +29,7 @@ func display_list(list):
 		meta["index"] = entry_index
 		meta["listed_object"] = entry["metadata"]
 		branch.set_metadata(0, meta)
+		last_item = branch
 		entry_index += 1
 
 func get_drag_data(position): # begin drag
@@ -78,3 +80,14 @@ func select_first_item():
 	var treeitem = get_root().get_children()
 	if (null != treeitem):
 		treeitem.select(0)
+
+func select_last_item():
+	if (null != last_item):
+		last_item.select(0)
+
+func replace_item(object, replacement, unique_rows = true):
+	for row in list_to_display:
+		if (object == row["metadata"]):
+			row["metadata"] = replacement
+			if (unique_rows):
+				break

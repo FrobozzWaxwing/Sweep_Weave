@@ -16,6 +16,7 @@ func _init(in_encounter = null, in_option = null, in_reaction = null):
 	reaction = in_reaction
 
 func clear():
+	treeview_node = null
 	negated = false
 	spool = null
 	encounter = null
@@ -35,7 +36,7 @@ func has_occurred_on_branch(leaf):
 	elif (null == option && null == reaction):
 		var node = leaf
 		while (null != node):
-			if (null != node.get_metadata(0).encounter and node.get_metadata(0).encounter == encounter):
+			if (null != node.encounter and node.encounter == encounter):
 				return true
 			#No match for this node.
 			#Go farther towards the root of the tree.
@@ -43,26 +44,30 @@ func has_occurred_on_branch(leaf):
 	else:
 		var node = leaf
 		while (null != node and null != node.get_parent()):
-			if (node.get_parent().get_metadata(0).encounter == encounter):
-				if (null == option && reaction == node.get_metadata(0).antagonist_choice):
+			if (node.get_parent().encounter == encounter):
+				if (null == option && reaction == node.antagonist_choice):
 					return true
-				elif (option == node.get_metadata(0).player_choice && null == reaction):
+				elif (option == node.player_choice && null == reaction):
 					return true
-				elif (option == node.get_metadata(0).player_choice && reaction == node.get_metadata(0).antagonist_choice):
+				elif (option == node.player_choice && reaction == node.antagonist_choice):
 					return true
 			#No match for this node.
 			#Go farther towards the root of the tree.
 			node = node.get_parent()
 	return false
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	var output = null
 	var has_occurred = has_occurred_on_branch(leaf)
 	if (null == negated or null == has_occurred):
-		return null
+		output = null
 	elif (negated != has_occurred):
-		return true
+		output = true
 	else:
-		return false
+		output = false
+	if (report):
+		report_value(output)
+	return output
 
 func data_to_string():
 	return summarize()

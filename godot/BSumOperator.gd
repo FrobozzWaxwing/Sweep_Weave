@@ -26,10 +26,13 @@ func convert_normal_to_bounded(x):
 	else:
 		return -1-(1/(x-1))
 
-func get_value(leaf = null):
-	var result = 0
+func get_value(leaf = null, report = false):
+	var output = 0
 	for operand in operands:
-		var operand_value = evaluate_operand(operand, leaf)
+		var operand_value = evaluate_operand(operand, leaf, report)
 		if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
-			result += convert_bounded_to_normal(operand_value)
-	return convert_normal_to_bounded(result)
+			output += convert_bounded_to_normal(operand_value)
+	output = convert_normal_to_bounded(output)
+	if (report):
+		report_value(output)
+	return output

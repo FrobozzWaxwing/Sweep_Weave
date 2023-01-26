@@ -11,18 +11,19 @@ func _init(in_operand = null):
 	if (null != in_operand):
 		add_operand(in_operand)
 
-func get_value(leaf = null):
+func get_value(leaf = null, report = false):
+	var output = null
 	if (1 <= operands.size()):
-		var value = evaluate_operand_at_index(0, leaf)
-		if (true == value):
-			return false
-		elif (false == value):
-			return true
-		elif (null == value):
-			return null
+		output = evaluate_operand_at_index(0, leaf, report)
+		if (true == output):
+			output = false
+		elif (false == output):
+			output = true
 	else:
 		print ("Warning: not operator has no operands.")
-		return null
+	if (report):
+		report_value(output)
+	return output
 
 func data_to_string():
 	var result = "Not ("
