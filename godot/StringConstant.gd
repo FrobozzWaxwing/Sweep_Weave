@@ -35,3 +35,14 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 
 func data_to_string():
 	return value
+
+func find_occurrences(searchterm):
+	var results = []
+	var index = 0
+	while (-1 != index):
+		index = value.find(searchterm, index)
+		if (-1 != index):
+			results.append(index)
+			print(str(index))
+			index += 1
+	return results

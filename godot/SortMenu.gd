@@ -15,5 +15,7 @@ func _ready():
 	get_popup().add_item("Most Options")
 	get_popup().add_item("Fewest Reactions")
 	get_popup().add_item("Most Reactions")
+	get_popup().add_item("Fewest Effects")
+	get_popup().add_item("Most Effects")
 	get_popup().add_item("Word Count")
 	get_popup().add_item("Rev. Word Count")

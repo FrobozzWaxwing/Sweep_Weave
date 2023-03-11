@@ -7,9 +7,9 @@ var storyworld = null
 signal request_overview_change()
 
 func _ready():
-	$ColorRect/HBC/Column1/Spools.connect("moved_item", self, "_on_Spool_rearranged_via_draganddrop")
-	$ColorRect/HBC/Column2/Encounters_on_current_spool.connect("moved_item", self, "_on_Encounter_rearranged_via_draganddrop")
-	$ColorRect/HBC/Column3/ListofAllEncounters.connect("event_doubleclicked", self, "add_encounter_to_current_spool")
+	$Background/HBC/Column1/Spools.connect("moved_item", self, "_on_Spool_rearranged_via_draganddrop")
+	$Background/HBC/Column2/Encounters_on_current_spool.connect("moved_item", self, "_on_Encounter_rearranged_via_draganddrop")
+	$Background/HBC/Column3/ListofAllEncounters.connect("event_doubleclicked", self, "add_encounter_to_current_spool")
 
 func refresh():
 	if (null != storyworld):
@@ -18,26 +18,26 @@ func refresh():
 			display_spool(storyworld.spools.front())
 		else:
 			current_spool = null
-			$ColorRect/HBC/Column1/Spools.clear()
-			$ColorRect/HBC/Column1/Spools.list_to_display.clear()
-			for child in $ColorRect/HBC/Column2.get_children():
-				if ($ColorRect/HBC/Column2/NoSpoolSelected == child or $ColorRect/HBC/Column2/NoSpoolMargin == child):
+			$Background/HBC/Column1/Spools.clear()
+			$Background/HBC/Column1/Spools.list_to_display.clear()
+			for child in $Background/HBC/Column2.get_children():
+				if ($Background/HBC/Column2/NoSpoolSelected == child or $Background/HBC/Column2/NoSpoolMargin == child):
 					child.visible = true
 				else:
 					child.visible = false
 		refresh_list_of_all_encounters()
 
 func refresh_spools_list():
-	$ColorRect/HBC/Column1/Spools.clear()
-	$ColorRect/HBC/Column1/Spools.list_to_display.clear()
+	$Background/HBC/Column1/Spools.clear()
+	$Background/HBC/Column1/Spools.list_to_display.clear()
 	if (null != storyworld):
 		for spool in storyworld.spools:
 			var display_text = spool.spool_name
 			if ("" == display_text):
 				display_text = "[Untitled Spool]"
 			var entry = {"text": display_text, "metadata": spool}
-			$ColorRect/HBC/Column1/Spools.list_to_display.append(entry)
-	$ColorRect/HBC/Column1/Spools.refresh()
+			$Background/HBC/Column1/Spools.list_to_display.append(entry)
+	$Background/HBC/Column1/Spools.refresh()
 
 func add_spool_to_list(spool):
 	if (null != storyworld):
@@ -45,39 +45,39 @@ func add_spool_to_list(spool):
 		if ("" == display_text):
 			display_text = "[Untitled Spool]"
 		var entry = {"text": display_text, "metadata": spool}
-		$ColorRect/HBC/Column1/Spools.list_to_display.append(entry)
-	$ColorRect/HBC/Column1/Spools.refresh()
+		$Background/HBC/Column1/Spools.list_to_display.append(entry)
+	$Background/HBC/Column1/Spools.refresh()
 
 func display_spool(spool:Spool):
 	current_spool = spool
-	for child in $ColorRect/HBC/Column2.get_children():
-		if ($ColorRect/HBC/Column2/NoSpoolSelected == child or $ColorRect/HBC/Column2/NoSpoolMargin == child):
+	for child in $Background/HBC/Column2.get_children():
+		if ($Background/HBC/Column2/NoSpoolSelected == child or $Background/HBC/Column2/NoSpoolMargin == child):
 			child.visible = false
 		else:
 			child.visible = true
-	$ColorRect/HBC/Column2/Encounters_on_current_spool.clear()
-	$ColorRect/HBC/Column2/Encounters_on_current_spool.list_to_display.clear()
+	$Background/HBC/Column2/Encounters_on_current_spool.clear()
+	$Background/HBC/Column2/Encounters_on_current_spool.list_to_display.clear()
 	if (null != spool and spool is Spool):
-		$ColorRect/HBC/Column2/HBC/SpoolNameEdit.text = spool.spool_name
-		$ColorRect/HBC/Column2/HBC/SpoolStartsActiveCheckBox.pressed = spool.starts_active
+		$Background/HBC/Column2/HBC/SpoolNameEdit.text = spool.spool_name
+		$Background/HBC/Column2/HBC/SpoolStartsActiveCheckBox.pressed = spool.starts_active
 		for encounter in spool.encounters:
 			var display_text = encounter.title
 			if ("" == display_text):
 				display_text = "[Untitled Encounter]"
 			var entry = {"text": display_text, "metadata": encounter}
-			$ColorRect/HBC/Column2/Encounters_on_current_spool.list_to_display.append(entry)
-	$ColorRect/HBC/Column2/Encounters_on_current_spool.refresh()
+			$Background/HBC/Column2/Encounters_on_current_spool.list_to_display.append(entry)
+	$Background/HBC/Column2/Encounters_on_current_spool.refresh()
 
 func load_and_focus_first_spool():
 	if (0 < storyworld.spools.size()):
 		display_spool(storyworld.spools.front())
-		$ColorRect/HBC/Column1/Spools.select_first_item()
+		$Background/HBC/Column1/Spools.select_first_item()
 
 func refresh_list_of_all_encounters():
-	$ColorRect/HBC/Column3/ListofAllEncounters.storyworld = storyworld
-	$ColorRect/HBC/Column3/ListofAllEncounters.display_options = false
-	$ColorRect/HBC/Column3/ListofAllEncounters.display_negated_checkbox = false
-	$ColorRect/HBC/Column3/ListofAllEncounters.refresh()
+	$Background/HBC/Column3/ListofAllEncounters.storyworld = storyworld
+	$Background/HBC/Column3/ListofAllEncounters.display_options = false
+	$Background/HBC/Column3/ListofAllEncounters.display_negated_checkbox = false
+	$Background/HBC/Column3/ListofAllEncounters.refresh()
 
 func create_new_spool():
 	if (null == storyworld):
@@ -94,17 +94,17 @@ func _on_AddButton_pressed():
 	current_spool = create_new_spool()
 	add_spool_to_list(current_spool)
 	display_spool(current_spool)
-	$ColorRect/HBC/Column1/Spools.select_last_item()
+	$Background/HBC/Column1/Spools.select_last_item()
 
 func _on_Spools_item_selected():
-	display_spool($ColorRect/HBC/Column1/Spools.get_selected_metadata())
+	display_spool($Background/HBC/Column1/Spools.get_selected_metadata())
 
 func _on_SpoolNameEdit_text_changed(new_text):
 	current_spool.spool_name = new_text
 	refresh_spools_list()
 
 func _on_SpoolStartsActiveCheckBox_pressed():
-	current_spool.starts_active = $ColorRect/HBC/Column2/HBC/SpoolStartsActiveCheckBox.pressed
+	current_spool.starts_active = $Background/HBC/Column2/HBC/SpoolStartsActiveCheckBox.pressed
 
 func add_encounter_to_current_spool(event_pointer):
 	if (null != event_pointer and null != event_pointer.encounter and null != current_spool):
@@ -127,7 +127,7 @@ func _on_DeleteButton_pressed():
 	if (1 == storyworld.spools.size()):
 		$CannotDeleteSpoolNotification.popup()
 		return
-	spool_to_delete = $ColorRect/HBC/Column1/Spools.get_selected_metadata()
+	spool_to_delete = $Background/HBC/Column1/Spools.get_selected_metadata()
 	if (null != spool_to_delete):
 		var dialog_text = 'Are you sure you wish to delete the following spool?'
 		dialog_text += " (" + spool_to_delete.spool_name + ")"
@@ -144,7 +144,7 @@ func _on_SpoolDeletionConfirmationDialog_confirmed():
 		refresh_spools_list()
 		if (!storyworld.spools.empty()):
 			display_spool(storyworld.spools.front())
-			$ColorRect/HBC/Column1/Spools.select_first_item()
+			$Background/HBC/Column1/Spools.select_first_item()
 		emit_signal("request_overview_change")
 
 func _on_Spool_rearranged_via_draganddrop(item, from_index, to_index):
@@ -170,11 +170,11 @@ func _on_Encounter_rearranged_via_draganddrop(item, from_index, to_index):
 		current_spool.encounters.append(encounter)
 
 func _on_AddEncounterButton_pressed():
-	var selected_event = $ColorRect/HBC/Column3/ListofAllEncounters.selected_event
+	var selected_event = $Background/HBC/Column3/ListofAllEncounters.selected_event
 	add_encounter_to_current_spool(selected_event)
 
 func _on_RemoveEncounterButton_pressed():
-	var encounter_to_remove = $ColorRect/HBC/Column2/Encounters_on_current_spool.get_selected_metadata()
+	var encounter_to_remove = $Background/HBC/Column2/Encounters_on_current_spool.get_selected_metadata()
 	if (null != encounter_to_remove and null != current_spool):
 		#Remove encounter from spool.
 		current_spool.encounters.erase(encounter_to_remove)
@@ -188,3 +188,21 @@ func _on_RemoveEncounterButton_pressed():
 		#Refresh display:
 		display_spool(current_spool)
 		emit_signal("request_overview_change")
+
+#GUI Themes:
+
+onready var add_icon_light = preload("res://custom_resources/add_icon.svg")
+onready var add_icon_dark = preload("res://custom_resources/add_icon_dark.svg")
+onready var delete_icon_light = preload("res://custom_resources/delete_icon.svg")
+onready var delete_icon_dark = preload("res://custom_resources/delete_icon_dark.svg")
+
+func set_gui_theme(theme_name, background_color):
+	$Background.color = background_color
+	match theme_name:
+		"Clarity":
+			$Background/HBC/Column1/HBC/AddButton.icon = add_icon_dark
+			$Background/HBC/Column1/HBC/DeleteButton.icon = delete_icon_dark
+		"Lapis Lazuli":
+			$Background/HBC/Column1/HBC/AddButton.icon = add_icon_light
+			$Background/HBC/Column1/HBC/DeleteButton.icon = delete_icon_light
+	$Background/HBC/Column3/ListofAllEncounters.set_gui_theme(theme_name, background_color)

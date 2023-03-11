@@ -20,50 +20,53 @@ func log_update(encounter = null):
 
 func get_selected_encounters():
 	var selected_encounters = []
-	var row = $ColorRect/VBC/EncounterList.get_next_selected(null)
+	var row = $Background/VBC/EncounterList.get_next_selected(null)
 	while (null != row):
 		var encounter = row.get_metadata(0)
 		if (encounter is Encounter):
 			selected_encounters.append(encounter)
-		row = $ColorRect/VBC/EncounterList.get_next_selected(row)
+		row = $Background/VBC/EncounterList.get_next_selected(row)
 	return selected_encounters
 
 # Encounter Title | Number of Options | Number of Reactions | Number of Effects | Characters Involved | Associated Spools | Word Count | Creation Time | Modified Time
 
 func _ready():
-	if (0 < $ColorRect/VBC/HFlowContainer/SortBar/SortMenu.get_item_count()):
-		$ColorRect/VBC/HFlowContainer/SortBar/SortMenu.select(0)
-	$ColorRect/VBC/EncounterList.set_column_title(0, "Title")
-	$ColorRect/VBC/EncounterList.set_column_expand(0, true)
-	$ColorRect/VBC/EncounterList.set_column_min_width(0, 3)
-	$ColorRect/VBC/EncounterList.set_column_title(1, "Options")
-	$ColorRect/VBC/EncounterList.set_column_expand(1, true)
-	$ColorRect/VBC/EncounterList.set_column_min_width(1, 1)
-	$ColorRect/VBC/EncounterList.set_column_title(2, "Reactions")
-	$ColorRect/VBC/EncounterList.set_column_expand(2, true)
-	$ColorRect/VBC/EncounterList.set_column_min_width(2, 1)
-	$ColorRect/VBC/EncounterList.set_column_title(3, "Effects")
-	$ColorRect/VBC/EncounterList.set_column_expand(3, true)
-	$ColorRect/VBC/EncounterList.set_column_min_width(3, 1)
-	$ColorRect/VBC/EncounterList.set_column_title(4, "Characters")
-	$ColorRect/VBC/EncounterList.set_column_expand(4, true)
-	$ColorRect/VBC/EncounterList.set_column_min_width(4, 3)
-	$ColorRect/VBC/EncounterList.set_column_title(5, "Spools")
-	$ColorRect/VBC/EncounterList.set_column_expand(5, true)
-	$ColorRect/VBC/EncounterList.set_column_min_width(5, 3)
-	$ColorRect/VBC/EncounterList.set_column_title(6, "Word Count")
-	$ColorRect/VBC/EncounterList.set_column_expand(6, true)
-	$ColorRect/VBC/EncounterList.set_column_min_width(6, 1)
-	#$ColorRect/VBC/EncounterList.set_column_title(6, "Creation Time")
-	#$ColorRect/VBC/EncounterList.set_column_title(7, "Modified Time")
+	if (0 < $Background/VBC/HFlowContainer/SortBar/SortMenu.get_item_count()):
+		$Background/VBC/HFlowContainer/SortBar/SortMenu.select(0)
+	$Background/VBC/EncounterList.set_column_title(0, "Title")
+	$Background/VBC/EncounterList.set_column_expand(0, true)
+	$Background/VBC/EncounterList.set_column_min_width(0, 3)
+	$Background/VBC/EncounterList.set_column_title(1, "Options")
+	$Background/VBC/EncounterList.set_column_expand(1, true)
+	$Background/VBC/EncounterList.set_column_min_width(1, 1)
+	$Background/VBC/EncounterList.set_column_title(2, "Reactions")
+	$Background/VBC/EncounterList.set_column_expand(2, true)
+	$Background/VBC/EncounterList.set_column_min_width(2, 1)
+	$Background/VBC/EncounterList.set_column_title(3, "Effects")
+	$Background/VBC/EncounterList.set_column_expand(3, true)
+	$Background/VBC/EncounterList.set_column_min_width(3, 1)
+	$Background/VBC/EncounterList.set_column_title(4, "Characters")
+	$Background/VBC/EncounterList.set_column_expand(4, true)
+	$Background/VBC/EncounterList.set_column_min_width(4, 3)
+	$Background/VBC/EncounterList.set_column_title(5, "Spools")
+	$Background/VBC/EncounterList.set_column_expand(5, true)
+	$Background/VBC/EncounterList.set_column_min_width(5, 3)
+	$Background/VBC/EncounterList.set_column_title(6, "Word Count")
+	$Background/VBC/EncounterList.set_column_expand(6, true)
+	$Background/VBC/EncounterList.set_column_min_width(6, 1)
+	#$Background/VBC/EncounterList.set_column_title(6, "Creation Time")
+	#$Background/VBC/EncounterList.set_column_title(7, "Modified Time")
 	$ConfirmEncounterDeletion.get_ok().set_text("Yes")
 	$ConfirmEncounterDeletion.get_cancel().set_text("No")
 
-onready var table_of_encounters = get_node("ColorRect/VBC/EncounterList")
+onready var table_of_encounters = get_node("Background/VBC/EncounterList")
 
 func refresh():
 	if (null == storyworld):
 		return
+	var sort_index = $Background/VBC/HFlowContainer/SortBar/SortMenu.get_selected()
+	var sort_method = $Background/VBC/HFlowContainer/SortBar/SortMenu.get_popup().get_item_text(sort_index)
+	storyworld.sort_encounters(sort_method)
 	table_of_encounters.clear()
 	var root = table_of_encounters.create_item()
 	root.set_text(0, "Encounters: ")
@@ -117,13 +120,7 @@ func refresh():
 			entry.set_text(6, str(encounter.wordcount()))
 
 func _on_SortMenu_item_selected(index):
-	var sort_method = $ColorRect/VBC/HFlowContainer/SortBar/SortMenu.get_popup().get_item_text(index)
-	storyworld.sort_encounters(sort_method)
 	refresh()
-	#if ("Word Count" == sort_method || "Rev. Word Count" == sort_method):
-		#for each in storyworld.encounters:
-			#update_wordcount(each)
-	#refresh_encounter_list()
 
 func _on_LineEdit_text_entered(new_text):
 	searchterm = new_text
@@ -184,3 +181,18 @@ func _on_DuplicateEncounterButton_pressed():
 		emit_signal("refresh_graphview")
 		emit_signal("refresh_encounter_list")
 		emit_signal("encounter_load_requested", encounter_to_load)
+
+onready var add_icon_light = preload("res://custom_resources/add_icon.svg")
+onready var add_icon_dark = preload("res://custom_resources/add_icon_dark.svg")
+onready var delete_icon_light = preload("res://custom_resources/delete_icon.svg")
+onready var delete_icon_dark = preload("res://custom_resources/delete_icon_dark.svg")
+
+func set_gui_theme(theme_name, background_color):
+	$Background.color = background_color
+	match theme_name:
+		"Clarity":
+			$Background/VBC/HFlowContainer/AddEncounterButton.set_button_icon(add_icon_dark)
+			$Background/VBC/HFlowContainer/DeleteEncounterButton.set_button_icon(delete_icon_dark)
+		"Lapis Lazuli":
+			$Background/VBC/HFlowContainer/AddEncounterButton.set_button_icon(add_icon_light)
+			$Background/VBC/HFlowContainer/DeleteEncounterButton.set_button_icon(delete_icon_light)

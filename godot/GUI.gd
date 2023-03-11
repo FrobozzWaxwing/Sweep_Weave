@@ -4,8 +4,17 @@ var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
 
-var sweepweave_version_number = "0.0.35"
+var sweepweave_version_number = "0.0.37"
 var storyworld = null
+
+#Theme variables:
+var theme_background_colors = {}
+#Clarity:
+onready var clarity_gradient_header = preload("res://custom_resources/gradient_header_texture_clarity.tres")
+onready var clarity_theme = preload("res://custom_resources/clarity.tres")
+#Lapis Lazuli:
+onready var lapis_lazuli_gradient_header = preload("res://custom_resources/gradient_header_texture_lapis_lazuli.tres")
+onready var lapis_lazuli_theme = preload("res://custom_resources/lapis_lazuli.tres")
 
 func on_character_name_changed(character):
 	$Background/VBC/EditorTabs/Encounters.refresh_character_names()
@@ -114,7 +123,7 @@ func _ready():
 	$Background/VBC/MenuBar/ViewMenu.get_popup().connect("id_pressed", self, "_on_viewmenu_item_pressed")
 	$Background/VBC/MenuBar/ViewMenu.connect("menu_input", self, "_on_viewmenu_item_toggled")
 	$Background/VBC/MenuBar/HelpMenu.get_popup().connect("id_pressed", self, "_on_helpmenu_item_pressed")
-	$About/VBoxContainer/VersionMessage.text = "SweepWeave v." + sweepweave_version_number
+	$About/VBC/VersionMessage.text = "SweepWeave v." + sweepweave_version_number
 #	$Background/VBC/EditorTabs/Play.connect("encounter_loaded", self, "load_Encounter_by_id")
 	$Background/VBC/EditorTabs/Characters.connect("new_character_created", $Background/VBC/EditorTabs/Encounters, "add_character_to_lists")
 	$Background/VBC/EditorTabs/Characters.connect("character_deleted", $Background/VBC/EditorTabs/Encounters, "replace_character")
@@ -135,6 +144,10 @@ func _ready():
 	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Characters, "refresh_property_list")
 	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Encounters, "refresh_bnumber_property_lists")
 	$Background/VBC/EditorTabs.set_current_tab(1)
+	#Set GUI theme variables:
+	theme_background_colors["Clarity"] = Color(0.882353, 0.882353, 0.882353)
+	theme_background_colors["Lapis Lazuli"] = Color(0, 0.062745, 0.12549)
+	set_gui_theme("Clarity")
 
 #GUI Functions
 
@@ -236,6 +249,12 @@ func _on_viewmenu_item_toggled(tab, id, checked):
 			match id:
 				0:
 					$Background/VBC/EditorTabs/Play.set_display_spoolbook(checked)
+		"Themes":
+			match id:
+				0:
+					set_gui_theme("Clarity")
+				1:
+					set_gui_theme("Lapis Lazuli")
 
 func _on_viewmenu_item_pressed(id):
 	var item_name = $Background/VBC/MenuBar/ViewMenu.get_popup().get_item_text(id)
@@ -352,3 +371,21 @@ func display_encounter(encounter):
 func _on_About_confirmed():
 	#Used to bring up MIT License message.
 	$MITLicenseDialog.popup()
+
+func set_gui_theme(theme_name):
+	match theme_name:
+		"Clarity":
+			$Background.set_texture(clarity_gradient_header)
+			$Background.set_theme(clarity_theme)
+		"Lapis Lazuli":
+			$Background.set_texture(lapis_lazuli_gradient_header)
+			$Background.set_theme(lapis_lazuli_theme)
+	$Background/VBC/EditorTabs/Overview.set_gui_theme(theme_name, theme_background_colors[theme_name])
+	$Background/VBC/EditorTabs/Encounters.set_gui_theme(theme_name, theme_background_colors[theme_name])
+	$Background/VBC/EditorTabs/Spools.set_gui_theme(theme_name, theme_background_colors[theme_name])
+	$Background/VBC/EditorTabs/Characters.set_gui_theme(theme_name, theme_background_colors[theme_name])
+	$Background/VBC/EditorTabs/PersonalityModel.set_gui_theme(theme_name, theme_background_colors[theme_name])
+	$Background/VBC/EditorTabs/Settings.set_gui_theme(theme_name, theme_background_colors[theme_name])
+	$Background/VBC/EditorTabs/Documentation.set_gui_theme(theme_name, theme_background_colors[theme_name])
+	$Background/VBC/EditorTabs/GraphView.set_gui_theme(theme_name, theme_background_colors[theme_name])
+	$Background/VBC/EditorTabs/Play.set_gui_theme(theme_name, theme_background_colors[theme_name])

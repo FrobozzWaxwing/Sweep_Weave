@@ -141,3 +141,20 @@ func _on_CharacterList_item_selected(index):
 		var selection = $HBC/VBC/Scroll/CharacterList.get_selected_items()
 		var who = storyworld.characters[selection[0]]
 		load_character(who)
+
+#GUI Themes:
+
+onready var add_icon_light = preload("res://custom_resources/add_icon.svg")
+onready var add_icon_dark = preload("res://custom_resources/add_icon_dark.svg")
+onready var delete_icon_light = preload("res://custom_resources/delete_icon.svg")
+onready var delete_icon_dark = preload("res://custom_resources/delete_icon_dark.svg")
+
+func set_gui_theme(theme_name, background_color):
+	color = background_color
+	match theme_name:
+		"Clarity":
+			$HBC/VBC/Header/AddCharacter.icon = add_icon_dark
+			$HBC/VBC/Header/DeleteCharacter.icon = delete_icon_dark
+		"Lapis Lazuli":
+			$HBC/VBC/Header/AddCharacter.icon = add_icon_light
+			$HBC/VBC/Header/DeleteCharacter.icon = delete_icon_light

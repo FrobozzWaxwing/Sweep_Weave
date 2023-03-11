@@ -12,10 +12,10 @@ signal event_doubleclicked(selected_event)
 
 func _ready():
 	selected_event = EventPointer.new(null, null, null)
-	if (0 < $ColorRect/VBC/SortBar/SortMenu.get_item_count()):
-		$ColorRect/VBC/SortBar/SortMenu.select(0)
+	if (0 < $Background/VBC/SortBar/SortMenu.get_item_count()):
+		$Background/VBC/SortBar/SortMenu.select(0)
 
-onready var event_selection_tree = get_node("ColorRect/VBC/EventTree")
+onready var event_selection_tree = get_node("Background/VBC/EventTree")
 
 func reset():
 	blacklist.clear()
@@ -57,7 +57,7 @@ func refresh():
 							else:
 								entry_r.set_text(0, text)
 							entry_r.set_metadata(0, {"encounter": encounter, "option": option, "reaction": reaction})
-	$ColorRect/VBC/NegatedCheckBox.visible = display_negated_checkbox
+	$Background/VBC/NegatedCheckBox.visible = display_negated_checkbox
 
 func _on_LineEdit_text_entered(new_text):
 	searchterm = new_text
@@ -77,11 +77,11 @@ func _on_EventTree_item_selected():
 		emit_signal("selected_event_changed", selected_event)
 
 func _on_NegatedCheckBox_pressed():
-	selected_event.negated = $ColorRect/VBC/NegatedCheckBox.pressed
+	selected_event.negated = $Background/VBC/NegatedCheckBox.pressed
 	emit_signal("selected_event_changed", selected_event)
 
 func _on_SortMenu_item_selected(index):
-	var sort_method = $ColorRect/VBC/SortBar/SortMenu.get_popup().get_item_text(index)
+	var sort_method = $Background/VBC/SortBar/SortMenu.get_popup().get_item_text(index)
 	if ("Word Count" == sort_method || "Rev. Word Count" == sort_method):
 		for encounter in storyworld.encounters:
 			encounter.wordcount() #Update recorded wordcount of each encounter.
@@ -90,3 +90,8 @@ func _on_SortMenu_item_selected(index):
 
 func _on_EventTree_item_activated():
 	emit_signal("event_doubleclicked", selected_event)
+
+#GUI Themes:
+
+func set_gui_theme(theme_name, background_color):
+	$Background.color = background_color

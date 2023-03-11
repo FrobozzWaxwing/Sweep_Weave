@@ -3,8 +3,8 @@ extends Control
 var storyworld = null
 var operator = null
 
-onready var ControlDial = $Panel/VBC/GridContainer/SpinBox
-onready var ControlSlider = $Panel/VBC/GridContainer/Slidebar
+onready var ControlDial = $Background/VBC/GridContainer/SpinBox
+onready var ControlSlider = $Background/VBC/GridContainer/Slidebar
 
 signal bnumber_value_changed(operator)
 
@@ -13,11 +13,11 @@ func _ready():
 
 func set_layout(label, number_of_columns):
 	if ("" == label):
-		$Panel/VBC/Label.visible = false
+		$Background/VBC/Label.visible = false
 	else:
-		$Panel/VBC/Label.visible = true
-	$Panel/VBC/Label.text = label
-	$Panel/VBC/GridContainer.columns = number_of_columns
+		$Background/VBC/Label.visible = true
+	$Background/VBC/Label.text = label
+	$Background/VBC/GridContainer.columns = number_of_columns
 
 func reset():
 	if (null != storyworld and storyworld is Storyworld):
@@ -28,13 +28,13 @@ func reset():
 
 func refresh():
 	if (null == operator or null == storyworld):
-		$Panel/VBC/GridContainer/Slidebar.value = 0
-		$Panel/VBC/GridContainer/SpinBox.value = 0
+		$Background/VBC/GridContainer/Slidebar.value = 0
+		$Background/VBC/GridContainer/SpinBox.value = 0
 		return false
 	else:
 		var value = operator.get_value()
-		$Panel/VBC/GridContainer/Slidebar.value = value
-		$Panel/VBC/GridContainer/SpinBox.value = value
+		$Background/VBC/GridContainer/Slidebar.value = value
+		$Background/VBC/GridContainer/SpinBox.value = value
 		return true
 
 func _on_Slidebar_value_changed(value):
@@ -46,3 +46,9 @@ func _on_SpinBox_value_changed(value):
 	operator.set_value(value) # This automatically clamps the value to be within bounds.
 	ControlSlider.value = (operator.get_value())
 	emit_signal("bnumber_value_changed", operator)
+
+#GUI Themes:
+
+func set_gui_theme(theme_name, background_color):
+	$Background.color = background_color
+

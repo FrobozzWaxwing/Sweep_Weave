@@ -21,7 +21,7 @@ anchor_bottom = 1.0
 margin_right = 1366.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 0, 32 )
-color = Color( 0.196078, 0.156863, 0.156863, 1 )
+color = Color( 0, 0.0627451, 0.12549, 1 )
 
 [node name="Label" type="Label" parent="ColorRect/VBC/ColorRect"]
 anchor_left = 0.5
@@ -76,12 +76,12 @@ margin_bottom = 700.0
 margin_right = 300.0
 margin_bottom = 400.0
 rect_min_size = Vector2( 300, 400 )
+window_title = "New authored property:"
 resizable = true
-dialog_text = "New authored property:"
 
 [node name="VBC" type="VBoxContainer" parent="PropertyCreationWindow"]
 margin_left = 8.0
-margin_top = 22.0
+margin_top = 8.0
 margin_right = 292.0
 margin_bottom = 364.0
 

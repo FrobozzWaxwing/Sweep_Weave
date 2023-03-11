@@ -62,3 +62,9 @@ func refresh_graphview():
 
 func _on_GraphEdit__end_node_move():
 	get_tree().call_group("graphview_nodes", "save_position")
+
+#GUI Themes:
+
+func set_gui_theme(theme_name, background_color):
+	get_tree().call_group("graphview_nodes", "set_gui_theme", theme_name, background_color)
+

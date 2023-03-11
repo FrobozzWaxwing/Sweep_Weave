@@ -15,7 +15,8 @@ func readable_date(unixdatetime):
 	else:
 		result += "th"
 	result += " "
-	result += months[datetime.month]
+	var month = datetime.month -1
+	result += months[month]
 	result += " "
 	result += str(datetime.year)
 	result += " (UTC)"

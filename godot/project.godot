@@ -95,6 +95,21 @@ _global_script_classes=[ {
 "path": "res://Desideratum.gd"
 }, {
 "base": "Object",
+"class": "DocChapter",
+"language": "GDScript",
+"path": "res://DocChapter.gd"
+}, {
+"base": "Object",
+"class": "DocPage",
+"language": "GDScript",
+"path": "res://DocPage.gd"
+}, {
+"base": "Object",
+"class": "DocSection",
+"language": "GDScript",
+"path": "res://DocSection.gd"
+}, {
+"base": "Object",
 "class": "Encounter",
 "language": "GDScript",
 "path": "res://Encounter.gd"
@@ -267,6 +282,9 @@ _global_script_class_icons={
 "CharacterSorter": "",
 "Compiler": "",
 "Desideratum": "",
+"DocChapter": "",
+"DocPage": "",
+"DocSection": "",
 "Encounter": "",
 "EncounterSorter": "",
 "ErrorReport": "",
@@ -306,7 +324,8 @@ config/name="SweepWeave"
 config/description="An experimental authoring tool for interactive storyworlds."
 run/main_scene="res://GUI.tscn"
 run/low_processor_mode=true
-config/icon="res://icon.png"
+config/icon="res://custom_resources/ball_of_yarn.png"
+config/windows_native_icon="res://custom_resources/ball_of_yarn.ico"
 
 [display]
 

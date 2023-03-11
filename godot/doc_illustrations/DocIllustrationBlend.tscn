@@ -1,0 +1,131 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://doc_illustrations/DocIllustrationBlend.gd" type="Script" id=1]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_min_size = Vector2( 0, 96 )
+script = ExtResource( 1 )
+
+[node name="GridContainer" type="GridContainer" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+columns = 3
+
+[node name="OutputLabel" type="Label" parent="GridContainer"]
+margin_top = 5.0
+margin_right = 86.0
+margin_bottom = 19.0
+text = "Blend (x, y, z)"
+align = 2
+
+[node name="OutputSlider" type="HSlider" parent="GridContainer"]
+margin_left = 90.0
+margin_right = 346.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 256, 24 )
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+editable = false
+tick_count = 21
+ticks_on_borders = true
+
+[node name="Result" type="Label" parent="GridContainer"]
+margin_left = 350.0
+margin_top = 5.0
+margin_right = 424.0
+margin_bottom = 19.0
+
+[node name="XLabel" type="Label" parent="GridContainer"]
+margin_top = 33.0
+margin_right = 86.0
+margin_bottom = 47.0
+text = "x"
+align = 2
+
+[node name="XSlider" type="HSlider" parent="GridContainer"]
+margin_left = 90.0
+margin_top = 28.0
+margin_right = 346.0
+margin_bottom = 44.0
+rect_min_size = Vector2( 256, 0 )
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+tick_count = 21
+ticks_on_borders = true
+
+[node name="XSpinBox" type="SpinBox" parent="GridContainer"]
+margin_left = 350.0
+margin_top = 28.0
+margin_right = 424.0
+margin_bottom = 52.0
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+
+[node name="YLabel" type="Label" parent="GridContainer"]
+margin_top = 61.0
+margin_right = 86.0
+margin_bottom = 75.0
+text = "y"
+align = 2
+
+[node name="YSlider" type="HSlider" parent="GridContainer"]
+margin_left = 90.0
+margin_top = 56.0
+margin_right = 346.0
+margin_bottom = 72.0
+rect_min_size = Vector2( 256, 0 )
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+tick_count = 21
+ticks_on_borders = true
+
+[node name="YSpinBox" type="SpinBox" parent="GridContainer"]
+margin_left = 350.0
+margin_top = 56.0
+margin_right = 424.0
+margin_bottom = 80.0
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+
+[node name="ZLabel" type="Label" parent="GridContainer"]
+margin_top = 89.0
+margin_right = 86.0
+margin_bottom = 103.0
+text = "z (weight)"
+align = 2
+
+[node name="ZSlider" type="HSlider" parent="GridContainer"]
+margin_left = 90.0
+margin_top = 84.0
+margin_right = 346.0
+margin_bottom = 100.0
+rect_min_size = Vector2( 256, 0 )
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+tick_count = 21
+ticks_on_borders = true
+
+[node name="ZSpinBox" type="SpinBox" parent="GridContainer"]
+margin_left = 350.0
+margin_top = 84.0
+margin_right = 424.0
+margin_bottom = 108.0
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+
+[connection signal="value_changed" from="GridContainer/XSlider" to="." method="_on_XSlider_value_changed"]
+[connection signal="value_changed" from="GridContainer/XSpinBox" to="." method="_on_XSpinBox_value_changed"]
+[connection signal="value_changed" from="GridContainer/YSlider" to="." method="_on_YSlider_value_changed"]
+[connection signal="value_changed" from="GridContainer/YSpinBox" to="." method="_on_YSpinBox_value_changed"]
+[connection signal="value_changed" from="GridContainer/ZSlider" to="." method="_on_ZSlider_value_changed"]
+[connection signal="value_changed" from="GridContainer/ZSpinBox" to="." method="_on_ZSpinBox_value_changed"]

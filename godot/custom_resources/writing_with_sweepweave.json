@@ -1,0 +1,553 @@
+{
+	"chapters": [
+		{
+			"title": "Welcome to SweepWeave",
+			"pages": [
+				{
+					"id": "4C29D515",
+					"title": "Preface",
+					"sections": [
+						{
+							"id": "266D3B46",
+							"title": "1",
+							"text": "Welcome to SweepWeave, a toolkit for developing interactive storyworlds.\n\nStoryworlds are computer games, or works of interactive fiction, which focus on interaction with fictional characters as the central game mechanic, which track dynamic relationships between characters, and which employ these simulated characters and relationships to assemble pieces of handcrafted content into a coherent narrative shaped, in part, by player choice.\n\nA storyworld is designed to work like a conversation with an imaginary gamemaster. The gamemaster describes the story's events, the player makes choices in response to these events, and the player's choices impact how the story progresses.\n\nOne can also think of a storyworld as a kind of interactive novel, one where the player controls a character and each page presents the player with a list of options regarding what their character will say and do. The gamemaster, in turn, selects which pages to present to the player, and when, and controls the actions of the other characters in the story.\n\nCreating a storyworld involves both writing encounters, so that the gamemaster has things to say, and composing scripts, so that the gamemaster knows how to decide what to say and when to say it. The present documentation attempts to impart these skills.\n\nChapter 1, [i]Welcome to SweepWeave[/i], goes over some basic information about how to navigate SweepWeave's interface and use the software.\n\n[url=2437A528]Chapter 2, [i]Narrative[/i][/url], discusses how to write and script encounters and create the content of a storyworld.\n\n[url=B3F94C2A]Chapter 3, [i]Characters[/i][/url], discusses how to create characters for your storyworld, how to give them unique personalities and create relationships between them, and how to use their personalities and relationships in the scripts of encounters, options, reactions, and effects.\n\n[url=16885C9E]Chapter 4, [i]Scripting Reference[/i][/url], details each type of script element included in SweepWeave's scripting system.\n\n[url=3F5EA2DE]Chapter 5, [i]Publishing[/i][/url], details how to change your storyworld's title, author attribution, and other metadata, as well as how to export and publish your storyworld.\n\n[url=DEBEFB13]Chapter 6, [i]Afterward[/i][/url], concludes with some acknowledgments of those who have helped support SweepWeave's development, as well as some miscellaneous remarks about the project as a whole.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "D8A6710A",
+					"title": "The Elements of a Storyworld",
+					"sections": [
+						{
+							"id": "1A6244F9",
+							"title": "1",
+							"text": "SweepWeave includes a number of tabs for different aspects of storyworld development. A brief explanation of what each screen is for may help provide storyworld authors with salubrious edification.\n\n[b]Overview:[/b] This screen lists all of the encounters in a given storyworld in a format similar to a spreadsheet. Double-clicking an encounter will open it for editing on the Encounters tab. One can also add new encounters and duplicate or delete existing ones. Typing something into the searchbar and pressing enter will filter the list of encounters, displaying only those which contain the text in question. The sort menu allows you to sort the displayed encounters by various means.\n\n[b]Encounters:[/b] Here you can edit encounters, which constitute the content of your game. You can think of an encounter as a page in a book, or as a node in a work of hypertext. Chapter 2 discusses how to create encounters in more detail.\n\n[b]Spools:[/b] Here you can create, delete, and edit spools. A spool is a list of encounters which can be either active or inactive. During play, the system searches active spools for the most appropriate encounter to present to the player next. Chapter 2 discusses spools in more detail.\n\n[b]Characters:[/b] This screen lets you create and change the characters of your storyworld. Characters can each be given a name and pronouns, (both of which simply help authors remember who is who,) as well as a variety of bounded number properties that track their personalities and their relationships with other characters. Characters, and their properties, are the topics of chapter 3.\n\n[b]Personality Model:[/b] Here you can create and edit properties to apply to your characters. The system is complex, but can be set aside until later on in the documentation, particularly chapter 3.\n\n[b]Settings:[/b] This screen lets you edit your storyworld's title and author attributions, set your storyworld to debug mode, and change how your storyworld displays when compiling it to html. Chapter 4 offers more detail regarding the options made available on this tab.\n\n[b]Documentation:[/b] O_o\n\n[b]GraphView:[/b] This displays your encounters as a graph of interconnected nodes. \"Prerequisites\" tracks which encounters depend on which other encounters as part of their associated scripts. \"Consequences\" tracks which encounters can lead directly to other encounters due to \"next page\" linkages. Encounters can be rearranged via drag-and-drop.\n\n[b]Play:[/b] Here you can play your storyworld from within the editor. The Play screen includes a spoolbook and castbook which display the current state of your storyworld, as well as how that state will change after a player selects a specific option, and a historybook that records what has happened so far.\n\nClicking an option will list the reactions that could occur if the player selects it, along with script summaries that detail the calculations the system performed to decide which reaction to select, plus some text specifying which reaction the system will in fact select and which encounter will come next. You can double-click an option to actually play it and turn to the next page of the story.\n\nDouble-clicking a historybook entry will turn back to the page selected. This allows you to undo moves and try different paths through your game.\n\nFurther details regarding the Play screen are offered at various points throughout this documentation.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "CE64194D",
+					"title": "The Menu Bar",
+					"sections": [
+						{
+							"id": "EDD1E50E",
+							"title": "1",
+							"text": "In the top-left corner of the window lies the menu bar.\n\n[b]File[/b] includes a number of options that, for those familiar with word processors and quite a bit of other software, will require little explanation. \"New Storyworld\" creates a new storyworld, \"Open\" allows you to open saved projects, \"Save\" and \"Save As\" allow you to save your project, and \"Quit\" exits the program.\n\nThe other two options are perhaps a bit less intuitive. \"Compile to HTML\" allows you to export your game to a standalone html file, which you can then open in a web browser in order to play. \"Compile and Playtest\" does the same thing, but then also opens the game in your default web browser.\n\n[b]View[/b] includes a variety of options that allow authors to change how the SweepWeave editor looks. It also lets authors bring up a storyworld summary screen, which lists some statistics and basic information about a storyworld.\n\n[b]Help[/b] includes two options. \"About\" brings up a window that contains some information about SweepWeave itself, including what version of SweepWeave the author has installed.\n\n\"Validate and Troubleshoot\" brings up a Lizard, (similar to a Wizard, but more aptly named,) intended to help storyworld authors figure out what is going wrong, when things go wrong. While SweepWeave is designed to ensure that storyworlds produced with it will always run and never crash, SweepWeave's creators are only human, (allegedly.) The validation and troubleshooting tool is designed to help authors, and SweepWeave's developer's, diagnose problems when they do occur. If, for some reason, some of the scripts contained in your storyworld break down, this tool can identify which scripts are broken, help you figure out what is wrong with them, and help you fix them.",
+							"illustration": null
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "Narrative",
+			"pages": [
+				{
+					"id": "2437A528",
+					"title": "Encounters",
+					"sections": [
+						{
+							"id": "8A753E82",
+							"title": "1",
+							"text": "Encounters are the building blocks of a storyworld's narrative. A storyworld without encounters would produce a very short story indeed, containing a total of two words: \"The End.\"\n\nEach encounter includes a title, a piece of main text that can describe events that happen within the story, a set of options for the player to choose from, (such that they can respond to the story's events,) and a set of reactions associated with each of these options, such that the gamemaster and / or non-player characters can react to the player's choices.\n\nAn encounter's title exists entirely for the author's benefit. Unless you set your storyworld to run in debug mode, (which you can do via the Settings screen,) encounter titles will be invisible when playing your game in a web browser. Their purpose is to help you remember which encounters are which, while you're writing.\n\nAn encounter's main text is the text presented to the player once an encounter is displayed. Here you can narrate your story's events, let your characters engage in dialogue, and include anything else you want to include.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "80DC4FF7",
+					"title": "Options",
+					"sections": [
+						{
+							"id": "8CF8E0A5",
+							"title": "1",
+							"text": "After an encounter's main text come the options associated with it. These options allow the player to make choices; generally these choices determine the actions of a specific character which the player controls, often referred to as the \"player character,\" although in principle the options can represent whatever you, the author, design them to. You could, for example, switch viewpoint characters over the course of a work, let the player control multiple characters at once, or even ask the player to make choices about the storyworld's events apart from the actions of any of its characters, such as whether or not the rain turns to snow, or what name the story's main protagonist and antagonist are given.\n\nEach option includes a bit of text for the game to display to the player to let them know what their options are. If you leave this blank, the option will be rendered invisible during play, regardless of whether or not its visibility script returns [i]True[/i]. Speaking of which:\n\nEach option has a visibility and performability script associated with it. When presenting an encounter to the player, the game will use each option's visibility script to determine whether to display the option to the player, and will use the option's performability script to determine whether or not to let the player choose the option in question. If an option's visibility script returns [i]False[/i], it won't be listed. If it's visibility script returns [i]True[/i], but it's performability script returns [i]False[/i], it will be listed with the text struck through, [s]like so[/s], and the player will be unable to select it. If both the visibility and performability scripts return [i]True[/i], (which is the default,) then an option will be both visible and performable.\n\nIt is possible to create encounters that have no options associated with them at all. In this case, if and when the encounter is displayed, the story will end there.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "D5CA7418",
+					"title": "Reactions",
+					"sections": [
+						{
+							"id": "49A560CF",
+							"title": "1",
+							"text": "Each option has a list of reactions associated with it. Reactions allow the game, and its characters, to react to the player's choices.\n\nOnce the player selects an option, the game runs through all of the reactions associated with the option the player selected, calculates the reaction's desirability via its desirability script, and selects the most desirable reaction. Once a reaction is selected, the text associated with it is displayed, (assuming you don't leave it blank.)\n\nAuthors can also change the settings of the encounter and the options available to the player, changing when encounters occur or when certain options are available for players to choose.\n\nEach encounter has a single character associated with it as an \"antagonist;\" this character's personality and relationship traits are used by the game to determine which reaction occurs after the player has chosen an option. Each reaction has an associated script by which the game calculates the character's inclination to select that reaction; during play, the reaction with the highest inclination is selected. (Ties are broken by choosing the earlier reaction in the list of reactions for the option in question.)\n\nOnce a reaction has been selected by the a.i., the game may also change the relationships between any non-player character and the player character. This allows authors to set certain consequences to occur as a result of the player's choices. In turn, these consequences can carry over to later parts of the story, since character relationships can affect which encounters occur, at what time they occur, and how characters react to the player's actions.\n\nReactions may also cause a specific encounter to occur next, bypassing the usual methods used by the game to select which encounter occurs.\n\nHmtl tags are supported in encounter titles and text, option text, and reaction text. E.g., \"<i>italicized text</i>\" will render as \"[i]italicized text[/i]\" in game.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "FB3607F8",
+					"title": "Spools",
+					"sections": [
+						{
+							"id": "A6C37F57",
+							"title": "1",
+							"text": "A spool is a list of encounters which can be either active or inactive. During play, the system searches active spools for the most appropriate encounter to present to the player next.\n\nYou add create, delete, and edit spools on the Spools screen. Editing them is relatively straightforward, compared to editing encounters. You can give each spool a unique name, just to help you keep track of them, and you can determine whether or not each spool is active when the game begins. You can also add encounters to, or remove them from, a given spool.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "A596336B",
+					"title": "How Encounters are Selected",
+					"sections": [
+						{
+							"id": "EEC7703F",
+							"title": "1",
+							"text": "Every turn the game looks for an encounter to present to the player. This process works as follows:\n\nFirst, the game asks whether or not the reaction that was last selected, (if any,) set the next page to be a specific encounter. If so, the specified encounter is selected. This skips the rest of the process of selecting a given encounter; the system ignores which spools are currently active, which encounters belong to which spools, the acceptability and desirability scripts of encounters, and even whether or not an encounter has already occurred during a playthrough.\n\nIf the reaction that was selected in the previous encounter [i]does not[/i] set the next page to be a specific encounter, (and, by default, they do not,) or if the game has only just begun, (and, hence, no reaction has occurred as of yet,) then the game goes on to the next step.\n\nSecond, the game runs through all encounters associated with currently active spools, asking two questions: \"Has this encounter occurred before?\" and \"Does this encounter's acceptability script return [i]True[/i]?\" All encounters that have already occurred are removed from consideration, as are all encounters with acceptability scripts that return [i]False[/i].\n\nIn the event that no encounters are left to consider once this vetting process is complete, the game displays the words \"The End\" instead of displaying an encounter. As might be surmised, the story will end if and when this occurs. No options are listed for the player to choose an action from.\n\nThird, (assuming some acceptable encounters are left available for the game to choose from,) the game calculates the desirability of each encounter still left to consider. The most desirable encounter is selected and displayed.\n\nThis process, then, gives you a number of ways to control when encounters occur. By assigning encounters to specific spools and turning spools on and off via effects, (which are discussed later in this chapter,) you can determine the initial pool of encounters from which the system will select the next page. You can also think of this process in terms of playing cards: if each spool is a deck of cards, the system will draw a card, (i.e. an encounter,) from a currently active deck. Acceptability scripts give you a more complicated, and more powerful, set of tools for determining which encounters the system will consider for selection at any given time, and desirability scripts give you a similarly complex, but powerful, set of tools for determining which encounter the system actually selects and presents to the player. If you need to ensure that a specific encounter is displayed after a given reaction is selected in the previous encounter, you can do that as well via \"next page\" effects.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "A6984E50",
+					"title": "Effects",
+					"sections": [
+						{
+							"id": "1683E620",
+							"title": "1",
+							"text": "Reactions can have effects associated with them, which in turn affect the state of the storyworld. Effects come in three types, depending on what aspect of the storyworld they change.\n\n[b]Bounded number property effects[/b] change the properties of characters in your storyworld. These properties are designed, primarily, for tracking relationships between characters, but you can use them to track other sorts of properties as well.\n\n[b]Spool effects[/b] activate and deactivate spools.\n\n[b]Next-page effects[/b] set the game to present a specific encounter next turn, bypassing the standard encounter selection process. Each reaction can have one next-page effect at most, but can have any number of bnumber and spool effects.\n",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "4AD2D5D9",
+					"title": "Types of Scripts",
+					"sections": [
+						{
+							"id": "218A89FF",
+							"title": "1",
+							"text": "Storyworlds employ scripts for a variety of purposes, and creating these scripts constitutes much of an author's work. Writing and scripting are probably the two most important aspects of storyworld creation.\n\nScripts in SweepWeave come in three broad types, depending on what type of data they return: BNumber, Boolean, and Text. Scripts are used in the following ways:\n\nEncounters, options, and reactions all include text scripts, though at present these are not editable via the script editor. The intention is for future releases of SweepWeave to allow authors to create scripts to generate text dynamically, depending on a storyworld's current state.\n\n[b]Encounters[/b] include acceptability scripts, which are Boolean, (returning either [i]True[/i] or [i]False[/i],) and desirability scripts, which return bounded numbers, (i.e. numbers between -1 and 1.)\n\n[b]Options[/b] include two Boolean scripts apiece, which determine their visibility and performability, respectively.\n\n[b]Reactions[/b] include one BNumber script, which determines the reaction's desirability.\n\n[b]BNumber and spool effects[/b] also include scripts which determine what they set the associated variable to. Next-page effects do not include scripts; they set the next page to a specific encounter, and that's that.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "2A5AB625",
+					"title": "The Inverse Parser",
+					"sections": [
+						{
+							"id": "CBCF53A7",
+							"title": "1",
+							"text": "While much of the work of creating storyworlds involves a kind of programming, this is not done by writing code, as it is often done in other game engines. Instead, SweepWeave's interface employs what game designer Chris Crawford calls an \"inverse parser.\"\n\nTraditionally, programming and scripting languages require authors to learn to write code using a syntax which computers can understand. Errors in writing such code can cause software to crash during use, or even to not run in the first place. SweepWeave attempts to render such eventualities impossible by only allowing authors to craft their storyworlds and scripts in such a way that SweepWeave will understand what is meant. Instead of listening to what authors have to say and then asking for clarification when misunderstandings arise, SweepWeave limits what authors can say to begin with to what it will be able to understand.\n\nTo the extent that SweepWeave's creators succeed in this goal, then, every storyworld you create should at least run and work without crashing. Your characters might act a bit differently than you want them to, and you'll still have plenty of work to do composing scripts that result in them acting as you envision, but you can work without concerning yourself with fixing syntax errors. Hopefully, this will save storyworld authors a lot of time and worry.\n\nThe tradeoff is that authors are relatively limited in how they can program their storyworlds to work. SweepWeave is not a general purpose programming language, nor even a general purpose game engine, nor even a general purpose interactive fiction system. It is set up to let authors create a particular type of interactive fiction, wherein players can navigate relationships with simulated characters. While the system attempts to offer storyworld authors the tools they need to make the types of storyworlds envisioned, it is relatively minimalistic in what it allows authors to do. Depending on what sort of games you want to create, SweepWeave may or may not be the best tool for your purposes.\n\nWhile we hope that SweepWeave provides the features that you need to make the kind of interactive fiction you want to write, a later section of the present documentation, [url=DEBEFB13][i]IF Tools[/i][/url], lists a number of other interactive fiction development tools that you may also want to check out, if you find SweepWeave too limiting.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "F7D0EF19",
+					"title": "Script Creation",
+					"sections": [
+						{
+							"id": "BDA1DCEB",
+							"title": "1",
+							"text": "A script is a mathematical or logical function, represented as a tree of operators, variables, and constants. As an example of what a script looks like, consider the equation:\n\n[code][indent]f(x, y) = (x + y) / 2[/indent][/code]\n\nThis equation finds the average of x and y. One can rephrase this equation in terms of a tree of two operators, two variables, and one constant, like so:",
+							"illustration": null
+						},
+						{
+							"id": "874E3435",
+							"title": "Illustration 1",
+							"text": "[i]Illustration 1:[/i] Some illustrations are interactive! In this one, you can change the values of x and y, and the values of Add and Divide will follow suit.",
+							"illustration": 0
+						},
+						{
+							"id": "C06950A3",
+							"title": "2",
+							"text": "\nIn tree form, the Add operator takes x and y as input, adds them together, and gives the result to the Divide operator. The Divide operator then divides that result by 2. The value of the equation is calculated by starting at the leaves of the tree and working towards the root. Each element passes its respective output to its parent operator, until the root element is reached. The output of the root element serves as the output of the script as a whole.\n\nThe simplest scripts contain a single constant or variable, such as the number 0.5, the degree to which a character is honest, or the amount of trust one character places in another. More complex scripts use operators to combine some number of constants and variables in various ways, depending on what you need to accomplish in using them.\n\nSweepWeave offers a number of operators and types of data for authors to use in script creation. The script editing interface itself will offer you the options that SweepWeave believes could make sense in context, while quietly holding you back from saying anything that it does not expect to be able to understand. For example, encounter acceptability scripts are designed to return Boolean values, (i.e. [i]true[/i] or [i]false[/i],) so SweepWeave will only let you set the root of an encounter's acceptability script to something that will output a Boolean value, such as a Boolean constant, whether a given Spool is currently active, or a logical operator such as And or Or.\n\nWhen creating scripts, you can click on an element in the script tree to select it, then double-click an option in the menu on the right side of the interface to change the element, add operators to some of the operators, or remove operands from operators when it would make sense to be able to do so. Some elements will also allow you to edit their value after you select them. For example, selecting a bounded number constant will bring up a field at the bottom of the interface which allows you to change the constant's value, (while keeping it within bounds.) Selecting a bounded number property will let you change which property you want to reference.\n\nFeel free to experiment. The use of an inverse parser for the scripting interface is meant to prevent you from creating scripts which would cause your game, (or the SweepWeave editor,) to crash or fail to run, so you should be able to play with the scripting system as much as you like without it disintegrating into a heap of cogs and pine needles.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "BE8B4A88",
+					"title": "The Historybook",
+					"sections": [
+						{
+							"id": "45DFDF8F",
+							"title": "1",
+							"text": "SweepWeave is designed for storyworlds that focus on relationships between characters, the ways in which those relationships can change due to the interactions between those characters, and the ways in which these relationships, in turn, affect each character's choices. In such a storyworld, scripts will often employ character relationships in their calculations. However, characters and the relationships between them constitute the topic of the next chapter. For the present discussion of narrative flow, let us consider, instead, the use of storyworld history.\n\nDuring play, the game keeps track of every event that occurs, and can look up whether or not something has happened at least once in order to decide what will happen next.\n\nSuppose that a number of characters are joining a parade, and that you write two different encounters for the day of the parade, one in which it rains and one in which it snows. (You might wonder where the encounter in which it is sunny wandered off to...)\n\nLater on during play, you may want to check whether or not it rained or snowed. If characters are going to be talking about the events in later encounters, for example, you could create different encounters for their conversations and set up the acceptability scripts of those encounters to lookup which encounter occurred earlier on.\n\nYou could also use historybook references in option visibility or performability scripts, to change what choices the player can make. For example, an option reading \"I'm so disappointed that it rained on our parade\" might be visible only if it rained, while another option, \"I'm disappointed that our parade was canceled due to snow, but at least now we can make snow angels!\" would be visible only if it snowed.\n\nPerhaps more usefully, you can also lookup the earlier choices made by the player and computer-controlled characters. Suppose that the player selects the option above about making snow angels. Another character, Aileen, initially responds that she doesn't want to play in the snow at all, feeling too upset about the canceled parade. In a later encounter she could change her mind, (perhaps after the player has cheered her up a bit.) Since it would make more sense for Aileen to ask the player if they still want to make snow angels only if the player had brought it up earlier, one could refer back to the option to bring it up in the acceptability script of a later encounter, then have Aileen ask the player to make snow angels in that later encounter. Similarly, Aileen's earlier responses could change which encounters can occur, or change what dialog is available to the player in later encounters.\n\nTo add an event lookup to a given script, double-click \"event\" in the script editor and select the encounter, option, or reaction that you want to look up. Event pointers can only be added when SweepWeave is expecting some kind of Boolean value as output. Normally an event pointer will return [i]true[/i] if the event in question has occurred at least once, and [i]false[/i] if it has not occurred at all, but checking the \"negated\" box will negate the output, such that the pointer will return [i]false[/i] if an event has [i]not[/i] occurred, and [i]true[/i] if it has.\n\nOn a related note, when playtesting a storyworld from within the SweepWeave editor, the historybook will be displayed on the left of the screen. Clicking on an entry will turn back to that page of the play-through. You can use this feature to undo moves and try taking different paths through your storyworld.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "36B1F4BA",
+					"title": "The Main Loop",
+					"sections": [
+						{
+							"id": "02DBC2BD",
+							"title": "1",
+							"text": "For those interested in the technical details of how storyworlds operate, the following summarizes the \"main loop\" of a playthrough:\n\n[b]1)[/b] Fate selects an encounter:\n[indent][b]A)[/b] If the reaction selected during the last encounter specifies an encounter to occur next, that encounter is selected.\n[b]B)[/b] If the most recent reaction did not specify an encounter to occur next, or if no reactions have yet occurred, (due to the playthrough having just begun,) then Fate selects the most desirable encounter out of every encounter that:\n[indent][b]I)[/b] is part of a currently active spool;\n[b]II)[/b] has not occurred before\n[b]III)[/b] and is acceptable, (that is, its acceptability script returns a value of [i]true[/i].)[/indent][/indent]\n[b]2)[/b] Fate presents the selected encounter to the player:\n[indent][b]A)[/b] The encounter's main text is displayed.\n[b]B)[/b] Fate runs through the options associated with the encounter:\n[indent][b]I)[/b] If the option's visibility script returns [i]false[/i], or if the option contains no text, then the option is rendered invisible.\n[b]II)[/b] If the option's visibility script returns [i]true[/i], but its performability script returns [i]false[/i], then it is listed with a strike through the text, [s]like so[/s]. Players will be able to see the option, but will be unable to select it.\n[b]III)[/b] If the option's visibility and performability scripts both return [i]true[/i], the option is listed and the player can select it.[/indent]\n[b]C)[/b] If no options are both visible and performable, or if the encounter has no options, then the game ends with this encounter.[/indent]\n[b]3)[/b] The player chooses an option.\n[b]4)[/b] Fate selects the most desirable reaction out of the list of reactions associated with the option the player chose.\n[b]5)[/b] Fate presents the selected reaction to the player.\n[b]6)[/b] The game returns to step 1, repeating this loop until the game runs out of valid encounters, or reaches an encounter without any performable options, at which point the story ends.",
+							"illustration": null
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "Characters",
+			"pages": [
+				{
+					"id": "B3F94C2A",
+					"title": "What are Characters?",
+					"sections": [
+						{
+							"id": "926AA4F0",
+							"title": "1",
+							"text": "If the events and narrative of a storyworld constitute its skeleton, the characters of a storyworld could justly be regarded as its heart and soul. SweepWeave is designed for character interaction and relationship building to be the core of a game, and the features that SweepWeave offers to help designers create compelling characters are probably the main way in which SweepWeave, as a development system, stands out from systems such as Twine and Ink, (which are also excellent tools in their own right.)\n\nSo what is a character?\n\nA character is a representation of a person, motivated by their values, guided by their convictions, aided by their allies, impeded by their opponents, and living and acting in a universe which they must understand if they are to thrive.\n\nAt the core of a character are the values that the character wants to attain and protect, and the convictions the character holds regarding their own nature, the nature of other people, and the nature of the universe that they inhabit.\n\nValues and convictions both lie at the intersection of cognition and emotion. If you have some notion that cognition and emotion are dichotomous and opposing forces, I recommend abandoning that notion at the earliest opportunity. Instead, think of a character's thoughts and feelings as parts of the same process, with the two aspects of a character feeding into and reinforcing each other.\n\nIn cognitive terms, a character's values are the goals that they spend their days pursuing. Their convictions are the beliefs that guide them, or hinder them, in those pursuits. In emotional terms, a character's values are their desires, their passions, and the people, activities, and things that they love. Their convictions are the sense that they have, deep down, of how the world is, and of how it is supposed to be.\n\nA character's values and convictions drive them to act, and guide their decision making, and it is here that characters earn their name. Characters, of course, express themselves through their words and actions. It is through what they say and do that players can learn what they are after, how they view the world, and their estimations of themselves and others.\n\nA character needs both the deep-seated, and hidden, processes that drive them to act [i]and[/i] the concrete expressions through which their core identity manifests.\n\nIncidentally, since storyworlds are interactive, characters also need the ability to listen to the player, observe their actions and choices, process these experiences, and, potentially, change what they believe and / or what they intend to do about it.\n\nThis chapter discusses how to create characters that live up to the abstracted description above, and how to use them to direct your narrative, and drive it forward.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "C878D9FC",
+					"title": "Traits and Relationships",
+					"sections": [
+						{
+							"id": "D4AAE509",
+							"title": "1",
+							"text": "Let's delve headfirst into the deep end.\n\nCharacters have names, (which are useful for keeping track of them,) pronouns, and an assortment of bounded number properties, the last of which can be used for defining the personality traits and moods of characters, as well as relationships between characters.\n\nPersonality traits track a character's tendency to act in particular ways, (e.g., honestly, kindly, or shyly,) as well as their views about the world, (e.g. that good always triumphs over evil, or that good people are doomed to suffer.) Relationships track how characters feel about each other, what they think of each other, and how they are likely to act towards each other.\n\n[b]Bounded Numbers:[/b]\n\nIf I told you that Aileen's honesty was equal to 57, you would probably have a difficult time understanding what I meant. 57 what? Is there such a thing as a unit of honesty? Does 57 imply a high degree of honesty? A middling degree? A low degree? High or low compared to what? Further context could probably help.\n\nA system of bounded numbers provides such a context. Suppose that, on a scale of 1 to 10, Aileen's honesty is 9. If we define 1 as indicating the lowest possible level of honesty, and 10 as indicating the highest possible level, then 9, being closer to 10 than it is to 1, presumably means that Aileen is honest to a fault. The boundaries give us something to compare specific values to.\n\nSweepWeave defines a bounded number as a number greater than -1 but less than 1. For example, your characters may each have a property called \"generosity.\" For a generous character, you could set this property to 0.7. For a miserly character, you could set it to -0.6. 0, being exactly in the middle of the scale, can be used to mark someone as average, neutral, or unremarkable in some way.\n\n[b]Traits and Perceptions:[/b]\n\nSuppose that Alice's honesty equals 0.4, but Basil believes, mistakenly, that Alice's honesty equals -0.2. We might say, in this case, that Basil distrusts Alice. Trust, in this conception, is one character's perception of another's honesty.\n\nRelationships between characters can often be thought of in this way. Alice's fear of Basil might be thought of as Alice's perception of how great a danger Basil poses to others, or of Basil's tendency towards belligerent or domineering actions. Alice's love of Basil could be thought of as her perception of his virtuousness. And so forth.\n\nOne could extend this even further, in principle. Perhaps Alice wants Basil to marry her, but she is afraid that he might leave her to be with Charlotte. In such a situation, Alice's perception of Basil's love for her, as well as her perception of how much Basil loves Charlotte, would likely affect Alice's decisions.\n\nSo, characters can have particular traits, they can perceive others as having particular traits, and, if necessary, they can even hold opinions about each others' opinions. Relationships between characters consist of the perceptions that different characters have of each other's traits.\n\nThis is, admittedly, a complex way to model relationships between characters, but as an author you get to define how you want to model each character's personality, as well as the web of feelings each character has towards the other cast members. You could track a single type of relationship, (affection, say,) and only a few characters, or a few different types of relationships and a couple dozen characters. Which model will work the best will depend on what kind of stories you want your game to be able to tell.\n\n[b]Directionality of Relationships:[/b]\n\nYou may have noticed that, in this system, Alice's affection for Basil can differ from Basil's affection for Alice. Both could be considered aspects of their relationship, but SweepWeave tracks them as two distinct numbers. Of course, in stories, differences in how two people think of, and feel towards, each other can constitute a major source of drama. Stories are, arguably, similar to real life in that respect.\n\n[b]\"What do the characters do?\"[/b]\n\nKeep in mind that, in order to show a character's personality, you have to write encounters wherein those characters can demonstrate their personality through their actions and dialogue. The whole point of tracking character relationships is to use those relationships to decide how those characters act and what they say, as well as, potentially, what happens to them in turn.\n\nAs discussed in the last chapter, encounters, options, and reactions have a number of scripts associated with them, which determine when they can occur. These scripts can refer to character traits and relationships, and relationships between characters can change as a result of the events of the plot. And therein lies the core of SweepWeave's approach to interactive storytelling: players interact with characters and build relationships with them, characters decide how to react based on their feelings towards the player character and other non-player characters, and the story develops accordingly.\n\nThe decisions that your characters will have to make should determine what relationships and personality traits you employ.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "221D7F8F",
+					"title": "Creating Characters",
+					"sections": [
+						{
+							"id": "195B3E6E",
+							"title": "1",
+							"text": "[b]The Character Editor:[/b]\n\nOn the Characters tab you'll find a list of all of the characters in your storyworld. Selecting a character will allow you to edit their name, pronouns, and other properties.\n\nBounded number properties have a \"depth\" that determines how many layers of perception they involve. A depth of 0 indicates that the property simply consists of a bounded number associated with the character. Properties with depths of 1 or 2 can be used to represent relationships between characters. If you want to track every cast member's affection for every other cast member, for example, you would use a property with a depth of 1. To track perceptions of perceptions, you can use properties with depths of 2. ([url=088454E6]The next page[/url] discusses how to create your own bnumber properties, if you wish.)\n\nWhen you edit the values of a character's properties on the Characters tab, you're changing the value that those properties will have at the start of the game. To change their value during play, you'll need to create effects that occur following specific reactions, over on the Encounters tab.\n\nChanging the value of a bnumber property with a depth of 0 is straightforward enough: the interface includes both a slider and a spinbox. You can click and drag the slider to move it, type a new value into the text field of the spinbox, or use the up and down arrows of the spinbox.\n\nTo change a character's perception of another character, select the perceiver in the list of characters on the left, then find the property that you wish to change, use the dropdown menu to select the perceived character, and change the value as per usual. Traits with depths of 2 offer 2 dropdown menus, but work in essentially the same way. If you select the character Aileen in the menu on the left of the screen, then select Basil from the first dropdown menu below a given property name, and Chase from the second dropdown menu, the idea is that you are changing Aileen's perception of Basil's perception of Chase.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "088454E6",
+					"title": "Editing the Personality Model",
+					"sections": [
+						{
+							"id": "729443E2",
+							"title": "1",
+							"text": "On the Personality Model tab, you can edit, create, and delete bounded number properties, which together make up the personality model of your storyworld.\n\nTo create a new property, click \"Create New Property,\" (sensibly enough,) and enter the settings you want the property to have.\n\nA property's name simply helps you keep track of what's what.\n\nThe default value of a property is used when creating new characters, or when applying properties to characters that they did not apply to before. For example, if you create a property called \"Generosity,\" set the property to apply to all cast members, and then create a new character, SweepWeave will set that character's generosity to whatever you set as the default value of the property.\n\nA property's name and default value can both be changed at any point after you first create it, so no worries if you want to change them later.\n\nThe \"depth\" of a property indicates how many layers of perception the property involves. [url=221D7F8F]As stated on the previous page[/url]: a depth of 0 indicates that the property simply consists of a bounded number associated with the character. Properties with depths of 1 or 2 can be used to represent relationships between characters.\n\nCurrently, once you create a property, its depth is set in stone. If you need to change it, you'll have to create a new property and delete the old one. This may change in future versions of SweepWeave.\n\nYou can also choose whether to apply a property to all cast members or only to specific cast members. In the first case, the property will automatically be applied to every character currently in your storyworld, as well as every new character that you create. In the second case, you'll need to specify which characters to apply the property to, though you can add or remove characters from this list later on. Switching a property back and forth between applying to every cast member automatically, and applying only to some, is currently not possible, though future versions of SweepWeave may change this.\n\nBy convention, personality traits are typically given names consisting of two terms, with the first term describing the negative end of the scale and the second term describing the positive end. Here are some examples of personality traits one might include in a storyworld:\n\n1) Bad_Good\n2) False_Honest\n3) Timid_Dominant\n4) Stingy_Generous\n5) Gullible_Skeptical\n6) Ascetic_Hedonistic\n7) Pessimistic_Optimistic\n\nSo, for instance, a character with a Bad_Good of -0.99 would be exceptionally awful, while one with a Bad_Good of 0.99 would be exceptionally good.\n\nWhich term comes first is mostly arbitrary; you could use \"Good_Bad,\" \"Honest_False,\" and so forth if those names seem more intuitive to you. Indeed, you could also simply use a single term, such as \"goodness\" or \"honesty,\" if you find that more intuitive. Feel free to adopt whatever convention works the best for you.\n\nIf you think of relationships as consisting of the beliefs that characters hold regarding each other's personality traits, then you may want to incorporate the names of your personality traits into the names of your relationships. One simple convention for this is to prefix the name of a personality trait with the letter \"p,\" indicating that the relationship tracks a character's perception of another character's trait. (\"pFalse_Honest\" could track how well characters trust each other, for instance.) For properties of depth 2, (i.e., for perceptions of perceptions of traits,) you can prefix the name of the trait with the letter \"c,\" meaning \"circumferential.\" Again, though, these are only conventions. If you find that using such names makes it more difficult for you to compose scripts, feel free to adopt a different way of doing things.\n\n[b]Best Practices:[/b]\n\nYou don't necessarily need to create a smorgasbord of properties, especially of relationships. You can only write so many encounters, which means you can only offer the player so many choices, which means you can only offer them so many opportunities to affect the relationships between their own character and the other characters in your storyworld, much less between the various non-player characters. I recommend sticking to between one and four relationships; having at least two may help your characters feel more complex and human to your players, but creating too many properties gives you lots of work to do, makes it more difficult for you to decide which relationships to change as a result of a given interaction, and which to use within a given script, and eventually produces diminishing returns.\n\nIt also makes sense to try to make your relationships orthogonal to each other. Including distinct relationships for love and devotion, for instance, seems unlikely to be useful, and may end up simply creating confusion.\n\nAs stated [url=C878D9FC]earlier[/url], the relationships between characters have to be expressed through the words, actions, and choices of those characters. If you find that you're hardly using a given relationship or personality trait when writing a storyworld, you [i]might[/i] want to write more encounters involving those properties, or change some of your current encounters to involve them, but you may also want to replace those properties with other properties that you are already using a great deal more.\n\nUse your best judgment.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "DA845596",
+					"title": "Scripting with Characters",
+					"sections": [
+						{
+							"id": "83267E7D",
+							"title": "1",
+							"text": "[b]Enter, Stage Right:[/b]\n\nAileen asks Brynn to dance. How does Brynn react?\n\nBrynn's affection for Aileen will probably make a difference. Suppose that the greater Brynn's affection for Aileen, the greater her inclination to agree to dance with her. Brynn's shyness or boldness may also come into play, with her inclination to dance increasing in proportion to her boldness, but decreasing in proportion to her shyness.\n\nIf you define a few different possible ways for Brynn to respond to Aileen's request, and you call upon the relationships between the characters, along with Brynn's personality traits, to determine which reaction Brynn selects, then you'll have a way to show the player how Brynn feels towards Aileen, and what kind of person Brynn is.\n\nTo start with a simple example, suppose that only two possible reactions occur to Brynn: saying \"Absolutely!\" and saying \"No thanks, I'm good.\" You could set the desirability of \"Absolutely!\" to the average of Brynn's affection for Aileen and Brynn's boldness, while setting the desirability of \"No thanks, I'm good.\" to 0. If the average of Brynn's affection for Aileen and Brynn's boldness is greater than 0, then she'll agree to dance. If it's less than 0, she'll turn Aileen down. (In the unlikely event that the two reactions are equally desirable, the reaction earlier in the list of reactions is selected. In this example, that would mean that Brynn would agree to dance.)",
+							"illustration": null
+						},
+						{
+							"id": "EA4A8227",
+							"title": "Illustration 2",
+							"text": "",
+							"illustration": 1
+						},
+						{
+							"id": "DB0B5E0F",
+							"title": "2",
+							"text": "\nEncounter desirability scripts work the same way, so you can also use character traits and relationships to change which encounters occur.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "9990099C",
+					"title": "Changing character relationships",
+					"sections": [
+						{
+							"id": "1B7B127D",
+							"title": "1",
+							"text": "Of course, the real power of using character relationships to direct the course of your story lies in how those relationships can change as a result of the player's choices. To create such causal links, you can create effects that are enacted after a given reaction occurs.\n\nTo do this, select a reaction on the Encounters tab, then click the \"+\" icon to the left of the label reading \"Reaction effects.\" This will bring up a window with a few different tabs for the [url=A6984E50]three different types of effects[/url] that you can create. On the BNumberProperty tab, select the bounded number property that you want to change, (right below \"Set the following property,\") then create a script that will produce the value that you want your new effect to set the property to.\n\nYou can reference the property that you wish to change in the script you use to change it. For example, suppose that you want to increase Aileen's affection for Birta 25% of the distance from its current value to 1. To do so, you can use an operator called \"nudge.\" Here's an example of such a script:\n\n[img]custom_resources/reaction_effect_creation_guide_01.png[/img]\n[i]Illustration 3[/i]: A BNumber Property effect, employing a nudge operator.\n\nAfter a reaction occurs, Fate runs through the bnumber and spool effects associated with the reaction, (in the order that they are listed in the \"Reaction effects\" list on the Encounters tab,) calculates the output of the script associated with each effect, and then assigns the resulting value to the variable you set it up to change.\n\nYou can change the order in which effects are enacted by clicking on an effect in the aforementioned list and dragging it to the spot on the list you want to insert it into. This can be useful in cases where multiple effects call on the same variables in their scripts, as once one effect changes the value of a specific variable, the later effects will use the new value of that variable, rather than their original value.",
+							"illustration": null
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "Scripting Reference",
+			"pages": [
+				{
+					"id": "16885C9E",
+					"title": "Overview",
+					"sections": [
+						{
+							"id": "F7D384E7",
+							"title": "1",
+							"text": "SweepWeave includes a number of script elements that you may find useful under various circumstances. The following guide includes details regarding each of these elements. Feel free to check back here whenever you need to lookup what something does.\n\nScript elements come in three basic types: constants, variable pointers, and operators. Scripts are structured as trees, and constants and variable pointers form the leaves of these trees. Different elements also output different types of data, such as Boolean values, (i.e. [i]true[/i] and [i]false[/i],) and bounded numbers, (numbers greater than -1 and less than 1.) Operators also take different types of data as inputs, and differ in how many operands they can accept.\n\n[b]Adding and deleting operands:[/b]\n\nAny element of a script can be selected by clicking the element in the script display, (on the left of the script editing interface.) They can then be replaced by double-clicking the name of a new element type in the toolbox, (that is, in the list of options on the right side of the script editing interface.)\n\nWhile all operators have a minimum number of operands that they can accept, some will accept an indefinite number of operands beyond their minimum. Selecting such an operator in the script display will cause an \"add operand\" option to appear in the script editing toolbox. Clicking this option will add a new operand to the branches of the operator that you selected.\n\nIf you select one of the operands of an operator that currently has more operands than its minimum, a \"delete\" option will appear in the toolbox. Double-clicking this will delete the operand you have selected.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "1C8AE9D1",
+					"title": "BNumber Elements",
+					"sections": [
+						{
+							"id": "35C03E74",
+							"title": "1",
+							"text": "Bounded number elements only show up in the script editor toolbox if you have selected a script element that outputs a bounded number, such as the root of a desirability script.\n",
+							"illustration": null
+						},
+						{
+							"id": "7BF61AD5",
+							"title": "Bounded Number Constant",
+							"text": "[b]1) Bounded Number Constant:[/b]\n\nThe script editor toolbox simply calls this type of element a \"Constant.\" Bounded number constants are numbers greater than -1 but less than 1. They cannot change over the course of the story, hence the name \"constant.\"\n\nSelecting a bounded number constant in the script editor will bring up an interface directly below the script display with a slider and spinbox, which you can use to change the value of the constant.\n",
+							"illustration": null
+						},
+						{
+							"id": "7902C955",
+							"title": "Bounded Number Property",
+							"text": "[b]2) Bounded Number Property:[/b]\n\nThe toolbox lists this type of element as a \"BNumber Property.\" Bounded number properties are variables associated with specific characters, often used to track relationships between characters.\n\nSelecting a bounded number property in the script editor will bring up an interface directly below the script display that allows you to select the property that you want the script to look up. For example, to look up Aileen's Bad_Good, select \"Aileen\" in the first dropdown menu, (which lists the characters in your storyworld,) then select \"Bad_Good\" from the second dropdown menu, (which lists the properties that apply to the character selected from the first menu.)\n\nA small button between these two menus also allows you to toggle whether the system will negate the value of its output. Clicking this button while it is blank will cause the button to display a minus sign, indicating that the value of the property will be multiplied by -1. Clicking it again switches it back. (Note that this negation operation changes the output of the bounded number pointer that you're setting up in the script in question; the value of the property that your script is looking up will not be changed.)\n\nIf you select a property with a depth of 1, the interface will also display a third dropdown menu that lets you select the character being perceived. If you select Aileen as the first character, pBad_Good as the property, and Birta as the second character, the script is basically asking \"What does Aileen believe Birta's Bad_Good to be?\" or, \"To what extent does Aileen love Birta?\" If you select a property that has a depth of 2, then yet another dropdown menu will appear, allowing you to select a third character.\n",
+							"illustration": null
+						},
+						{
+							"id": "D799A77A",
+							"title": "Absolute Value",
+							"text": "[b]3) Absolute Value:[/b]\n\nThis is a simple mathematical function. If the input is greater than or equal to 0, then the output equals the input. If the input is less than 0, then the output equals the input multiplied by -1. So, for example, the absolute value of 0.5 equals 0.5. The absolute value of -0.5 also equals 0.5.\n\nThis can be helpful for gauging how strongly a character feels about something, independently of whether their feelings are positive or negative.\n",
+							"illustration": null
+						},
+						{
+							"id": "82CBA716",
+							"title": "Absolute Value Illustration",
+							"text": "[i]Illustration 4[/i]: Try moving the slider!\n",
+							"illustration": 2
+						},
+						{
+							"id": "B4FF0C30",
+							"title": "Arithmetic Mean",
+							"text": "[b]4) Arithmetic Mean:[/b]\n\nThe arithmetic mean of a set of operands equals the sum of the operands divided by the number of operands. It is also known as the \"average\" of a set of operands.\n",
+							"illustration": null
+						},
+						{
+							"id": "7C8EFC78",
+							"title": "Arithmetic Negation",
+							"text": "[b]5) Arithmetic Negation:[/b]\n\nThe output of an arithmetic negation operator equals -1 multiplied by the operator's input.\n",
+							"illustration": null
+						},
+						{
+							"id": "C315A48A",
+							"title": "Arithmetic Negation Illustration",
+							"text": "[i]Illustration 5[/i]\n",
+							"illustration": 3
+						},
+						{
+							"id": "DEB2B4DA",
+							"title": "Blend",
+							"text": "[b]6) Blend:[/b]\n\nThe Blend operator finds the weighted average of two operands, using a third operand for the weight. A weight of 0 means the output is the same as an unweighted average of the first two operands, that is, the output equals the sum of the first two operands divided by two. The closer the weight is to 1, the closer the output is to the value of the second operand. The closer the weight is to -1, the closer the output is to the value of the first operand.\n\nSuppose that x, y, and z are the first, second, and third operands of a blend operation, respectively, while z equals the third operand. Suppose, further, that:\n\n[indent][code]w = (z +1) / 2[/code][/indent]\n\nYou can then find the blend of two variables, x and y, given a weight of z, like so:\n\n[indent][code]blend(x, y, z) = x * (1 - w) + y * w[/code][/indent]\n\nThe blend operator can be useful when you want to combine two variables, but you want the system to treat one of the variables as more important. For instance, if you think that Alice's inclination to tell Birta a secret should be proportional to Alice's affection for Birta as well as her trust in Birta, but you think that Alice's trust in Birta should matter more than her affection for her, then you can blend Alice's affection for Birta with Alice's trust in Birta, using a weight greater than 0.\n",
+							"illustration": null
+						},
+						{
+							"id": "631F42D0",
+							"title": "Blend Illustration",
+							"text": "[i]Illustration 6[/i]\n",
+							"illustration": 4
+						},
+						{
+							"id": "1B74D7B7",
+							"title": "Proximity to",
+							"text": "[b]7) Proximity to:[/b]\n\nThe proximity-to operator returns a bounded number that is higher when the two operands are closer to equality and lower when the two operands are farther apart. The operator uses the function:\n\n[indent][code][i]P[/i] (x, y) = 0.99 - abs(x - y)[/code][/indent]\n\nThe term \"abs,\" here, refers to absolute value. In other words, the proximity of x to y equals 0.99 minus the absolute value of the difference between x and y.\n",
+							"illustration": null
+						},
+						{
+							"id": "2E9BF5A0",
+							"title": "Proximity Illustration",
+							"text": "[i]Illustration 7[/i]\n",
+							"illustration": 5
+						},
+						{
+							"id": "0CF72C47",
+							"title": "Maximum",
+							"text": "[b]8) Maximum:[/b]\n\nThis finds the greatest value out of every operand. So, for instance, the maximum of 1, 5, and 3 would be 5.\n",
+							"illustration": null
+						},
+						{
+							"id": "ECC5C62F",
+							"title": "Minimum",
+							"text": "[b]8) Minimum:[/b]\n\nThis finds the lowest value out of every operand. So, for instance, the minimum of 3, 1, and 5 would be 1.\n",
+							"illustration": null
+						},
+						{
+							"id": "B580094A",
+							"title": "Nudge",
+							"text": "[b]9) Nudge:[/b]\n\nThe nudge operator can be used to increase or decrease a number some percentage of the distance from its current value to the negative or positive boundaries, i.e., towards -1 or 1.\n\nThe nudge operator takes two operands, the first being the value to be nudged and the second being a weight. The weight indicates the percentage by which to nudge it as well as the direction to move it in. Let's call the first operand \"x\" and the weight \"w.\" One can calculate the result of a nudge operation as follows:\n\n[indent][code]If w equals 0, the output equals x;\nif w is greater than 0, the output equals x * (1 - w) + w;\nif w is less than 0, the output equals x * (1 + w) + w.[/code][/indent]\n\nOr, more simply:\n\n[indent][code]Nudge (x, w) = x * (1 - abs(w)) + w[/code][/indent]\n\nIf you play around a bit with the nudge operator, you may notice that nudging x by 0.5 is equivalent to increasing x 50% of the distance from its current value towards 1. Nudging it by -0.5 decreases it halfway towards -1. This might be a more intuitive way to think about the operator than the equation above.\n\nThe nudge operator can be useful for changing character relationships, among other sorts of bounded number properties.",
+							"illustration": null
+						},
+						{
+							"id": "4E384531",
+							"title": "Nudge Illustration",
+							"text": "[i]Illustration 8[/i]",
+							"illustration": 6
+						}
+					]
+				},
+				{
+					"id": "962985E6",
+					"title": "Boolean Elements",
+					"sections": [
+						{
+							"id": "825238A3",
+							"title": "Boolean Elements",
+							"text": "[b]Boolean Elements:[/b]\n\nThe following elements only show up in the script editor toolbox if you have selected a script element that outputs [i]true[/i] or [i]false[/i].\n",
+							"illustration": null
+						},
+						{
+							"id": "691A433E",
+							"title": "Boolean Constants",
+							"text": "[b]1) Boolean Constants:[/b]\n\n[i]True[/i] and [i]False[/i] are what you would expect them to be: constants that output their respective Boolean values.\n",
+							"illustration": null
+						},
+						{
+							"id": "6F2C61DD",
+							"title": "Event",
+							"text": "[b]2) Event:[/b]\n\nEvent pointers can be used to look up whether or not an encounter, option, or reaction has occurred at least once, so far, during the current playthrough. When you double-click this option in the toolbox, a new window will popup allowing you to select an encounter, option, or reaction. You can also check a box labeled \"negated\" if you want to negate the output, that is, if you want to output [i]true[/i] when the event has [i]not[/i] occurred and  [i]false[/i] when it has.\n\nIf at some point you want to change which event you're referencing, you can do so by double-clicking \"event\" in the toolbox again and selecting a different event.\n",
+							"illustration": null
+						},
+						{
+							"id": "87AD8097",
+							"title": "Spool Status",
+							"text": "[b]3) Spool Status:[/b]\n\nThis element returns [i]true[/i] if the spool in question is currently active, and false otherwise.\n\nSelecting a spool status pointer in the script editor will bring up an interface directly below the script display that allows you to select the spool that you want the script to look up, as well as a button that lets you toggle whether or not the output will be [i]true[/i] when the spool is active or when it is inactive.\n",
+							"illustration": null
+						},
+						{
+							"id": "A09DC7B5",
+							"title": "Not",
+							"text": "[b]4) Not:[/b]\n\nThe Boolean negation of the input. If the operand is [i]true[/i], the operator will return [i]false[/i]; if the operand is [i]false[/i], the operator will return [i]true[/i].\n",
+							"illustration": null
+						},
+						{
+							"id": "2C9ACE09",
+							"title": "And",
+							"text": "[b]5) And:[/b]\n\nReturns [i]true[/i] when every operand evaluates to [i]true[/i]. Otherwise returns [i]false[/i].\n\nSelecting an And operator will bring up an interface directly below the script display that allows you to change the operator to an Or operator while leaving all of the operands the same.\n",
+							"illustration": null
+						},
+						{
+							"id": "EDF5AED3",
+							"title": "Or",
+							"text": "[b]6) Or:[/b]\n\nReturns [i]true[/i] when at least one operand evaluates to [i]true[/i]. Otherwise returns [i]false[/i].\n\nSelecting an Or operator will bring up an interface directly below the script display that allows you to change the operator to an And operator while leaving all of the operands the same.\n",
+							"illustration": null
+						},
+						{
+							"id": "54A947E5",
+							"title": "Comparison Operators",
+							"text": "[b]7) Comparison Operators:[/b]\n\nThe Equals operators return [i]true[/i] when all operands are equal to each other. Greater-than, Greater-than-or-Equal-to, Less-than, and Less-than-or-Equal-to all compare the values of two bounded numbers, acting as one would expect. For example, Greater-than returns [i]true[/i] when the first operand, (i.e., the operand higher up in the script display,) is greater than the second operand, (i.e., the operand lower down in the script display.)",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "C5009ADB",
+					"title": "If-Then",
+					"sections": [
+						{
+							"id": "B4CEB481",
+							"title": "1",
+							"text": "[b]If-Then:[/b]\n\nThe If-Then operator is available whether the expected datatype is Boolean or numerical. This operator tests a condition or series of conditions, then returns the value of the first operand that follows a condition that evaluates to [i]true[/i]. If all condition operands evaluate to [i]false[/i], then the value of the last operand is returned.\n\nThe operator has a minimum of three operands. In this case, the system first evaluates the first operand, (which must output a Boolean value.) If the operand evaluates to [i]true[/i], the If-Then operator returns the value of its second operand. Otherwise, it returns the value of its third operand.\n\nAdding operands to and If-Then operator will add two operands at once, (a condition and a result.) Deleting an operand will also delete two operands at once: deleting a condition will delete the associated result, while deleting a result will delete the associated condition.\n\nOperands that refer to conditions must return Boolean values, but operands that refer to results must return data of whatever type fits the context the If-Then operator belongs to. Setting the root of a desirability script to an If-Then operator will set the operator up so that all possible results must return bounded numbers, for example, while setting the root of an acceptability script will mean that results will have to return Boolean values. The script editor toolbox should offer you whichever sort of elements will fit, of course.",
+							"illustration": null
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "Publishing",
+			"pages": [
+				{
+					"id": "3F5EA2DE",
+					"title": "Playtesting and Releasing Storyworlds",
+					"sections": [
+						{
+							"id": "E0BE1F72",
+							"title": "1",
+							"text": "Storyworlds can be compiled to html format via the \"Compile to HTML\" option on the File menu. After compiling them, you can open the html page in a web browser to play through your storyworld.\n\nThe Settings tab of the editor will let you set your storyworld to debug mode or release mode. If you compile your storyworld to HTML while it is in debug format, the game will display information about the underlying calculations made by the engine during playtesting.\n\nYou can also playtest your storyworld from within the SweepWeave editor. The play screen displays information about what has happened so far during a playthrough, as well as information about the current state of the storyworld.\n\n[b]The Spool Book:[/b]\n\nWhen playtesting a storyworld from within the SweepWeave editor, the spool book is displayed in the top left of the screen, (though you can hide it, or show it again, via an option in the View menu.) This book lists the spools in your storyworld, along with whether or not they are currently active.\n\nIf you click on an option in the options list below the main text of the encounter, you can select it without performing it. (Double-clicking will perform it.) Selecting an option will display any changes that occur as a result of the player selecting the option in question. For example, if a spool is currently inactive, and it would become active if the player selects a specific option, (due to an effect of the reaction that would follow the option,) then the spool book will display the text \"inactive -> active\" after the name of the spool.\n\n[b]The History Book:[/b]\n\nThe history book is displayed in the bottom left of the screen. Clicking on an entry will turn back to that page of the play-through. You can use this feature to undo moves and try taking different paths through your storyworld.\n\n[b]The Cast Book:[/b]\n\nThe cast book in the top right of the screen lists the characters in your storyworld, along with their personality traits, relationships, and any other sort of bnumber property you apply to them. Relationships are displayed in tree form, such that you can look up Aileen's current affection for Beverly, for example. Similarly to the spool book, the cast book will display any changes that will occur once a player selects an option if you select that option without double-clicking and performing it.\n\n[b]Script Calculations:[/b]\n\nSelecting an option will display the reaction and encounter that would follow it on the right side of the screen, below the cast book, along with detailed reports on the calculations performed to determine which reaction is most desirable.\n\nYou can also click the buttons for encounter or option script reports in order to check the calculations involved in determining which encounter to display, which options to list, and which options to let the player choose.\n\nScript reports are displayed as a tree of operators, variables, and constants, with the value returned by each element listed to the right of the element.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "F910B81D",
+					"title": "Metadata",
+					"sections": [
+						{
+							"id": "480A10B2",
+							"title": "1",
+							"text": "On the Settings tab you can change the title and authorship information of your storyworld.\n\nYou can also bring up a summary of your storyworld by selecting 'summary' from the View menu. This will display the creation and most recent modification time of your storyworld, as well as your storyworld's IFID.\n\nAn IFID is a unique identifier for works of interactive fiction, similar to an ISBN for a book. A number of different development systems for interactive fiction will automatically produce IFIDs for works created with those systems, in accordance with the Treaty of Babel, an agreement reached by various members of the interactive fiction community in 2006. The treaty lays out standards for inclusion of bibliographic data with a given work of IF. [url=https://babel.ifarchive.org/babel_rev11.html#the-ifid-unique-identifier]You can read more about the Treaty of Babel here.[/url]\n\nSweepWeave produces an IFID for every storyworld created with the system. When you compile your storyworld to HTML, SweepWeave includes your storyworld's IFID within a meta tag in the HTML file. This can help others index your storyworld in databases that compile lists of interactive fiction works, even works made using other development systems.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "C064306E",
+					"title": "Display Options",
+					"sections": [
+						{
+							"id": "1E9C4FC0",
+							"title": "1",
+							"text": "The Settings tab also includes an option for the \"display mode\" of your storyworld. By default, when playing a storyworld via HTML, once the player selects an option the game clears the screen, (adding earlier text to the transcript,) then displays the text of the selected reaction followed by the text of the next encounter. You can switch to an older display mode if you wish. If you do, when the player selects an option the text of the reaction will be displayed on the same screen as the encounter during which the player made their choice, along with a button to go on to the next encounter. After going on to the next encounter, the text of the reaction, (and the previous encounter,) will be cleared off of the main display and added to the transcript.",
+							"illustration": null
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "Afterword",
+			"pages": [
+				{
+					"id": "DEBEFB13",
+					"title": "Other IF Tools",
+					"sections": [
+						{
+							"id": "BE00930C",
+							"title": "1",
+							"text": "SweepWeave fills a niche within a niche within a niche. It is not a general purpose programming language; you won't be able to use it to create every time of game you might want to make, and, indeed, it may not even include the features you want to employ to create the type of interactive fiction that you might want to make. The scripting \"language,\" such as it is, is not Turing-complete.\n\nIn principle, since SweepWeave is opensource, if you are familiar with web development and / or the Godot game engine, (in which the SweepWeave editor was created,) you can feel free to build your own version of SweepWeave that adds the features you desire.\n\nSince the SweepWeave editor was created using the Godot game engine, you may also be able to use part of the sourcecode for SweepWeave to create a graphical game, either 2d or 3d, that takes advantage of the content selection algorithms used by SweepWeave style storyworlds. Future development of SweepWeave may attempt to make such a task easier, but for now this is merely an idea to store away somewhere in the back of your mind.\n\nWhile SweepWeave's creators hope that you will find the system useful for your projects, you may also want to check out a number of other development tools for interactive fiction.\n\n[b]Hypertext Fiction:[/b]\n\nA number of excellent tools are available for those wanting to create works of interactive fiction employing a hypertext interface. [url=https://twinery.org/]Twine[/url] and [url=https://www.inklestudios.com/ink/]Ink[/url] have both benefited from years of development, and quite a few games have been made using both. [url=https://www.choiceofgames.com/make-your-own-games/choicescript-intro/]Choicescript[/url] is another system that those already familiar with more general purpose programming languages might find useful. [url=https://textadventures.co.uk/quest]Quest[/url] lets authors create works using either a hypertext or parser-based interface.\n\n[b]Parser-Based Fiction:[/b]\n\nIf you want to create works of interactive fiction that accept typed commands as input, rather than relying on clickable links, you may find [url=https://ganelson.github.io/inform-website/]Inform 7[/url] useful as well.\n\n[b]Graphical Games:[/b]\n\n[url=https://godotengine.org/]Godot[/url] is a free and open-source game development engine that includes features for both 2d and 3d game development. The SweepWeave storyworld editor is itself made using Godot, as Godot comes with a lot of helpful user-interface elements built-in. [url=https://unity.com/]Unity[/url] is another game engine that many indie games use.\n\nFor more specific types of graphical games, [url=https://www.renpy.org/]Ren'Py[/url] is a tool specifically geared towards visual novel development, while [url=https://www.adventuregamestudio.co.uk/site/ags/]Adventure Game Studio[/url] is geared towards creating adventure games in the style of classic Lucas Arts, Sierra, and Humongous Entertainment titles.\n\n[b]Sasha's recommendations:[/b]\n\nI have made games using both [url=https://twinery.org/]Twine[/url] and [url=https://ganelson.github.io/inform-website/]Inform 7[/url], (although I have so far only released one of my Twine games,) and recommend both quite highly. Both offer powerful sets of features to help authors create wonderful works of art, and both offer, in my opinion, good entry points into IF development for those who do not already know a great deal about how to program. If you want to make a graphical game, I recommend giving [url=https://godotengine.org/]Godot[/url] a try.\n\nWhile I have heard good things about the other tools mentioned, I haven't used them nearly as much myself.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "50EA6ECD",
+					"title": "Other IF Resources",
+					"sections": [
+						{
+							"id": "B334CC8F",
+							"title": "1",
+							"text": "The interactive fiction community is vibrant with resources for newcomers.\n\n[url=https://ifdb.org/]The Interactive Fiction Database[/url] includes details about many works of interactive fiction. If you're looking for excellent works of IF to play, a search on IFDB may lead you to some that you'll enjoy.\n\n[url=https://www.ifwiki.org/Main_Page]The Interactive fiction Wiki[/url] serves as an encyclopedia for all things related to IF.\n\n[url=https://iftechfoundation.org/]The Interactive Fiction Technology Foundation[/url] \"helps ensure the ongoing maintenance, improvement, and preservation of the tools and services crucial to the creation and distribution of interactive fiction, as well as the development of new projects to foster the continued growth of this art form.\"\n\nA number of discussion fora exist for the interactive fiction community, as well. [url=https://intfiction.org/]https://intfiction.org/[/url] and [url=https://www.reddit.com/r/interactivefiction/]https://www.reddit.com/r/interactivefiction/[/url] are both available on the ordinary Internet, and several Discord servers host discussions of story-driven computer games, including [url=https://discord.gg/SbpCTvvusX]Interactive Fiction Community[/url], [url=https://discord.gg/vyyHzQDrkC]Narrative Games[/url], [url=https://discord.gg/DPQYuDV]NarraScope[/url], and [url=https://discord.gg/a3aXjtAuDF]Interactive Storytelling[/url]. If you are looking for help with SweepWeave in particular, the [url=https://discord.gg/a3aXjtAuDF]Interactive Storytelling[/url] Discord is probably home to the most authors familiar with the system.",
+							"illustration": null
+						}
+					]
+				},
+				{
+					"id": "E6BC1894",
+					"title": "Credits",
+					"sections": [
+						{
+							"id": "7293E085",
+							"title": "1",
+							"text": "SweepWeave is based on design work by Chris Crawford and Sasha Fenn, and has been coded and implemented by Sasha Fenn.\n\nThe suite consists of a storyworld interpreter, written in html and javascript, and a storyworld editor, written in [url=https://godotengine.org/]the Godot game engine[/url]. Storyworlds are written and scripted in the editor, projects can be saved as .json files, and storyworlds can be exported as standalone html pages, which combine the interpreter with a block of data unique to the storyworld, and which can be played in a web browser.\n\nSweepWeave is available as open source software under an MIT License. [url=https://github.com/FrobozzWaxwing/Sweep_Weave]The sourcecode can be obtained through github.[/url] All storyworlds created with SweepWeave belong to their respective authors. You are free to publish your storyworlds as you please, including for commercial purposes.\n\nSweepWeave incorporates a bit of code by Xavier Sellier for use when generating universally unique identifiers, or UUIDs. In particular, SweepWeave uses UUIDs to create IFIDs for storyworlds, as IFIDs are intended to be unique even when completely different development systems are used to create works of interactive fiction. Credit and thanks go to Xavier Sellier for writing and releasing their code under an MIT License.\n\nChris Crawford can be found online at [url=https://erasmatazz.com/]https://erasmatazz.com/[/url]\nSasha Fenn can be found online at [url=https://www.patreon.com/sasha_fenn]https://www.patreon.com/sasha_fenn[/url]\n\nIf you would like to help support me financially, you can do so through my Patreon page, reached via the second link above.\nThanks to my patrons for their encouragement and support:\nJóhannes Ævarsson\nChris Conley\nPixel Brownie Software\nCraig Maloney\nFelipe Vega\nPatrick Dugan\nPamela Beck\n\nYou can contact me through Chris Crawford's interactive storytelling workgroup on Discord, via github, through my Patreon page, or via email. On github I am FrobozzWaxwing. My email address is sasha@emptiestvoid.com.\n\nThanks, and peace to you.\n~ Sasha Fenn",
+							"illustration": null
+						}
+					]
+				}
+			]
+		}
+	],
+	"doc_format_version": "0.0.3.0",
+	"creation_time": 1676451694,
+	"modified_time": 1678501870
+}

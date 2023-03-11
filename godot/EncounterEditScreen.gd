@@ -474,35 +474,6 @@ func _on_MoveOptionDownButton_pressed():
 				load_Reaction(current_option.reactions[0])
 			log_update(current_encounter)
 
-func trait_index(trait_text):
-	match trait_text:
-		"Bad_Good":
-			return 0
-		"-Bad_Good":
-			return 1
-		"False_Honest":
-			return 2
-		"-False_Honest":
-			return 3
-		"Timid_Dominant":
-			return 4
-		"-Timid_Dominant":
-			return 5
-		"pBad_Good":
-			return 6
-		"-pBad_Good":
-			return 7
-		"pFalse_Honest":
-			return 8
-		"-pFalse_Honest":
-			return 9
-		"pTimid_Dominant":
-			return 10
-		"-pTimid_Dominant":
-			return 11
-		_:
-			return 0
-
 func _on_OptionsList_item_selected(index):
 	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
 		var selection = $HSC/Column2/OptionsScroll/OptionsList.get_selected_items()
@@ -1160,3 +1131,45 @@ func _on_EditOptionPerformabilityScriptButton_pressed():
 		$ScriptEditWindow.popup()
 
 
+#GUI Themes:
+
+onready var add_icon_light = preload("res://custom_resources/add_icon.svg")
+onready var add_icon_dark = preload("res://custom_resources/add_icon_dark.svg")
+onready var delete_icon_light = preload("res://custom_resources/delete_icon.svg")
+onready var delete_icon_dark = preload("res://custom_resources/delete_icon_dark.svg")
+onready var move_up_icon_light = preload("res://custom_resources/arrow-up-circle.svg")
+onready var move_up_icon_dark = preload("res://custom_resources/arrow-up-circle_dark.svg")
+onready var move_down_icon_light = preload("res://custom_resources/arrow-down-circle.svg")
+onready var move_down_icon_dark = preload("res://custom_resources/arrow-down-circle_dark.svg")
+
+func set_gui_theme(theme_name, background_color):
+	match theme_name:
+		"Clarity":
+			$Column1/HBC/AddButton.icon = add_icon_dark
+			$Column1/HBC/DeleteButton.icon = delete_icon_dark
+			$HSC/Column2/HBCTurn2/AddOption.icon = add_icon_dark
+			$HSC/Column2/HBCTurn2/DeleteOption.icon = delete_icon_dark
+			$HSC/Column2/HBCTurn2/MoveOptionUpButton.icon = move_up_icon_dark
+			$HSC/Column2/HBCTurn2/MoveOptionDownButton.icon = move_down_icon_dark
+			$HSC/Column3/HBC/AddReaction.icon = add_icon_dark
+			$HSC/Column3/HBC/DeleteReaction.icon = delete_icon_dark
+			$HSC/Column3/HBC/MoveReactionUpButton.icon = move_up_icon_dark
+			$HSC/Column3/HBC/MoveReactionDownButton.icon = move_down_icon_dark
+			$HSC/Column3/HBCEffectButtons/AddEffect.icon = add_icon_dark
+			$HSC/Column3/HBCEffectButtons/DeleteEffect.icon = delete_icon_dark
+		"Lapis Lazuli":
+			$Column1/HBC/AddButton.icon = add_icon_light
+			$Column1/HBC/DeleteButton.icon = delete_icon_light
+			$HSC/Column2/HBCTurn2/AddOption.icon = add_icon_light
+			$HSC/Column2/HBCTurn2/DeleteOption.icon = delete_icon_light
+			$HSC/Column2/HBCTurn2/MoveOptionUpButton.icon = move_up_icon_light
+			$HSC/Column2/HBCTurn2/MoveOptionDownButton.icon = move_down_icon_light
+			$HSC/Column3/HBC/AddReaction.icon = add_icon_light
+			$HSC/Column3/HBC/DeleteReaction.icon = delete_icon_light
+			$HSC/Column3/HBC/MoveReactionUpButton.icon = move_up_icon_light
+			$HSC/Column3/HBC/MoveReactionDownButton.icon = move_down_icon_light
+			$HSC/Column3/HBCEffectButtons/AddEffect.icon = add_icon_light
+			$HSC/Column3/HBCEffectButtons/DeleteEffect.icon = delete_icon_light
+	$HSC/Column3/HBCLSL/BlendWeightSelector.set_gui_theme(theme_name, background_color)
+	$EffectEditor/EffectEditorScreen.set_gui_theme(theme_name, background_color)
+	$ScriptEditWindow/ScriptEditScreen.set_gui_theme(theme_name, background_color)

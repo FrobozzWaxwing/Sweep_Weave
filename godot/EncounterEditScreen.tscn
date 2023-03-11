@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://SortMenu.gd" type="Script" id=1]
 [ext_resource path="res://custom_resources/arrow-up-circle.svg" type="Texture" id=2]
@@ -9,6 +9,8 @@
 [ext_resource path="res://BNumberConstantEditingInterface.tscn" type="PackedScene" id=7]
 [ext_resource path="res://DragAndDropList.tscn" type="PackedScene" id=8]
 [ext_resource path="res://EffectEditorScreen.tscn" type="PackedScene" id=9]
+[ext_resource path="res://custom_resources/delete_icon.svg" type="Texture" id=10]
+[ext_resource path="res://custom_resources/add_icon.svg" type="Texture" id=11]
 
 [node name="Main" type="HSplitContainer"]
 anchor_right = 1.0
@@ -36,13 +38,13 @@ margin_bottom = 20.0
 [node name="AddButton" type="Button" parent="Column1/HBC"]
 margin_right = 20.0
 margin_bottom = 20.0
-text = "+"
+icon = ExtResource( 11 )
 
 [node name="DeleteButton" type="Button" parent="Column1/HBC"]
 margin_left = 24.0
 margin_right = 41.0
 margin_bottom = 20.0
-text = "-"
+icon = ExtResource( 10 )
 
 [node name="Label" type="Label" parent="Column1/HBC"]
 margin_left = 45.0
@@ -126,6 +128,7 @@ rect_min_size = Vector2( 0, 320 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 highlight_current_line = true
+syntax_highlighting = true
 smooth_scrolling = true
 wrap_enabled = true
 
@@ -214,39 +217,37 @@ margin_top = 523.0
 margin_right = 667.0
 margin_bottom = 553.0
 size_flags_horizontal = 3
-alignment = 1
 
 [node name="AddOption" type="Button" parent="HSC/Column2/HBCTurn2"]
-margin_left = 241.0
-margin_right = 261.0
+margin_right = 36.0
 margin_bottom = 30.0
-text = "+"
+icon = ExtResource( 11 )
 
 [node name="DeleteOption" type="Button" parent="HSC/Column2/HBCTurn2"]
-margin_left = 265.0
-margin_right = 282.0
+margin_left = 40.0
+margin_right = 76.0
 margin_bottom = 30.0
-text = "-"
-
-[node name="Label" type="Label" parent="HSC/Column2/HBCTurn2"]
-margin_left = 286.0
-margin_top = 8.0
-margin_right = 345.0
-margin_bottom = 22.0
-text = "Options: "
-align = 1
+icon = ExtResource( 10 )
 
 [node name="MoveOptionUpButton" type="Button" parent="HSC/Column2/HBCTurn2"]
-margin_left = 349.0
-margin_right = 385.0
+margin_left = 80.0
+margin_right = 116.0
 margin_bottom = 30.0
 icon = ExtResource( 2 )
 
 [node name="MoveOptionDownButton" type="Button" parent="HSC/Column2/HBCTurn2"]
-margin_left = 389.0
-margin_right = 425.0
+margin_left = 120.0
+margin_right = 156.0
 margin_bottom = 30.0
 icon = ExtResource( 3 )
+
+[node name="Label" type="Label" parent="HSC/Column2/HBCTurn2"]
+margin_left = 160.0
+margin_top = 8.0
+margin_right = 219.0
+margin_bottom = 22.0
+text = "Options: "
+align = 1
 
 [node name="OptionsScroll" type="ScrollContainer" parent="HSC/Column2"]
 margin_top = 557.0
@@ -280,6 +281,7 @@ margin_top = 679.0
 margin_right = 667.0
 margin_bottom = 703.0
 rect_min_size = Vector2( 200, 0 )
+placeholder_text = "Option text"
 caret_blink = true
 caret_blink_speed = 0.5
 
@@ -324,34 +326,36 @@ margin_right = 668.0
 margin_bottom = 30.0
 
 [node name="AddReaction" type="Button" parent="HSC/Column3/HBC"]
-margin_right = 20.0
+margin_right = 36.0
 margin_bottom = 30.0
-text = "+"
+icon = ExtResource( 11 )
 
 [node name="DeleteReaction" type="Button" parent="HSC/Column3/HBC"]
-margin_left = 24.0
-margin_right = 41.0
+margin_left = 40.0
+margin_right = 76.0
 margin_bottom = 30.0
-text = "-"
-
-[node name="ReactionsHeadLabel" type="Label" parent="HSC/Column3/HBC"]
-margin_left = 45.0
-margin_top = 8.0
-margin_right = 115.0
-margin_bottom = 22.0
-text = "Reactions: "
+icon = ExtResource( 10 )
 
 [node name="MoveReactionUpButton" type="Button" parent="HSC/Column3/HBC"]
-margin_left = 119.0
-margin_right = 155.0
+margin_left = 80.0
+margin_right = 116.0
 margin_bottom = 30.0
+rect_min_size = Vector2( 25, 25 )
 icon = ExtResource( 2 )
 
 [node name="MoveReactionDownButton" type="Button" parent="HSC/Column3/HBC"]
-margin_left = 159.0
-margin_right = 195.0
+margin_left = 120.0
+margin_right = 156.0
 margin_bottom = 30.0
+custom_colors/font_color = Color( 0.803922, 0.054902, 0.054902, 1 )
 icon = ExtResource( 3 )
+
+[node name="ReactionsHeadLabel" type="Label" parent="HSC/Column3/HBC"]
+margin_left = 160.0
+margin_top = 8.0
+margin_right = 230.0
+margin_bottom = 22.0
+text = "Reactions: "
 
 [node name="ReactionsScroll" type="ScrollContainer" parent="HSC/Column3"]
 margin_top = 34.0
@@ -384,22 +388,23 @@ text = "Reaction text:"
 [node name="ReactionText" type="TextEdit" parent="HSC/Column3"]
 margin_top = 136.0
 margin_right = 668.0
-margin_bottom = 344.0
+margin_bottom = 339.0
 rect_min_size = Vector2( 0, 100 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
+syntax_highlighting = true
 wrap_enabled = true
 
 [node name="IncBlendWeightLabel" type="Label" parent="HSC/Column3"]
-margin_top = 348.0
+margin_top = 343.0
 margin_right = 668.0
-margin_bottom = 362.0
+margin_bottom = 357.0
 text = "Reaction desirability:"
 
 [node name="HBCLSL" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 366.0
+margin_top = 361.0
 margin_right = 668.0
-margin_bottom = 426.0
+margin_bottom = 421.0
 alignment = 1
 
 [node name="Label" type="Label" parent="HSC/Column3/HBCLSL"]
@@ -427,9 +432,9 @@ text = "Trait
 align = 1
 
 [node name="HBCTT" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 430.0
+margin_top = 425.0
 margin_right = 668.0
-margin_bottom = 462.0
+margin_bottom = 457.0
 alignment = 1
 
 [node name="Trait1Selector" parent="HSC/Column3/HBCTT" instance=ExtResource( 5 )]
@@ -446,15 +451,15 @@ margin_bottom = 32.0
 rect_min_size = Vector2( 0, 32 )
 
 [node name="ARDSEButton" type="Button" parent="HSC/Column3"]
-margin_top = 466.0
+margin_top = 461.0
 margin_right = 668.0
-margin_bottom = 486.0
+margin_bottom = 481.0
 text = "Edit Reaction Desirability Script"
 
 [node name="HBCConsequence" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 490.0
+margin_top = 485.0
 margin_right = 668.0
-margin_bottom = 490.0
+margin_bottom = 485.0
 
 [node name="ChangeConsequence" type="Button" parent="HSC/Column3/HBCConsequence"]
 visible = false
@@ -464,29 +469,29 @@ hint_tooltip = "This sets the reaction's consequence to the first currently sele
 text = "Change Consequence:"
 
 [node name="HBCEffectButtons" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 494.0
+margin_top = 489.0
 margin_right = 668.0
-margin_bottom = 514.0
+margin_bottom = 519.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="AddEffect" type="Button" parent="HSC/Column3/HBCEffectButtons"]
-margin_right = 20.0
-margin_bottom = 20.0
-text = "+"
+margin_right = 36.0
+margin_bottom = 30.0
+icon = ExtResource( 11 )
 
 [node name="DeleteEffect" type="Button" parent="HSC/Column3/HBCEffectButtons"]
-margin_left = 24.0
-margin_right = 41.0
-margin_bottom = 20.0
-text = "-"
+margin_left = 40.0
+margin_right = 76.0
+margin_bottom = 30.0
+icon = ExtResource( 10 )
 
 [node name="ReactionEffectsLabel" type="Label" parent="HSC/Column3/HBCEffectButtons"]
-margin_left = 45.0
-margin_top = 3.0
-margin_right = 151.0
-margin_bottom = 17.0
+margin_left = 80.0
+margin_top = 8.0
+margin_right = 186.0
+margin_bottom = 22.0
 hint_tooltip = "When the selected reaction occurs, the following changes will be made to relationships between non-player characters and the player character."
 mouse_filter = 1
 text = "Reaction effects:"
@@ -494,7 +499,7 @@ text = "Reaction effects:"
 [node name="AfterReactionEffectsDisplay" parent="HSC/Column3" instance=ExtResource( 8 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 518.0
+margin_top = 523.0
 margin_right = 668.0
 margin_bottom = 727.0
 rect_min_size = Vector2( 0, 50 )

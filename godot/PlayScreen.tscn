@@ -8,7 +8,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-color = Color( 0.25098, 0.25098, 0.25098, 1 )
+color = Color( 0, 0.0627451, 0.12549, 1 )
 script = ExtResource( 1 )
 
 [node name="Layout" type="HSplitContainer" parent="."]
@@ -170,18 +170,24 @@ select_mode = 1
 [node name="EncounterScriptReportWindow" type="AcceptDialog" parent="."]
 margin_right = 512.0
 margin_bottom = 512.0
+rect_min_size = Vector2( 0, 256 )
 window_title = "Encounter Selection Report"
 resizable = true
 
 [node name="VBC" type="VBoxContainer" parent="EncounterScriptReportWindow"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 504.0
-margin_bottom = 476.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 
-[node name="ConsequenceReport" type="RichTextLabel" parent="EncounterScriptReportWindow/VBC"]
-margin_right = 40.0
-margin_bottom = 100.0
+[node name="Background" type="ColorRect" parent="EncounterScriptReportWindow/VBC"]
+margin_right = 512.0
+margin_bottom = 254.0
+size_flags_vertical = 3
+
+[node name="ConsequenceReport" type="RichTextLabel" parent="EncounterScriptReportWindow/VBC/Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 3.0
+margin_top = 3.0
 rect_min_size = Vector2( 0, 100 )
 size_flags_horizontal = 3
 size_flags_vertical = 5
@@ -190,10 +196,9 @@ bbcode_enabled = true
 [node name="ScriptDisplay" parent="EncounterScriptReportWindow/VBC" instance=ExtResource( 2 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 504.0
-margin_bottom = 220.0
+margin_top = 258.0
+margin_right = 512.0
+margin_bottom = 512.0
 columns = 2
 select_mode = 1
 

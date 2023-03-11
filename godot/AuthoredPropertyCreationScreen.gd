@@ -170,3 +170,11 @@ func _on_PropertyList_item_activated(index):
 
 func on_character_properties_changed(property, character):
 	emit_signal("refresh_authored_property_lists")
+
+#GUI Themes:
+
+func set_gui_theme(theme_name, background_color):
+	$ColorRect.color = background_color
+	$ColorRect/VBC/ColorRect.color = background_color
+	$ColorRect/VBC/HBC/BNumberEditPanel.set_gui_theme(theme_name, background_color)
+	$PropertyCreationWindow/VBC/BNumberEditPanel.set_gui_theme(theme_name, background_color)

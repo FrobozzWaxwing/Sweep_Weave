@@ -217,7 +217,7 @@ func report_encounter_scripts(entry):
 		desirability_entry.set_text(1, str(desirability))
 
 func load_encounter_selection_report():
-	$EncounterScriptReportWindow/VBC/ConsequenceReport.set_text("")
+	$EncounterScriptReportWindow/VBC/Background/ConsequenceReport.set_text("")
 	$EncounterScriptReportWindow/VBC/ScriptDisplay.clear()
 	if (null == page_to_display):
 		return
@@ -285,7 +285,7 @@ func load_encounter_selection_report():
 		text += "Encounter chosen: " + page_to_display.stringify_encounter(100)
 	else:
 		text += "The End."
-	$EncounterScriptReportWindow/VBC/ConsequenceReport.append_bbcode(text)
+	$EncounterScriptReportWindow/VBC/Background/ConsequenceReport.append_bbcode(text)
 	$EncounterScriptReportWindow.popup()
 
 func refresh_reaction_inclinations(option = null):
@@ -422,3 +422,10 @@ func _on_OptionScriptReportButton_pressed():
 
 func _on_EncounterSelectionReportButton_pressed():
 	load_encounter_selection_report()
+
+#GUI Themes:
+
+func set_gui_theme(theme_name, background_color):
+	color = background_color
+	$Layout/L2/ColorRect.color = background_color
+	$EncounterScriptReportWindow/VBC/Background.color = background_color

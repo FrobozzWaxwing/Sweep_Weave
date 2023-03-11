@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   fill="none"
+   stroke="currentColor"
+   stroke-width="2"
+   stroke-linecap="round"
+   stroke-linejoin="round"
+   class="feather feather-arrow-up-circle"
+   version="1.1"
+   id="svg39"
+   sodipodi:docname="arrow-up-circle_dark.svg"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs43">
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Invert"
+       id="filter1468"
+       x="-0.0015885341"
+       y="-0.0015836321"
+       width="1.0031682"
+       height="1.0031645">
+      <feColorMatrix
+         type="hueRotate"
+         values="180"
+         result="color1"
+         id="feColorMatrix1464" />
+      <feColorMatrix
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="fbSourceGraphic"
+         id="feColorMatrix1466" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix2834" />
+      <feColorMatrix
+         id="feColorMatrix2836"
+         type="hueRotate"
+         values="180"
+         result="color1"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix2838"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="color2" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Invert"
+       id="filter1474"
+       x="-0.0028282266"
+       y="-0.0028484059"
+       width="1.005665"
+       height="1.0057042">
+      <feColorMatrix
+         type="hueRotate"
+         values="180"
+         result="color1"
+         id="feColorMatrix1470" />
+      <feColorMatrix
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="fbSourceGraphic"
+         id="feColorMatrix1472" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix2840" />
+      <feColorMatrix
+         id="feColorMatrix2842"
+         type="hueRotate"
+         values="180"
+         result="color1"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix2844"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="color2" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Invert"
+       id="filter1480"
+       x="-0.0012892445"
+       y="-0.0012868041"
+       width="1.0025787"
+       height="1.0025786">
+      <feColorMatrix
+         type="hueRotate"
+         values="180"
+         result="color1"
+         id="feColorMatrix1476" />
+      <feColorMatrix
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="fbSourceGraphic"
+         id="feColorMatrix1478" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix2846" />
+      <feColorMatrix
+         id="feColorMatrix2848"
+         type="hueRotate"
+         values="180"
+         result="color1"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix2850"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="color2" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Invert"
+       id="filter1486"
+       x="-inf"
+       y="-0.125"
+       width="inf"
+       height="1.25">
+      <feColorMatrix
+         type="hueRotate"
+         values="180"
+         result="color1"
+         id="feColorMatrix1482" />
+      <feColorMatrix
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="fbSourceGraphic"
+         id="feColorMatrix1484" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix2852" />
+      <feColorMatrix
+         id="feColorMatrix2854"
+         type="hueRotate"
+         values="180"
+         result="color1"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix2856"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="color2" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Invert"
+       id="filter1492"
+       x="-0.125"
+       y="-0.24998965"
+       width="1.25"
+       height="1.4999896">
+      <feColorMatrix
+         type="hueRotate"
+         values="180"
+         result="color1"
+         id="feColorMatrix1488" />
+      <feColorMatrix
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="fbSourceGraphic"
+         id="feColorMatrix1490" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix2858" />
+      <feColorMatrix
+         id="feColorMatrix2860"
+         type="hueRotate"
+         values="180"
+         result="color1"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix2862"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="color2" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Invert"
+       id="filter1498"
+       x="-0.05"
+       y="-0.05"
+       width="1.1"
+       height="1.1">
+      <feColorMatrix
+         type="hueRotate"
+         values="180"
+         result="color1"
+         id="feColorMatrix1494" />
+      <feColorMatrix
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="fbSourceGraphic"
+         id="feColorMatrix1496" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix2864" />
+      <feColorMatrix
+         id="feColorMatrix2866"
+         type="hueRotate"
+         values="180"
+         result="color1"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix2868"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="color2" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="namedview41"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="35.333333"
+     inkscape:cx="10.910377"
+     inkscape:cy="12"
+     inkscape:window-width="2560"
+     inkscape:window-height="1057"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg39" />
+  <circle
+     cx="12"
+     cy="12"
+     r="10"
+     id="circle33"
+     style="fill:none;filter:url(#filter1498)" />
+  <polyline
+     points="16 12 12 8 8 12"
+     id="polyline35"
+     style="filter:url(#filter1492)" />
+  <line
+     x1="12"
+     y1="16"
+     x2="12"
+     y2="8"
+     id="line37"
+     style="filter:url(#filter1486)" />
+  <path
+     style="fill:#000000;stroke-width:0.0566038;fill-opacity:1;filter:url(#filter1480)"
+     d="M 11.334906,22.967272 C 8.9945844,22.810929 6.849094,21.965848 5.0235849,20.481324 4.6414656,20.17058 3.8294199,19.358534 3.5186763,18.976415 2.3047165,17.483617 1.4876309,15.706143 1.1768634,13.882075 c -0.20955374,-1.229987 -0.20955374,-2.534163 0,-3.76415 C 1.4348218,8.6038231 2.0856549,7.019297 2.9741647,5.7421933 3.6815665,4.7254061 4.7254061,3.6815665 5.7421933,2.9741647 6.4032252,2.5142699 7.4091433,1.9863603 8.1451387,1.7130899 11.312082,0.53722407 14.796906,0.86242797 17.685921,2.6034361 c 0.745377,0.4491874 1.395593,0.9640367 2.070702,1.6396091 0.940545,0.9411894 1.571063,1.8288037 2.149581,3.0260793 1.440888,2.9819955 1.436408,6.4972375 -0.01209,9.4855925 -0.570675,1.177345 -1.206804,2.070455 -2.137875,3.001526 -0.690216,0.690216 -1.328027,1.192353 -2.110017,1.661174 -1.377942,0.826111 -2.878574,1.329298 -4.485849,1.504181 -0.502323,0.05466 -1.367121,0.07629 -1.825471,0.04567 z m 1.783019,-2.02288 c 2.02162,-0.25924 3.814497,-1.13847 5.251247,-2.57522 1.440597,-1.440597 2.305605,-3.206814 2.578737,-5.265398 0.06794,-0.512045 0.06794,-1.695503 0,-2.207548 C 20.719747,9.1765783 20.081785,7.6700972 19.024282,6.3537736 16.682489,3.4388351 12.77869,2.2728281 9.2166178,3.4243692 6.0141572,4.4596557 3.6271989,7.2454126 3.1031896,10.559193 c -0.6691721,4.231775 1.6704483,8.307439 5.6572242,9.854994 0.7767487,0.301512 1.6450512,0.493757 2.6310952,0.582532 0.273632,0.02464 1.390141,-0.0092 1.726416,-0.05233 z"
+     id="path199" />
+  <path
+     style="fill:#000000;fill-opacity:1;stroke-width:0.0566038;filter:url(#filter1474)"
+     d="M 11.76012,16.95147 C 11.459256,16.8676 11.244299,16.688765 11.103017,16.404796 l -0.06528,-0.131211 -0.0076,-2.936321 c -0.0042,-1.614976 -0.01658,-2.936321 -0.02758,-2.936321 -0.01099,0 -0.574323,0.552446 -1.2518448,1.227656 -1.1651159,1.161142 -1.2410576,1.23106 -1.4016686,1.29048 -0.1387138,0.05132 -0.2112746,0.06056 -0.3962264,0.05048 C 7.6680401,12.954041 7.4957864,12.876572 7.2973405,12.674765 7.0279273,12.400788 6.9481747,12.002367 7.0886232,11.632075 7.150129,11.469916 7.2493721,11.365743 9.2911434,9.320142 11.710868,6.8958798 11.563489,7.0209694 12,7.0209694 c 0.436119,0 0.288738,-0.1250925 2.708669,2.2990298 2.043363,2.0469018 2.141423,2.1498238 2.202838,2.3120758 0.18507,0.488929 -0.03134,1.037343 -0.496413,1.258006 -0.210283,0.09977 -0.539119,0.112251 -0.764151,0.029 -0.160611,-0.05942 -0.236552,-0.129338 -1.401668,-1.29048 -0.677522,-0.67521 -1.240852,-1.227656 -1.251845,-1.227656 -0.01099,0 -0.0234,1.321345 -0.02758,2.936321 l -0.0076,2.936321 -0.06966,0.141509 c -0.207609,0.421732 -0.702657,0.6562 -1.132482,0.536376 z"
+     id="path1090" />
+  <path
+     style="fill:none;fill-opacity:0;stroke-width:0.0566038;filter:url(#filter1468)"
+     d="M 11.193396,20.937545 C 10.802736,20.894383 10.090834,20.765566 9.7286703,20.672505 8.0697852,20.246242 6.5090406,19.302286 5.3715059,18.037244 4.0434643,16.56034 3.2502657,14.761558 3.0712205,12.820755 3.0338,12.415127 3.034438,11.540575 3.0724402,11.148783 3.4548175,7.2065842 6.37974,3.9722407 10.259434,3.2014938 c 0.780463,-0.1550481 1.823568,-0.2067007 2.611109,-0.1292971 3.902193,0.3835285 7.118382,3.280108 7.915499,7.1288953 0.111703,0.539346 0.145571,0.858625 0.162299,1.53004 0.01888,0.757755 -0.01367,1.255486 -0.12011,1.836386 -0.37953,2.07141 -1.386229,3.8336 -2.983891,5.223191 -1.018913,0.886215 -2.240068,1.534481 -3.523585,1.870541 -0.537864,0.140827 -1.086395,0.234555 -1.562084,0.266915 -0.398223,0.02709 -1.353181,0.03281 -1.565275,0.0094 z m 1.096984,-3.966268 c 0.29032,-0.09036 0.511274,-0.279267 0.650525,-0.556183 0.05572,-0.110802 0.05715,-0.174975 0.06745,-3.020142 l 0.01052,-2.906936 0.127358,0.118842 c 0.07005,0.06536 0.604953,0.59182 1.18868,1.169905 0.659285,0.652913 1.114177,1.081357 1.200855,1.131036 0.179579,0.102924 0.540959,0.129368 0.787696,0.05764 0.427496,-0.124277 0.737831,-0.609861 0.689083,-1.078212 -0.03764,-0.361656 0.02337,-0.292294 -2.292129,-2.6059303 C 12.305019,6.8678451 12.433163,6.9764151 12,6.9764151 c -0.433163,0 -0.305019,-0.10857 -2.7204108,2.3048816 C 6.8583187,11.700623 6.990566,11.543551 6.990566,12 c 0,0.224609 0.00985,0.274789 0.083311,0.424528 0.098553,0.200879 0.2992995,0.406047 0.4883994,0.499155 0.1180316,0.05812 0.1769542,0.06688 0.4495262,0.06688 0.3093855,0 0.3158689,-0.0014 0.472498,-0.09906 0.098988,-0.06174 0.5947625,-0.53276 1.3161702,-1.250444 l 1.1573622,-1.151387 0.01869,1.165538 c 0.01028,0.641046 0.0187,1.946117 0.01872,2.900157 2.8e-5,1.71113 8.49e-4,1.736231 0.06005,1.853773 0.247084,0.490555 0.74172,0.715683 1.235081,0.562131 z"
+     id="path1166" />
+</svg>

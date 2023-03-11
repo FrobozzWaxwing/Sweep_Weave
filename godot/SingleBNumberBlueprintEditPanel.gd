@@ -183,3 +183,8 @@ func _on_ConfirmRemoveAffectedCharactersWindow_confirmed():
 		print("Removing character: " + character.char_name.left(25) + " from the list of characters affected by " + current_authored_property.get_property_name() + ".")
 		remove_character_from_affected_characters(character)
 	refresh()
+
+#GUI Themes:
+
+func set_gui_theme(theme_name, background_color):
+	$ColorRect.color = background_color

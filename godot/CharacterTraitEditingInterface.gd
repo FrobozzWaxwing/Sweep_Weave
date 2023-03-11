@@ -1,4 +1,4 @@
-extends Panel
+extends Control
 
 var storyworld = null
 var character = null
@@ -70,3 +70,6 @@ func _on_SpinBox_value_changed(value):
 	if (0 != keyring.size() and null != character):
 		character.set_bnumber_property(keyring, value)
 		emit_signal("bnumber_property_changed", character, keyring, value)
+
+#GUI Themes:
+

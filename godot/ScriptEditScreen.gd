@@ -9,12 +9,19 @@ var bnumberpointer_editor_scene = load("res://BNumberPropertySelector.tscn")
 var bnumberconstant_editor_scene = load("res://BNumberConstantEditingInterface.tscn")
 var spool_selector_scene = load("res://SpoolSelector.tscn")
 
+#GUI theme variables:
+var gui_background_color = Color(0.941406, 0.941406, 0.941406)
+
 signal sw_script_changed(sw_script)
 
 func _ready():
 	pass
 
 func refresh_script_display():
+	if ("" == $Background/VBC/Label.text):
+		$Background/VBC/Label.visible = false
+	else:
+		$Background/VBC/Label.visible = true
 	$Background/VBC/HBC/VBC1/ScriptDisplay.clear()
 	var root = $Background/VBC/HBC/VBC1/ScriptDisplay.create_item()
 	$Background/VBC/HBC/VBC1/ScriptDisplay.set_hide_root(true)
@@ -105,6 +112,7 @@ func load_operator(operator):
 	elif (operator is BNumberConstant):
 		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
 		var operator_editing_interface = bnumberconstant_editor_scene.instance()
+		operator_editing_interface.set_gui_theme("", gui_background_color)
 		operator_editing_interface.storyworld = storyworld
 		operator_editing_interface.reset()
 		operator_editing_interface.operator.set_value(operator.get_value())
@@ -389,3 +397,11 @@ func _on_EventSelectionDialog_confirmed():
 		refresh_script_display()
 		load_operator(new_element)
 		emit_signal("sw_script_changed", script_to_edit)
+
+#GUI Themes:
+
+func set_gui_theme(theme_name, background_color):
+	gui_background_color = background_color
+	$Background.color = background_color
+	$Background/VBC/HBC/VBC1/OperatorEditPanel.color = background_color
+	$EventSelectionDialog/EventSelectionInterface.set_gui_theme(theme_name, background_color)

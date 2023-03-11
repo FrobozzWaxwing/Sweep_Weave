@@ -62,24 +62,44 @@ static func sort_r_options(a, b):
 static func sort_reactions(a, b):
 	var a_count = 0
 	for option in a.options:
-		for reaction in option.reactions:
-			a_count += 1
+		a_count += option.reactions.size()
 	var b_count = 0
 	for option in b.options:
-		for reaction in option.reactions:
-			b_count += 1
+		b_count += option.reactions.size()
 	if a_count < b_count:
 		return true
 	return false
 static func sort_r_reactions(a, b):
 	var a_count = 0
 	for option in a.options:
+		a_count += option.reactions.size()
+	var b_count = 0
+	for option in b.options:
+		b_count += option.reactions.size()
+	if a_count > b_count:
+		return true
+	return false
+static func sort_effects(a, b):
+	var a_count = 0
+	for option in a.options:
 		for reaction in option.reactions:
-			a_count += 1
+			a_count += reaction.after_effects.size()
 	var b_count = 0
 	for option in b.options:
 		for reaction in option.reactions:
-			b_count += 1
+			b_count += reaction.after_effects.size()
+	if a_count < b_count:
+		return true
+	return false
+static func sort_r_effects(a, b):
+	var a_count = 0
+	for option in a.options:
+		for reaction in option.reactions:
+			a_count += reaction.after_effects.size()
+	var b_count = 0
+	for option in b.options:
+		for reaction in option.reactions:
+			b_count += reaction.after_effects.size()
 	if a_count > b_count:
 		return true
 	return false

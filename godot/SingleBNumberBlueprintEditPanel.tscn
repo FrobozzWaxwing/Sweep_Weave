@@ -12,10 +12,11 @@ script = ExtResource( 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_vertical = 3
-color = Color( 0.227451, 0.14902, 0.14902, 1 )
+color = Color( 0, 0.0627451, 0.12549, 1 )
 
 [node name="VBC" type="VBoxContainer" parent="ColorRect"]
 anchor_bottom = 1.0
+margin_left = 1.0
 margin_right = 281.0
 size_flags_vertical = 3
 

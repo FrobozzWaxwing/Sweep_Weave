@@ -22,14 +22,21 @@ func save_position():
 func delete():
 	queue_free()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
-
-
 func _on_Control_dragged(from, to):
 	my_encounter.graph_position = offset
 
-
 func _on_Button_pressed():
 	emit_signal("load_encounter_from_graphview", my_encounter)
+
+#GUI Themes:
+
+onready var edit_icon_light = preload("res://custom_resources/edit-3.svg")
+onready var edit_icon_dark = preload("res://custom_resources/edit-3_dark.svg")
+
+func set_gui_theme(theme_name, background_color):
+	match theme_name:
+		"Clarity":
+			$Button.icon = edit_icon_dark
+		"Lapis Lazuli":
+			$Button.icon = edit_icon_light
+

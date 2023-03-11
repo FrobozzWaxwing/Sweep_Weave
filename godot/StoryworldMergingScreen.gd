@@ -31,7 +31,7 @@ func load_content_from_files():
 	else:
 		MainLabel.text = "Importing content from files:"
 	for path in file_paths:
-		print("Opening: " + path)
+#		print("Opening: " + path)
 		MainLabel.text += " (" + path + ")"
 		var file = File.new()
 		file.open(path, 1)

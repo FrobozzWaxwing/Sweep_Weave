@@ -70,6 +70,7 @@ func reset():
 	$TabContainer/BNumberProperty/VBC/PropertySelector.reset()
 	$TabContainer/BNumberProperty/VBC/PropertySelector.refresh()
 	var new_script = ScriptManager.new(BNumberConstant.new(0))
+	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface/Background/VBC/Label.text = ""
 	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.storyworld = storyworld
 	if (null != $TabContainer/BNumberProperty/VBC/ScriptEditingInterface.script_to_edit and is_instance_valid($TabContainer/BNumberProperty/VBC/ScriptEditingInterface.script_to_edit) and $TabContainer/BNumberProperty/VBC/ScriptEditingInterface.script_to_edit is ScriptManager):
 		$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.script_to_edit.call_deferred("free")
@@ -82,6 +83,7 @@ func reset():
 	$TabContainer/SpoolStatus/VBC/SpoolSelector.reset("SpoolPointer")
 	$TabContainer/SpoolStatus/VBC/SpoolSelector.refresh()
 	new_script = ScriptManager.new(BooleanConstant.new(true))
+	$TabContainer/SpoolStatus/VBC/ScriptEditingInterface/Background/VBC/Label.text = ""
 	$TabContainer/SpoolStatus/VBC/ScriptEditingInterface.storyworld = storyworld
 	if (null != $TabContainer/SpoolStatus/VBC/ScriptEditingInterface.script_to_edit and is_instance_valid($TabContainer/SpoolStatus/VBC/ScriptEditingInterface.script_to_edit) and $TabContainer/SpoolStatus/VBC/ScriptEditingInterface.script_to_edit is ScriptManager):
 		$TabContainer/SpoolStatus/VBC/ScriptEditingInterface.script_to_edit.call_deferred("free")
@@ -123,3 +125,15 @@ func _on_NextPageOptionButton_item_selected(index):
 			$TabContainer/NextPage/VBC/EncounterSelector.visible = false
 		1:
 			$TabContainer/NextPage/VBC/EncounterSelector.visible = true
+
+#GUI Themes:
+
+func set_gui_theme(theme_name, background_color):
+	$TabContainer/BNumberProperty.color = background_color
+	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.set_gui_theme(theme_name, background_color)
+	$TabContainer/SpoolStatus.color = background_color
+	$TabContainer/SpoolStatus/VBC/ScriptEditingInterface.set_gui_theme(theme_name, background_color)
+	$TabContainer/NextPage.color = background_color
+	$TabContainer/NextPage/VBC/EncounterSelector.set_gui_theme(theme_name, background_color)
+
+
