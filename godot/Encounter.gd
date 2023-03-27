@@ -40,7 +40,6 @@ func get_index():
 	if (null != storyworld):
 		return storyworld.encounters.find(self)
 	return -1
-	return -1
 
 func get_text(leaf = null):
 	if (text_script is ScriptManager):
@@ -52,6 +51,15 @@ func set_text(new_text):
 	if (text_script is ScriptManager):
 		if (text_script.contents is StringConstant):
 			text_script.contents.set_value(new_text)
+
+func get_listable_text(maximum_output_length = 50):
+	var text = title
+	if ("" == text):
+		return "[Untitled Encounter]"
+	elif (maximum_output_length >= text.length()):
+		return text
+	else:
+		return text.left(maximum_output_length - 3) + "..."
 
 func calculate_desirability(leaf, report):
 	var result = null
@@ -119,6 +127,7 @@ func remap(to_storyworld):
 		for reaction in option.reactions:
 			for effect in reaction.after_effects:
 				effect.remap(to_storyworld)
+				effect.cause = reaction
 			if (null != reaction.consequence and null != reaction.consequence.id):
 				if (storyworld.encounter_directory.has(reaction.consequence.id)):
 					reaction.consequence = storyworld.encounter_directory[reaction.consequence.id]

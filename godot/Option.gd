@@ -44,6 +44,15 @@ func get_truncated_text(maximum_output_length = 20):
 	else:
 		return text.left(maximum_output_length - 3) + "..."
 
+func get_listable_text(maximum_output_length = 50):
+	var text = get_text()
+	if ("" == text):
+		return "[Blank Option]"
+	elif (maximum_output_length >= text.length()):
+		return text
+	else:
+		return text.left(maximum_output_length - 3) + "..."
+
 func has_search_text(searchterm):
 	if (text_script.has_search_text(searchterm)):
 		return true

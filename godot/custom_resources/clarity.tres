@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=45 format=2]
+[gd_resource type="Theme" load_steps=46 format=2]
 
 [ext_resource path="res://custom_resources/caret-right.svg" type="Texture" id=1]
 [ext_resource path="res://custom_resources/caret-down.svg" type="Texture" id=2]
@@ -425,6 +425,20 @@ shadow_color = Color( 0.737255, 0.196078, 0.196078, 0.6 )
 color = Color( 0.0980392, 0.392157, 0.235294, 1 )
 vertical = true
 
+[sub_resource type="StyleBoxFlat" id=40]
+bg_color = Color( 0.882353, 0.882353, 0.882353, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.0588235, 0.0588235, 0.0588235, 1 )
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+corner_detail = 4
+expand_margin_top = 25.0
+
 [resource]
 resource_name = "Lapis Lazuli"
 Button/colors/font_color = Color( 0, 0, 0, 1 )
@@ -507,3 +521,4 @@ Tree/styles/title_button_hover = SubResource( 27 )
 Tree/styles/title_button_normal = SubResource( 17 )
 Tree/styles/title_button_pressed = SubResource( 28 )
 VSeparator/styles/separator = SubResource( 19 )
+WindowDialog/styles/panel = SubResource( 40 )

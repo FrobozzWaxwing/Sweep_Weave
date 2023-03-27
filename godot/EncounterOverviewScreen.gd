@@ -70,6 +70,7 @@ func refresh():
 	table_of_encounters.clear()
 	var root = table_of_encounters.create_item()
 	root.set_text(0, "Encounters: ")
+	var even = false
 	for encounter in storyworld.encounters:
 		if ("" == searchterm or encounter.has_search_text(searchterm)):
 			var entry = table_of_encounters.create_item(root)
@@ -118,6 +119,16 @@ func refresh():
 			entry.set_text(5, spool_names)
 			#Word Count:
 			entry.set_text(6, str(encounter.wordcount()))
+			#Set even rows to have different color:
+			if (even):
+				entry.set_custom_bg_color(0, Color(0.235294, 0.470588, 0.941176, 0.392157))
+				entry.set_custom_bg_color(1, Color(0.235294, 0.470588, 0.941176, 0.392157))
+				entry.set_custom_bg_color(2, Color(0.235294, 0.470588, 0.941176, 0.392157))
+				entry.set_custom_bg_color(3, Color(0.235294, 0.470588, 0.941176, 0.392157))
+				entry.set_custom_bg_color(4, Color(0.235294, 0.470588, 0.941176, 0.392157))
+				entry.set_custom_bg_color(5, Color(0.235294, 0.470588, 0.941176, 0.392157))
+				entry.set_custom_bg_color(6, Color(0.235294, 0.470588, 0.941176, 0.392157))
+			even = !even
 
 func _on_SortMenu_item_selected(index):
 	refresh()
@@ -154,7 +165,7 @@ func _on_DeleteEncounterButton_pressed():
 		for each in encounters_to_delete:
 			$ConfirmEncounterDeletion/EncountersToDelete.add_item(each.title)
 		$ConfirmEncounterDeletion.dialog_text = dialog_text
-		$ConfirmEncounterDeletion.popup()
+		$ConfirmEncounterDeletion.popup_centered()
 
 func _on_ConfirmEncounterDeletion_confirmed():
 	for each in encounters_to_delete:

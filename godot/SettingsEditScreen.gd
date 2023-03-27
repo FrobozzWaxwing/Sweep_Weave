@@ -53,7 +53,7 @@ func set_gui_theme(theme_name, background_color):
 	pass
 
 func _on_IFIDResetButton_pressed():
-	$ConfirmIFIDReset.popup()
+	$ConfirmIFIDReset.popup_centered()
 
 func _on_ConfirmIFIDReset_confirmed():
 	storyworld.ifid = IFIDGenerator.IFID_from_creation_time(storyworld.creation_time)

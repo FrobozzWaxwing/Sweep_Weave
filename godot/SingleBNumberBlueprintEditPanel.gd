@@ -136,7 +136,7 @@ func _on_AddCharacterButton_pressed():
 				$SelectNewAffectedCharacterWindow/PossibleNewAffectedCharactersList.add_item(character.char_name)
 				$SelectNewAffectedCharacterWindow/PossibleNewAffectedCharactersList.set_item_metadata(item_index, character)
 				item_index += 1
-	$SelectNewAffectedCharacterWindow.popup()
+	$SelectNewAffectedCharacterWindow.popup_centered()
 
 func _on_SelectNewAffectedCharacterWindow_confirmed():
 	var selected_indices = $SelectNewAffectedCharacterWindow/PossibleNewAffectedCharactersList.get_selected_items()
@@ -176,7 +176,7 @@ func _on_DeleteCharacterButton_pressed():
 			new_label = Label.new()
 			new_label.text = character.char_name
 			$ConfirmRemoveAffectedCharactersWindow/VBC.add_child(new_label)
-	$ConfirmRemoveAffectedCharactersWindow.popup()
+	$ConfirmRemoveAffectedCharactersWindow.popup_centered()
 
 func _on_ConfirmRemoveAffectedCharactersWindow_confirmed():
 	for character in characters_to_remove_from_those_affected:

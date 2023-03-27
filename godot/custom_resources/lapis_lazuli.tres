@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=30 format=2]
+[gd_resource type="Theme" load_steps=31 format=2]
 
 [ext_resource path="res://custom_resources/NotoMono-Regular.tres" type="DynamicFont" id=1]
 [ext_resource path="res://custom_resources/NotoSerif-Bold.tres" type="DynamicFont" id=2]
@@ -279,6 +279,21 @@ shadow_color = Color( 0.737255, 0.196078, 0.196078, 0.6 )
 color = Color( 0.0980392, 0.392157, 0.235294, 1 )
 vertical = true
 
+[sub_resource type="StyleBoxFlat" id=22]
+bg_color = Color( 0, 0.0627451, 0.12549, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.0980392, 0.392157, 0.235294, 1 )
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 4
+expand_margin_top = 25.0
+shadow_color = Color( 0.737255, 0.196078, 0.196078, 0.6 )
+
 [resource]
 resource_name = "Lapis Lazuli"
 Button/styles/disabled = SubResource( 1 )
@@ -323,3 +338,5 @@ Tree/constants/draw_relationship_lines = 1
 Tree/styles/bg = SubResource( 5 )
 Tree/styles/title_button_normal = SubResource( 17 )
 VSeparator/styles/separator = SubResource( 19 )
+WindowDialog/colors/title_color = Color( 1, 1, 1, 1 )
+WindowDialog/styles/panel = SubResource( 22 )

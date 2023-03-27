@@ -7,5 +7,16 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 rect_min_size = Vector2( 0, 32 )
 custom_colors/drop_position_color = Color( 0.12549, 0.501961, 1, 1 )
+allow_rmb_select = true
 hide_root = true
+select_mode = 2
 script = ExtResource( 1 )
+
+[node name="ContextMenu" type="PopupMenu" parent="."]
+margin_right = 20.0
+margin_bottom = 20.0
+
+[connection signal="empty_rmb" from="." to="." method="_on_empty_rmb"]
+[connection signal="empty_tree_rmb_selected" from="." to="." method="_on_empty_tree_rmb_selected"]
+[connection signal="item_rmb_selected" from="." to="." method="_on_item_rmb_selected"]
+[connection signal="id_pressed" from="ContextMenu" to="." method="_on_ContextMenu_id_pressed"]

@@ -26,6 +26,11 @@ func _init(in_storyworld, in_creation_index, in_id, in_property_name, in_depth =
 	creation_time = OS.get_unix_time()
 	modified_time = OS.get_unix_time()
 
+func get_index():
+	if (null != storyworld):
+		return storyworld.authored_properties.find(self)
+	return -1
+
 func get_property_name():
 	if ("" != property_name):
 		return property_name

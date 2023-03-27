@@ -5,16 +5,10 @@ var current_option = null
 var current_reaction = null
 var storyworld = null
 var node_scene = preload("res://graphview_node.tscn")
-#Track objects to delete.
-var encounters_to_delete = []
-var options_to_delete = null
-var reactions_to_delete = null
-var effect_to_delete = null
+#Track items to delete.
+var items_to_delete = []
 #Clipboard system variables:
-var clipboard = [] #Copies of the clipped data.
-var clipped_originals = [] #References to the original objects that were clipped.
-enum clipboard_task_types {NONE, CUT, COPY}
-var clipboard_task = clipboard_task_types.NONE
+var clipboard = null
 #Display options:
 #Track whether or not to display the quick reaction desirability script editor.
 var display_reaction_qdse = true
@@ -50,49 +44,37 @@ func set_display_reaction_qdse(display):
 	display_reaction_qdse = display
 	refresh_quick_reaction_scripting_interface()
 
-func list_option(option, cutoff = 50):
-	var optionslist = $HSC/Column2/OptionsScroll/OptionsList
-	var index = optionslist.get_item_count()
-	var text = option.get_text()
-	if ("" == text):
-		optionslist.add_item("[Blank Option]")
-	elif (text.left(cutoff) == text):
-		optionslist.add_item(text)
-	else:
-		optionslist.add_item(text.left(cutoff) + "...")
-		optionslist.set_item_tooltip(index, text)
-	optionslist.set_item_metadata(index, option)
+func set_clipboard(new_clipboard):
+	clipboard = new_clipboard
+	$HSC/Column2/OptionsList.clipboard = new_clipboard
+	$HSC/Column3/ReactionsList.clipboard = new_clipboard
+	$HSC/Column3/AfterReactionEffectsDisplay.clipboard = new_clipboard
 
-func refresh_option_list(cutoff = 100):
-	$HSC/Column2/OptionsScroll/OptionsList.clear()
+func refresh_option_list():
+	$HSC/Column2/OptionsList.clear()
 	if (null != current_encounter):
-		for option in current_encounter.options:
-			list_option(option, cutoff)
+		$HSC/Column2/OptionsList.items_to_list = current_encounter.options.duplicate()
+		$HSC/Column2/OptionsList.refresh()
 		if (0 < current_encounter.options.size()):
-			load_Option(current_encounter.options[0])
-			$HSC/Column2/OptionsScroll/OptionsList.select(0)
-
-func list_reaction(reaction, cutoff = 50):
-	var reactionslist = $HSC/Column3/ReactionsScroll/ReactionList
-	var index = reactionslist.get_item_count()
-	var text = reaction.get_text()
-	if ("" == text):
-		reactionslist.add_item("[Blank Reaction]")
-	elif (text.left(cutoff) == text):
-		reactionslist.add_item(text)
+			load_Option(current_encounter.options.front())
+			$HSC/Column2/OptionsList.select_first_item()
 	else:
-		reactionslist.add_item(text.left(cutoff) + "...")
-		reactionslist.set_item_tooltip(index, text)
-	reactionslist.set_item_metadata(index, reaction)
+		$HSC/Column2/OptionsList.items_to_list.clear()
+		$HSC/Column2/OptionsList.refresh()
 
-func refresh_reaction_list(cutoff = 100):
-	$HSC/Column3/ReactionsScroll/ReactionList.clear()
+func refresh_reaction_list():
+	$HSC/Column3/ReactionsList.clear()
 	if (null != current_option):
-		for reaction in current_option.reactions:
-			list_reaction(reaction, cutoff)
+		$HSC/Column3/ReactionsList.items_to_list = current_option.reactions.duplicate()
+		$HSC/Column3/ReactionsList.refresh()
+		if (0 < current_option.reactions.size()):
+			load_Reaction(current_option.reactions.front())
+			$HSC/Column3/ReactionsList.select_first_item()
+	else:
+		$HSC/Column3/ReactionsList.items_to_list.clear()
+		$HSC/Column3/ReactionsList.refresh()
 
 func replace_character(deleted_character, replacement):
-	print("Replacing " + deleted_character.char_name + " with " + replacement.char_name)
 	log_update(null)
 	refresh_bnumber_property_lists()
 
@@ -104,11 +86,10 @@ func refresh_character_names():
 
 func refresh_reaction_after_effects_list():
 	$HSC/Column3/AfterReactionEffectsDisplay.clear()
-	$HSC/Column3/AfterReactionEffectsDisplay.list_to_display.clear()
 	if (null != current_reaction):
-		for change in current_reaction.after_effects:
-			var entry = {"text": change.data_to_string(), "metadata": change}
-			$HSC/Column3/AfterReactionEffectsDisplay.list_to_display.append(entry)
+		$HSC/Column3/AfterReactionEffectsDisplay.items_to_list = current_reaction.after_effects.duplicate()
+	else:
+		$HSC/Column3/AfterReactionEffectsDisplay.items_to_list.clear()
 	$HSC/Column3/AfterReactionEffectsDisplay.refresh()
 	$EffectEditor/EffectEditorScreen.reset()
 	$EffectEditor/EffectEditorScreen.refresh()
@@ -238,7 +219,7 @@ func load_Option(option):
 		$HSC/Column2/OptionText.text = option.get_text()
 		if (0 < option.reactions.size()):
 			load_Reaction(option.reactions[0])
-			$HSC/Column3/ReactionsScroll/ReactionList.select(0)
+			$HSC/Column3/ReactionsList.select_first_item()
 
 func load_Encounter(encounter):
 	if (null == encounter):
@@ -247,13 +228,11 @@ func load_Encounter(encounter):
 	current_encounter = encounter
 	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = encounter.title
 	$HSC/Column2/EncounterMainTextEdit.text = encounter.get_text()
-	$HSC/Column2/HBCTurn/VBC/EarliestTurn.value = encounter.earliest_turn
-	$HSC/Column2/HBCTurn/VBC2/LatestTurn.value = encounter.latest_turn
 	refresh_bnumber_property_lists()
 	refresh_option_list()
 	if (0 < encounter.options.size()):
 		load_Option(encounter.options[0])
-		$HSC/Column2/OptionsScroll/OptionsList.select(0)
+		$HSC/Column2/OptionsList.select_first_item()
 	else:
 		load_Option(null)
 
@@ -268,13 +247,15 @@ func Clear_Encounter_Editing_Screen():
 	current_reaction = null
 	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = ""
 	$HSC/Column2/EncounterMainTextEdit.text = ""
-	$HSC/Column2/HBCTurn/VBC/EarliestTurn.value = 0
-	$HSC/Column2/HBCTurn/VBC2/LatestTurn.value = 0
-	$HSC/Column2/OptionsScroll/OptionsList.clear()
-	$HSC/Column3/ReactionsScroll/ReactionList.clear()
+	$HSC/Column2/OptionsList.items_to_list.clear()
+	$HSC/Column2/OptionsList.refresh()
 	$HSC/Column2/OptionText.text = ""
+	$HSC/Column3/ReactionsList.items_to_list.clear()
+	$HSC/Column3/ReactionsList.refresh()
 	$HSC/Column3/ReactionText.text = ""
 	$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
+	$HSC/Column3/AfterReactionEffectsDisplay.items_to_list.clear()
+	$HSC/Column3/AfterReactionEffectsDisplay.refresh()
 	refresh_bnumber_property_lists()
 	load_Option(null)
 
@@ -292,6 +273,8 @@ func log_update(encounter = null):
 	storyworld.project_saved = false
 	emit_signal("refresh_encounter_list")
 
+#Encounter editing interface:
+
 func _on_AddButton_pressed():
 	var new_encounter = storyworld.create_new_generic_encounter()
 	storyworld.add_encounter(new_encounter)
@@ -306,7 +289,6 @@ func _on_AddButton_pressed():
 
 func _on_EncountersList_multi_selected(index, selected):
 	var encounter_to_edit = storyworld.encounters[index]
-	print("Loading Encounter: " + encounter_to_edit.title)
 	load_Encounter(encounter_to_edit)
 
 func _on_Duplicate_pressed():
@@ -317,7 +299,6 @@ func _on_Duplicate_pressed():
 			encounters_to_duplicate.append(storyworld.encounters[entry])
 		var encounter_to_edit = null
 		for entry in encounters_to_duplicate:
-			print("Duplicating Encounter: " + entry.title)
 			var new_encounter = storyworld.duplicate_encounter(entry)
 			if (encounter_to_edit == null):
 				encounter_to_edit = new_encounter
@@ -345,345 +326,204 @@ func _on_EncounterMainTextEdit_text_changed():
 		log_update(current_encounter)
 		emit_signal("refresh_graphview")
 
-func _on_ConfirmEncounterDeletion_confirmed():
-	var encounter_to_select = current_encounter
-	var starting_index = storyworld.encounters.find(current_encounter)
-	if (null != current_encounter and encounters_to_delete.has(current_encounter) and encounters_to_delete.size() < storyworld.encounters.size()):
-		for index in range(starting_index, storyworld.encounters.size()):
-			if (!encounters_to_delete.has(storyworld.encounters[index])):
-				encounter_to_select = storyworld.encounters[index]
-				break
-		if (encounter_to_select == current_encounter):
-			for index in range(starting_index, -1, -1):
-				if (!encounters_to_delete.has(storyworld.encounters[index])):
+func _on_ConfirmDeletion_confirmed():
+	if (items_to_delete.front() is Encounter):
+		var encounter_to_select = current_encounter
+		var starting_index = storyworld.encounters.find(current_encounter)
+		if (null != current_encounter and items_to_delete.has(current_encounter) and items_to_delete.size() < storyworld.encounters.size()):
+			for index in range(starting_index, storyworld.encounters.size()):
+				if (!items_to_delete.has(storyworld.encounters[index])):
 					encounter_to_select = storyworld.encounters[index]
 					break
-		if (encounter_to_select == current_encounter):
-			encounter_to_select = null
-		load_Encounter(encounter_to_select)
-	for each in encounters_to_delete:
-		storyworld.delete_encounter(each)
-	log_update(null)
-	refresh_encounter_list()
-	if (null != encounter_to_select):
-		$Column1/VScroll/EncountersList.select(storyworld.encounters.find(encounter_to_select))
+			if (encounter_to_select == current_encounter):
+				for index in range(starting_index, -1, -1):
+					if (!items_to_delete.has(storyworld.encounters[index])):
+						encounter_to_select = storyworld.encounters[index]
+						break
+			if (encounter_to_select == current_encounter):
+				encounter_to_select = null
+			load_Encounter(encounter_to_select)
+		for each in items_to_delete:
+			storyworld.delete_encounter(each)
+		refresh_encounter_list()
+		if (null != encounter_to_select):
+			$Column1/VScroll/EncountersList.select(storyworld.encounters.find(encounter_to_select))
+		log_update(null)
+	elif (items_to_delete.front() is Option):
+		for option in items_to_delete:
+			storyworld.delete_option_from_scripts(option)
+			option.encounter.options.erase(option)
+			option.clear()
+			option.call_deferred("free")
+		refresh_option_list()
+		if (!current_encounter.options.empty()):
+			load_Option(current_encounter.options.front())
+			$HSC/Column2/OptionsList.select_first_item()
+		else:
+			load_Option(null)
+		update_wordcount(current_encounter)
+		log_update(current_encounter)
+	elif (items_to_delete.front() is Reaction):
+		for reaction in items_to_delete:
+			storyworld.delete_reaction_from_scripts(reaction)
+			reaction.option.reactions.erase(reaction)
+			reaction.clear()
+			reaction.call_deferred("free")
+		load_Option(current_option)
+		if (null != current_option and 0 < current_option.reactions.size()):
+			current_reaction = current_option.reactions[0]
+			load_Reaction(current_reaction)
+			$HSC/Column3/ReactionsList.select_first_item()
+		update_wordcount(current_encounter)
+		log_update(current_encounter)
+	elif (items_to_delete.front() is SWEffect):
+		for effect in items_to_delete:
+			current_reaction.after_effects.erase(effect)
+			effect.clear()
+			effect.call_deferred("free")
+		log_update(current_encounter)
+		refresh_reaction_after_effects_list()
 	emit_signal("refresh_graphview")
 
 func _on_DeleteButton_pressed():
 	if ($Column1/VScroll/EncountersList.is_anything_selected()):
 		var selection = $Column1/VScroll/EncountersList.get_selected_items()
-		encounters_to_delete.clear()
+		items_to_delete.clear()
+		$ConfirmDeletion/ItemsToDelete.clear()
 		for each in selection:
-			encounters_to_delete.append(storyworld.encounters[each])
-		if (!encounters_to_delete.empty()):
-			var dialog_text = ""
-			if (1 == encounters_to_delete.size()):
-				dialog_text = "Are you sure you wish to delete the following encounter?"
+			items_to_delete.append(storyworld.encounters[each])
+			$ConfirmDeletion/ItemsToDelete.add_item(each.title)
+		if (!items_to_delete.empty()):
+			if (1 == items_to_delete.size()):
+				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following encounter?"
 			else:
-				dialog_text = "Are you sure you wish to delete the following encounters?"
-			$ConfirmEncounterDeletion/EncountersToDelete.clear()
-			for each in encounters_to_delete:
-				$ConfirmEncounterDeletion/EncountersToDelete.add_item(each.title)
-			$ConfirmEncounterDeletion.dialog_text = dialog_text
-			$ConfirmEncounterDeletion.popup()
+				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following encounters?"
+			$ConfirmDeletion.popup_centered()
 
-func _on_EarliestTurn_value_changed(value):
-	if (null != current_encounter):
-		current_encounter.earliest_turn = value
-		log_update(current_encounter)
-
-func _on_LatestTurn_value_changed(value):
-	if (null != current_encounter):
-		current_encounter.latest_turn = value
-		log_update(current_encounter)
-
-#Options and Reactions interface elements:
 #Option editing interface:
 
 func _on_AddOption_pressed():
 	if (null != current_encounter):
 		var new_option = storyworld.create_new_generic_option(current_encounter)
 		current_encounter.options.append(new_option)
-		list_option(new_option)
+		$HSC/Column2/OptionsList.items_to_list.append(new_option)
+		$HSC/Column2/OptionsList.list_item(new_option)
 		load_Option(new_option)
-		$HSC/Column2/OptionsScroll/OptionsList.select(new_option.get_index())
+		$HSC/Column2/OptionsList.deselect_all()
+		$HSC/Column2/OptionsList.select_last_item()
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
-func _on_ConfirmOptionDeletion_confirmed():
-	for option in options_to_delete:
-		storyworld.delete_option_from_scripts(option)
-		option.encounter.options.erase(option)
-		option.clear()
-		option.call_deferred("free")
-	refresh_option_list()
-	if (!current_encounter.options.empty()):
-		load_Option(current_encounter.options.front())
-		$HSC/Column2/OptionsScroll/OptionsList.select(0)
-	else:
-		load_Option(null)
-	update_wordcount(current_encounter)
-	log_update(current_encounter)
-	emit_signal("refresh_graphview")
+func confirm_option_deletion(options):
+	items_to_delete = options
+	if (!items_to_delete.empty()):
+		$ConfirmDeletion/ItemsToDelete.clear()
+		for each in items_to_delete:
+			$ConfirmDeletion/ItemsToDelete.add_item(each.get_listable_text(30))
+		if (1 == items_to_delete.size()):
+			$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following option?"
+		else:
+			$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following options?"
+		$ConfirmDeletion.popup_centered()
 
 func _on_DeleteOption_pressed():
-	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
-		var selection = $HSC/Column2/OptionsScroll/OptionsList.get_selected_items()
-		options_to_delete = []
-		for each in selection:
-			options_to_delete.append(current_encounter.options[each])
-		var dialog_text = ""
-		if (1 == options_to_delete.size()):
-			dialog_text = "Are you sure you wish to delete the following option?"
-		else:
-			dialog_text = "Are you sure you wish to delete the following options?"
-		for option in options_to_delete:
-			dialog_text += " (" + option.get_text() + ")"
-		$ConfirmOptionDeletion.dialog_text = dialog_text
-		$ConfirmOptionDeletion.popup()
+	confirm_option_deletion($HSC/Column2/OptionsList.get_all_selected_metadata())
+
+func _on_OptionsList_moved_item(item, from_index, to_index):
+	if (null == current_encounter):
+		refresh_option_list()
+		return
+	var option = current_encounter.options.pop_at(from_index)
+	if (to_index > from_index):
+		to_index = to_index - 1
+	if (to_index < current_encounter.options.size()):
+		current_encounter.options.insert(to_index, option)
+	else:
+		current_encounter.options.append(option)
 
 func _on_MoveOptionUpButton_pressed():
-	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
-		var selection = $HSC/Column2/OptionsScroll/OptionsList.get_selected_items()
-		if (0 != selection[0]):
-			var swap = current_encounter.options[selection[0]]
-			current_encounter.options[selection[0]] = current_encounter.options[selection[0]-1]
-			current_encounter.options[selection[0]-1] = swap
-			refresh_option_list()
-			if (0 < current_encounter.options.size()):
-				current_option = current_encounter.options[selection[0]-1]
-				$HSC/Column2/OptionsScroll/OptionsList.select(selection[0]-1)
-				load_Option(current_option)
-				$HSC/Column3/ReactionsScroll/ReactionList.select(0)
-				load_Reaction(current_option.reactions[0])
-			log_update(current_encounter)
+	$HSC/Column2/OptionsList.raise_selected_item()
 
 func _on_MoveOptionDownButton_pressed():
-	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
-		var selection = $HSC/Column2/OptionsScroll/OptionsList.get_selected_items()
-		if ((current_encounter.options.size()-1) != selection[0]):
-			var swap = current_encounter.options[selection[0]]
-			current_encounter.options[selection[0]] = current_encounter.options[selection[0]+1]
-			current_encounter.options[selection[0]+1] = swap
-			refresh_option_list()
-			if (0 < current_encounter.options.size()):
-				current_option = current_encounter.options[selection[0]+1]
-				$HSC/Column2/OptionsScroll/OptionsList.select(selection[0]+1)
-				load_Option(current_option)
-				$HSC/Column3/ReactionsScroll/ReactionList.select(0)
-				load_Reaction(current_option.reactions[0])
-			log_update(current_encounter)
+	$HSC/Column2/OptionsList.lower_selected_item()
 
-func _on_OptionsList_item_selected(index):
-	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
-		var selection = $HSC/Column2/OptionsScroll/OptionsList.get_selected_items()
-		current_option = current_encounter.options[selection[0]]
+func _on_OptionsList_multi_selected(item, column, selected):
+	var selected_option = $HSC/Column2/OptionsList.get_first_selected_metadata()
+	if (null != selected_option):
+		current_option = selected_option
 		load_Option(current_option)
-		$HSC/Column3/ReactionsScroll/ReactionList.select(0)
-		load_Reaction(current_option.reactions[0])
-
-func _on_OptionsList_multi_selected(index, selected):
-	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
-		var selection = $HSC/Column2/OptionsScroll/OptionsList.get_selected_items()
-		current_option = current_encounter.options[selection[0]]
-		load_Option(current_option)
-		$HSC/Column3/ReactionsScroll/ReactionList.select(0)
-		load_Reaction(current_option.reactions[0])
+		load_Reaction(current_option.reactions.front())
+		$HSC/Column3/ReactionsList.select_first_item()
 
 func _on_OptionText_text_changed(new_text):
 	if (null != current_option):
 		current_option.set_text($HSC/Column2/OptionText.text)
-		var optionslist = $HSC/Column2/OptionsScroll/OptionsList
-		var text = current_option.get_text()
-		if ("" == text):
-			optionslist.set_item_text(current_option.get_index(), "[Blank Option]")
-		elif (text.left(50) == text):
-			optionslist.set_item_text(current_option.get_index(), text)
-		else:
-			var index = current_option.get_index()
-			optionslist.set_item_text(index, text.left(50) + "...")
-			optionslist.set_item_tooltip(index, text)
+		$HSC/Column2/OptionsList.refresh()
+		$HSC/Column2/OptionsList.select_linked_item(current_option)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
-func _on_OptionsList_item_rmb_selected(index, at_position):
-	# Bring up context menu.
-	var mouse_position = get_global_mouse_position()
-	var context_menu = $HSC/Column2/OptionsScroll/OptionsList/OptionsContextMenu
-	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
-		var text_of_selection = "this."
-		context_menu.clear()
-		context_menu.add_item("Add option before " + text_of_selection, 0)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Add option after " + text_of_selection, 1)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Cut", 2)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Copy", 3)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Paste before " + text_of_selection, 4)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Paste after " + text_of_selection, 5)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Delete", 6)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Duplicate", 7)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-#		context_menu.add_item("Select all", 8)
-#		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.popup(Rect2(mouse_position.x, mouse_position.y, context_menu.rect_size.x, context_menu.rect_size.y))
+#Option list context menu:
 
 func add_options_at_position(options_to_add, position):
-	if (0 == options_to_add.size()):
-		return
-	var copies_to_add = []
-	for object in options_to_add:
-		var copy = storyworld.create_new_generic_option(current_encounter)
-		copy.set_as_copy_of(object, false)
-		copy.encounter = current_encounter
-		copies_to_add.append(copy)
-	if (1 == copies_to_add.size()):
-		current_encounter.options.insert(position, copies_to_add[0])
+	if (1 == options_to_add.size()):
+		current_encounter.options.insert(position, options_to_add.front())
 	elif (0 >= position):
-		copies_to_add.append_array(current_encounter.options)
-		current_encounter.options = copies_to_add
+		options_to_add.append_array(current_encounter.options)
+		current_encounter.options = options_to_add
 	elif (position < current_encounter.options.size()):
 		var new_array = current_encounter.options.slice(0, (position - 1))
-		new_array.append_array(copies_to_add)
+		new_array.append_array(options_to_add)
 		new_array.append_array(current_encounter.options.slice(position, (current_encounter.options.size() - 1)))
 		current_encounter.options = new_array
 	elif (position >= current_encounter.options.size()):
-		current_encounter.options.append_array(copies_to_add)
-	refresh_option_list()
-	if (0 < current_encounter.options.size()):
-		if (0 < copies_to_add.size()):
-			load_Option(copies_to_add[0])
-			$HSC/Column2/OptionsScroll/OptionsList.select(copies_to_add[0].get_index())
-		else:
-			load_Option(current_encounter.options[0])
-			$HSC/Column2/OptionsScroll/OptionsList.select(current_encounter.options[0].get_index())
-	else:
-		load_Option(null)
-	update_wordcount(current_encounter)
-	log_update(current_encounter)
-	emit_signal("refresh_graphview")
+		current_encounter.options.append_array(options_to_add)
 
-func duplicate_selected_options():
-	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
+func duplicate_selected_options(selected_items):
+	if (!selected_items.empty()):
 		var last_option_added = null
-		var selection = $HSC/Column2/OptionsScroll/OptionsList.get_selected_items()
-		for each in selection:
-			var option = $HSC/Column2/OptionsScroll/OptionsList.get_item_metadata(each)
+		for option in selected_items:
 			var new_option = storyworld.create_new_generic_option(current_encounter)
 			new_option.set_as_copy_of(option, false)
 			new_option.encounter = current_encounter
 			current_encounter.options.append(new_option)
-			list_option(new_option)
+			$HSC/Column2/OptionsList.items_to_list.append(new_option)
+			$HSC/Column2/OptionsList.list_item(new_option)
 			last_option_added = new_option
 		load_Option(last_option_added)
+		$HSC/Column2/OptionsList.select_only_linked_item(last_option_added)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 		emit_signal("refresh_graphview")
 
-func add_selected_options_to_clipboard():
-	if ($HSC/Column2/OptionsScroll/OptionsList.is_anything_selected()):
-		var selection = $HSC/Column2/OptionsScroll/OptionsList.get_selected_items()
-		for each in selection:
-			var option = $HSC/Column2/OptionsScroll/OptionsList.get_item_metadata(each)
-			var new_option = storyworld.create_new_generic_option(current_encounter)
-			new_option.set_as_copy_of(option, false)
-			clipboard.append(new_option)
-			clipped_originals.append(option)
-
-func delete_clipped_originals():
-	if (0 >= clipped_originals.size()):
-		return
-	if (clipped_originals[0] is Option):
-		for object in clipped_originals:
-			if (object is Option):
-				print("Deleting option: " + object.get_truncated_text(20))
-				storyworld.delete_option_from_scripts(object)
-				object.encounter.options.erase(object)
-				update_wordcount(object.encounter)
-				log_update(object.encounter)
-				object.clear()
-				object.call_deferred("free")
+func _on_OptionsList_add_at(index):
+	if (null != current_encounter):
+		var new_option = storyworld.create_new_generic_option(current_encounter)
+		current_encounter.options.insert(index, new_option)
 		refresh_option_list()
-		if (0 < current_encounter.options.size()):
-			load_Option(current_encounter.options[0])
-			$HSC/Column2/OptionsScroll/OptionsList.select(0)
-		else:
-			load_Option(null)
-	elif (clipped_originals[0] is Reaction):
-		for object in clipped_originals:
-			if (object is Reaction):
-				print("Deleting reaction: " + object.get_truncated_text(20))
-				storyworld.delete_reaction_from_scripts(object)
-				object.option.reactions.erase(object)
-				update_wordcount(object.option.encounter)
-				log_update(object.option.encounter)
-				object.clear()
-				object.call_deferred("free")
-		refresh_reaction_list()
-		if (0 < current_option.reactions.size()):
-			load_Reaction(current_option.reactions[0])
-			$HSC/Column3/ReactionsScroll/ReactionList.select(0)
-		else:
-			load_Reaction(null)
-	emit_signal("refresh_graphview")
+		load_Option(new_option)
+		$HSC/Column2/OptionsList.select_only_linked_item(new_option)
+		update_wordcount(current_encounter)
+		log_update(current_encounter)
 
-func _on_OptionsContextMenu_id_pressed(id):
-	var item_index = $HSC/Column2/OptionsScroll/OptionsList/OptionsContextMenu.get_item_metadata(id)
-	match id:
-		0:
-			#Add new option before
-			var new_option = storyworld.create_new_generic_option(current_encounter)
-			add_options_at_position([new_option], item_index)
-			print ("Adding new option before the selected one.")
-		1:
-			#Add new option after
-			var new_option = storyworld.create_new_generic_option(current_encounter)
-			add_options_at_position([new_option], item_index + 1)
-			print ("Adding new option after the selected one.")
-		2:
-			#Cut
-			clipboard = []
-			clipped_originals = []
-			add_selected_options_to_clipboard()
-			clipboard_task = clipboard_task_types.CUT
-			print ("Cutting selected option for pasting.")
-		3:
-			#Copy
-			clipboard = []
-			clipped_originals = []
-			add_selected_options_to_clipboard()
-			clipboard_task = clipboard_task_types.COPY
-			print ("Copying selected option.")
-		4:
-			#Paste before
-			add_options_at_position(clipboard, item_index)
-			if (clipboard_task_types.CUT == clipboard_task):
-				delete_clipped_originals()
-			print ("Pasting before selected option.")
-		5:
-			#Paste after
-			add_options_at_position(clipboard, item_index + 1)
-			if (clipboard_task_types.CUT == clipboard_task):
-				delete_clipped_originals()
-			print ("Pasting after selected option.")
-		6:
-			#Delete
-			_on_DeleteOption_pressed()
-			print ("Asking for confirmation for possible deletion of options.")
-		7:
-			#Duplicate
-			duplicate_selected_options()
-			print ("Duplicating selected option.")
-#		8:
-#			#Select all
-#			for each in range($HSC/Column2/OptionsScroll/OptionsList.get_item_count()):
-#				$HSC/Column2/OptionsScroll/OptionsList.select(each)
-#			print ("Selecting all options.")
+func _on_OptionsList_cut(items):
+	clipboard.cut(items)
+
+func _on_OptionsList_copy(items):
+	clipboard.copy(items)
+
+func _on_OptionsList_paste_at(index):
+	var items_to_add = clipboard.paste()
+	if (!items_to_add.empty()):
+		add_options_at_position(items_to_add, index)
+		if (clipboard.clipboard_task_types.CUT == clipboard.clipboard_task):
+			clipboard.delete_clipped_originals()
+		refresh_option_list()
+		load_Option(items_to_add.front())
+		$HSC/Column2/OptionsList.select_only_linked_item(items_to_add.front())
+		update_wordcount(current_encounter)
+		log_update(current_encounter)
+		emit_signal("refresh_graphview")
 
 #Reaction editing interface:
 
@@ -691,107 +531,66 @@ func _on_AddReaction_pressed():
 	if (null != current_option):
 		current_reaction = storyworld.create_new_generic_reaction(current_option)
 		current_option.reactions.append(current_reaction)
-		list_reaction(current_reaction)
+		$HSC/Column3/ReactionsList.items_to_list.append(current_reaction)
+		$HSC/Column3/ReactionsList.list_item(current_reaction)
 		load_Reaction(current_reaction)
-		$HSC/Column3/ReactionsScroll/ReactionList.select(current_reaction.get_index())
+		$HSC/Column3/ReactionsList.deselect_all()
+		$HSC/Column3/ReactionsList.select_last_item()
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
-func _on_ConfirmReactionDeletion_confirmed():
-	for reaction in reactions_to_delete:
-		print("Deleting reaction: " + reaction.get_truncated_text(25))
-		storyworld.delete_reaction_from_scripts(reaction)
-		reaction.option.reactions.erase(reaction)
-		reaction.clear()
-		reaction.call_deferred("free")
-	load_Option(current_option)
-	if (null != current_option and 0 < current_option.reactions.size()):
-		current_reaction = current_option.reactions[0]
-		load_Reaction(current_reaction)
-		$HSC/Column3/ReactionsScroll/ReactionList.select(0)
-	update_wordcount(current_encounter)
-	log_update(current_encounter)
-	emit_signal("refresh_graphview")
-
-func _on_DeleteReaction_pressed():
-	if ($HSC/Column3/ReactionsScroll/ReactionList.is_anything_selected()):
-		var selection = $HSC/Column3/ReactionsScroll/ReactionList.get_selected_items()
-		reactions_to_delete = []
-		for each in selection:
-			reactions_to_delete.append(current_option.reactions[each])
+func confirm_reaction_deletion(reactions):
+	items_to_delete = reactions
+	if (!items_to_delete.empty()):
+		$ConfirmDeletion/ItemsToDelete.clear()
+		for each in items_to_delete:
+			$ConfirmDeletion/ItemsToDelete.add_item(each.get_listable_text(30))
 		if (1 == current_option.reactions.size()):
 			$CannotDelete.dialog_text = 'Cannot delete reaction. Each option must have at least one reaction.'
-			$CannotDelete.popup()
-			print("Cannot delete reaction. Each option must have at least one reaction.")
-		elif(reactions_to_delete.size() == current_option.reactions.size()):
+			$CannotDelete.popup_centered()
+		elif(items_to_delete.size() == current_option.reactions.size()):
 			#Print "reactions" instead of "reaction."
 			$CannotDelete.dialog_text = 'Cannot delete reactions. Each option must have at least one reaction.'
-			$CannotDelete.popup()
-			print("Cannot delete reactions. Each option must have at least one reaction.")
+			$CannotDelete.popup_centered()
 		else:
-			var dialog_text = ""
-			if (1 == reactions_to_delete.size()):
-				dialog_text = "Are you sure you wish to delete the following reaction?"
+			if (1 == items_to_delete.size()):
+				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following reaction?"
 			else:
-				dialog_text = "Are you sure you wish to delete the following reactions?"
-			for reaction in reactions_to_delete:
-				dialog_text += " (" + reaction.get_text() + ")"
-			$ConfirmReactionDeletion.dialog_text = dialog_text
-			$ConfirmReactionDeletion.popup()
+				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following reactions?"
+			$ConfirmDeletion.popup_centered()
+
+func _on_DeleteReaction_pressed():
+	confirm_reaction_deletion($HSC/Column3/ReactionsList.get_all_selected_metadata())
+
+func _on_ReactionsList_moved_item(item, from_index, to_index):
+	if (null == current_option):
+		refresh_reaction_list()
+		return
+	var reaction = current_option.reactions.pop_at(from_index)
+	if (to_index > from_index):
+		to_index = to_index - 1
+	if (to_index < current_option.reactions.size()):
+		current_option.reactions.insert(to_index, reaction)
+	else:
+		current_option.reactions.append(reaction)
 
 func _on_MoveReactionUpButton_pressed():
-	if ($HSC/Column3/ReactionsScroll/ReactionList.is_anything_selected()):
-		var selection = $HSC/Column3/ReactionsScroll/ReactionList.get_selected_items()
-		if (0 != selection[0]):
-			var swap = current_option.reactions[selection[0]]
-			current_option.reactions[selection[0]] = current_option.reactions[selection[0]-1]
-			current_option.reactions[selection[0]-1] = swap
-			refresh_reaction_list()
-			if (0 < current_option.reactions.size()):
-				current_reaction = current_option.reactions[selection[0]-1]
-				$HSC/Column3/ReactionsScroll/ReactionList.select(selection[0]-1)
-				load_Reaction(current_reaction)
-			log_update(current_encounter)
+	$HSC/Column3/ReactionsList.raise_selected_item()
 
 func _on_MoveReactionDownButton_pressed():
-	if ($HSC/Column3/ReactionsScroll/ReactionList.is_anything_selected()):
-		var selection = $HSC/Column3/ReactionsScroll/ReactionList.get_selected_items()
-		if ((current_option.reactions.size()-1) != selection[0]):
-			var swap = current_option.reactions[selection[0]]
-			current_option.reactions[selection[0]] = current_option.reactions[selection[0]+1]
-			current_option.reactions[selection[0]+1] = swap
-			refresh_reaction_list()
-			if (0 < current_option.reactions.size()):
-				current_reaction = current_option.reactions[selection[0]+1]
-				$HSC/Column3/ReactionsScroll/ReactionList.select(selection[0]+1)
-				load_Reaction(current_reaction)
-			log_update(current_encounter)
+	$HSC/Column3/ReactionsList.lower_selected_item()
 
-func _on_ReactionList_item_selected(index):
-	if ($HSC/Column3/ReactionsScroll/ReactionList.is_anything_selected()):
-		var selection = $HSC/Column3/ReactionsScroll/ReactionList.get_selected_items()
-		current_reaction = current_option.reactions[selection[0]]
-		load_Reaction(current_reaction)
-
-func _on_ReactionList_multi_selected(index, selected):
-	if ($HSC/Column3/ReactionsScroll/ReactionList.is_anything_selected()):
-		var selection = $HSC/Column3/ReactionsScroll/ReactionList.get_selected_items()
-		current_reaction = current_option.reactions[selection[0]]
+func _on_ReactionsList_multi_selected(item, column, selected):
+	var selected_reaction = $HSC/Column3/ReactionsList.get_first_selected_metadata()
+	if (null != selected_reaction):
+		current_reaction = selected_reaction
 		load_Reaction(current_reaction)
 
 func _on_ReactionText_text_changed():
 	if (null != current_reaction):
-		var reactionslist = $HSC/Column3/ReactionsScroll/ReactionList
 		current_reaction.set_text($HSC/Column3/ReactionText.text)
-		var index = current_reaction.get_index()
-		var text = current_reaction.get_text()
-		if ("" == text):
-			reactionslist.set_item_text(index, "[Blank Reaction]")
-		elif (text.left(50) == text):
-			reactionslist.set_item_text(index, text)
-		else:
-			reactionslist.set_item_text(index, text.left(50) + "...")
-			reactionslist.set_item_tooltip(index, text)
+		$HSC/Column3/ReactionsList.refresh()
+		$HSC/Column3/ReactionsList.select_linked_item(current_reaction)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
@@ -830,31 +629,93 @@ func _on_Trait2Selector_bnumber_property_selected(selected_property):
 					current_reaction.desirability_script.contents.operands[1].set_as_copy_of(selected_property)
 					log_update(current_encounter)
 
+#Reaction list context menu:
+
+func add_reactions_at_position(reactions_to_add, position):
+	if (1 == reactions_to_add.size()):
+		current_option.reactions.insert(position, reactions_to_add.front())
+	elif (0 >= position):
+		reactions_to_add.append_array(current_option.reactions)
+		current_option.reactions = reactions_to_add
+	elif (position < current_option.reactions.size()):
+		var new_array = current_option.reactions.slice(0, (position - 1))
+		new_array.append_array(reactions_to_add)
+		new_array.append_array(current_option.reactions.slice(position, (current_option.reactions.size() - 1)))
+		current_option.reactions = new_array
+	elif (position >= current_option.reactions.size()):
+		current_option.reactions.append_array(reactions_to_add)
+
+func duplicate_selected_reactions(selected_items):
+	if (!selected_items.empty()):
+		var last_reaction_added = null
+		for reaction in selected_items:
+			var new_reaction = storyworld.create_new_generic_reaction(current_option)
+			new_reaction.set_as_copy_of(reaction, false)
+			new_reaction.option = current_option
+			current_option.reactions.append(new_reaction)
+			$HSC/Column3/ReactionsList.items_to_list.append(new_reaction)
+			$HSC/Column3/ReactionsList.list_item(new_reaction)
+			last_reaction_added = new_reaction
+		load_Reaction(last_reaction_added)
+		$HSC/Column3/ReactionsList.select_only_linked_item(last_reaction_added)
+		update_wordcount(current_encounter)
+		log_update(current_encounter)
+		emit_signal("refresh_graphview")
+
+func _on_ReactionsList_add_at(index):
+	var new_reaction = storyworld.create_new_generic_reaction(current_option)
+	current_option.reactions.insert(index, new_reaction)
+	refresh_reaction_list()
+	load_Reaction(new_reaction)
+	$HSC/Column3/ReactionsList.select_only_linked_item(new_reaction)
+	update_wordcount(current_encounter)
+	log_update(current_encounter)
+
+func _on_ReactionsList_cut(items):
+	clipboard.cut(items)
+
+func _on_ReactionsList_copy(items):
+	clipboard.copy(items)
+
+func _on_ReactionsList_paste_at(index):
+	var items_to_add = clipboard.paste()
+	if (!items_to_add.empty()):
+		add_reactions_at_position(items_to_add, index)
+		if (clipboard.clipboard_task_types.CUT == clipboard.clipboard_task):
+			clipboard.delete_clipped_originals()
+		refresh_reaction_list()
+		load_Reaction(items_to_add.front())
+		$HSC/Column3/ReactionsList.select_only_linked_item(items_to_add.front())
+		update_wordcount(current_encounter)
+		log_update(current_encounter)
+		emit_signal("refresh_graphview")
+
+#Effect editing interface:
+
 func _on_ChangeConsequence_pressed():
 	if (null != current_reaction and current_reaction is Reaction):
 		$EffectEditor/EffectEditorScreen.storyworld = storyworld
 		$EffectEditor/EffectEditorScreen.reset()
 		$EffectEditor/EffectEditorScreen.load_effect(current_reaction.consequence)
-		$EffectEditor.popup()
+		$EffectEditor.popup_centered()
 
 func _on_AddEffect_pressed():
 	if (null != current_reaction):
 		if (null != storyworld and 0 < storyworld.characters.size() and 0 < storyworld.authored_properties.size()):
 			$EffectEditor/EffectEditorScreen.storyworld = storyworld
 			$EffectEditor/EffectEditorScreen.reset()
-		effect_to_delete = null
-		$EffectEditor.popup()
-	else:
-		print("No reaction currently selected.")
+		items_to_delete.clear()
+		$EffectEditor.popup_centered()
 
 func _on_EffectEditor_confirmed():
 	if (null != current_reaction):
 		var new_change = $EffectEditor/EffectEditorScreen.get_effect()
 		if (null != new_change):
 			if (new_change is SWEffect):
+				new_change.cause = current_reaction
 				var index = -1
-				if (null != effect_to_delete):
-					index = current_reaction.after_effects.find(effect_to_delete)
+				if (!items_to_delete.empty()):
+					index = current_reaction.after_effects.find(items_to_delete.front())
 				if (-1 == index):
 					current_reaction.after_effects.append(new_change)
 					refresh_reaction_after_effects_list()
@@ -863,171 +724,118 @@ func _on_EffectEditor_confirmed():
 					current_reaction.after_effects[index] = new_change
 					refresh_reaction_after_effects_list()
 					log_update(current_encounter)
-				effect_to_delete = null
+				items_to_delete.clear()
 			elif (new_change is EventPointer):
 				if (null == new_change.encounter or new_change.encounter is Encounter):
 					current_reaction.consequence = new_change.encounter
 					refresh_reaction_consequence_display()
 					log_update(current_encounter)
 					emit_signal("refresh_graphview")
-	else:
-		print("No reaction currently selected.")
+
+func confirm_effect_deletion(effects):
+	items_to_delete = effects.duplicate()
+	if (!items_to_delete.empty()):
+		$ConfirmDeletion/ItemsToDelete.clear()
+		for each in items_to_delete:
+			$ConfirmDeletion/ItemsToDelete.add_item(each.data_to_string())
+		if (!items_to_delete.empty()):
+			if (1 == items_to_delete.size()):
+				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following effect?"
+			else:
+				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following effects?"
+			$ConfirmDeletion.popup_centered()
 
 func _on_DeleteEffect_pressed():
-	var selected_change = $HSC/Column3/AfterReactionEffectsDisplay.get_selected_metadata()
-	if (null != selected_change and selected_change is SWEffect):
-		effect_to_delete = selected_change
-		var dialog_text = ""
-		dialog_text = "Are you sure you wish to delete the following reaction effect?"
-		dialog_text += " \"" + selected_change.data_to_string() + "\""
-		$ConfirmReactionEffectDeletion.dialog_text = dialog_text
-		$ConfirmReactionEffectDeletion.popup()
+	confirm_effect_deletion($HSC/Column3/AfterReactionEffectsDisplay.get_all_selected_metadata())
 
-func _on_ConfirmReactionEffectDeletion_confirmed():
-	if (current_reaction.after_effects.has(effect_to_delete)):
-		current_reaction.after_effects.erase(effect_to_delete)
-		if (effect_to_delete is SWEffect):
-			effect_to_delete.clear()
-			effect_to_delete.call_deferred("free")
-		log_update(current_encounter)
-	refresh_reaction_after_effects_list()
-
-func _on_ReactionList_item_rmb_selected(index, at_position):
-	# Bring up context menu.
-	var mouse_position = get_global_mouse_position()
-	var context_menu = $HSC/Column3/ReactionsScroll/ReactionList/ReactionsContextMenu
-	if ($HSC/Column3/ReactionsScroll/ReactionList.is_anything_selected()):
-		var text_of_selection = "this."
-		context_menu.clear()
-		context_menu.add_item("Add reaction before " + text_of_selection, 0)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Add reaction after " + text_of_selection, 1)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Cut", 2)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Copy", 3)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Paste before " + text_of_selection, 4)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Paste after " + text_of_selection, 5)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Delete", 6)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.add_item("Duplicate", 7)
-		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-#		context_menu.add_item("Select all", 8)
-#		context_menu.set_item_metadata((context_menu.get_item_count() - 1), index)
-		context_menu.popup(Rect2(mouse_position.x, mouse_position.y, context_menu.rect_size.x, context_menu.rect_size.y))
-
-func add_reactions_at_position(reactions_to_add, position):
-	if (0 == reactions_to_add.size()):
+func _on_AfterReactionEffectsDisplay_moved_item(item, from_index, to_index):
+	if (null == current_reaction):
+		refresh_reaction_after_effects_list()
 		return
-	var copies_to_add = []
-	for object in reactions_to_add:
-		var copy = storyworld.create_new_generic_reaction(current_option)
-		copy.set_as_copy_of(object, false)
-		copy.option = current_option
-		copies_to_add.append(copy)
-	if (1 == copies_to_add.size()):
-		current_option.reactions.insert(position, copies_to_add[0])
-	elif (0 >= position):
-		copies_to_add.append_array(current_option.reactions)
-		current_option.reactions = copies_to_add
-	elif (position < current_option.reactions.size()):
-		var new_array = current_option.reactions.slice(0, (position - 1))
-		new_array.append_array(copies_to_add)
-		new_array.append_array(current_option.reactions.slice(position, (current_option.reactions.size() - 1)))
-		current_option.reactions = new_array
-	elif (position >= current_option.reactions.size()):
-		current_option.reactions.append_array(copies_to_add)
-	refresh_reaction_list()
-	if (0 < current_option.reactions.size()):
-		if (0 < copies_to_add.size()):
-			load_Reaction(copies_to_add[0])
-			$HSC/Column3/ReactionsScroll/ReactionList.select(copies_to_add[0].get_index())
-		else:
-			load_Reaction(current_option.reactions[0])
-			$HSC/Column3/ReactionsScroll/ReactionList.select(current_option.reactions[0].get_index())
+	var effect = current_reaction.after_effects.pop_at(from_index)
+	if (to_index > from_index):
+		to_index = to_index - 1
+	if (to_index < current_reaction.after_effects.size()):
+		current_reaction.after_effects.insert(to_index, effect)
 	else:
-		load_Reaction(null)
-	update_wordcount(current_encounter)
-	log_update(current_encounter)
-	emit_signal("refresh_graphview")
+		current_reaction.after_effects.append(effect)
 
-func duplicate_selected_reactions():
-	if ($HSC/Column3/ReactionsScroll/ReactionList.is_anything_selected()):
-		var last_reaction_added = null
-		var selection = $HSC/Column3/ReactionsScroll/ReactionList.get_selected_items()
-		for each in selection:
-			var reaction = $HSC/Column3/ReactionsScroll/ReactionList.get_item_metadata(each)
-			var new_reaction = storyworld.create_new_generic_reaction(current_option)
-			new_reaction.set_as_copy_of(reaction, false)
-			new_reaction.option = current_option
-			current_option.reactions.append(new_reaction)
-			list_reaction(new_reaction)
-			last_reaction_added = new_reaction
-		load_Reaction(last_reaction_added)
+func _on_MoveEffectUpButton_pressed():
+	$HSC/Column3/AfterReactionEffectsDisplay.raise_selected_item()
+
+func _on_MoveEffectDownButton_pressed():
+	$HSC/Column3/AfterReactionEffectsDisplay.lower_selected_item()
+
+func _on_AfterReactionEffectsDisplay_item_activated():
+	if (null != current_reaction):
+		if (null != storyworld):
+			$EffectEditor/EffectEditorScreen.storyworld = storyworld
+			$EffectEditor/EffectEditorScreen.reset()
+			var effect = $HSC/Column3/AfterReactionEffectsDisplay.get_first_selected_metadata()
+			$EffectEditor/EffectEditorScreen.load_effect(effect)
+			items_to_delete.clear()
+			items_to_delete.append(effect)
+			$EffectEditor.popup_centered()
+
+#Effect list context menu:
+
+func add_effects_at_position(effects_to_add, position):
+	if (1 == effects_to_add.size()):
+		current_reaction.after_effects.insert(position, effects_to_add.front())
+	elif (0 >= position):
+		effects_to_add.append_array(current_reaction.after_effects)
+		current_reaction.after_effects = effects_to_add
+	elif (position < current_reaction.after_effects.size()):
+		var new_array = current_reaction.after_effects.slice(0, (position - 1))
+		new_array.append_array(effects_to_add)
+		new_array.append_array(current_reaction.after_effects.slice(position, (current_reaction.after_effects.size() - 1)))
+		current_reaction.after_effects = new_array
+	elif (position >= current_reaction.after_effects.size()):
+		current_reaction.after_effects.append_array(effects_to_add)
+
+func duplicate_selected_effects(selected_items):
+	if (!selected_items.empty()):
+		for item in selected_items:
+			var change_made = false
+			if (item is BNumberEffect):
+				var copy = BNumberEffect.new()
+				copy.set_as_copy_of(item)
+				copy.cause = current_reaction
+				current_reaction.after_effects.append(copy)
+				$HSC/Column3/AfterReactionEffectsDisplay.items_to_list.append(copy)
+				$HSC/Column3/AfterReactionEffectsDisplay.list_item(copy)
+				change_made = true
+			elif (item is SpoolEffect):
+				var copy = SpoolEffect.new()
+				copy.set_as_copy_of(item)
+				copy.cause = current_reaction
+				current_reaction.after_effects.append(copy)
+				$HSC/Column3/AfterReactionEffectsDisplay.items_to_list.append(copy)
+				$HSC/Column3/AfterReactionEffectsDisplay.list_item(copy)
+				change_made = true
+			if (change_made):
+				log_update(current_encounter)
+
+func _on_AfterReactionEffectsDisplay_add_at(index):
+	pass # To do: let authors create new effects that are inserted into the effects list in a specified location upon being created.
+
+func _on_AfterReactionEffectsDisplay_cut(items):
+	clipboard.cut(items)
+
+func _on_AfterReactionEffectsDisplay_copy(items):
+	clipboard.copy(items)
+
+func _on_AfterReactionEffectsDisplay_paste_at(index):
+	var items_to_paste = clipboard.paste()
+	if (!items_to_paste.empty()):
+		add_effects_at_position(items_to_paste, index)
+		if (clipboard.clipboard_task_types.CUT == clipboard.clipboard_task):
+			clipboard.delete_clipped_originals()
+		refresh_reaction_after_effects_list()
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
-		emit_signal("refresh_graphview")
 
-func add_selected_reactions_to_clipboard():
-	if ($HSC/Column3/ReactionsScroll/ReactionList.is_anything_selected()):
-		var selection = $HSC/Column3/ReactionsScroll/ReactionList.get_selected_items()
-		for each in selection:
-			var reaction = $HSC/Column3/ReactionsScroll/ReactionList.get_item_metadata(each)
-			var new_reaction = storyworld.create_new_generic_reaction(current_option)
-			new_reaction.set_as_copy_of(reaction, false)
-			clipboard.append(new_reaction)
-			clipped_originals.append(reaction)
-
-func _on_ReactionsContextMenu_id_pressed(id):
-	var item_index = $HSC/Column3/ReactionsScroll/ReactionList/ReactionsContextMenu.get_item_metadata(id)
-	match id:
-		0:
-			#Add new reaction before
-			var new_reaction = storyworld.create_new_generic_reaction(current_option)
-			add_reactions_at_position([new_reaction], item_index)
-			print ("Adding new reaction before the selected one.")
-		1:
-			#Add new reaction after
-			var new_reaction = storyworld.create_new_generic_reaction(current_option)
-			add_reactions_at_position([new_reaction], item_index + 1)
-			print ("Adding new reaction after the selected one.")
-		2:
-			#Cut
-			clipboard = []
-			clipped_originals = []
-			add_selected_reactions_to_clipboard()
-			clipboard_task = clipboard_task_types.CUT
-			print ("Cutting selected reactions for pasting.")
-		3:
-			#Copy
-			clipboard = []
-			clipped_originals = []
-			add_selected_reactions_to_clipboard()
-			clipboard_task = clipboard_task_types.COPY
-			print ("Copying selected reactions.")
-		4:
-			#Paste before
-			add_reactions_at_position(clipboard, item_index)
-			if (clipboard_task_types.CUT == clipboard_task):
-				delete_clipped_originals()
-			print ("Pasting before selected reactions.")
-		5:
-			#Paste after
-			add_reactions_at_position(clipboard, item_index + 1)
-			if (clipboard_task_types.CUT == clipboard_task):
-				delete_clipped_originals()
-			print ("Pasting after selected reactions.")
-		6:
-			#Delete
-			_on_DeleteReaction_pressed()
-			print ("Asking for confirmation for possible deletion of reactions.")
-		7:
-			#Duplicate
-			duplicate_selected_reactions()
-			print ("Duplicating selected reactions.")
+#General:
 
 func update_wordcount(encounter):
 	#In order to try to avoid sluggishness, we only do this if sort_by is set to word count or rev. word count.
@@ -1041,6 +849,12 @@ func update_wordcount(encounter):
 func _ready():
 	if (0 < $Column1/SortMenu.get_item_count()):
 		$Column1/SortMenu.select(0)
+	$HSC/Column2/OptionsList.context_menu_enabled = true
+	$HSC/Column2/OptionsList.item_type = "option"
+	$HSC/Column3/ReactionsList.context_menu_enabled = true
+	$HSC/Column3/ReactionsList.item_type = "reaction"
+	$HSC/Column3/AfterReactionEffectsDisplay.context_menu_enabled = true
+	$HSC/Column3/AfterReactionEffectsDisplay.item_type = "effect"
 
 #Script Editing:
 
@@ -1051,9 +865,7 @@ func _on_EditEncounterAcceptabilityScriptButton_pressed():
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_encounter.acceptability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
-		$ScriptEditWindow.popup()
-	else:
-		print("You must open an encounter before you can edit its settings.")
+		$ScriptEditWindow.popup_centered()
 
 func _on_EditEncounterDesirabilityScriptButton_pressed():
 	if (null != current_encounter and current_encounter is Encounter):
@@ -1062,9 +874,7 @@ func _on_EditEncounterDesirabilityScriptButton_pressed():
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_encounter.desirability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
-		$ScriptEditWindow.popup()
-	else:
-		print("You must open an encounter before you can edit its settings.")
+		$ScriptEditWindow.popup_centered()
 
 func _on_ARDSEButton_pressed():
 	var title = current_reaction.get_truncated_text(40)
@@ -1074,39 +884,13 @@ func _on_ARDSEButton_pressed():
 	$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_reaction.desirability_script
 	$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 	$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
-	$ScriptEditWindow.popup()
+	$ScriptEditWindow.popup_centered()
 
 func _on_ScriptEditScreen_sw_script_changed(sw_script):
 	if (current_reaction.desirability_script == sw_script):
 		load_Reaction(current_reaction)
 	emit_signal("refresh_graphview")
 	log_update(current_encounter)
-
-func _on_AfterReactionEffectsDisplay_moved_item(item, from_index, to_index):
-	if (null == current_reaction):
-		refresh_reaction_after_effects_list()
-		return
-	var effect = current_reaction.after_effects.pop_at(from_index)
-	print(effect.data_to_string())
-	print(str(current_reaction.after_effects.size()))
-	if (to_index > from_index):
-		to_index = to_index - 1
-	if (to_index < current_reaction.after_effects.size()):
-		current_reaction.after_effects.insert(to_index, effect)
-	else:
-		current_reaction.after_effects.append(effect)
-
-func _on_AfterReactionEffectsDisplay_item_activated():
-	if (null != current_reaction):
-		if (null != storyworld):
-			$EffectEditor/EffectEditorScreen.storyworld = storyworld
-			$EffectEditor/EffectEditorScreen.reset()
-			var effect = $HSC/Column3/AfterReactionEffectsDisplay.get_selected_metadata()
-			$EffectEditor/EffectEditorScreen.load_effect(effect)
-			effect_to_delete = effect
-			$EffectEditor.popup()
-	else:
-		print("No reaction currently selected.")
 
 func _on_EditOptionVisibilityScriptButton_pressed():
 	if (null != current_option and current_option is Option):
@@ -1117,7 +901,7 @@ func _on_EditOptionVisibilityScriptButton_pressed():
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_option.visibility_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
-		$ScriptEditWindow.popup()
+		$ScriptEditWindow.popup_centered()
 
 func _on_EditOptionPerformabilityScriptButton_pressed():
 	if (null != current_option and current_option is Option):
@@ -1128,7 +912,7 @@ func _on_EditOptionPerformabilityScriptButton_pressed():
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_option.performability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
-		$ScriptEditWindow.popup()
+		$ScriptEditWindow.popup_centered()
 
 
 #GUI Themes:
@@ -1147,29 +931,33 @@ func set_gui_theme(theme_name, background_color):
 		"Clarity":
 			$Column1/HBC/AddButton.icon = add_icon_dark
 			$Column1/HBC/DeleteButton.icon = delete_icon_dark
-			$HSC/Column2/HBCTurn2/AddOption.icon = add_icon_dark
-			$HSC/Column2/HBCTurn2/DeleteOption.icon = delete_icon_dark
-			$HSC/Column2/HBCTurn2/MoveOptionUpButton.icon = move_up_icon_dark
-			$HSC/Column2/HBCTurn2/MoveOptionDownButton.icon = move_down_icon_dark
+			$HSC/Column2/HBCOptionButtons/AddOption.icon = add_icon_dark
+			$HSC/Column2/HBCOptionButtons/DeleteOption.icon = delete_icon_dark
+			$HSC/Column2/HBCOptionButtons/MoveOptionUpButton.icon = move_up_icon_dark
+			$HSC/Column2/HBCOptionButtons/MoveOptionDownButton.icon = move_down_icon_dark
 			$HSC/Column3/HBC/AddReaction.icon = add_icon_dark
 			$HSC/Column3/HBC/DeleteReaction.icon = delete_icon_dark
 			$HSC/Column3/HBC/MoveReactionUpButton.icon = move_up_icon_dark
 			$HSC/Column3/HBC/MoveReactionDownButton.icon = move_down_icon_dark
 			$HSC/Column3/HBCEffectButtons/AddEffect.icon = add_icon_dark
 			$HSC/Column3/HBCEffectButtons/DeleteEffect.icon = delete_icon_dark
+			$HSC/Column3/HBCEffectButtons/MoveEffectUpButton.icon = move_up_icon_dark
+			$HSC/Column3/HBCEffectButtons/MoveEffectDownButton.icon = move_down_icon_dark
 		"Lapis Lazuli":
 			$Column1/HBC/AddButton.icon = add_icon_light
 			$Column1/HBC/DeleteButton.icon = delete_icon_light
-			$HSC/Column2/HBCTurn2/AddOption.icon = add_icon_light
-			$HSC/Column2/HBCTurn2/DeleteOption.icon = delete_icon_light
-			$HSC/Column2/HBCTurn2/MoveOptionUpButton.icon = move_up_icon_light
-			$HSC/Column2/HBCTurn2/MoveOptionDownButton.icon = move_down_icon_light
+			$HSC/Column2/HBCOptionButtons/AddOption.icon = add_icon_light
+			$HSC/Column2/HBCOptionButtons/DeleteOption.icon = delete_icon_light
+			$HSC/Column2/HBCOptionButtons/MoveOptionUpButton.icon = move_up_icon_light
+			$HSC/Column2/HBCOptionButtons/MoveOptionDownButton.icon = move_down_icon_light
 			$HSC/Column3/HBC/AddReaction.icon = add_icon_light
 			$HSC/Column3/HBC/DeleteReaction.icon = delete_icon_light
 			$HSC/Column3/HBC/MoveReactionUpButton.icon = move_up_icon_light
 			$HSC/Column3/HBC/MoveReactionDownButton.icon = move_down_icon_light
 			$HSC/Column3/HBCEffectButtons/AddEffect.icon = add_icon_light
 			$HSC/Column3/HBCEffectButtons/DeleteEffect.icon = delete_icon_light
+			$HSC/Column3/HBCEffectButtons/MoveEffectUpButton.icon = move_up_icon_light
+			$HSC/Column3/HBCEffectButtons/MoveEffectDownButton.icon = move_down_icon_light
 	$HSC/Column3/HBCLSL/BlendWeightSelector.set_gui_theme(theme_name, background_color)
 	$EffectEditor/EffectEditorScreen.set_gui_theme(theme_name, background_color)
 	$ScriptEditWindow/ScriptEditScreen.set_gui_theme(theme_name, background_color)

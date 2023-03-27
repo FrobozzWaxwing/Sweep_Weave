@@ -3,6 +3,7 @@ class_name Spool
 #A group of encounters, with some associated scripts.
 #SweepWeave uses spools when deciding which encounter to present next.
 
+var storyworld = null
 var id = ""
 var spool_name = ""
 var encounters = [] #A list of encounters.
@@ -19,6 +20,20 @@ var is_active = true #This variable tracks whether or not the spool is currently
 
 func _init():
 	pass
+
+func get_index():
+	if (null != storyworld):
+		return storyworld.spools.find(self)
+	return -1
+
+func get_listable_text(maximum_output_length = 50):
+	var text = spool_name
+	if ("" == text):
+		return "[Untitled Spool]"
+	elif (maximum_output_length >= text.length()):
+		return text
+	else:
+		return text.left(maximum_output_length - 3) + "..."
 
 func log_update():
 	modified_time = OS.get_unix_time()

@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://PlayScreen.gd" type="Script" id=1]
 [ext_resource path="res://ScriptDisplay.tscn" type="PackedScene" id=2]
+[ext_resource path="res://custom_resources/edit-3.svg" type="Texture" id=3]
 
 [node name="Background" type="ColorRect"]
 anchor_right = 1.0
@@ -75,22 +76,32 @@ anchor_bottom = 1.0
 size_flags_horizontal = 3
 alignment = 1
 
-[node name="Play_Button" type="Button" parent="Layout/L2/ColorRect/VBC"]
+[node name="TitleBar" type="HBoxContainer" parent="Layout/L2/ColorRect/VBC"]
+margin_right = 562.0
+margin_bottom = 20.0
+
+[node name="Play_Button" type="Button" parent="Layout/L2/ColorRect/VBC/TitleBar"]
 margin_right = 41.0
 margin_bottom = 20.0
 size_flags_horizontal = 0
-size_flags_vertical = 0
 text = "Start"
 
-[node name="EncounterTitle" type="Label" parent="Layout/L2/ColorRect/VBC"]
-margin_top = 24.0
-margin_right = 562.0
-margin_bottom = 38.0
+[node name="Edit_Button" type="Button" parent="Layout/L2/ColorRect/VBC/TitleBar"]
+visible = false
+margin_right = 36.0
+margin_bottom = 30.0
+icon = ExtResource( 3 )
+
+[node name="EncounterTitle" type="Label" parent="Layout/L2/ColorRect/VBC/TitleBar"]
+margin_left = 45.0
+margin_top = 3.0
+margin_right = 45.0
+margin_bottom = 17.0
 
 [node name="MainText" type="RichTextLabel" parent="Layout/L2/ColorRect/VBC"]
-margin_top = 42.0
+margin_top = 24.0
 margin_right = 562.0
-margin_bottom = 502.0
+margin_bottom = 496.0
 rect_min_size = Vector2( 128, 128 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -117,7 +128,7 @@ margin_bottom = 20.0
 text = "Option Script Reports"
 
 [node name="OptionsList" type="ItemList" parent="Layout/L2/ColorRect/VBC"]
-margin_top = 506.0
+margin_top = 500.0
 margin_right = 562.0
 margin_bottom = 736.0
 size_flags_horizontal = 3
@@ -177,6 +188,10 @@ resizable = true
 [node name="VBC" type="VBoxContainer" parent="EncounterScriptReportWindow"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -36.0
 
 [node name="Background" type="ColorRect" parent="EncounterScriptReportWindow/VBC"]
 margin_right = 512.0
@@ -219,7 +234,8 @@ columns = 2
 select_mode = 1
 
 [connection signal="item_activated" from="Layout/VBC/Historybook" to="." method="_on_Historybook_item_activated"]
-[connection signal="pressed" from="Layout/L2/ColorRect/VBC/Play_Button" to="." method="_on_Play_Button_pressed"]
+[connection signal="pressed" from="Layout/L2/ColorRect/VBC/TitleBar/Play_Button" to="." method="_on_Play_Button_pressed"]
+[connection signal="pressed" from="Layout/L2/ColorRect/VBC/TitleBar/Edit_Button" to="." method="_on_Edit_Button_pressed"]
 [connection signal="pressed" from="Layout/L2/ColorRect/VBC/ScriptReportButtonsHBC/EncounterSelectionReportButton" to="." method="_on_EncounterSelectionReportButton_pressed"]
 [connection signal="pressed" from="Layout/L2/ColorRect/VBC/ScriptReportButtonsHBC/OptionScriptReportButton" to="." method="_on_OptionScriptReportButton_pressed"]
 [connection signal="item_activated" from="Layout/L2/ColorRect/VBC/OptionsList" to="." method="_on_OptionsList_item_activated"]

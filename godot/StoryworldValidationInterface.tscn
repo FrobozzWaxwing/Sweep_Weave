@@ -12,7 +12,7 @@ script = ExtResource( 1 )
 [node name="ColorRect" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color( 0, 0.0627451, 0.12549, 1 )
+color = Color( 1, 1, 1, 0 )
 
 [node name="HBC" type="HBoxContainer" parent="ColorRect"]
 anchor_right = 1.0
@@ -24,14 +24,14 @@ margin_bottom = 736.0
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="ColorRect/HBC/VBC"]
+visible = false
 margin_right = 681.0
 margin_bottom = 14.0
 text = "Storyworld Validation and Error Checking:"
 
 [node name="ValidateButton" type="Button" parent="ColorRect/HBC/VBC"]
-margin_top = 18.0
 margin_right = 134.0
-margin_bottom = 38.0
+margin_bottom = 20.0
 size_flags_horizontal = 0
 text = "Validate storyworld"
 
@@ -52,9 +52,9 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="StoryworldValidationOverview" type="RichTextLabel" parent="ColorRect/HBC/VBC"]
-margin_top = 42.0
+margin_top = 24.0
 margin_right = 681.0
-margin_bottom = 182.0
+margin_bottom = 164.0
 rect_min_size = Vector2( 0, 140 )
 
 [node name="VBC2" type="VBoxContainer" parent="ColorRect/HBC"]

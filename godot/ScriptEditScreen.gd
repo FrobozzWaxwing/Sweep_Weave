@@ -222,7 +222,7 @@ func _on_AvailableOperatorList_item_activated(index):
 			$EventSelectionDialog/EventSelectionInterface.storyworld = storyworld
 			$EventSelectionDialog/EventSelectionInterface.reset()
 			$EventSelectionDialog/EventSelectionInterface.refresh()
-			$EventSelectionDialog.popup()
+			$EventSelectionDialog.popup_centered()
 		"Spool Status":
 			if (!storyworld.spools.empty()):
 				new_element = SpoolStatusPointer.new(storyworld.spools.front(), false) #Second value, (negated,) being false means that the spool being active causes the pointer to return true.

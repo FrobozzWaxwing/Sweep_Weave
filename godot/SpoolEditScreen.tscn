@@ -154,7 +154,7 @@ dialog_text = "Storyworlds require at least one spool."
 
 [connection signal="pressed" from="Background/HBC/Column1/HBC/AddButton" to="." method="_on_AddButton_pressed"]
 [connection signal="pressed" from="Background/HBC/Column1/HBC/DeleteButton" to="." method="_on_DeleteButton_pressed"]
-[connection signal="item_selected" from="Background/HBC/Column1/Spools" to="." method="_on_Spools_item_selected"]
+[connection signal="multi_selected" from="Background/HBC/Column1/Spools" to="." method="_on_Spools_multi_selected"]
 [connection signal="text_changed" from="Background/HBC/Column2/HBC/SpoolNameEdit" to="." method="_on_SpoolNameEdit_text_changed"]
 [connection signal="pressed" from="Background/HBC/Column2/HBC/SpoolStartsActiveCheckBox" to="." method="_on_SpoolStartsActiveCheckBox_pressed"]
 [connection signal="pressed" from="Background/HBC/Column2/HBC2/AddEncounterButton" to="." method="_on_AddEncounterButton_pressed"]

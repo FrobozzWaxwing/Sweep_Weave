@@ -46,6 +46,15 @@ func get_truncated_text(maximum_output_length = 20):
 	else:
 		return text.left(maximum_output_length - 3) + "..."
 
+func get_listable_text(maximum_output_length = 50):
+	var text = get_text()
+	if ("" == text):
+		return "[Blank Reaction]"
+	elif (maximum_output_length >= text.length()):
+		return text
+	else:
+		return text.left(maximum_output_length - 3) + "..."
+
 func calculate_desirability(leaf, report):
 	var result = null
 	if (null != desirability_script and desirability_script is ScriptManager):

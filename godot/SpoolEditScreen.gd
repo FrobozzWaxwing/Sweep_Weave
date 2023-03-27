@@ -19,7 +19,7 @@ func refresh():
 		else:
 			current_spool = null
 			$Background/HBC/Column1/Spools.clear()
-			$Background/HBC/Column1/Spools.list_to_display.clear()
+			$Background/HBC/Column1/Spools.items_to_list.clear()
 			for child in $Background/HBC/Column2.get_children():
 				if ($Background/HBC/Column2/NoSpoolSelected == child or $Background/HBC/Column2/NoSpoolMargin == child):
 					child.visible = true
@@ -29,23 +29,9 @@ func refresh():
 
 func refresh_spools_list():
 	$Background/HBC/Column1/Spools.clear()
-	$Background/HBC/Column1/Spools.list_to_display.clear()
+	$Background/HBC/Column1/Spools.items_to_list.clear()
 	if (null != storyworld):
-		for spool in storyworld.spools:
-			var display_text = spool.spool_name
-			if ("" == display_text):
-				display_text = "[Untitled Spool]"
-			var entry = {"text": display_text, "metadata": spool}
-			$Background/HBC/Column1/Spools.list_to_display.append(entry)
-	$Background/HBC/Column1/Spools.refresh()
-
-func add_spool_to_list(spool):
-	if (null != storyworld):
-		var display_text = spool.spool_name
-		if ("" == display_text):
-			display_text = "[Untitled Spool]"
-		var entry = {"text": display_text, "metadata": spool}
-		$Background/HBC/Column1/Spools.list_to_display.append(entry)
+		$Background/HBC/Column1/Spools.items_to_list = storyworld.spools.duplicate()
 	$Background/HBC/Column1/Spools.refresh()
 
 func display_spool(spool:Spool):
@@ -56,16 +42,11 @@ func display_spool(spool:Spool):
 		else:
 			child.visible = true
 	$Background/HBC/Column2/Encounters_on_current_spool.clear()
-	$Background/HBC/Column2/Encounters_on_current_spool.list_to_display.clear()
+	$Background/HBC/Column2/Encounters_on_current_spool.items_to_list.clear()
 	if (null != spool and spool is Spool):
 		$Background/HBC/Column2/HBC/SpoolNameEdit.text = spool.spool_name
 		$Background/HBC/Column2/HBC/SpoolStartsActiveCheckBox.pressed = spool.starts_active
-		for encounter in spool.encounters:
-			var display_text = encounter.title
-			if ("" == display_text):
-				display_text = "[Untitled Encounter]"
-			var entry = {"text": display_text, "metadata": encounter}
-			$Background/HBC/Column2/Encounters_on_current_spool.list_to_display.append(entry)
+		$Background/HBC/Column2/Encounters_on_current_spool.items_to_list = spool.encounters.duplicate()
 	$Background/HBC/Column2/Encounters_on_current_spool.refresh()
 
 func load_and_focus_first_spool():
@@ -92,12 +73,13 @@ func create_new_spool():
 
 func _on_AddButton_pressed():
 	current_spool = create_new_spool()
-	add_spool_to_list(current_spool)
+	$Background/HBC/Column1/Spools.list_item(current_spool)
 	display_spool(current_spool)
+	$Background/HBC/Column1/Spools.deselect_all()
 	$Background/HBC/Column1/Spools.select_last_item()
 
-func _on_Spools_item_selected():
-	display_spool($Background/HBC/Column1/Spools.get_selected_metadata())
+func _on_Spools_multi_selected(item, column, selected):
+	display_spool($Background/HBC/Column1/Spools.get_first_selected_metadata())
 
 func _on_SpoolNameEdit_text_changed(new_text):
 	current_spool.spool_name = new_text
@@ -125,14 +107,14 @@ func add_encounter_to_current_spool(event_pointer):
 
 func _on_DeleteButton_pressed():
 	if (1 == storyworld.spools.size()):
-		$CannotDeleteSpoolNotification.popup()
+		$CannotDeleteSpoolNotification.popup_centered()
 		return
-	spool_to_delete = $Background/HBC/Column1/Spools.get_selected_metadata()
+	spool_to_delete = $Background/HBC/Column1/Spools.get_first_selected_metadata()
 	if (null != spool_to_delete):
 		var dialog_text = 'Are you sure you wish to delete the following spool?'
 		dialog_text += " (" + spool_to_delete.spool_name + ")"
 		$SpoolDeletionConfirmationDialog.dialog_text = dialog_text
-		$SpoolDeletionConfirmationDialog.popup()
+		$SpoolDeletionConfirmationDialog.popup_centered()
 
 func _on_SpoolDeletionConfirmationDialog_confirmed():
 	if (null != spool_to_delete):
@@ -174,7 +156,7 @@ func _on_AddEncounterButton_pressed():
 	add_encounter_to_current_spool(selected_event)
 
 func _on_RemoveEncounterButton_pressed():
-	var encounter_to_remove = $Background/HBC/Column2/Encounters_on_current_spool.get_selected_metadata()
+	var encounter_to_remove = $Background/HBC/Column2/Encounters_on_current_spool.get_first_selected_metadata()
 	if (null != encounter_to_remove and null != current_spool):
 		#Remove encounter from spool.
 		current_spool.encounters.erase(encounter_to_remove)

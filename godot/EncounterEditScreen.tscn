@@ -123,7 +123,7 @@ caret_blink_speed = 0.5
 [node name="EncounterMainTextEdit" type="TextEdit" parent="HSC/Column2"]
 margin_top = 28.0
 margin_right = 667.0
-margin_bottom = 495.0
+margin_bottom = 467.0
 rect_min_size = Vector2( 0, 320 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -133,9 +133,9 @@ smooth_scrolling = true
 wrap_enabled = true
 
 [node name="HBCEncounterSettingsButtons" type="HBoxContainer" parent="HSC/Column2"]
-margin_top = 499.0
+margin_top = 471.0
 margin_right = 667.0
-margin_bottom = 519.0
+margin_bottom = 491.0
 alignment = 1
 
 [node name="EditEncounterAcceptabilityScriptButton" type="Button" parent="HSC/Column2/HBCEncounterSettingsButtons"]
@@ -150,98 +150,36 @@ margin_right = 561.0
 margin_bottom = 20.0
 text = "Edit Encounter Desirability Script"
 
-[node name="HBCTurn" type="HBoxContainer" parent="HSC/Column2"]
-visible = false
-margin_top = 460.0
-margin_right = 578.0
-margin_bottom = 519.0
-size_flags_horizontal = 3
-alignment = 1
-
-[node name="VBC" type="VBoxContainer" parent="HSC/Column2/HBCTurn"]
-margin_left = 213.0
-margin_right = 287.0
-margin_bottom = 59.0
-
-[node name="EarliestTurnLabel" type="Label" parent="HSC/Column2/HBCTurn/VBC"]
-margin_right = 74.0
-margin_bottom = 31.0
-text = "Earliest
-turn:"
-
-[node name="EarliestTurn" type="SpinBox" parent="HSC/Column2/HBCTurn/VBC"]
-margin_top = 35.0
-margin_right = 74.0
-margin_bottom = 59.0
-rounded = true
-allow_greater = true
-allow_lesser = true
-
-[node name="VBC2" type="VBoxContainer" parent="HSC/Column2/HBCTurn"]
-margin_left = 291.0
-margin_right = 365.0
-margin_bottom = 59.0
-
-[node name="LatestTurnLabel" type="Label" parent="HSC/Column2/HBCTurn/VBC2"]
-margin_right = 74.0
-margin_bottom = 31.0
-text = "Latest
-turn: "
-
-[node name="LatestTurn" type="SpinBox" parent="HSC/Column2/HBCTurn/VBC2"]
-margin_top = 35.0
-margin_right = 74.0
-margin_bottom = 59.0
-rounded = true
-allow_greater = true
-allow_lesser = true
-
-[node name="VBC3" type="VBoxContainer" parent="HSC/Column2/HBCTurn"]
-visible = false
-margin_left = 329.0
-margin_right = 405.0
-margin_bottom = 59.0
-
-[node name="AntagonistPickerLabel" type="Label" parent="HSC/Column2/HBCTurn/VBC3"]
-margin_right = 76.0
-margin_bottom = 14.0
-text = "Antagonist: "
-
-[node name="AntagonistPicker" type="OptionButton" parent="HSC/Column2/HBCTurn/VBC3"]
-margin_top = 18.0
-margin_right = 76.0
-margin_bottom = 38.0
-
-[node name="HBCTurn2" type="HBoxContainer" parent="HSC/Column2"]
-margin_top = 523.0
+[node name="HBCOptionButtons" type="HBoxContainer" parent="HSC/Column2"]
+margin_top = 495.0
 margin_right = 667.0
-margin_bottom = 553.0
+margin_bottom = 525.0
 size_flags_horizontal = 3
 
-[node name="AddOption" type="Button" parent="HSC/Column2/HBCTurn2"]
+[node name="AddOption" type="Button" parent="HSC/Column2/HBCOptionButtons"]
 margin_right = 36.0
 margin_bottom = 30.0
 icon = ExtResource( 11 )
 
-[node name="DeleteOption" type="Button" parent="HSC/Column2/HBCTurn2"]
+[node name="DeleteOption" type="Button" parent="HSC/Column2/HBCOptionButtons"]
 margin_left = 40.0
 margin_right = 76.0
 margin_bottom = 30.0
 icon = ExtResource( 10 )
 
-[node name="MoveOptionUpButton" type="Button" parent="HSC/Column2/HBCTurn2"]
+[node name="MoveOptionUpButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
 margin_left = 80.0
 margin_right = 116.0
 margin_bottom = 30.0
 icon = ExtResource( 2 )
 
-[node name="MoveOptionDownButton" type="Button" parent="HSC/Column2/HBCTurn2"]
+[node name="MoveOptionDownButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
 margin_left = 120.0
 margin_right = 156.0
 margin_bottom = 30.0
 icon = ExtResource( 3 )
 
-[node name="Label" type="Label" parent="HSC/Column2/HBCTurn2"]
+[node name="Label" type="Label" parent="HSC/Column2/HBCOptionButtons"]
 margin_left = 160.0
 margin_top = 8.0
 margin_right = 219.0
@@ -249,26 +187,13 @@ margin_bottom = 22.0
 text = "Options: "
 align = 1
 
-[node name="OptionsScroll" type="ScrollContainer" parent="HSC/Column2"]
-margin_top = 557.0
+[node name="OptionsList" parent="HSC/Column2" instance=ExtResource( 8 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 529.0
 margin_right = 667.0
 margin_bottom = 657.0
-rect_min_size = Vector2( 264, 100 )
-scroll_horizontal_enabled = false
-
-[node name="OptionsList" type="ItemList" parent="HSC/Column2/OptionsScroll"]
-margin_right = 667.0
-margin_bottom = 100.0
-rect_min_size = Vector2( 264, 100 )
-size_flags_horizontal = 3
-select_mode = 1
-allow_rmb_select = true
-max_text_lines = 3
-auto_height = true
-
-[node name="OptionsContextMenu" type="PopupMenu" parent="HSC/Column2/OptionsScroll/OptionsList"]
-margin_right = 20.0
-margin_bottom = 20.0
+rect_min_size = Vector2( 0, 128 )
 
 [node name="OptTxtLabel" type="Label" parent="HSC/Column2"]
 margin_top = 661.0
@@ -357,38 +282,24 @@ margin_right = 230.0
 margin_bottom = 22.0
 text = "Reactions: "
 
-[node name="ReactionsScroll" type="ScrollContainer" parent="HSC/Column3"]
+[node name="ReactionsList" parent="HSC/Column3" instance=ExtResource( 8 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
 margin_top = 34.0
 margin_right = 668.0
-margin_bottom = 114.0
-rect_min_size = Vector2( 235, 80 )
-scroll_horizontal_enabled = false
-
-[node name="ReactionList" type="ItemList" parent="HSC/Column3/ReactionsScroll"]
-margin_right = 668.0
-margin_bottom = 80.0
-rect_min_size = Vector2( 250, 80 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-select_mode = 1
-allow_rmb_select = true
-max_text_lines = 2
-auto_height = true
-
-[node name="ReactionsContextMenu" type="PopupMenu" parent="HSC/Column3/ReactionsScroll/ReactionList"]
-margin_right = 20.0
-margin_bottom = 20.0
+margin_bottom = 162.0
+rect_min_size = Vector2( 0, 128 )
 
 [node name="Label" type="Label" parent="HSC/Column3"]
-margin_top = 118.0
+margin_top = 166.0
 margin_right = 668.0
-margin_bottom = 132.0
+margin_bottom = 180.0
 text = "Reaction text:"
 
 [node name="ReactionText" type="TextEdit" parent="HSC/Column3"]
-margin_top = 136.0
+margin_top = 184.0
 margin_right = 668.0
-margin_bottom = 339.0
+margin_bottom = 363.0
 rect_min_size = Vector2( 0, 100 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -396,15 +307,15 @@ syntax_highlighting = true
 wrap_enabled = true
 
 [node name="IncBlendWeightLabel" type="Label" parent="HSC/Column3"]
-margin_top = 343.0
+margin_top = 367.0
 margin_right = 668.0
-margin_bottom = 357.0
+margin_bottom = 381.0
 text = "Reaction desirability:"
 
 [node name="HBCLSL" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 361.0
+margin_top = 385.0
 margin_right = 668.0
-margin_bottom = 421.0
+margin_bottom = 445.0
 alignment = 1
 
 [node name="Label" type="Label" parent="HSC/Column3/HBCLSL"]
@@ -432,9 +343,9 @@ text = "Trait
 align = 1
 
 [node name="HBCTT" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 425.0
+margin_top = 449.0
 margin_right = 668.0
-margin_bottom = 457.0
+margin_bottom = 481.0
 alignment = 1
 
 [node name="Trait1Selector" parent="HSC/Column3/HBCTT" instance=ExtResource( 5 )]
@@ -451,15 +362,15 @@ margin_bottom = 32.0
 rect_min_size = Vector2( 0, 32 )
 
 [node name="ARDSEButton" type="Button" parent="HSC/Column3"]
-margin_top = 461.0
+margin_top = 485.0
 margin_right = 668.0
-margin_bottom = 481.0
+margin_bottom = 505.0
 text = "Edit Reaction Desirability Script"
 
 [node name="HBCConsequence" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 485.0
+margin_top = 509.0
 margin_right = 668.0
-margin_bottom = 485.0
+margin_bottom = 509.0
 
 [node name="ChangeConsequence" type="Button" parent="HSC/Column3/HBCConsequence"]
 visible = false
@@ -469,9 +380,9 @@ hint_tooltip = "This sets the reaction's consequence to the first currently sele
 text = "Change Consequence:"
 
 [node name="HBCEffectButtons" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 489.0
+margin_top = 513.0
 margin_right = 668.0
-margin_bottom = 519.0
+margin_bottom = 543.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -487,10 +398,20 @@ margin_right = 76.0
 margin_bottom = 30.0
 icon = ExtResource( 10 )
 
-[node name="ReactionEffectsLabel" type="Label" parent="HSC/Column3/HBCEffectButtons"]
+[node name="MoveEffectUpButton" type="Button" parent="HSC/Column3/HBCEffectButtons"]
 margin_left = 80.0
+margin_right = 92.0
+margin_bottom = 30.0
+
+[node name="MoveEffectDownButton" type="Button" parent="HSC/Column3/HBCEffectButtons"]
+margin_left = 96.0
+margin_right = 108.0
+margin_bottom = 30.0
+
+[node name="ReactionEffectsLabel" type="Label" parent="HSC/Column3/HBCEffectButtons"]
+margin_left = 112.0
 margin_top = 8.0
-margin_right = 186.0
+margin_right = 218.0
 margin_bottom = 22.0
 hint_tooltip = "When the selected reaction occurs, the following changes will be made to relationships between non-player characters and the player character."
 mouse_filter = 1
@@ -499,7 +420,7 @@ text = "Reaction effects:"
 [node name="AfterReactionEffectsDisplay" parent="HSC/Column3" instance=ExtResource( 8 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 523.0
+margin_top = 547.0
 margin_right = 668.0
 margin_bottom = 727.0
 rect_min_size = Vector2( 0, 50 )
@@ -526,7 +447,7 @@ margin_top = 8.0
 margin_right = -8.0
 margin_bottom = -36.0
 
-[node name="ConfirmEncounterDeletion" type="ConfirmationDialog" parent="."]
+[node name="ConfirmDeletion" type="ConfirmationDialog" parent="."]
 margin_right = 256.0
 margin_bottom = 200.0
 rect_min_size = Vector2( 200, 100 )
@@ -534,26 +455,11 @@ resizable = true
 dialog_text = "Are you sure you want to delete these encounters?"
 dialog_autowrap = true
 
-[node name="EncountersToDelete" type="ItemList" parent="ConfirmEncounterDeletion"]
+[node name="ItemsToDelete" type="ItemList" parent="ConfirmDeletion"]
 margin_left = 8.0
 margin_top = 39.0
 margin_right = 248.0
 margin_bottom = 164.0
-
-[node name="ConfirmOptionDeletion" type="ConfirmationDialog" parent="."]
-margin_right = 200.0
-margin_bottom = 70.0
-dialog_autowrap = true
-
-[node name="ConfirmReactionDeletion" type="ConfirmationDialog" parent="."]
-margin_right = 200.0
-margin_bottom = 70.0
-dialog_autowrap = true
-
-[node name="ConfirmReactionEffectDeletion" type="ConfirmationDialog" parent="."]
-margin_right = 200.0
-margin_bottom = 70.0
-dialog_autowrap = true
 
 [node name="CannotDelete" type="AcceptDialog" parent="."]
 margin_right = 160.0
@@ -584,16 +490,18 @@ margin_bottom = -36.0
 [connection signal="text_changed" from="HSC/Column2/EncounterMainTextEdit" to="." method="_on_EncounterMainTextEdit_text_changed"]
 [connection signal="pressed" from="HSC/Column2/HBCEncounterSettingsButtons/EditEncounterAcceptabilityScriptButton" to="." method="_on_EditEncounterAcceptabilityScriptButton_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCEncounterSettingsButtons/EditEncounterDesirabilityScriptButton" to="." method="_on_EditEncounterDesirabilityScriptButton_pressed"]
-[connection signal="value_changed" from="HSC/Column2/HBCTurn/VBC/EarliestTurn" to="." method="_on_EarliestTurn_value_changed"]
-[connection signal="value_changed" from="HSC/Column2/HBCTurn/VBC2/LatestTurn" to="." method="_on_LatestTurn_value_changed"]
-[connection signal="pressed" from="HSC/Column2/HBCTurn2/AddOption" to="." method="_on_AddOption_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCTurn2/DeleteOption" to="." method="_on_DeleteOption_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCTurn2/MoveOptionUpButton" to="." method="_on_MoveOptionUpButton_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCTurn2/MoveOptionDownButton" to="." method="_on_MoveOptionDownButton_pressed"]
-[connection signal="item_rmb_selected" from="HSC/Column2/OptionsScroll/OptionsList" to="." method="_on_OptionsList_item_rmb_selected"]
-[connection signal="item_selected" from="HSC/Column2/OptionsScroll/OptionsList" to="." method="_on_OptionsList_item_selected"]
-[connection signal="multi_selected" from="HSC/Column2/OptionsScroll/OptionsList" to="." method="_on_OptionsList_multi_selected"]
-[connection signal="id_pressed" from="HSC/Column2/OptionsScroll/OptionsList/OptionsContextMenu" to="." method="_on_OptionsContextMenu_id_pressed"]
+[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/AddOption" to="." method="_on_AddOption_pressed"]
+[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/DeleteOption" to="." method="_on_DeleteOption_pressed"]
+[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/MoveOptionUpButton" to="." method="_on_MoveOptionUpButton_pressed"]
+[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/MoveOptionDownButton" to="." method="_on_MoveOptionDownButton_pressed"]
+[connection signal="add_at" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_add_at"]
+[connection signal="copy" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_copy"]
+[connection signal="cut" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_cut"]
+[connection signal="delete" from="HSC/Column2/OptionsList" to="." method="confirm_option_deletion"]
+[connection signal="duplicate" from="HSC/Column2/OptionsList" to="." method="duplicate_selected_options"]
+[connection signal="moved_item" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_moved_item"]
+[connection signal="multi_selected" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_multi_selected"]
+[connection signal="paste_at" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_paste_at"]
 [connection signal="text_changed" from="HSC/Column2/OptionText" to="." method="_on_OptionText_text_changed"]
 [connection signal="pressed" from="HSC/Column2/OptionSettingsButton" to="." method="_on_OptionSettingsButton_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCOptionSettingsButtons/EditOptionVisibilityScriptButton" to="." method="_on_EditOptionVisibilityScriptButton_pressed"]
@@ -602,10 +510,14 @@ margin_bottom = -36.0
 [connection signal="pressed" from="HSC/Column3/HBC/DeleteReaction" to="." method="_on_DeleteReaction_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBC/MoveReactionUpButton" to="." method="_on_MoveReactionUpButton_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBC/MoveReactionDownButton" to="." method="_on_MoveReactionDownButton_pressed"]
-[connection signal="item_rmb_selected" from="HSC/Column3/ReactionsScroll/ReactionList" to="." method="_on_ReactionList_item_rmb_selected"]
-[connection signal="item_selected" from="HSC/Column3/ReactionsScroll/ReactionList" to="." method="_on_ReactionList_item_selected"]
-[connection signal="multi_selected" from="HSC/Column3/ReactionsScroll/ReactionList" to="." method="_on_ReactionList_multi_selected"]
-[connection signal="id_pressed" from="HSC/Column3/ReactionsScroll/ReactionList/ReactionsContextMenu" to="." method="_on_ReactionsContextMenu_id_pressed"]
+[connection signal="add_at" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_add_at"]
+[connection signal="copy" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_copy"]
+[connection signal="cut" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_cut"]
+[connection signal="delete" from="HSC/Column3/ReactionsList" to="." method="confirm_reaction_deletion"]
+[connection signal="duplicate" from="HSC/Column3/ReactionsList" to="." method="duplicate_selected_reactions"]
+[connection signal="moved_item" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_moved_item"]
+[connection signal="multi_selected" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_multi_selected"]
+[connection signal="paste_at" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_paste_at"]
 [connection signal="text_changed" from="HSC/Column3/ReactionText" to="." method="_on_ReactionText_text_changed"]
 [connection signal="bnumber_value_changed" from="HSC/Column3/HBCLSL/BlendWeightSelector" to="." method="_on_BlendWeightSelector_bnumber_value_changed"]
 [connection signal="bnumber_property_selected" from="HSC/Column3/HBCTT/Trait1Selector" to="." method="_on_Trait1Selector_bnumber_property_selected"]
@@ -614,11 +526,16 @@ margin_bottom = -36.0
 [connection signal="pressed" from="HSC/Column3/HBCConsequence/ChangeConsequence" to="." method="_on_ChangeConsequence_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBCEffectButtons/AddEffect" to="." method="_on_AddEffect_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBCEffectButtons/DeleteEffect" to="." method="_on_DeleteEffect_pressed"]
+[connection signal="pressed" from="HSC/Column3/HBCEffectButtons/MoveEffectUpButton" to="." method="_on_MoveEffectUpButton_pressed"]
+[connection signal="pressed" from="HSC/Column3/HBCEffectButtons/MoveEffectDownButton" to="." method="_on_MoveEffectDownButton_pressed"]
+[connection signal="add_at" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_add_at"]
+[connection signal="copy" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_copy"]
+[connection signal="cut" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_cut"]
+[connection signal="delete" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="confirm_effect_deletion"]
+[connection signal="duplicate" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="duplicate_selected_effects"]
 [connection signal="item_activated" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_item_activated"]
 [connection signal="moved_item" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_moved_item"]
+[connection signal="paste_at" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_paste_at"]
 [connection signal="confirmed" from="EffectEditor" to="." method="_on_EffectEditor_confirmed"]
-[connection signal="confirmed" from="ConfirmEncounterDeletion" to="." method="_on_ConfirmEncounterDeletion_confirmed"]
-[connection signal="confirmed" from="ConfirmOptionDeletion" to="." method="_on_ConfirmOptionDeletion_confirmed"]
-[connection signal="confirmed" from="ConfirmReactionDeletion" to="." method="_on_ConfirmReactionDeletion_confirmed"]
-[connection signal="confirmed" from="ConfirmReactionEffectDeletion" to="." method="_on_ConfirmReactionEffectDeletion_confirmed"]
+[connection signal="confirmed" from="ConfirmDeletion" to="." method="_on_ConfirmDeletion_confirmed"]
 [connection signal="sw_script_changed" from="ScriptEditWindow/ScriptEditScreen" to="." method="_on_ScriptEditScreen_sw_script_changed"]

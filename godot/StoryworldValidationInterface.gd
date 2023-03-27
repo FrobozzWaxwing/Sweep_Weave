@@ -354,4 +354,4 @@ func _on_OpenLinkedScriptButton_pressed():
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_error_report.reported_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
-		$ScriptEditWindow.popup()
+		$ScriptEditWindow.popup_centered()

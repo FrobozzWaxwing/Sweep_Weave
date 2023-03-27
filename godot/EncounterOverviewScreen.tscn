@@ -93,6 +93,7 @@ margin_top = 34.0
 margin_right = 1366.0
 margin_bottom = 736.0
 size_flags_vertical = 3
+custom_constants/hseparation = 0
 columns = 7
 column_titles_visible = true
 hide_root = true

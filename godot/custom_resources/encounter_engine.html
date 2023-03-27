@@ -35,6 +35,36 @@ body {
     transition: max-height 0.5s ease-out;
     background-color: Thistle;
 }
+
+#popupBackground {
+	position: fixed;
+	z-index: 98;
+	top: 0; left: 0;
+	width: 100vw; height: 100vh;
+	align-items: center; justify-content: center;
+	background: rgba(0, 0, 0, 0.25);
+	display: flex;
+	opacity: 0; visibility: hidden;
+	transition: opacity 0.2s;
+}
+
+#popupBackground.show {
+	opacity: 1; visibility: visible;
+}
+
+#popupDialog {
+	position: relative;
+	z-index: 99;
+	min-width: 256px; max-width: 512px;
+	align-items: center; justify-content: center;
+	padding: 5px;
+	background: #fff;
+	border-radius: 10px;
+}
+
+#popupText {
+	padding: 5px;
+}
 </style>
 <script type="text/javascript" src="storyworld_data.js"></script>
 <script>
@@ -43,20 +73,22 @@ body {
 //Section 1: Basic Functions
 //--------------------------
 
-//This function merely helps figure out which option is selected.
-function getRadioVal(form, name) {
-    var val;
-    // get list of radio buttons with specified name
-    var radios = document.getElementById(form).elements[name];
-    
-    // loop through list of radio buttons
-    for (var i=0, len=radios.length; i<len; i++) {
-        if ( radios[i].checked ) { // radio checked?
-            val = radios[i].value; // if so, hold its value in val
-            break; // and break out of for loop
-        }
-    }
-    return val; // return value of checked radio or undefined if none checked
+function showPopupDialog(msg) {
+	if (msg != undefined) {
+		document.getElementById("popupText").innerHTML = msg;
+		document.getElementById("popupBackground").classList.add("show");
+	} else { document.getElementById("popupBackground").classList.remove("show"); }
+}
+
+function hidePopupDialog(){
+	document.getElementById("popupBackground").classList.remove("show");
+}
+
+var onPopupConfirmation = hidePopupDialog;
+var popupArgument = "";
+function confirmPopupDialog(){
+	onPopupConfirmation();
+	hidePopupDialog();
 }
 
 //------------------
@@ -160,10 +192,17 @@ class Character {
             }
         }
     }
+	saveData(){
+		let output = {};
+		output.name = this.name;
+		output.pronoun = this.pronoun;
+		output.bnumber_properties = JSON.parse(JSON.stringify(this.bnumber_properties));
+		return output;
+	}
     printCharRelationships(delimiter){
-        let result = "";
-        result += "<b>Name:</b> " + this.name + JSON.stringify(this.bnumber_properties);
-        return result;
+        let output = "";
+        output += "<b>Name:</b> " + this.name + JSON.stringify(this.bnumber_properties);
+        return output;
     }
 }
 
@@ -238,14 +277,13 @@ function parseOptionsData(data){
 }
 
 //Import game data.
-function importCharacterData(){
+function importCharacterData(character_data = storyworld_data.characters){
     characters = [];
-    if (0 == storyworld_data.characters.length){
-        characters.push(new Character("Fate", "they", {}, {}));
+    if (0 == character_data.length){
         console.log("Warning: Storyworld includes no characters!");
     }
     var eachCh;
-    for (eachCh of storyworld_data.characters){
+    for (eachCh of character_data){
         var new_character = new Character(eachCh["name"], eachCh["pronoun"], eachCh["bnumber_properties"]);
         characters.push(new_character);
     }
@@ -322,17 +360,19 @@ if (save_profile_string != "") {
     save_profile = JSON.parse(save_profile_string);
 }
 
-function saveGame(save_filename, note = ""){
+function saveGame(save_filename){
     save_filename = encodeURIComponent(save_filename);
     var save_dictionary = {};
     save_dictionary.save_filename = save_filename;
     save_dictionary.slow_historybook = slow_historybook;
-    save_dictionary.characters = characters;
+    save_dictionary.characters = [];
+	for (character of characters){
+		save_dictionary.characters.push(character.saveData());
+	}
     save_dictionary.spool_directory = {};
     for (spool of spools){
         save_dictionary.spool_directory[spool.id] = spool.currently_active;
     }
-    save_dictionary.note = encodeURIComponent(note);
     var save_file = JSON.stringify(save_dictionary);
     setCookie("saved_game_" + save_filename, save_file, 4096);
     save_profile[save_filename] = new Date().toUTCString();
@@ -344,18 +384,22 @@ function saveGame(save_filename, note = ""){
 function loadGame(save_filename){
     //Set slow historybook to saved historybook.
     var save_dictionary = JSON.parse(getCookie("saved_game_" + save_filename));
-    //console.log("Loading game: " + save_filename + " : " + );
     slow_historybook = save_dictionary.slow_historybook;
-    characters = save_dictionary.characters;
+	importCharacterData(save_dictionary.characters);
+    for (spool of spools){
+        spool.currently_active = save_dictionary.spool_directory[spool.id];
+    }
     //Fill quick historybook from slow historybook.
     //Fill transcript from slow historybook as well.
     quick_historybook = {};
     playthrough_transcript = "";
     for (const [index,value] of slow_historybook.entries()){
-        quick_historybook[value.encounter] = index;
-        if (-1 != value.option && -1 != value.reaction){
-            writeEncounterToTranscript(value.encounter, value.option, value.reaction);
-        }
+		if (null !== value){
+			quick_historybook[value.encounter] = index;
+			if (-1 != value.option && -1 != value.reaction){
+				writeEncounterToTranscript(value.encounter, value.option, value.reaction);
+			}
+		}
     }
     document.getElementById("transcript").innerHTML = playthrough_transcript;
     refreshCollapsable(document.getElementById("transcript"));
@@ -363,11 +407,10 @@ function loadGame(save_filename){
     //Load last encounter.
     if ('undefined' === typeof slow_historybook[slow_historybook.length - 1]){
         loadTheEnd(false);//Don't record to historybook.
+    } else if ('end' == slow_historybook[slow_historybook.length - 1].encounter){
+        loadTheEnd(false);//Don't record to historybook.
     } else {
         loadEncounter(slow_historybook[slow_historybook.length - 1].encounter, false);//Don't record to historybook.
-    }
-    for (spool of spools){
-        spool.currently_active = save_dictionary.spool_directory[spool.id];
     }
     console.log("Loaded saved game: " + save_filename);
 }
@@ -380,35 +423,45 @@ function deleteSavedGame(save_filename){
     console.log("Deleted saved game: " + save_filename);
 }
 
-function confirmSaveGame(save_filename, note = ""){
+function confirmSaveGame(save_filename){
     if ("" == getCookie("saved_game_" + save_filename)){//No save file by this name exists.
-        saveGame(save_filename, note);
+        saveGame(save_filename);
     } else {
-        var confirmed = confirm("Do you wish to overwrite this savefile? (" + save_filename + ")");
-        if (true == confirmed){
-            saveGame(save_filename, note);
-        }
+		popupArgument = save_filename;
+		onPopupConfirmation = onSaveOverwriteConfirmed;
+		showPopupDialog("Do you wish to overwrite this savefile? (" + save_filename + ")");
     }
+}
+
+function onSaveOverwriteConfirmed(){
+	saveGame(popupArgument);
 }
 
 function confirmLoadGame(save_filename){
-    var confirmed = confirm("Do you wish to load this saved game? Unsaved progress will be lost.");
-    if (true == confirmed){
-        loadGame(save_filename);
-    }
+	popupArgument = save_filename;
+	onPopupConfirmation = onLoadConfirmed;
+	showPopupDialog("Do you wish to load this saved game? (" + save_filename + ") Unsaved progress will be lost.");
+}
+
+function onLoadConfirmed(){
+    console.log("Loading game: " + popupArgument);
+	loadGame(popupArgument);
 }
 
 function confirmDeleteSavedGame(save_filename){
-    var confirmed = confirm("Do you wish to delete this saved game? The savefile will be permanently erased.");
-    if (true == confirmed){
-        deleteSavedGame(save_filename);
-    }
+	popupArgument = save_filename;
+	onPopupConfirmation = onDeleteConfirmed;
+	showPopupDialog("Do you wish to delete this saved game? (" + save_filename + ") The savefile will be permanently erased.");
+}
+
+function onDeleteConfirmed(){
+	deleteSavedGame(popupArgument);
 }
 
 function displaySaveProfile(){
     var text = "<p><b>Saved Games:</b></p>";
     for (each in save_profile){
-        text = text + "<p>" + '<a href="javascript:confirmLoadGame(\'' + each + '\')">Load</a> / <a href="javascript:confirmDeleteSavedGame(\'' + each + '\')">Delete</a> ' + decodeURIComponent(each) + " : " + save_profile[each] + " : " + decodeURIComponent(JSON.parse(getCookie("saved_game_" + each)).note) + "</p>";
+        text = text + "<p>" + '<a href="javascript:confirmLoadGame(\'' + each + '\')">Load</a> / <a href="javascript:confirmDeleteSavedGame(\'' + each + '\')">Delete</a> ' + decodeURIComponent(each) + " : " + save_profile[each] + "</p>";
     }
     document.getElementById("saved_game_list").innerHTML = text;
     refreshCollapsable(document.getElementById("main_menu"));
@@ -472,9 +525,7 @@ function evaluateSWScript(script){
         //Track whether or not script result is poisoned.
         let poison = false;
         if ("Pointer" == script["script_element_type"] && Object.hasOwn(script, "pointer_type")){
-            //console.log("Script is a pointer.");
             if ("Bounded Number Constant" == script["pointer_type"] && Object.hasOwn(script, "value")){
-                //console.log("Script is a bounded number constant, with a value of " + script["value"].toString() + ".");
                 return script["value"];
             } else if ("Bounded Number Pointer" == script["pointer_type"] && Object.hasOwn(script, "character") && Object.hasOwn(script, "coefficient") && Object.hasOwn(script, "keyring")){
                 let character = characters[script["character"]];
@@ -496,7 +547,6 @@ function evaluateSWScript(script){
                 return script["value"];
             }
         } else if ("Operator" == script["script_element_type"] && Object.hasOwn(script, "operator_type") && Object.hasOwn(script, "operands") && Object.hasOwn(script, "input_type")){
-            //console.log("Script is an operator.");
             //Evaluate operands first.
             let evaluated_operands = [];
             let operands_length = script["operands"].length;
@@ -627,7 +677,6 @@ function loadEncounter(encounter_id, record = true) {
     current_page = encounter;//Track which encounter we're in.
     next_page = "start";//Set the next encounter to be semi-random.
     var encounter_sections = [];
-    
     //Now we change the main encounter text to what it needs to be.
     var current_main_text = "";
     var continue_button_label = "";
@@ -638,10 +687,6 @@ function loadEncounter(encounter_id, record = true) {
         //In display mode 1, when a player chooses an option, the game clears the screen and displays the reaction text followed by the text of the next encounter.
         current_main_text += text_buffer + "";//text_buffer should be holding the text of the reaction that needs displayed.
     }
-//    if (storyworld_data["debug_mode"]){
-//        //If we are in debug mode, according to the storyworld's settings, then we shall print out the character's pValues.
-//        current_main_text += "<b>(" + encounter.title + ")</b><br>" + characters[current_antagonist].printCharRelationships("<br>") + "<br>";
-//    }
     var continue_regex = /\[\[.*\|continue\]\]/gim;
     let encounter_text = evaluateSWScript(encounter.text_script);
     if (-1 != encounter_text.search(continue_regex)){
@@ -710,7 +755,6 @@ function loadEncounter(encounter_id, record = true) {
         quick_historybook[current_page.id] = turn;
         //Most encounters can only be displayed once. However, the "consequence" property of character reactions bypasses the check of whether an encounter has already been displayed. In these cases the quick_historybook will only record the latest turn the encounter was displayed. Since the quick_historybook is primarilly used to check for prerequisites and disqualifiers, and to avoid displaying encounters more than once, the information needed is whether an encounter has occured; when it occured is presently less important. If future changes to the overall design eventually require it, entries to the quick_historybook can be changed to arrays of integers, rather than integers, to record all turns an encounter is displayed.
     }
-
     //If all goes well... It's the player's turn!
 }
 
@@ -805,6 +849,8 @@ function loadTheEnd(record = true){
         //Update the transcript.
         document.getElementById("transcript").innerHTML = playthrough_transcript;
         refreshCollapsable(document.getElementById("transcript"));
+        slow_historybook[turn] = {"encounter": "end", "option": -1, "reaction": -1};
+        quick_historybook["end"] = turn;
     }
     //Now we change the main encounter text to what it needs to be.
     let ending_text = "";
@@ -838,22 +884,6 @@ function writeEncounterToTranscript(encounter_name, option, reaction){
 }
 
 //Find distance from current conditions to target conditions for an encounter.
-/*function desirability(encounter){
-    //Takes an encounter as input, not an id.
-    console.log("Checking desirability of encounter: " + encounter.title + ".");
-    var distance = 0;
-    var desideratum;
-    for (desideratum of encounter.desiderata){
-        var who = characters[desideratum["character"]];
-        var pValue = 0;
-        pValue = who.lookup(desideratum["pValue"]);
-        var difference = pValue - desideratum["point"];
-        distance += (difference * difference);
-    }
-    distance = Math.sqrt(distance)
-    console.log("Distance from encounter to target conditions: " + encounter.title + " = " + distance.toString() + ".");
-    return distance;
-}*/
 
 function desirability(encounter){
     let result = evaluateSWScript(encounter.desirability_script);
@@ -893,83 +923,7 @@ function loadMostDesirableEncounter(acceptableEncounters){
 }
 
 //Select which encounter comes next:
-/*
-function selectEncounter(){
-    console.log("Selecting next encounter.");
-    if (0 != turn){//Unless we're just starting a new game.
-        writeToTranscript();//Record the last encounter to the transcript before moving on.
-    }
-    turn = turn + 1;
-    if ("wild" != next_page) {
-        //If the reaction of the last encounter led to a consequence, that consequence occurs next.
-        loadEncounter(next_page);
-    } else {
-        //Otherwise:
-        var each;
-        var encounter;
-        var acceptable_encounters_inc = [];//These encounters are acceptable for the current turn.
-        var acceptable_encounters_exc = [];//These encounters are acceptable except for their turn range.
-        var earliest_acceptable_turn = 0;//If no encounters are acceptable for the present turn, but some are acceptable for later turns, what must we set the turn count to?
-        for (each in encounters){
-            encounter = encounters[each];
-            //Check whether an encounter is acceptable.
-            var acceptable = false;
-            console.log("Checking acceptability of: " + encounter.title + " | " + encounter.earliest_turn.toString() + " <= " + turn.toString() + " <= " +  encounter.latest_turn.toString());
-            //Acceptability checks:
-            //Has encounter already occured once before?
-            //Evaluate encounter acceptability_script.
-            //Turn range.
-            //If encounter has occured before, then it is not acceptable.
-            if (quick_historybook.hasOwnProperty(encounter.id)){
-                //The encounter has occured before.
-                console.log("The encounter has occured before, and therefore cannot occur again.");
-            } else {
-                acceptable = evaluateSWScript(encounter.acceptability_script);
-                if (acceptable){
-                    if (turn <= encounter.latest_turn){
-                        if (encounter.earliest_turn <= turn) {
-                            console.log("Encounter: " + encounter.title + " deemed acceptable for current turn.");
-                            acceptable_encounters_inc.push(encounter.id);
-                        } else {
-                            if (0 == acceptable_encounters_exc.length){
-                                earliest_acceptable_turn = encounter.earliest_turn;
-                            } else {
-                                if (earliest_acceptable_turn > encounter.earliest_turn){
-                                    earliest_acceptable_turn = encounter.earliest_turn;
-                                }
-                            }
-                            console.log("Encounter: " + encounter.title + " deemed acceptable for later turn.");
-                            acceptable_encounters_exc.push(encounter);//Note we're pushing the whole encounter, not just its id as in the inc array.
-                        }
-                    }
-                } else {
-                    console.log("Encounter: " + encounter.title + " deemed unacceptable.");
-                }
-            }
-        }//end of for (each in encounters)
-        //If no encounters are deemed acceptable, display a message saying "THE END" instead of an encounter.
-        if (0 == acceptable_encounters_inc.length){
-            if (0 == acceptable_encounters_exc.length){
-                loadTheEnd(true);
-            } else {
-                if (turn < earliest_acceptable_turn){
-                    console.log("Increasing turn from " + turn + " to " + earliest_acceptable_turn + ".");
-                    turn = earliest_acceptable_turn;
-                }
-                acceptable_encounters_inc = [];
-                for (encounter of acceptable_encounters_exc){
-                    if (encounter.earliest_turn <= turn) {
-                        acceptable_encounters_inc.push(encounter.id);
-                    }
-                }
-                loadMostDesirableEncounter(acceptable_encounters_inc)
-            }
-        } else {
-            loadMostDesirableEncounter(acceptable_encounters_inc)
-        }
-    }
-}
-*/
+
 function selectEncounter(){
     console.log("Selecting next encounter.");
     if (0 != turn){//Unless we're just starting a new game.
@@ -1009,36 +963,43 @@ function selectEncounter(){
 }
 
 //Start a new game / playthrough.
-function startNewGame(ask_for_confirmation = true){
-    var confirmed = true;
-    if (ask_for_confirmation){
-        confirmed = confirm("Do you wish to start a new game? Unsaved progress will be lost.");
-    }
-    if (true == confirmed){
-        slow_historybook = [];
-        quick_historybook = {};
-        playthrough_transcript = "";
-        text_buffer = "";
-        turn = 0;
-        current_page = null;
-        next_page = "wild";
-        displaySaveProfile();
-        importCharacterData();//Reset Character relations.
-        for (spool of spools){
-            spool.currently_active = spool.starts_active;
-        }
-        selectEncounter();
-    }
+function confirmNewGame(){
+	popupArgument = "";
+	onPopupConfirmation = startNewGame;
+	showPopupDialog("Do you wish to start a new game? Unsaved progress will be lost.");
+}
+
+function startNewGame(){
+	slow_historybook = [];
+	quick_historybook = {};
+	playthrough_transcript = "";
+	text_buffer = "";
+	turn = 0;
+	current_page = null;
+	next_page = "wild";
+	displaySaveProfile();
+	importCharacterData();//Reset Character relations.
+	for (spool of spools){
+		spool.currently_active = spool.starts_active;
+	}
+	selectEncounter();
 }
 </script>
 </head>
 <body>
+<!-- Popup dialog -->
+<div id="popupBackground">
+	<div id="popupDialog">
+		<div id="popupText"></div>
+		<input type="button" value="Confirm" onclick="confirmPopupDialog()"><input type="button" value="Cancel" onclick="hidePopupDialog()">
+	</div>
+</div>
+<!-- Menu -->
 <button class="collapsible">Menu</button>
 <div id="main_menu" class="content">
-<p><a href="javascript:startNewGame()">Start New Game</a></p>
+<p><a href="javascript:confirmNewGame()">Start New Game</a></p>
 <div id="saved_game_list"></div>
-<p><a href="javascript:confirmSaveGame(document.getElementById('save_name').value,document.getElementById('save_note').value)">Save Game As:</a> <input type="text" id="save_name"></input></p>
-<p>Optional Journal Entry:<br><textarea id="save_note">Here you may add a note to your savefile, if you wish.</textarea></p>
+<p><a href="javascript:confirmSaveGame(document.getElementById('save_name').value)">Save Game As:</a> <input type="text" id="save_name"></input></p>
 </div>
 <button class="collapsible">~Transcript~</button>
 <div id="transcript" class="content">
@@ -1083,13 +1044,19 @@ function refreshCollapsable(element){
         element.style.maxHeight = element.scrollHeight + "px";
     }
 }
-</script>
-<script>
+//Popup dialog functionality:
+const popupBackgroundElement = document.getElementById("popupBackground");
+const popupDialogElement = document.getElementById("popupDialog");
+popupBackgroundElement.addEventListener("click", function(event) {
+	let BackgroundClicked = !popupDialogElement.contains(event.target);
+	if (BackgroundClicked) {
+		hidePopupDialog()
+	}
+});
 //Import game data and load an encounter.
 importGameData();
 displaySaveProfile();
-selectEncounter();//Do not record in historybook.
+selectEncounter();
 </script>
-
 </body>
 </html>

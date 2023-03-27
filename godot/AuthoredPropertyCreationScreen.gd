@@ -53,7 +53,7 @@ func _on_AddButton_pressed():
 	$PropertyCreationWindow/VBC/BNumberEditPanel.current_authored_property = draft_of_new_authored_property
 	$PropertyCreationWindow/VBC/BNumberEditPanel.creating_new_property = true
 	$PropertyCreationWindow/VBC/BNumberEditPanel.refresh()
-	$PropertyCreationWindow.popup()
+	$PropertyCreationWindow.popup_centered()
 
 func _on_PropertyCreationWindow_confirmed():
 	var property = $PropertyCreationWindow/VBC/BNumberEditPanel.current_authored_property
@@ -102,7 +102,7 @@ func _on_DeleteButton_pressed():
 	#	new_label = Label.new()
 	#	new_label.text = "If you want to delete these properties, please select another property to replace them with in those scripts that currently use them."
 	#	$ConfirmPropertyDeletionWindow/VBC.add_child(new_label)
-	$ConfirmPropertyDeletionWindow.popup()
+	$ConfirmPropertyDeletionWindow.popup_centered()
 
 func _on_ConfirmPropertyDeletionWindow_confirmed():
 	if (0 == authored_properties_to_delete.size()):

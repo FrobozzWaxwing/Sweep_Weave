@@ -4,8 +4,9 @@ var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
 
-var sweepweave_version_number = "0.0.37"
+var sweepweave_version_number = "0.0.38"
 var storyworld = null
+var clipboard = Clipboard.new()
 
 #Theme variables:
 var theme_background_colors = {}
@@ -22,6 +23,7 @@ func on_character_name_changed(character):
 #File Management
 
 func load_project(file_text):
+	clipboard.clear()
 	storyworld.load_from_json(file_text)
 	storyworld.sweepweave_version_number = sweepweave_version_number
 	$Background/VBC/EditorTabs/Encounters.refresh_encounter_list()
@@ -30,13 +32,13 @@ func load_project(file_text):
 	$Background/VBC/EditorTabs/Encounters.load_and_focus_first_encounter()
 	$Background/VBC/EditorTabs/Characters.refresh_character_list()
 	if (0 < storyworld.characters.size()):
-		$Background/VBC/EditorTabs/Characters.load_character(storyworld.characters[0])
+		$Background/VBC/EditorTabs/Characters.load_character(storyworld.characters.front())
 	$Background/VBC/EditorTabs/Spools.refresh()
 	$Background/VBC/EditorTabs/Settings.refresh()
 	$Background/VBC/EditorTabs/GraphView.refresh_graphview()
 	$Background/VBC/EditorTabs/PersonalityModel.refresh_property_list()
 	if (0 < storyworld.authored_properties.size()):
-		$Background/VBC/EditorTabs/PersonalityModel.load_authored_property(storyworld.authored_properties[0])
+		$Background/VBC/EditorTabs/PersonalityModel.load_authored_property(storyworld.authored_properties.front())
 	$Background/VBC/EditorTabs/Overview.refresh()
 	$Background/VBC/EditorTabs/Play.clear()
 	$StoryworldTroubleshooting/StoryworldValidationInterface.refresh()
@@ -48,11 +50,6 @@ func save_project(save_as = false):
 	storyworld.project_saved = true
 	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title)
 	$Background/VBC/EditorTabs/Encounters.refresh_encounter_list()
-
-# Functions to import from Chris Crawford's XML format
-
-#func _on_ImportXMLFileDialog_file_selected(path):
-#	pass # 
 
 # On Startup
 
@@ -69,9 +66,11 @@ func new_storyworld():
 		$Background/VBC/EditorTabs/Play.reference_storyworld = storyworld
 		$Background/VBC/EditorTabs/PersonalityModel.storyworld = storyworld
 		$StoryworldTroubleshooting/StoryworldValidationInterface.storyworld = storyworld
+		clipboard.storyworld = storyworld
 	else:
 		storyworld.clear()
 		storyworld.sweepweave_version_number = sweepweave_version_number
+	clipboard.clear()
 	#Initiate personality / relationship model.
 	storyworld.init_classical_personality_model()
 	#Add at least one character to the storyworld.
@@ -124,7 +123,9 @@ func _ready():
 	$Background/VBC/MenuBar/ViewMenu.connect("menu_input", self, "_on_viewmenu_item_toggled")
 	$Background/VBC/MenuBar/HelpMenu.get_popup().connect("id_pressed", self, "_on_helpmenu_item_pressed")
 	$About/VBC/VersionMessage.text = "SweepWeave v." + sweepweave_version_number
-#	$Background/VBC/EditorTabs/Play.connect("encounter_loaded", self, "load_Encounter_by_id")
+	$CheckForUpdates/UpdateScreen/VBC/VersionMessage.text = "Current SweepWeave version: " + sweepweave_version_number
+	$CheckForUpdates/UpdateScreen.sweepweave_version_number = sweepweave_version_number
+	$Background/VBC/EditorTabs/Play.connect("encounter_edit_button_pressed", self, "display_encounter_by_id")
 	$Background/VBC/EditorTabs/Characters.connect("new_character_created", $Background/VBC/EditorTabs/Encounters, "add_character_to_lists")
 	$Background/VBC/EditorTabs/Characters.connect("character_deleted", $Background/VBC/EditorTabs/Encounters, "replace_character")
 	$Background/VBC/EditorTabs/Characters.connect("character_name_changed", self, "on_character_name_changed")
@@ -144,6 +145,8 @@ func _ready():
 	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Characters, "refresh_property_list")
 	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Encounters, "refresh_bnumber_property_lists")
 	$Background/VBC/EditorTabs.set_current_tab(1)
+	#Initialize clipboard:
+	$Background/VBC/EditorTabs/Encounters.set_clipboard(clipboard)
 	#Set GUI theme variables:
 	theme_background_colors["Clarity"] = Color(0.882353, 0.882353, 0.882353)
 	theme_background_colors["Lapis Lazuli"] = Color(0, 0.062745, 0.12549)
@@ -154,7 +157,7 @@ func _ready():
 func _notification(what):
 	if (what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST):
 		if(false == storyworld.project_saved):
-			$ConfirmQuit.popup()
+			$ConfirmQuit.popup_centered()
 		else:
 			get_tree().quit()
 
@@ -166,27 +169,27 @@ func _input(event):
 		#This check must come before the Control + S check, otherwise Control + S will take precedence.
 		print("Control + Alt + S pressed")
 		$SaveAsFileDialog.invalidate()
-		$SaveAsFileDialog.popup()
+		$SaveAsFileDialog.popup_centered()
 	elif event.is_action_pressed("project_save_overwrite"):
 		print("Control + S pressed")
 		if ("" != current_project_path):
 			save_project()
 		else:
 			$SaveAsFileDialog.invalidate()
-			$SaveAsFileDialog.popup()
+			$SaveAsFileDialog.popup_centered()
 	elif event.is_action_pressed("project_new"):
 		print("Control + N pressed")
 		if(false == storyworld.project_saved):
-			$ConfirmNewStoryworld.popup()
+			$ConfirmNewStoryworld.popup_centered()
 		else:
 			new_storyworld()
 	elif event.is_action_pressed("project_load"):
 		print("Control + O pressed")
 		if(false == storyworld.project_saved):
-			$ConfirmOpenWhenUnsaved.popup()
+			$ConfirmOpenWhenUnsaved.popup_centered()
 		else:
 			$LoadFileDialog.invalidate()
-			$LoadFileDialog.popup()
+			$LoadFileDialog.popup_centered()
 
 func log_update(encounter = null):
 	#If encounter == wild_encounter, then the project as a whole is being updated, rather than a specific encounter, or an encounter has been added, deleted, or duplicated.
@@ -200,40 +203,38 @@ func _on_filemenu_item_pressed(id):
 	var item_name = $Background/VBC/MenuBar/FileMenu.get_popup().get_item_text(id)
 	if ("New Storyworld" == item_name):
 		if(false == storyworld.project_saved):
-			$ConfirmNewStoryworld.popup()
+			$ConfirmNewStoryworld.popup_centered()
 		else:
 			new_storyworld()
 	elif ("Open" == item_name):
 		if(false == storyworld.project_saved):
-			$ConfirmOpenWhenUnsaved.popup()
+			$ConfirmOpenWhenUnsaved.popup_centered()
 		else:
 			$LoadFileDialog.invalidate()
-			$LoadFileDialog.popup()
+			$LoadFileDialog.popup_centered()
 	elif ("Import from Storyworld" == item_name):
 		$ImportFromStoryworldFileDialog.invalidate()
-		$ImportFromStoryworldFileDialog.popup()
-	elif ("Import from XML" == item_name):
-		$ImportXMLFileDialog.popup()
+		$ImportFromStoryworldFileDialog.popup_centered()
 	elif ("Save" == item_name):
 		if ("" != current_project_path):
 			save_project()
 		else:
 			$SaveAsFileDialog.invalidate()
-			$SaveAsFileDialog.popup()
+			$SaveAsFileDialog.popup_centered()
 	elif ("Save As" == item_name):
 		$SaveAsFileDialog.invalidate()
-		$SaveAsFileDialog.popup()
+		$SaveAsFileDialog.popup_centered()
 	elif ("Compile to HTML" == item_name):
 		open_after_compiling = false
 		$CompileFileDialog.invalidate()
-		$CompileFileDialog.popup()
+		$CompileFileDialog.popup_centered()
 	elif ("Compile and Playtest" == item_name):
 		open_after_compiling = true
 		$CompileFileDialog.invalidate()
-		$CompileFileDialog.popup()
+		$CompileFileDialog.popup_centered()
 	elif ("Quit" == item_name):
 		if(false == storyworld.project_saved):
-			$ConfirmQuit.popup()
+			$ConfirmQuit.popup_centered()
 		else:
 			get_tree().quit()
 
@@ -260,17 +261,24 @@ func _on_viewmenu_item_pressed(id):
 	var item_name = $Background/VBC/MenuBar/ViewMenu.get_popup().get_item_text(id)
 	if ("Summary" == item_name):
 		$Summary/Statistics.refresh_statistical_overview()
-		$Summary.popup()
+		$Summary.popup_centered()
 
 func _on_helpmenu_item_pressed(id):
 	var item_name = $Background/VBC/MenuBar/HelpMenu.get_popup().get_item_text(id)
 	if ("About" == item_name):
-		$About.popup()
+		$About.popup_centered()
 	elif ("Validate and Troubleshoot" == item_name):
-		$StoryworldTroubleshooting.popup()
+		$StoryworldTroubleshooting.popup_centered()
+	elif ("Check for Updates" == item_name):
+		$CheckForUpdates/UpdateScreen.refresh()
+		$CheckForUpdates.popup_centered()
+
+func _on_OpenSweepWeaveHomepage_pressed():
+	#This button is part of the "About" popup.
+	OS.shell_open("https://www.sweepweave.org")
 
 func _on_OpenPatreonButton_pressed():
-	#This button is in the "About" popup.
+	#This button is part of the "About" popup.
 	OS.shell_open("https://www.patreon.com/sasha_fenn")
 
 func _on_ConfirmNewStoryworld_confirmed():
@@ -278,11 +286,10 @@ func _on_ConfirmNewStoryworld_confirmed():
 
 func _on_ConfirmOpenWhenUnsaved_confirmed():
 	$LoadFileDialog.invalidate()
-	$LoadFileDialog.popup()
+	$LoadFileDialog.popup_centered()
 
 func _on_LoadFileDialog_file_selected(path):
 	current_project_path = path
-	print("Opening: " + path)
 	var file = File.new()
 	file.open(path, 1)
 	var json_string = file.get_as_text().replacen("var storyworld_data = ", "")
@@ -296,7 +303,6 @@ func _on_SaveAsFileDialog_file_selected(path):
 func _on_CompileFileDialog_file_selected(path):
 	storyworld.compile_to_html(path)
 	if (open_after_compiling):
-		print("Opening file in webbrowser for playtesting: " + path)
 		OS.shell_open("file:///" + path)
 
 
@@ -349,13 +355,13 @@ func _on_ImportFromStoryworldFileDialog_file_selected(path):
 	$ConfirmImport/Margin/StoryworldMergingScreen.file_paths = [path]
 	$ConfirmImport/Margin/StoryworldMergingScreen.clear_data()
 	$ConfirmImport/Margin/StoryworldMergingScreen.load_content_from_files()
-	$ConfirmImport.popup()
+	$ConfirmImport.popup_centered()
 
 func _on_ImportFromStoryworldFileDialog_files_selected(paths):
 	$ConfirmImport/Margin/StoryworldMergingScreen.file_paths = paths
 	$ConfirmImport/Margin/StoryworldMergingScreen.clear_data()
 	$ConfirmImport/Margin/StoryworldMergingScreen.load_content_from_files()
-	$ConfirmImport.popup()
+	$ConfirmImport.popup_centered()
 
 func _on_ConfirmImport_confirmed():
 	storyworld.import_characters($ConfirmImport/Margin/StoryworldMergingScreen.get_selected_characters())
@@ -364,22 +370,26 @@ func _on_ConfirmImport_confirmed():
 	$Background/VBC/EditorTabs/Encounters.refresh_encounter_list()
 
 func display_encounter(encounter):
-	$Background/VBC/EditorTabs/Encounters.load_Encounter(encounter)
 	if (null != encounter):
+		$Background/VBC/EditorTabs/Encounters.load_Encounter(encounter)
 		$Background/VBC/EditorTabs.set_current_tab(1)
+
+func display_encounter_by_id(id):
+	$Background/VBC/EditorTabs/Encounters.load_Encounter_by_id(id)
+	$Background/VBC/EditorTabs.set_current_tab(1)
 
 func _on_About_confirmed():
 	#Used to bring up MIT License message.
-	$MITLicenseDialog.popup()
+	$MITLicenseDialog.popup_centered()
 
 func set_gui_theme(theme_name):
 	match theme_name:
 		"Clarity":
 			$Background.set_texture(clarity_gradient_header)
-			$Background.set_theme(clarity_theme)
+			set_theme(clarity_theme)
 		"Lapis Lazuli":
 			$Background.set_texture(lapis_lazuli_gradient_header)
-			$Background.set_theme(lapis_lazuli_theme)
+			set_theme(lapis_lazuli_theme)
 	$Background/VBC/EditorTabs/Overview.set_gui_theme(theme_name, theme_background_colors[theme_name])
 	$Background/VBC/EditorTabs/Encounters.set_gui_theme(theme_name, theme_background_colors[theme_name])
 	$Background/VBC/EditorTabs/Spools.set_gui_theme(theme_name, theme_background_colors[theme_name])

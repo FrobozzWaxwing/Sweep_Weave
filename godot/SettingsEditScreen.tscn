@@ -51,6 +51,7 @@ margin_bottom = 114.0
 autowrap = true
 
 [node name="HBC1" type="HBoxContainer" parent="VBC"]
+visible = false
 margin_top = 118.0
 margin_right = 317.0
 margin_bottom = 138.0
@@ -66,9 +67,9 @@ margin_bottom = 20.0
 text = "Create new IFID"
 
 [node name="HBC2" type="HBoxContainer" parent="VBC"]
-margin_top = 142.0
+margin_top = 118.0
 margin_right = 317.0
-margin_bottom = 182.0
+margin_bottom = 158.0
 
 [node name="DBMLabel" type="Label" parent="VBC/HBC2"]
 margin_top = 13.0
@@ -82,9 +83,9 @@ margin_right = 279.0
 margin_bottom = 40.0
 
 [node name="HBC3" type="HBoxContainer" parent="VBC"]
-margin_top = 186.0
+margin_top = 162.0
 margin_right = 317.0
-margin_bottom = 226.0
+margin_bottom = 202.0
 
 [node name="DisplayModeLabel" type="Label" parent="VBC/HBC3"]
 margin_top = 13.0

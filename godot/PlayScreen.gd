@@ -6,6 +6,8 @@ var page_to_display = null
 #Display options:
 var display_spoolbook = true
 
+signal encounter_edit_button_pressed(id)
+
 func reset_rehearsal():
 	if (null == rehearsal):
 		rehearsal = Rehearsal.new(reference_storyworld)
@@ -125,10 +127,12 @@ func refresh_encountertitle():
 	if (null != page_to_display.turn):
 		display_turn = " (Turn: " + str(page_to_display.turn) + ")"
 	if (null == page_to_display.encounter):
-		$Layout/L2/ColorRect/VBC/EncounterTitle.text = "(The End.)" + display_turn
+		$Layout/L2/ColorRect/VBC/TitleBar/Edit_Button.visible = false
+		$Layout/L2/ColorRect/VBC/TitleBar/EncounterTitle.text = "(The End.)" + display_turn
 	else:
-		$Layout/L2/ColorRect/VBC/EncounterTitle.text = page_to_display.encounter.title + display_turn
-	return $Layout/L2/ColorRect/VBC/EncounterTitle.text
+		$Layout/L2/ColorRect/VBC/TitleBar/Edit_Button.visible = true
+		$Layout/L2/ColorRect/VBC/TitleBar/EncounterTitle.text = page_to_display.encounter.title + display_turn
+	return $Layout/L2/ColorRect/VBC/TitleBar/EncounterTitle.text
 
 func refresh_maintext():
 	var text = ""
@@ -190,7 +194,7 @@ func load_options_script_report():
 		visible_entry.set_text(1, str(option_visible))
 		open_entry.set_text(0, "Performability")
 		open_entry.set_text(1, str(option_open))
-	$OptionScriptReportWindow.popup()
+	$OptionScriptReportWindow.popup_centered()
 
 func report_encounter_scripts(entry):
 	#Used by load_encounter_selection_report() to fill table.
@@ -286,7 +290,7 @@ func load_encounter_selection_report():
 	else:
 		text += "The End."
 	$EncounterScriptReportWindow/VBC/Background/ConsequenceReport.append_bbcode(text)
-	$EncounterScriptReportWindow.popup()
+	$EncounterScriptReportWindow.popup_centered()
 
 func refresh_reaction_inclinations(option = null):
 	$Layout/L2/VBC/Reaction_Inclinations.clear()
@@ -319,8 +323,6 @@ func refresh_reaction_inclinations(option = null):
 			var inclination = reaction.calculate_desirability(page_to_display, true)
 			reaction_entry.set_text(1, str(inclination))
 
-signal encounter_loaded(id)
-
 func load_Page(page):
 	page_to_display = page
 	rehearsal.step_playthrough(page)
@@ -336,8 +338,6 @@ func load_Page(page):
 	$Layout/L2/VBC/Resulting_Reaction.text = ""
 	$Layout/L2/VBC/Resulting_Encounter.visible = false
 	$Layout/L2/VBC/Resulting_Encounter.text = ""
-	if (null != page and null != page.encounter and page.encounter is Encounter):
-		emit_signal("encounter_loaded", page.encounter.id)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -359,10 +359,11 @@ func _ready():
 	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_min_width(1, 1)
 
 func clear():
-	$Layout/L2/ColorRect/VBC/Play_Button.text = "Start"
+	$Layout/L2/ColorRect/VBC/TitleBar/Play_Button.text = "Start"
 	$Layout/VBC/Spoolbook.clear()
 	$Layout/VBC/Historybook.clear()
-	$Layout/L2/ColorRect/VBC/EncounterTitle.text = ""
+	$Layout/L2/ColorRect/VBC/TitleBar/Edit_Button.visible = false
+	$Layout/L2/ColorRect/VBC/TitleBar/EncounterTitle.text = ""
 	$Layout/L2/ColorRect/VBC/MainText.set_bbcode("")
 	$Layout/L2/VBC/Castbook.clear()
 	$Layout/L2/ColorRect/VBC/OptionsList.clear()
@@ -376,10 +377,14 @@ func clear():
 	$Layout/L2/VBC/Resulting_Encounter.text = ""
 
 func _on_Play_Button_pressed():
-	$Layout/L2/ColorRect/VBC/Play_Button.text = "Restart"
+	$Layout/L2/ColorRect/VBC/TitleBar/Play_Button.text = "Restart"
 	reset_rehearsal()
 	rehearsal.begin_playthrough()
 	load_Page(rehearsal.current_page)
+
+func _on_Edit_Button_pressed():
+	if (null != page_to_display and null != page_to_display.encounter and page_to_display.encounter is Encounter):
+		emit_signal("encounter_edit_button_pressed", page_to_display.encounter.id)
 
 func _on_OptionsList_item_selected(index):
 	var option_page = $Layout/L2/ColorRect/VBC/OptionsList.get_item_metadata(index)
@@ -425,7 +430,15 @@ func _on_EncounterSelectionReportButton_pressed():
 
 #GUI Themes:
 
+onready var edit_icon_light = preload("res://custom_resources/edit-3.svg")
+onready var edit_icon_dark = preload("res://custom_resources/edit-3_dark.svg")
+
 func set_gui_theme(theme_name, background_color):
 	color = background_color
 	$Layout/L2/ColorRect.color = background_color
 	$EncounterScriptReportWindow/VBC/Background.color = background_color
+	match theme_name:
+		"Clarity":
+			$Layout/L2/ColorRect/VBC/TitleBar/Edit_Button.icon = edit_icon_dark
+		"Lapis Lazuli":
+			$Layout/L2/ColorRect/VBC/TitleBar/Edit_Button.icon = edit_icon_light

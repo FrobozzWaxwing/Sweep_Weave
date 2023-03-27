@@ -100,7 +100,7 @@ func _on_DeleteCharacter_pressed():
 					$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.set_item_metadata(option_index, each)
 					option_index += 1
 			$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.select(0)
-			$ConfirmCharacterDeletion.popup()
+			$ConfirmCharacterDeletion.popup_centered()
 		else:
 			print("The storyworld must have at least one character.")
 

@@ -100,12 +100,18 @@ func delete_authored_property(property):
 	property.call_deferred("free")
 
 func init_classical_personality_model():
-	var ap_names = ["Bad_Good", "False_Honest", "Timid_Dominant", "pBad_Good", "pFalse_Honest", "pTimid_Dominant"]
+	var ap_names = ["Bad_Good", "False_Honest", "Timid_Dominant"]
 	for ap_name in ap_names:
 		var new_index = unique_id_seeds["authored_property"]
 		unique_id_seeds["authored_property"] += 1
 		var new_id = ap_name
 		add_authored_property(BNumberBlueprint.new(self, new_index, new_id, ap_name, 0, 0))
+	ap_names = ["pBad_Good", "pFalse_Honest", "pTimid_Dominant"]
+	for ap_name in ap_names:
+		var new_index = unique_id_seeds["authored_property"]
+		unique_id_seeds["authored_property"] += 1
+		var new_id = ap_name
+		add_authored_property(BNumberBlueprint.new(self, new_index, new_id, ap_name, 1, 0))
 
 func add_all_authored_properties_from(original):
 	for property in original.authored_properties:
@@ -773,7 +779,7 @@ func parse_reactions_data_v0_0_34_through_v0_0_37(reactions_data, option):
 		reaction_directory[reaction_data["id"]] = reaction
 	return result
 
-func load_from_json_v0_0_34_through_v0_0_37(data_to_load):
+func load_from_json_v0_0_34_through_v0_0_38(data_to_load):
 	#Load characters.
 	for entry in data_to_load.characters:
 		if (entry.has_all(["name", "pronoun", "bnumber_properties", "id", "creation_index", "creation_time", "modified_time"])):
@@ -830,41 +836,41 @@ func load_from_json_v0_0_34_through_v0_0_37(data_to_load):
 	#Parse scripts:
 	for encounter in encounters:
 		var new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_0_37(self, encounter.text_script, sw_script_data_types.STRING)
+		new_script.load_from_json_v0_0_34_through_v0_0_38(self, encounter.text_script, sw_script_data_types.STRING)
 		encounter.text_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_0_37(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
+		new_script.load_from_json_v0_0_34_through_v0_0_38(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
 		encounter.acceptability_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_0_37(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
+		new_script.load_from_json_v0_0_34_through_v0_0_38(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
 		encounter.desirability_script = new_script
 		for option in encounter.options:
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_0_37(self, option.text_script, sw_script_data_types.STRING)
+			new_script.load_from_json_v0_0_34_through_v0_0_38(self, option.text_script, sw_script_data_types.STRING)
 			option.text_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_0_37(self, option.visibility_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_0_38(self, option.visibility_script, sw_script_data_types.BOOLEAN)
 			option.visibility_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_0_37(self, option.performability_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_0_38(self, option.performability_script, sw_script_data_types.BOOLEAN)
 			option.performability_script = new_script
 			for reaction in option.reactions:
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_0_37(self, reaction.text_script, sw_script_data_types.STRING)
+				new_script.load_from_json_v0_0_34_through_v0_0_38(self, reaction.text_script, sw_script_data_types.STRING)
 				reaction.text_script = new_script
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_0_37(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
+				new_script.load_from_json_v0_0_34_through_v0_0_38(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
 				reaction.desirability_script = new_script
 				var parsed_effects = []
 				for effect_data in reaction.after_effects:
 					if ("Bounded Number Effect" == effect_data["effect_type"] and effect_data["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == effect_data["Set"]["pointer_type"] and TYPE_STRING == typeof(effect_data["Set"]["character"]) and effect_data["to"].has("script_element_type")):
 						var new_effect = BNumberEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_0_37(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_0_38(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 					elif ("Spool Effect" == effect_data["effect_type"] and TYPE_STRING == typeof(effect_data["Set"])):
 						var new_effect = SpoolEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_0_37(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_0_38(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 				reaction.after_effects.clear()
@@ -941,9 +947,9 @@ func load_from_json(file_text):
 				clear()
 				load_from_json_v0_0_21_through_v0_0_29(data_to_load)
 				return "Passed."
-			elif (0 == int(version[0]) and 0 == int(version[1]) and 34 <= int(version[2]) and 37 >= int(version[2])):
+			elif (0 == int(version[0]) and 0 == int(version[1]) and 34 <= int(version[2]) and 38 >= int(version[2])):
 				clear()
-				load_from_json_v0_0_34_through_v0_0_37(data_to_load)
+				load_from_json_v0_0_34_through_v0_0_38(data_to_load)
 				return "Passed."
 			else:
 				print ("Cannot load project file. The project appears to have been made using an unrecognized version of SweepWeave.")
@@ -973,7 +979,7 @@ func save_project(file_path, save_as = false):
 	for entry in encounters:
 		file_data["encounters"].append(entry.compile(self, true))
 	# Save spools:
-	spools.sort_custom(SpoolSorter, "sort_created")
+#	spools.sort_custom(SpoolSorter, "sort_created")
 	file_data["spools"] = []
 	for entry in spools:
 		file_data["spools"].append(entry.compile(self, true))
@@ -1011,7 +1017,7 @@ func compile_to_html(path):
 	for entry in encounters:
 		file_data["encounters"].append(entry.compile(self, false))
 	# Compile spools:
-	spools.sort_custom(SpoolSorter, "sort_created")
+#	spools.sort_custom(SpoolSorter, "sort_created")
 	file_data["spools"] = []
 	for entry in spools:
 		file_data["spools"].append(entry.compile(self, false))
@@ -1025,7 +1031,7 @@ func compile_to_html(path):
 		file_text += JSON.print(file_data, "\t")
 	else:
 		file_text += JSON.print(file_data)
-	var compiler = Compiler.new(file_text, storyworld_title, storyworld_author, ifid)
+	var compiler = Compiler.new(file_text, storyworld_title, storyworld_author, ifid, storyworld_debug_mode_on)
 	var file = File.new()
 	file.open(path, File.WRITE)
 	file.store_string(compiler.output)
