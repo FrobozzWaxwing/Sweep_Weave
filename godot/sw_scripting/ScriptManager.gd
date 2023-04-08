@@ -685,7 +685,7 @@ func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load, expected_o
 	else:
 		set_contents(parsed_script)
 
-func recursive_load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load):
+func recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load):
 	var element = null
 	if (TYPE_BOOL == typeof(data_to_load)):
 		#Data should be either a boolean value, (true or false,) or a dictionary.
@@ -723,7 +723,7 @@ func recursive_load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load):
 		#Parse operands:
 		var operands = []
 		for operand in data_to_load["operands"]:
-			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_0_38(storyworld, operand)
+			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, operand)
 			if (null != parsed_operand and parsed_operand is SWScriptElement):
 				operands.append(parsed_operand)
 		#Create operator:
@@ -769,8 +769,8 @@ func recursive_load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load):
 			element = NudgeOperator.new(operands.pop_front(), operands.pop_front())
 	return proofread(element)
 
-func load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load, expected_output_datatype):
-	var parsed_script = recursive_load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load)
+func load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load, expected_output_datatype):
+	var parsed_script = recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load)
 	if (null == parsed_script):
 		if (sw_script_data_types.BNUMBER == expected_output_datatype):
 #			print ("Warning, script has null or invalid contents. Setting script contents to bounded number constant to match expected output datatype.")

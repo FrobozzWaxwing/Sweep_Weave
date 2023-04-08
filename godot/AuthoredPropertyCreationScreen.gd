@@ -25,22 +25,22 @@ func load_authored_property(property_blueprint):
 	$PropertyCreationWindow/VBC/BNumberEditPanel.creating_new_property = false
 	$ColorRect/VBC/HBC/BNumberEditPanel.refresh()
 	if (!storyworld.authored_properties.empty()):
-		$ColorRect/VBC/HBC/VBC1/PropertyList.select(storyworld.authored_properties.find(property_blueprint))
+		$ColorRect/VBC/HBC/VBC/PropertyList.select(storyworld.authored_properties.find(property_blueprint))
 
 func refresh_property_list():
-	$ColorRect/VBC/HBC/VBC1/PropertyList.clear()
+	$ColorRect/VBC/HBC/VBC/PropertyList.clear()
 	var item_index = 0
 	for property_blueprint in storyworld.authored_properties:
-		$ColorRect/VBC/HBC/VBC1/PropertyList.add_item(property_blueprint.get_property_name())
-		$ColorRect/VBC/HBC/VBC1/PropertyList.set_item_metadata(item_index, property_blueprint)
+		$ColorRect/VBC/HBC/VBC/PropertyList.add_item(property_blueprint.get_property_name())
+		$ColorRect/VBC/HBC/VBC/PropertyList.set_item_metadata(item_index, property_blueprint)
 		item_index += 1
 	if (!storyworld.authored_properties.empty()):
 		load_authored_property(storyworld.authored_properties.front())
 
 func refresh_property_name(property_blueprint):
 	var index = storyworld.authored_properties.find(property_blueprint)
-	if (property_blueprint == $ColorRect/VBC/HBC/VBC1/PropertyList.get_item_metadata(index)):
-		$ColorRect/VBC/HBC/VBC1/PropertyList.set_item_text(index, property_blueprint.get_property_name())
+	if (property_blueprint == $ColorRect/VBC/HBC/VBC/PropertyList.get_item_metadata(index)):
+		$ColorRect/VBC/HBC/VBC/PropertyList.set_item_text(index, property_blueprint.get_property_name())
 	else:
 		refresh_property_list()
 	emit_signal("refresh_authored_property_lists")
@@ -75,7 +75,7 @@ func _on_DeleteButton_pressed():
 		each.call_deferred('free')
 	#Refill window.
 	var new_label = Label.new()
-	var selected_indices = $ColorRect/VBC/HBC/VBC1/PropertyList.get_selected_items()
+	var selected_indices = $ColorRect/VBC/HBC/VBC/PropertyList.get_selected_items()
 	authored_properties_to_delete.clear()
 	if (0 == selected_indices.size()):
 		#No properties are currently selected.
@@ -86,7 +86,7 @@ func _on_DeleteButton_pressed():
 		new_label.text = "You cannot delete all authored properties from your storyworld."
 		$ConfirmPropertyDeletionWindow/VBC.add_child(new_label)
 	elif (1 == selected_indices.size()):
-		var property_blueprint = $ColorRect/VBC/HBC/VBC1/PropertyList.get_item_metadata(selected_indices[0])
+		var property_blueprint = $ColorRect/VBC/HBC/VBC/PropertyList.get_item_metadata(selected_indices[0])
 		new_label.text = "Are you sure that you want to remove the \"" + property_blueprint.get_property_name() + "\" property from your storyworld?"
 		$ConfirmPropertyDeletionWindow/VBC.add_child(new_label)
 		authored_properties_to_delete.append(property_blueprint)
@@ -94,7 +94,7 @@ func _on_DeleteButton_pressed():
 		new_label.text = "Are you sure that you want to remove the following authored properties? This will delete these properties from all characters and scripts."
 		$ConfirmPropertyDeletionWindow/VBC.add_child(new_label)
 		for index in selected_indices:
-			var property_blueprint = $ColorRect/VBC/HBC/VBC1/PropertyList.get_item_metadata(index)
+			var property_blueprint = $ColorRect/VBC/HBC/VBC/PropertyList.get_item_metadata(index)
 			authored_properties_to_delete.append(property_blueprint)
 			new_label = Label.new()
 			new_label.text = property_blueprint.get_property_name()
@@ -164,8 +164,8 @@ func _on_ConfirmPropertyDeletionWindow_confirmed():
 	refresh_property_list()
 	emit_signal("refresh_authored_property_lists")
 
-func _on_PropertyList_item_activated(index):
-	var property_blueprint = $ColorRect/VBC/HBC/VBC1/PropertyList.get_item_metadata(index)
+func _on_PropertyList_item_selected(index):
+	var property_blueprint = $ColorRect/VBC/HBC/VBC/PropertyList.get_item_metadata(index)
 	load_authored_property(property_blueprint)
 
 func on_character_properties_changed(property, character):
@@ -173,8 +173,20 @@ func on_character_properties_changed(property, character):
 
 #GUI Themes:
 
+onready var add_icon_light = preload("res://custom_resources/add_icon.svg")
+onready var add_icon_dark = preload("res://custom_resources/add_icon_dark.svg")
+onready var delete_icon_light = preload("res://custom_resources/delete_icon.svg")
+onready var delete_icon_dark = preload("res://custom_resources/delete_icon_dark.svg")
+
 func set_gui_theme(theme_name, background_color):
 	$ColorRect.color = background_color
 	$ColorRect/VBC/ColorRect.color = background_color
 	$ColorRect/VBC/HBC/BNumberEditPanel.set_gui_theme(theme_name, background_color)
 	$PropertyCreationWindow/VBC/BNumberEditPanel.set_gui_theme(theme_name, background_color)
+	match theme_name:
+		"Clarity":
+			$ColorRect/VBC/HBC/VBC/HBC/AddButton.icon = add_icon_dark
+			$ColorRect/VBC/HBC/VBC/HBC/DeleteButton.icon = delete_icon_dark
+		"Lapis Lazuli":
+			$ColorRect/VBC/HBC/VBC/HBC/AddButton.icon = add_icon_light
+			$ColorRect/VBC/HBC/VBC/HBC/DeleteButton.icon = delete_icon_light

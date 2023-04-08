@@ -41,8 +41,8 @@ func set_as_copy_of(in_character, create_mutual_links = true):
 	bnumber_properties = in_character.bnumber_properties.duplicate(true)
 	authored_properties = []
 	authored_property_directory = {}
-	#Sanity check:
 	for property in in_character.authored_properties:
+		#Sanity check:
 		if (is_instance_valid(property)):
 			index_authored_property(property)
 			if (create_mutual_links):
@@ -56,14 +56,18 @@ func set_as_copy_of(in_character, create_mutual_links = true):
 
 func remap(to_storyworld):
 	storyworld = to_storyworld
+	var properties_to_index = authored_properties.duplicate()
 	authored_properties = []
 	authored_property_directory = {}
-	for property_blueprint in storyworld.authored_properties:
-		if (property_blueprint.attribution_target == property_blueprint.possible_attribution_targets.ENTIRE_CAST):
-			index_authored_property(property_blueprint)
-		elif (property_blueprint.attribution_target == property_blueprint.possible_attribution_targets.CAST_MEMBERS):
-			if (property_blueprint.affected_characters.has(self)):
-				index_authored_property(property_blueprint)
+	for property_blueprint in properties_to_index:
+		if (storyworld.authored_property_directory.has(property_blueprint.id)):
+			index_authored_property(storyworld.authored_property_directory[property_blueprint.id])
+#	for property_blueprint in storyworld.authored_properties:
+#		if (property_blueprint.attribution_target == property_blueprint.possible_attribution_targets.ENTIRE_CAST):
+#			index_authored_property(property_blueprint)
+#		elif (property_blueprint.attribution_target == property_blueprint.possible_attribution_targets.CAST_MEMBERS):
+#			if (property_blueprint.affected_characters.has(self)):
+#				index_authored_property(property_blueprint)
 
 func set_classical_personality_model(in_Bad_Good, in_False_Honest, in_Timid_Dominant, in_pBad_Good, in_pFalse_Honest, in_pTimid_Dominant):
 	initialize_bnumber_properties()

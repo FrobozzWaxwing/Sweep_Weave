@@ -100,7 +100,7 @@ func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
 	else:
 		return false
 
-func load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load):
+func load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load):
 	clear()
 	if (data_to_load.has_all(["Set", "to"])):
 		if (data_to_load["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == data_to_load["Set"]["pointer_type"] and TYPE_STRING == typeof(data_to_load["Set"]["character"]) and storyworld.character_directory.has(data_to_load["Set"]["character"])):
@@ -117,7 +117,7 @@ func load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load):
 					output_datatype = sw_script_data_types.BNUMBER
 				elif (assignee.output_type == sw_script_data_types.BOOLEAN):
 					output_datatype = sw_script_data_types.BOOLEAN
-			script.load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load["to"], output_datatype)
+			script.load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load["to"], output_datatype)
 			assignment_script = script
 	if (null != assignee and assignee is BNumberPointer and null != assignment_script and assignment_script is ScriptManager):
 		return true

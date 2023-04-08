@@ -4,7 +4,7 @@ var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
 
-var sweepweave_version_number = "0.0.38"
+var sweepweave_version_number = "0.1.0"
 var storyworld = null
 var clipboard = Clipboard.new()
 
@@ -122,9 +122,6 @@ func _ready():
 	$Background/VBC/MenuBar/ViewMenu.get_popup().connect("id_pressed", self, "_on_viewmenu_item_pressed")
 	$Background/VBC/MenuBar/ViewMenu.connect("menu_input", self, "_on_viewmenu_item_toggled")
 	$Background/VBC/MenuBar/HelpMenu.get_popup().connect("id_pressed", self, "_on_helpmenu_item_pressed")
-	$About/VBC/VersionMessage.text = "SweepWeave v." + sweepweave_version_number
-	$CheckForUpdates/UpdateScreen/VBC/VersionMessage.text = "Current SweepWeave version: " + sweepweave_version_number
-	$CheckForUpdates/UpdateScreen.sweepweave_version_number = sweepweave_version_number
 	$Background/VBC/EditorTabs/Play.connect("encounter_edit_button_pressed", self, "display_encounter_by_id")
 	$Background/VBC/EditorTabs/Characters.connect("new_character_created", $Background/VBC/EditorTabs/Encounters, "add_character_to_lists")
 	$Background/VBC/EditorTabs/Characters.connect("character_deleted", $Background/VBC/EditorTabs/Encounters, "replace_character")
@@ -144,6 +141,11 @@ func _ready():
 	$Background/VBC/EditorTabs/GraphView.connect("load_encounter_from_graphview", self, "display_encounter")
 	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Characters, "refresh_property_list")
 	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Encounters, "refresh_bnumber_property_lists")
+	$About/VBC/VersionMessage.text = "SweepWeave v." + sweepweave_version_number
+	$CheckForUpdates/UpdateScreen/VBC/VersionMessage.text = "Current SweepWeave version: " + sweepweave_version_number
+	$CheckForUpdates/UpdateScreen.sweepweave_version_number = sweepweave_version_number
+	$Background/VBC/EditorTabs.set_tab_title(4, "Personality Model")
+	$Background/VBC/EditorTabs.set_tab_title(7, "Graph View")
 	$Background/VBC/EditorTabs.set_current_tab(1)
 	#Initialize clipboard:
 	$Background/VBC/EditorTabs/Encounters.set_clipboard(clipboard)

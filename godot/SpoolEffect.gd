@@ -79,7 +79,7 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 	output["to"] = assignment_script.compile(parent_storyworld, include_editor_only_variables)
 	return output
 
-func load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load):
+func load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load):
 	clear()
 	if (data_to_load.has_all(["Set", "to"])):
 		if (TYPE_STRING == typeof(data_to_load["Set"]) and storyworld.spool_directory.has(data_to_load["Set"])):
@@ -93,7 +93,7 @@ func load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load):
 				output_datatype = sw_script_data_types.BNUMBER
 			elif (assignee.output_type == sw_script_data_types.BOOLEAN):
 				output_datatype = sw_script_data_types.BOOLEAN
-		script.load_from_json_v0_0_34_through_v0_0_38(storyworld, data_to_load["to"], output_datatype)
+		script.load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load["to"], output_datatype)
 		assignment_script = script
 	if (null != assignee and assignee is SpoolPointer and null != assignment_script and assignment_script is ScriptManager):
 		return true

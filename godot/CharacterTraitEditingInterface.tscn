@@ -5,7 +5,7 @@
 [node name="Background" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-size_flags_horizontal = 3
+rect_min_size = Vector2( 0, 68 )
 size_flags_vertical = 3
 script = ExtResource( 1 )
 
@@ -13,18 +13,20 @@ script = ExtResource( 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
+rect_min_size = Vector2( 0, 64 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="VBC"]
 margin_right = 1361.0
 margin_bottom = 14.0
+rect_min_size = Vector2( 0, 14 )
+size_flags_vertical = 5
 
 [node name="HBC1" type="HBoxContainer" parent="VBC"]
 margin_top = 18.0
 margin_right = 1361.0
 margin_bottom = 18.0
-size_flags_horizontal = 3
 alignment = 2
 
 [node name="KeyringHBC" type="HBoxContainer" parent="VBC/HBC1"]
@@ -38,10 +40,12 @@ size_flags_horizontal = 3
 margin_top = 22.0
 margin_right = 1361.0
 margin_bottom = 46.0
+rect_min_size = Vector2( 0, 24 )
 
 [node name="Slidebar" type="HSlider" parent="VBC/HBC2"]
 margin_right = 1283.0
 margin_bottom = 16.0
+rect_min_size = Vector2( 0, 16 )
 size_flags_horizontal = 3
 min_value = -0.99
 max_value = 0.99
@@ -53,6 +57,7 @@ ticks_on_borders = true
 margin_left = 1287.0
 margin_right = 1361.0
 margin_bottom = 24.0
+rect_min_size = Vector2( 0, 24 )
 min_value = -0.99
 max_value = 0.99
 step = 0.01

@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=31 format=2]
+[gd_resource type="Theme" load_steps=33 format=2]
 
 [ext_resource path="res://custom_resources/NotoMono-Regular.tres" type="DynamicFont" id=1]
 [ext_resource path="res://custom_resources/NotoSerif-Bold.tres" type="DynamicFont" id=2]
@@ -8,6 +8,8 @@
 [ext_resource path="res://custom_resources/grabber_orange.svg" type="Texture" id=6]
 [ext_resource path="res://custom_resources/grabber_green.svg" type="Texture" id=7]
 [ext_resource path="res://custom_resources/grabber_white.svg" type="Texture" id=8]
+[ext_resource path="res://custom_resources/x_green.svg" type="Texture" id=9]
+[ext_resource path="res://custom_resources/x.svg" type="Texture" id=10]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.0392157, 0.117647, 0.196078, 1 )
@@ -339,4 +341,6 @@ Tree/styles/bg = SubResource( 5 )
 Tree/styles/title_button_normal = SubResource( 17 )
 VSeparator/styles/separator = SubResource( 19 )
 WindowDialog/colors/title_color = Color( 1, 1, 1, 1 )
+WindowDialog/icons/close = ExtResource( 10 )
+WindowDialog/icons/close_highlight = ExtResource( 9 )
 WindowDialog/styles/panel = SubResource( 22 )

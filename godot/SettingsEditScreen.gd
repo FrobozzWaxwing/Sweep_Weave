@@ -1,12 +1,12 @@
 extends Control
 
 var storyworld = null
-var current_project_path = ""
+#var current_project_path = ""
 
 func refresh():
 	$VBC/TitleEdit.text = storyworld.storyworld_title
 	$VBC/AuthorEdit.text = storyworld.storyworld_author
-	$VBC/SavePathDisplay.set_text("Current project save path: " + current_project_path)
+	$VBC/SavePathDisplay.set_text("Current project save path: " + get_node("../../../../").current_project_path)
 	$VBC/HBC1/IFIDDisplay.set_text("Storyworld IFID: " + storyworld.ifid)
 	$VBC/HBC2/DBMSwitch.pressed = storyworld.storyworld_debug_mode_on
 	match storyworld.storyworld_display_mode:

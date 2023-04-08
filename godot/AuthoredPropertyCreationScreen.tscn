@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://AuthoredPropertyCreationScreen.gd" type="Script" id=1]
 [ext_resource path="res://SingleBNumberBlueprintEditPanel.tscn" type="PackedScene" id=2]
+[ext_resource path="res://custom_resources/add_icon.svg" type="Texture" id=3]
+[ext_resource path="res://custom_resources/delete_icon.svg" type="Texture" id=4]
 
 [node name="Control" type="Control"]
 anchor_right = 1.0
@@ -18,6 +20,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="ColorRect" type="ColorRect" parent="ColorRect/VBC"]
+visible = false
 margin_right = 1366.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 0, 32 )
@@ -37,40 +40,52 @@ align = 1
 valign = 1
 
 [node name="HBC" type="HBoxContainer" parent="ColorRect/VBC"]
-margin_top = 36.0
 margin_right = 1366.0
 margin_bottom = 736.0
 size_flags_vertical = 3
 
-[node name="VBC1" type="VBoxContainer" parent="ColorRect/VBC/HBC"]
-margin_right = 143.0
-margin_bottom = 700.0
+[node name="VBC" type="VBoxContainer" parent="ColorRect/VBC/HBC"]
+margin_right = 160.0
+margin_bottom = 736.0
 size_flags_vertical = 3
 
-[node name="AddButton" type="Button" parent="ColorRect/VBC/HBC/VBC1"]
-margin_right = 143.0
-margin_bottom = 20.0
-text = "Create New Property"
+[node name="HBC" type="HBoxContainer" parent="ColorRect/VBC/HBC/VBC"]
+margin_right = 160.0
+margin_bottom = 30.0
 
-[node name="DeleteButton" type="Button" parent="ColorRect/VBC/HBC/VBC1"]
-margin_top = 24.0
-margin_right = 143.0
-margin_bottom = 44.0
-text = "Delete Property"
+[node name="AddButton" type="Button" parent="ColorRect/VBC/HBC/VBC/HBC"]
+margin_right = 36.0
+margin_bottom = 30.0
+hint_tooltip = "Add new property."
+icon = ExtResource( 3 )
 
-[node name="PropertyList" type="ItemList" parent="ColorRect/VBC/HBC/VBC1"]
-margin_top = 48.0
-margin_right = 143.0
-margin_bottom = 700.0
+[node name="DeleteButton" type="Button" parent="ColorRect/VBC/HBC/VBC/HBC"]
+margin_left = 40.0
+margin_right = 76.0
+margin_bottom = 30.0
+hint_tooltip = "Delete selected property."
+icon = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="ColorRect/VBC/HBC/VBC/HBC"]
+margin_left = 80.0
+margin_top = 8.0
+margin_right = 150.0
+margin_bottom = 22.0
+text = "Properties:"
+
+[node name="PropertyList" type="ItemList" parent="ColorRect/VBC/HBC/VBC"]
+margin_top = 34.0
+margin_right = 160.0
+margin_bottom = 736.0
+rect_min_size = Vector2( 160, 0 )
 size_flags_vertical = 3
-select_mode = 1
 
 [node name="BNumberEditPanel" parent="ColorRect/VBC/HBC" instance=ExtResource( 2 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 147.0
-margin_right = 147.0
-margin_bottom = 700.0
+margin_left = 164.0
+margin_right = 164.0
+margin_bottom = 736.0
 
 [node name="PropertyCreationWindow" type="ConfirmationDialog" parent="."]
 margin_right = 300.0
@@ -105,8 +120,9 @@ margin_top = 8.0
 margin_right = 192.0
 margin_bottom = 34.0
 
-[connection signal="pressed" from="ColorRect/VBC/HBC/VBC1/AddButton" to="." method="_on_AddButton_pressed"]
-[connection signal="pressed" from="ColorRect/VBC/HBC/VBC1/DeleteButton" to="." method="_on_DeleteButton_pressed"]
-[connection signal="item_activated" from="ColorRect/VBC/HBC/VBC1/PropertyList" to="." method="_on_PropertyList_item_activated"]
+[connection signal="pressed" from="ColorRect/VBC/HBC/VBC/HBC/AddButton" to="." method="_on_AddButton_pressed"]
+[connection signal="pressed" from="ColorRect/VBC/HBC/VBC/HBC/DeleteButton" to="." method="_on_DeleteButton_pressed"]
+[connection signal="item_selected" from="ColorRect/VBC/HBC/VBC/PropertyList" to="." method="_on_PropertyList_item_selected"]
+[connection signal="multi_selected" from="ColorRect/VBC/HBC/VBC/PropertyList" to="." method="_on_PropertyList_multi_selected"]
 [connection signal="confirmed" from="PropertyCreationWindow" to="." method="_on_PropertyCreationWindow_confirmed"]
 [connection signal="confirmed" from="ConfirmPropertyDeletionWindow" to="." method="_on_ConfirmPropertyDeletionWindow_confirmed"]

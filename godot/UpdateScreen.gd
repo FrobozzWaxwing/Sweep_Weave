@@ -38,4 +38,4 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, body):
 			$VBC/WebText.append_bbcode("Error: Could not determine latest stable version number.")
 
 func _on_DownloadButton_pressed():
-	OS.shell_open("https://www.patreon.com/sasha_fenn")
+	OS.shell_open("https://github.com/FrobozzWaxwing/Sweep_Weave/releases")
