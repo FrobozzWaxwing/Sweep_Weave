@@ -4,7 +4,7 @@ var current_encounter = null
 var current_option = null
 var current_reaction = null
 var storyworld = null
-var node_scene = preload("res://graphview_node.tscn")
+#var node_scene = preload("res://graphview_node.tscn")
 #Track items to delete.
 var items_to_delete = []
 #Clipboard system variables:
@@ -21,11 +21,14 @@ func refresh_encounter_list():
 	var sort_method_id = $Column1/SortMenu.get_selected_id()
 	var sort_method = $Column1/SortMenu.get_popup().get_item_text(sort_method_id)
 	storyworld.sort_encounters(sort_method)
+	var index = 0
 	for entry in storyworld.encounters:
 		if ("" == entry.title):
 			$Column1/VScroll/EncountersList.add_item("[Untitled]")
 		else:
 			$Column1/VScroll/EncountersList.add_item(entry.title)
+		$Column1/VScroll/EncountersList.set_item_metadata(index, entry)
+		index += 1
 	if (0 == storyworld.encounters.size()):
 		Clear_Encounter_Editing_Screen()
 
@@ -288,15 +291,16 @@ func _on_AddButton_pressed():
 	$Column1/VScroll/EncountersList.select(storyworld.encounters.find(new_encounter))
 
 func _on_EncountersList_multi_selected(index, selected):
-	var encounter_to_edit = storyworld.encounters[index]
+	var encounter_to_edit = $Column1/VScroll/EncountersList.get_item_metadata(index)
 	load_Encounter(encounter_to_edit)
 
 func _on_Duplicate_pressed():
 	if ($Column1/VScroll/EncountersList.is_anything_selected()):
-		var selection = $Column1/VScroll/EncountersList.get_selected_items()
+		var selected_indices = $Column1/VScroll/EncountersList.get_selected_items()
 		var encounters_to_duplicate = []
-		for entry in selection:
-			encounters_to_duplicate.append(storyworld.encounters[entry])
+		for index in selected_indices:
+			var encounter = $Column1/VScroll/EncountersList.get_item_metadata(index)
+			encounters_to_duplicate.append(encounter)
 		var encounter_to_edit = null
 		for entry in encounters_to_duplicate:
 			var new_encounter = storyworld.duplicate_encounter(entry)
@@ -387,12 +391,13 @@ func _on_ConfirmDeletion_confirmed():
 
 func _on_DeleteButton_pressed():
 	if ($Column1/VScroll/EncountersList.is_anything_selected()):
-		var selection = $Column1/VScroll/EncountersList.get_selected_items()
+		var selected_indices = $Column1/VScroll/EncountersList.get_selected_items()
 		items_to_delete.clear()
 		$ConfirmDeletion/ItemsToDelete.clear()
-		for each in selection:
-			items_to_delete.append(storyworld.encounters[each])
-			$ConfirmDeletion/ItemsToDelete.add_item(each.title)
+		for index in selected_indices:
+			var encounter = $Column1/VScroll/EncountersList.get_item_metadata(index)
+			items_to_delete.append(encounter)
+			$ConfirmDeletion/ItemsToDelete.add_item(encounter.title)
 		if (!items_to_delete.empty()):
 			if (1 == items_to_delete.size()):
 				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following encounter?"

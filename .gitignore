@@ -26,6 +26,7 @@ godot/custom_resources/rotate-cw.svg
 godot/custom_resources/rotate-cw.svg.import
 godot/custom_resources/edit-3.svg
 godot/custom_resources/edit-3.svg.import
+*.x86_64
 *.exe
 *.pck
 

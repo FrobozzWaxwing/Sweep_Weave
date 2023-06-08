@@ -21,8 +21,8 @@ func _ready():
 
 func list_item(item):
 	var branch = create_item(get_root())
-	branch.set_text(0, item.get_listable_text())
-	branch.set_tooltip(0, item.get_listable_text(70))
+	branch.set_text(0, item.get_listable_text(100))
+	branch.set_tooltip(0, item.get_listable_text(100))
 	var meta = {}
 	meta["index"] = item_count
 	meta["listed_object"] = item

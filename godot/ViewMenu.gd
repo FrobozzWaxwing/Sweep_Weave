@@ -10,6 +10,7 @@ func _ready():
 	#Encounter tab submenu:
 	encounters_sub_menu.set_name("encounters_sub_menu")
 	encounters_sub_menu.add_check_item("Encounter list")
+	encounters_sub_menu.set_item_checked(0, true)
 	encounters_sub_menu.add_check_item("Quick reaction script editor")
 	encounters_sub_menu.set_item_checked(1, true)
 	popup.add_child(encounters_sub_menu)

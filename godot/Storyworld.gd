@@ -95,7 +95,6 @@ func add_authored_property(property):
 func delete_authored_property(property):
 	if (null == property):
 		return
-#	print("Removing authored property: " + property.property_name.left(25) + " from all characters and scripts.")
 	authored_properties.erase(property)
 	authored_property_directory.erase(property.id)
 	for character in characters:
@@ -103,12 +102,14 @@ func delete_authored_property(property):
 	property.call_deferred("free")
 
 func init_classical_personality_model():
+	#Three personality traits: goodness, honesty, and dominance.
 	var ap_names = ["Bad_Good", "False_Honest", "Timid_Dominant"]
 	for ap_name in ap_names:
 		var new_index = unique_id_seeds["authored_property"]
 		unique_id_seeds["authored_property"] += 1
 		var new_id = ap_name
 		add_authored_property(BNumberBlueprint.new(self, new_index, new_id, ap_name, 0, 0))
+	#Three relationship types: affection, trust, and fear.
 	ap_names = ["pBad_Good", "pFalse_Honest", "pTimid_Dominant"]
 	for ap_name in ap_names:
 		var new_index = unique_id_seeds["authored_property"]
@@ -118,7 +119,6 @@ func init_classical_personality_model():
 
 func add_all_authored_properties_from(original):
 	for property in original.authored_properties:
-		print(property.get_property_name())
 		var new_index = unique_id_seeds["authored_property"]
 		unique_id_seeds["authored_property"] += 1
 		var copy = BNumberBlueprint.new(self, new_index, "", "", 0, 0)
@@ -483,7 +483,12 @@ func parse_prerequisite_data_v0_0_07_through_v0_0_15(data):
 func load_from_json_v0_0_07_through_v0_0_15(data_to_load):
 	var incomplete_reactions = []
 	var incomplete_encounters = []
-	init_classical_personality_model()
+	var ap_names = ["Bad_Good", "False_Honest", "Timid_Dominant", "pBad_Good", "pFalse_Honest", "pTimid_Dominant"]
+	for ap_name in ap_names:
+		var new_index = unique_id_seeds["authored_property"]
+		unique_id_seeds["authored_property"] += 1
+		var new_id = ap_name
+		add_authored_property(BNumberBlueprint.new(self, new_index, new_id, ap_name, 0, 0))
 	for entry in data_to_load.characters:
 		var newbie = Actor.new(self, entry["name"], entry["pronoun"])
 		if (entry.has_all(["Bad_Good", "False_Honest", "Timid_Dominant", "pBad_Good", "pFalse_Honest", "pTimid_Dominant"])):
