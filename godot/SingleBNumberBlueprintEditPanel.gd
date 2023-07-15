@@ -180,7 +180,6 @@ func _on_DeleteCharacterButton_pressed():
 
 func _on_ConfirmRemoveAffectedCharactersWindow_confirmed():
 	for character in characters_to_remove_from_those_affected:
-		print("Removing character: " + character.char_name.left(25) + " from the list of characters affected by " + current_authored_property.get_property_name() + ".")
 		remove_character_from_affected_characters(character)
 	refresh()
 

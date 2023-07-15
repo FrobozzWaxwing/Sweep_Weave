@@ -43,6 +43,5 @@ func find_occurrences(searchterm):
 		index = value.find(searchterm, index)
 		if (-1 != index):
 			results.append(index)
-			print(str(index))
 			index += 1
 	return results

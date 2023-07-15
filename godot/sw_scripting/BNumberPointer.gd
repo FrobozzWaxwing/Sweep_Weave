@@ -13,14 +13,14 @@ func _init(in_character = null, in_keyring = []):
 
 func get_value(leaf = null, report = false):
 	var output = null
-	if (null != character and character is Actor):
+	if (character is Actor):
 		output = coefficient * character.get_bnumber_property(keyring)
 	if (report):
 		report_value(output)
 	return output
 
 func set_value(value):
-	if (null != character and character is Actor):
+	if (character is Actor):
 		character.set_bnumber_property(keyring, value)
 
 func get_ap_blueprint():
@@ -109,9 +109,10 @@ func data_to_string():
 		else:
 			var character_id = keyring[index]
 			text += ", " + get_character_name_from_id(character_id)
-	text += "] ("
-	text += str(character.get_bnumber_property(keyring))
-	text += ")"
+	text += "]"
+#	text += "] ("
+#	text += str(character.get_bnumber_property(keyring))
+#	text += ")"
 	return text
 
 func validate(intended_script_output_datatype):
@@ -129,7 +130,7 @@ func validate(intended_script_output_datatype):
 	#Check keyring and value:
 	if (keyring.empty()):
 		report += "\n" + "Keyring is empty."
-	elif (null != character and character is Actor and is_instance_valid(character)):
+	elif (character is Actor and is_instance_valid(character)):
 		if (!character.bnumber_properties.has(keyring[0])):
 			report += "\n" + "Character does not possess the property that this pointer refers to."
 		elif (null == get_value(null)):

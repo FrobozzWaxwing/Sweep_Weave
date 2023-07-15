@@ -277,7 +277,7 @@ func _on_ErrorList_item_selected(index):
 						$ColorRect/HBC/VBC2/OpenLinkedScriptButton.visible = true
 						$ColorRect/HBC/VBC2/OpenLinkedScriptButton.text = "Open desirability script."
 			elif (error_report.reported_object is SWEffect):
-				if (null != error_report.reported_script and error_report.reported_script is ScriptManager):
+				if (error_report.reported_script is ScriptManager):
 					if (error_report.reported_object.asssignment_script == error_report.reported_script):
 						$ColorRect/HBC/VBC2/OpenLinkedScriptButton.visible = true
 						$ColorRect/HBC/VBC2/OpenLinkedScriptButton.text = "Open effect \"to\" script."
@@ -307,7 +307,7 @@ func _on_OpenLinkedObjectButton_pressed():
 func _on_OpenLinkedScriptButton_pressed():
 	var title = ""
 	var open = false
-	if (null != current_error_report and current_error_report is ErrorReport and null != current_error_report.reported_object and null != current_error_report.reported_script and current_error_report.reported_script is ScriptManager):
+	if (current_error_report is ErrorReport and null != current_error_report.reported_object and current_error_report.reported_script is ScriptManager):
 		if (current_error_report.reported_object is Encounter):
 			var event_text = current_error_report.reported_object.title
 			if ("" == event_text):
@@ -349,7 +349,7 @@ func _on_OpenLinkedScriptButton_pressed():
 				open = true
 				title += "Effect \"to\" script."
 	if (open):
-		$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
+		$ScriptEditWindow.window_title = title
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_error_report.reported_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true

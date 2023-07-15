@@ -1,16 +1,20 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://SortMenu.gd" type="Script" id=1]
-[ext_resource path="res://custom_resources/arrow-up-circle.svg" type="Texture" id=2]
-[ext_resource path="res://custom_resources/arrow-down-circle.svg" type="Texture" id=3]
+[ext_resource path="res://icons/add.svg" type="Texture" id=2]
+[ext_resource path="res://icons/arrow-up.svg" type="Texture" id=3]
 [ext_resource path="res://EncounterEditScreen.gd" type="Script" id=4]
-[ext_resource path="res://BNumberPropertySelector.tscn" type="PackedScene" id=5]
 [ext_resource path="res://ScriptEditScreen.tscn" type="PackedScene" id=6]
-[ext_resource path="res://BNumberConstantEditingInterface.tscn" type="PackedScene" id=7]
 [ext_resource path="res://DragAndDropList.tscn" type="PackedScene" id=8]
 [ext_resource path="res://EffectEditorScreen.tscn" type="PackedScene" id=9]
-[ext_resource path="res://custom_resources/delete_icon.svg" type="Texture" id=10]
-[ext_resource path="res://custom_resources/add_icon.svg" type="Texture" id=11]
+[ext_resource path="res://icons/arrow-down.svg" type="Texture" id=10]
+[ext_resource path="res://icons/delete.svg" type="Texture" id=11]
+[ext_resource path="res://icons/eye.svg" type="Texture" id=12]
+[ext_resource path="res://icons/hand.svg" type="Texture" id=13]
+[ext_resource path="res://icons/check.svg" type="Texture" id=14]
+[ext_resource path="res://icons/bullseye.svg" type="Texture" id=15]
+[ext_resource path="res://icons/sort-alpha-down.svg" type="Texture" id=16]
+[ext_resource path="res://SimplifiedScriptingInterface.tscn" type="PackedScene" id=17]
 
 [node name="Main" type="HSplitContainer"]
 anchor_right = 1.0
@@ -34,36 +38,54 @@ size_flags_vertical = 3
 margin_right = 167.0
 margin_bottom = 30.0
 
-[node name="AddButton" type="Button" parent="Column1/HBC"]
-margin_right = 36.0
-margin_bottom = 30.0
-hint_tooltip = "Add new encounter."
-icon = ExtResource( 11 )
-
-[node name="DeleteButton" type="Button" parent="Column1/HBC"]
-margin_left = 40.0
-margin_right = 76.0
-margin_bottom = 30.0
-hint_tooltip = "Delete selected encounters."
-icon = ExtResource( 10 )
-
-[node name="Label" type="Label" parent="Column1/HBC"]
-margin_left = 80.0
+[node name="EncountersLabel" type="Label" parent="Column1/HBC"]
 margin_top = 8.0
-margin_right = 155.0
+margin_right = 75.0
 margin_bottom = 22.0
 text = "Encounters:"
 
-[node name="SortMenu" type="OptionButton" parent="Column1"]
+[node name="AddButton" type="Button" parent="Column1/HBC"]
+margin_left = 79.0
+margin_right = 115.0
+margin_bottom = 30.0
+hint_tooltip = "Add new encounter."
+icon = ExtResource( 2 )
+
+[node name="DeleteButton" type="Button" parent="Column1/HBC"]
+margin_left = 119.0
+margin_right = 155.0
+margin_bottom = 30.0
+hint_tooltip = "Delete selected encounters."
+icon = ExtResource( 11 )
+
+[node name="SortBar" type="HBoxContainer" parent="Column1"]
 margin_top = 34.0
 margin_right = 167.0
-margin_bottom = 54.0
+margin_bottom = 64.0
+
+[node name="Label" type="Label" parent="Column1/SortBar"]
+margin_top = 8.0
+margin_right = 48.0
+margin_bottom = 22.0
+text = "Sort by:"
+
+[node name="SortMenu" type="OptionButton" parent="Column1/SortBar"]
+margin_left = 52.0
+margin_right = 81.0
+margin_bottom = 30.0
 script = ExtResource( 1 )
 
+[node name="ToggleReverseButton" type="Button" parent="Column1/SortBar"]
+margin_left = 85.0
+margin_right = 121.0
+margin_bottom = 30.0
+toggle_mode = true
+icon = ExtResource( 16 )
+
 [node name="HBC2" type="HBoxContainer" parent="Column1"]
-margin_top = 58.0
+margin_top = 68.0
 margin_right = 167.0
-margin_bottom = 78.0
+margin_bottom = 88.0
 
 [node name="Duplicate" type="Button" parent="Column1/HBC2"]
 margin_right = 73.0
@@ -71,7 +93,7 @@ margin_bottom = 20.0
 text = "Duplicate"
 
 [node name="VScroll" type="ScrollContainer" parent="Column1"]
-margin_top = 82.0
+margin_top = 92.0
 margin_right = 167.0
 margin_bottom = 727.0
 rect_min_size = Vector2( 0, 590 )
@@ -80,7 +102,7 @@ scroll_horizontal_enabled = false
 
 [node name="EncountersList" type="ItemList" parent="Column1/VScroll"]
 margin_right = 167.0
-margin_bottom = 645.0
+margin_bottom = 635.0
 rect_min_size = Vector2( 32, 590 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -105,27 +127,35 @@ size_flags_vertical = 3
 
 [node name="HBCTitle" type="HBoxContainer" parent="HSC/Column2"]
 margin_right = 578.0
-margin_bottom = 24.0
-
-[node name="Label" type="Label" parent="HSC/Column2/HBCTitle"]
-margin_top = 5.0
-margin_bottom = 19.0
+margin_bottom = 30.0
 
 [node name="EncounterTitleEdit" type="LineEdit" parent="HSC/Column2/HBCTitle"]
-margin_left = 4.0
-margin_right = 578.0
-margin_bottom = 24.0
+margin_right = 498.0
+margin_bottom = 30.0
 rect_min_size = Vector2( 240, 0 )
 size_flags_horizontal = 3
 placeholder_text = "Encounter Title"
 caret_blink = true
 caret_blink_speed = 0.5
 
-[node name="EncounterMainTextEdit" type="TextEdit" parent="HSC/Column2"]
-margin_top = 28.0
+[node name="EditEncounterAcceptabilityScriptButton" type="Button" parent="HSC/Column2/HBCTitle"]
+margin_left = 502.0
+margin_right = 538.0
+margin_bottom = 30.0
+hint_tooltip = "Edit this encounter's acceptability script."
+icon = ExtResource( 14 )
+
+[node name="EditEncounterDesirabilityScriptButton" type="Button" parent="HSC/Column2/HBCTitle"]
+margin_left = 542.0
 margin_right = 578.0
-margin_bottom = 467.0
-rect_min_size = Vector2( 0, 320 )
+margin_bottom = 30.0
+hint_tooltip = "Edit this encounter's desirability script."
+icon = ExtResource( 15 )
+
+[node name="EncounterMainTextEdit" type="TextEdit" parent="HSC/Column2"]
+margin_top = 34.0
+margin_right = 578.0
+margin_bottom = 515.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 highlight_current_line = true
@@ -133,112 +163,92 @@ syntax_highlighting = true
 smooth_scrolling = true
 wrap_enabled = true
 
-[node name="HBCEncounterSettingsButtons" type="HBoxContainer" parent="HSC/Column2"]
-margin_top = 471.0
+[node name="SimplifiedEncounterDesirabilityScriptingInterface" parent="HSC/Column2" instance=ExtResource( 17 )]
+visible = false
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 416.0
 margin_right = 578.0
-margin_bottom = 491.0
-alignment = 1
-
-[node name="EditEncounterAcceptabilityScriptButton" type="Button" parent="HSC/Column2/HBCEncounterSettingsButtons"]
-margin_left = 61.0
-margin_right = 292.0
-margin_bottom = 20.0
-text = "Edit Encounter Acceptability Script"
-
-[node name="EditEncounterDesirabilityScriptButton" type="Button" parent="HSC/Column2/HBCEncounterSettingsButtons"]
-margin_left = 296.0
-margin_right = 517.0
-margin_bottom = 20.0
-text = "Edit Encounter Desirability Script"
+margin_bottom = 515.0
+title = "Encounter Desirability:"
 
 [node name="HBCOptionButtons" type="HBoxContainer" parent="HSC/Column2"]
-margin_top = 495.0
+margin_top = 519.0
 margin_right = 578.0
-margin_bottom = 525.0
+margin_bottom = 549.0
 size_flags_horizontal = 3
 
-[node name="AddOption" type="Button" parent="HSC/Column2/HBCOptionButtons"]
-margin_right = 36.0
-margin_bottom = 30.0
-hint_tooltip = "Add new option."
-icon = ExtResource( 11 )
-
-[node name="DeleteOption" type="Button" parent="HSC/Column2/HBCOptionButtons"]
-margin_left = 40.0
-margin_right = 76.0
-margin_bottom = 30.0
-hint_tooltip = "Delete selected options."
-icon = ExtResource( 10 )
-
-[node name="MoveOptionUpButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
-margin_left = 80.0
-margin_right = 116.0
-margin_bottom = 30.0
-hint_tooltip = "Move option up."
-icon = ExtResource( 2 )
-
-[node name="MoveOptionDownButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
-margin_left = 120.0
-margin_right = 156.0
-margin_bottom = 30.0
-hint_tooltip = "Move option down."
-icon = ExtResource( 3 )
-
 [node name="Label" type="Label" parent="HSC/Column2/HBCOptionButtons"]
-margin_left = 160.0
 margin_top = 8.0
-margin_right = 219.0
+margin_right = 59.0
 margin_bottom = 22.0
 text = "Options: "
 align = 1
 
+[node name="AddOption" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+margin_left = 63.0
+margin_right = 99.0
+margin_bottom = 30.0
+hint_tooltip = "Add new option."
+icon = ExtResource( 2 )
+
+[node name="DeleteOption" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+margin_left = 103.0
+margin_right = 139.0
+margin_bottom = 30.0
+hint_tooltip = "Delete selected options."
+icon = ExtResource( 11 )
+
+[node name="MoveOptionUpButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+margin_left = 143.0
+margin_right = 179.0
+margin_bottom = 30.0
+hint_tooltip = "Move option up."
+icon = ExtResource( 3 )
+
+[node name="MoveOptionDownButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+margin_left = 183.0
+margin_right = 219.0
+margin_bottom = 30.0
+hint_tooltip = "Move option down."
+icon = ExtResource( 10 )
+
+[node name="EditOptionVisibilityScriptButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+margin_left = 223.0
+margin_right = 259.0
+margin_bottom = 30.0
+hint_tooltip = "Edit this option's visibility script."
+icon = ExtResource( 12 )
+
+[node name="EditOptionPerformabilityScriptButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+margin_left = 263.0
+margin_right = 299.0
+margin_bottom = 30.0
+hint_tooltip = "Edit this option's performability script."
+icon = ExtResource( 13 )
+
 [node name="OptionsList" parent="HSC/Column2" instance=ExtResource( 8 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 529.0
+margin_top = 553.0
 margin_right = 578.0
-margin_bottom = 657.0
+margin_bottom = 681.0
 rect_min_size = Vector2( 0, 128 )
 
 [node name="OptTxtLabel" type="Label" parent="HSC/Column2"]
-margin_top = 661.0
+margin_top = 685.0
 margin_right = 578.0
-margin_bottom = 675.0
+margin_bottom = 699.0
 text = "Text of option: "
 
 [node name="OptionText" type="LineEdit" parent="HSC/Column2"]
-margin_top = 679.0
+margin_top = 703.0
 margin_right = 578.0
-margin_bottom = 703.0
+margin_bottom = 727.0
 rect_min_size = Vector2( 200, 0 )
 placeholder_text = "Option text"
 caret_blink = true
 caret_blink_speed = 0.5
-
-[node name="OptionSettingsButton" type="Button" parent="HSC/Column2"]
-visible = false
-margin_top = 659.0
-margin_right = 578.0
-margin_bottom = 679.0
-text = "Edit Option Settings"
-
-[node name="HBCOptionSettingsButtons" type="HBoxContainer" parent="HSC/Column2"]
-margin_top = 707.0
-margin_right = 578.0
-margin_bottom = 727.0
-alignment = 1
-
-[node name="EditOptionVisibilityScriptButton" type="Button" parent="HSC/Column2/HBCOptionSettingsButtons"]
-margin_left = 86.0
-margin_right = 269.0
-margin_bottom = 20.0
-text = "Edit Option Visibility Script"
-
-[node name="EditOptionPerformabilityScriptButton" type="Button" parent="HSC/Column2/HBCOptionSettingsButtons"]
-margin_left = 273.0
-margin_right = 491.0
-margin_bottom = 20.0
-text = "Edit Option Performability Script"
 
 [node name="Column3" type="VBoxContainer" parent="HSC"]
 margin_left = 590.0
@@ -255,40 +265,48 @@ size_flags_vertical = 3
 margin_right = 578.0
 margin_bottom = 30.0
 
+[node name="ReactionsHeadLabel" type="Label" parent="HSC/Column3/HBC"]
+margin_top = 8.0
+margin_right = 70.0
+margin_bottom = 22.0
+text = "Reactions: "
+
 [node name="AddReaction" type="Button" parent="HSC/Column3/HBC"]
-margin_right = 36.0
+margin_left = 74.0
+margin_right = 110.0
 margin_bottom = 30.0
 hint_tooltip = "Add new reaction."
-icon = ExtResource( 11 )
+icon = ExtResource( 2 )
 
 [node name="DeleteReaction" type="Button" parent="HSC/Column3/HBC"]
-margin_left = 40.0
-margin_right = 76.0
+margin_left = 114.0
+margin_right = 150.0
 margin_bottom = 30.0
 hint_tooltip = "Delete selected reactions."
-icon = ExtResource( 10 )
+icon = ExtResource( 11 )
 
 [node name="MoveReactionUpButton" type="Button" parent="HSC/Column3/HBC"]
-margin_left = 80.0
-margin_right = 116.0
+margin_left = 154.0
+margin_right = 190.0
 margin_bottom = 30.0
 rect_min_size = Vector2( 25, 25 )
 hint_tooltip = "Move reaction up."
-icon = ExtResource( 2 )
-
-[node name="MoveReactionDownButton" type="Button" parent="HSC/Column3/HBC"]
-margin_left = 120.0
-margin_right = 156.0
-margin_bottom = 30.0
-hint_tooltip = "Move reaction down."
 icon = ExtResource( 3 )
 
-[node name="ReactionsHeadLabel" type="Label" parent="HSC/Column3/HBC"]
-margin_left = 160.0
-margin_top = 8.0
+[node name="MoveReactionDownButton" type="Button" parent="HSC/Column3/HBC"]
+margin_left = 194.0
 margin_right = 230.0
-margin_bottom = 22.0
-text = "Reactions: "
+margin_bottom = 30.0
+hint_tooltip = "Move reaction down."
+icon = ExtResource( 10 )
+
+[node name="ReactionDesirabilityScriptEditButton" type="Button" parent="HSC/Column3/HBC"]
+margin_left = 234.0
+margin_right = 270.0
+margin_bottom = 30.0
+hint_tooltip = "Edit this reaction's desirability script."
+icon = ExtResource( 15 )
+icon_align = 1
 
 [node name="ReactionsList" parent="HSC/Column3" instance=ExtResource( 8 )]
 anchor_right = 0.0
@@ -307,78 +325,26 @@ text = "Reaction text:"
 [node name="ReactionText" type="TextEdit" parent="HSC/Column3"]
 margin_top = 184.0
 margin_right = 578.0
-margin_bottom = 363.0
+margin_bottom = 383.0
 rect_min_size = Vector2( 0, 100 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 syntax_highlighting = true
 wrap_enabled = true
 
-[node name="IncBlendWeightLabel" type="Label" parent="HSC/Column3"]
-margin_top = 367.0
-margin_right = 578.0
-margin_bottom = 381.0
-text = "Reaction desirability:"
-
-[node name="HBCLSL" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 385.0
-margin_right = 578.0
-margin_bottom = 445.0
-alignment = 1
-
-[node name="Label" type="Label" parent="HSC/Column3/HBCLSL"]
-margin_top = 14.0
-margin_right = 28.0
-margin_bottom = 45.0
-text = "Trait
-#1"
-align = 1
-
-[node name="BlendWeightSelector" parent="HSC/Column3/HBCLSL" instance=ExtResource( 7 )]
+[node name="SimplifiedReactionDesirabilityScriptingInterface" parent="HSC/Column3" instance=ExtResource( 17 )]
 anchor_right = 0.0
-margin_left = 32.0
-margin_right = 546.0
-margin_bottom = 60.0
-rect_min_size = Vector2( 0, 60 )
-
-[node name="Label2" type="Label" parent="HSC/Column3/HBCLSL"]
-margin_left = 550.0
-margin_top = 14.0
+anchor_bottom = 0.0
+margin_top = 387.0
 margin_right = 578.0
-margin_bottom = 45.0
-text = "Trait
-#2"
-align = 1
-
-[node name="HBCTT" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 449.0
-margin_right = 578.0
-margin_bottom = 481.0
-alignment = 1
-
-[node name="Trait1Selector" parent="HSC/Column3/HBCTT" instance=ExtResource( 5 )]
-anchor_right = 0.0
-margin_right = 287.0
-margin_bottom = 32.0
-rect_min_size = Vector2( 0, 32 )
-
-[node name="Trait2Selector" parent="HSC/Column3/HBCTT" instance=ExtResource( 5 )]
-anchor_right = 0.0
-margin_left = 291.0
-margin_right = 578.0
-margin_bottom = 32.0
-rect_min_size = Vector2( 0, 32 )
-
-[node name="ARDSEButton" type="Button" parent="HSC/Column3"]
-margin_top = 485.0
-margin_right = 578.0
-margin_bottom = 505.0
-text = "Edit Reaction Desirability Script"
+margin_bottom = 486.0
+rect_min_size = Vector2( 0, 40 )
+title = "Reaction Desirability:"
 
 [node name="HBCConsequence" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 509.0
+margin_top = 490.0
 margin_right = 578.0
-margin_bottom = 509.0
+margin_bottom = 490.0
 
 [node name="ChangeConsequence" type="Button" parent="HSC/Column3/HBCConsequence"]
 visible = false
@@ -388,51 +354,53 @@ hint_tooltip = "This sets the reaction's consequence to the first currently sele
 text = "Change Consequence:"
 
 [node name="HBCEffectButtons" type="HBoxContainer" parent="HSC/Column3"]
-margin_top = 513.0
+margin_top = 494.0
 margin_right = 578.0
-margin_bottom = 543.0
+margin_bottom = 524.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="AddEffect" type="Button" parent="HSC/Column3/HBCEffectButtons"]
-margin_right = 36.0
-margin_bottom = 30.0
-hint_tooltip = "Add new effect."
-icon = ExtResource( 11 )
-
-[node name="DeleteEffect" type="Button" parent="HSC/Column3/HBCEffectButtons"]
-margin_left = 40.0
-margin_right = 76.0
-margin_bottom = 30.0
-hint_tooltip = "Delete selected effects."
-icon = ExtResource( 10 )
-
-[node name="MoveEffectUpButton" type="Button" parent="HSC/Column3/HBCEffectButtons"]
-margin_left = 80.0
-margin_right = 92.0
-margin_bottom = 30.0
-hint_tooltip = "Move effect up."
-
-[node name="MoveEffectDownButton" type="Button" parent="HSC/Column3/HBCEffectButtons"]
-margin_left = 96.0
-margin_right = 108.0
-margin_bottom = 30.0
-hint_tooltip = "Move effect down."
-
 [node name="ReactionEffectsLabel" type="Label" parent="HSC/Column3/HBCEffectButtons"]
-margin_left = 112.0
 margin_top = 8.0
-margin_right = 218.0
+margin_right = 106.0
 margin_bottom = 22.0
 hint_tooltip = "When the selected reaction occurs, the following changes will be made to relationships between non-player characters and the player character."
 mouse_filter = 1
 text = "Reaction effects:"
 
+[node name="AddEffect" type="Button" parent="HSC/Column3/HBCEffectButtons"]
+margin_left = 110.0
+margin_right = 146.0
+margin_bottom = 30.0
+hint_tooltip = "Add new effect."
+icon = ExtResource( 2 )
+
+[node name="DeleteEffect" type="Button" parent="HSC/Column3/HBCEffectButtons"]
+margin_left = 150.0
+margin_right = 186.0
+margin_bottom = 30.0
+hint_tooltip = "Delete selected effects."
+icon = ExtResource( 11 )
+
+[node name="MoveEffectUpButton" type="Button" parent="HSC/Column3/HBCEffectButtons"]
+margin_left = 190.0
+margin_right = 226.0
+margin_bottom = 30.0
+hint_tooltip = "Move effect up."
+icon = ExtResource( 3 )
+
+[node name="MoveEffectDownButton" type="Button" parent="HSC/Column3/HBCEffectButtons"]
+margin_left = 230.0
+margin_right = 266.0
+margin_bottom = 30.0
+hint_tooltip = "Move effect down."
+icon = ExtResource( 10 )
+
 [node name="AfterReactionEffectsDisplay" parent="HSC/Column3" instance=ExtResource( 8 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 547.0
+margin_top = 528.0
 margin_right = 578.0
 margin_bottom = 727.0
 rect_min_size = Vector2( 0, 50 )
@@ -494,47 +462,48 @@ margin_bottom = -36.0
 
 [connection signal="pressed" from="Column1/HBC/AddButton" to="." method="_on_AddButton_pressed"]
 [connection signal="pressed" from="Column1/HBC/DeleteButton" to="." method="_on_DeleteButton_pressed"]
-[connection signal="item_selected" from="Column1/SortMenu" to="." method="_on_SortMenu_item_selected"]
+[connection signal="item_selected" from="Column1/SortBar/SortMenu" to="." method="_on_SortMenu_item_selected"]
+[connection signal="toggled" from="Column1/SortBar/ToggleReverseButton" to="." method="_on_ToggleReverseButton_toggled"]
 [connection signal="pressed" from="Column1/HBC2/Duplicate" to="." method="_on_Duplicate_pressed"]
 [connection signal="item_selected" from="Column1/VScroll/EncountersList" to="." method="_on_EncountersList_item_selected"]
 [connection signal="multi_selected" from="Column1/VScroll/EncountersList" to="." method="_on_EncountersList_multi_selected"]
 [connection signal="text_changed" from="HSC/Column2/HBCTitle/EncounterTitleEdit" to="." method="_on_EncounterTitleEdit_text_changed"]
+[connection signal="pressed" from="HSC/Column2/HBCTitle/EditEncounterAcceptabilityScriptButton" to="." method="_on_EditEncounterAcceptabilityScriptButton_pressed"]
+[connection signal="pressed" from="HSC/Column2/HBCTitle/EditEncounterDesirabilityScriptButton" to="." method="_on_EditEncounterDesirabilityScriptButton_pressed"]
 [connection signal="text_changed" from="HSC/Column2/EncounterMainTextEdit" to="." method="_on_EncounterMainTextEdit_text_changed"]
-[connection signal="pressed" from="HSC/Column2/HBCEncounterSettingsButtons/EditEncounterAcceptabilityScriptButton" to="." method="_on_EditEncounterAcceptabilityScriptButton_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCEncounterSettingsButtons/EditEncounterDesirabilityScriptButton" to="." method="_on_EditEncounterDesirabilityScriptButton_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCOptionButtons/AddOption" to="." method="_on_AddOption_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCOptionButtons/DeleteOption" to="." method="_on_DeleteOption_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCOptionButtons/MoveOptionUpButton" to="." method="_on_MoveOptionUpButton_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCOptionButtons/MoveOptionDownButton" to="." method="_on_MoveOptionDownButton_pressed"]
+[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/EditOptionVisibilityScriptButton" to="." method="_on_EditOptionVisibilityScriptButton_pressed"]
+[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/EditOptionPerformabilityScriptButton" to="." method="_on_EditOptionPerformabilityScriptButton_pressed"]
 [connection signal="add_at" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_add_at"]
 [connection signal="copy" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_copy"]
 [connection signal="cut" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_cut"]
 [connection signal="delete" from="HSC/Column2/OptionsList" to="." method="confirm_option_deletion"]
 [connection signal="duplicate" from="HSC/Column2/OptionsList" to="." method="duplicate_selected_options"]
+[connection signal="edit_performability_script" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_edit_performability_script"]
+[connection signal="edit_visibility_script" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_edit_visibility_script"]
 [connection signal="moved_item" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_moved_item"]
 [connection signal="multi_selected" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_multi_selected"]
 [connection signal="paste_at" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_paste_at"]
 [connection signal="text_changed" from="HSC/Column2/OptionText" to="." method="_on_OptionText_text_changed"]
-[connection signal="pressed" from="HSC/Column2/OptionSettingsButton" to="." method="_on_OptionSettingsButton_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCOptionSettingsButtons/EditOptionVisibilityScriptButton" to="." method="_on_EditOptionVisibilityScriptButton_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCOptionSettingsButtons/EditOptionPerformabilityScriptButton" to="." method="_on_EditOptionPerformabilityScriptButton_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBC/AddReaction" to="." method="_on_AddReaction_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBC/DeleteReaction" to="." method="_on_DeleteReaction_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBC/MoveReactionUpButton" to="." method="_on_MoveReactionUpButton_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBC/MoveReactionDownButton" to="." method="_on_MoveReactionDownButton_pressed"]
+[connection signal="pressed" from="HSC/Column3/HBC/ReactionDesirabilityScriptEditButton" to="." method="_on_ReactionDesirabilityScriptEditButton_pressed"]
 [connection signal="add_at" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_add_at"]
 [connection signal="copy" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_copy"]
 [connection signal="cut" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_cut"]
 [connection signal="delete" from="HSC/Column3/ReactionsList" to="." method="confirm_reaction_deletion"]
 [connection signal="duplicate" from="HSC/Column3/ReactionsList" to="." method="duplicate_selected_reactions"]
+[connection signal="edit_desirability_script" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_edit_desirability_script"]
 [connection signal="moved_item" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_moved_item"]
 [connection signal="multi_selected" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_multi_selected"]
 [connection signal="paste_at" from="HSC/Column3/ReactionsList" to="." method="_on_ReactionsList_paste_at"]
 [connection signal="text_changed" from="HSC/Column3/ReactionText" to="." method="_on_ReactionText_text_changed"]
-[connection signal="bnumber_value_changed" from="HSC/Column3/HBCLSL/BlendWeightSelector" to="." method="_on_BlendWeightSelector_bnumber_value_changed"]
-[connection signal="bnumber_property_selected" from="HSC/Column3/HBCTT/Trait1Selector" to="." method="_on_Trait1Selector_bnumber_property_selected"]
-[connection signal="bnumber_property_selected" from="HSC/Column3/HBCTT/Trait2Selector" to="." method="_on_Trait2Selector_bnumber_property_selected"]
-[connection signal="pressed" from="HSC/Column3/ARDSEButton" to="." method="_on_ARDSEButton_pressed"]
+[connection signal="sw_script_changed" from="HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface" to="." method="_on_SimplifiedReactionDesirabilityScriptingInterface_sw_script_changed"]
 [connection signal="pressed" from="HSC/Column3/HBCConsequence/ChangeConsequence" to="." method="_on_ChangeConsequence_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBCEffectButtons/AddEffect" to="." method="_on_AddEffect_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBCEffectButtons/DeleteEffect" to="." method="_on_DeleteEffect_pressed"]
@@ -545,6 +514,7 @@ margin_bottom = -36.0
 [connection signal="cut" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_cut"]
 [connection signal="delete" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="confirm_effect_deletion"]
 [connection signal="duplicate" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="duplicate_selected_effects"]
+[connection signal="edit_effect_script" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_edit_effect_script"]
 [connection signal="item_activated" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_item_activated"]
 [connection signal="moved_item" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_moved_item"]
 [connection signal="paste_at" from="HSC/Column3/AfterReactionEffectsDisplay" to="." method="_on_AfterReactionEffectsDisplay_paste_at"]

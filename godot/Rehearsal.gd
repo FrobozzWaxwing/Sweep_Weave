@@ -35,63 +35,28 @@ func has_occurred_on_branch(encounter, leaf):
 			break
 	return false
 
-func select_most_desirable_encounter(acceptableEncounters, leaf):
-	#Choose an encounter from the pool of acceptable encounters.
-	#Find one that has a desirability greater than or equal to that of all the others.
-	var flag = true
-	var greatest_desirability = -1
-	var result = null
-#	acceptableEncounters.sort_custom(EncounterSorter, "sort_a_z")
-	for encounter in acceptableEncounters:
-		if (flag):
-			#First iteration of loop.
-			greatest_desirability = encounter.desirability_script.get_value(leaf)
-			result = encounter
-			flag = false
-		else:
-			var encounter_desirability = encounter.desirability_script.get_value(leaf)
-			if (encounter_desirability > greatest_desirability):
-				greatest_desirability = encounter_desirability
-				result = encounter
-	return result
-
-func select_first_page():
-	#Used when starting or restarting rehearsal to select the first page of the playthrough.
-	var acceptable_encounters = []
-	var checked = {}
-	for spool in storyworld.spools:
-		if (spool.starts_active):
-			for encounter in spool.encounters:
-				if (!checked.has(encounter.id)):
-					checked[encounter.id] = true
-					if (encounter.acceptability_script.get_value(null)):
-						acceptable_encounters.append(encounter)
-	if (0 == acceptable_encounters.size()):
-		#Display "The End."
-		return null
-	else:
-		return select_most_desirable_encounter(acceptable_encounters, null)
-
-func select_next_page(reaction, leaf = null):
+func select_page(reaction = null, leaf = null):
 	if (null != reaction and null != reaction.consequence):
-		#If the reaction of the last encounter led to a consequence, that consequence occurs next.
+		#Check for a direct link from the most recent reaction, (if any have yet occurred,) to an encounter.
 		return reaction.consequence
 	else:
-		#Otherwise:
-		var acceptable_encounters = []
 		var checked = {}
+		var greatest_desirability = -1
+		var selection = null
 		for spool in storyworld.spools:
 			if (spool.is_active):
+				#Run through active spools and check connected encounters.
 				for encounter in spool.encounters:
 					if (!checked.has(encounter.id)):
 						checked[encounter.id] = true
+						#At the start of a playthrough, leaf should be null.
 						if (!has_occurred_on_branch(encounter, leaf) and encounter.acceptability_script.get_value(leaf)):
-							acceptable_encounters.append(encounter)
-		if (0 == acceptable_encounters.size()):
-			#Display "The End."
-			return null
-		else:
-			return select_most_desirable_encounter(acceptable_encounters, leaf)
+							#If the encounter has not yet occurred and is acceptable, then calculate its desirability.
+							var encounter_desirability = encounter.desirability_script.get_value(leaf)
+							if (encounter_desirability > greatest_desirability):
+								greatest_desirability = encounter_desirability
+								selection = encounter
+		return selection
 
 func find_open_options(leaf):
 	if (null == leaf.encounter):
@@ -144,7 +109,7 @@ func execute_option(root_page, option):
 	new_page.record_character_states(storyworld)
 	new_page.record_spool_statuses(storyworld)
 	new_page.turn = turn
-	var next_page = select_next_page(reaction, new_page)
+	var next_page = select_page(reaction, new_page)
 	new_page.encounter = next_page
 	new_page.record_occurrences() #Useful for tracking whether an event can occur. Intended for use with automatic rehearsal.
 	if (null == next_page):
@@ -177,7 +142,7 @@ func clear_history():
 func begin_playthrough():
 	clear_history()
 	starting_page = HB_Record.new()
-	starting_page.encounter = select_first_page()
+	starting_page.encounter = select_page()
 	starting_page.turn = turn
 	starting_page.record_character_states(storyworld)
 	starting_page.record_spool_statuses(storyworld)

@@ -539,7 +539,7 @@ func find_all_bnumberpointers():
 	return results
 
 func recursive_find_all_characters_involved(element, results):
-	if (element is BNumberPointer and null != element.character):
+	if (element is BNumberPointer and element.character is Actor):
 		results[element.character.id] = element.character
 	elif (element is SWOperator):
 		for operand in element.operands:
@@ -652,7 +652,7 @@ func recursive_load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
 		var operands = []
 		for operand in data_to_load["operands"]:
 			var parsed_operand = recursive_load_from_json_v0_0_21_through_v0_0_29(storyworld, operand)
-			if (null != parsed_operand and parsed_operand is SWScriptElement):
+			if (parsed_operand is SWScriptElement):
 				operands.append(parsed_operand)
 		#Create operator:
 		if ("Arithmetic Mean" == data_to_load["operator_type"]):
@@ -724,7 +724,7 @@ func recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load):
 		var operands = []
 		for operand in data_to_load["operands"]:
 			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, operand)
-			if (null != parsed_operand and parsed_operand is SWScriptElement):
+			if (parsed_operand is SWScriptElement):
 				operands.append(parsed_operand)
 		#Create operator:
 		if ("Absolute Value" == data_to_load["operator_type"]):

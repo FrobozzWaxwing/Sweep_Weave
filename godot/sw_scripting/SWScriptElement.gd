@@ -30,7 +30,7 @@ func get_value(leaf = null, report = false):
 	return output
 
 func report_value(output):
-	if (null != treeview_node and treeview_node is TreeItem):
+	if (treeview_node is TreeItem):
 		treeview_node.set_text(1, str(output))
 
 func compile(parent_storyworld, include_editor_only_variables = false):

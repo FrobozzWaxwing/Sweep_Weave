@@ -5,11 +5,11 @@
 [ext_resource path="res://custom_resources/NotoSerif-Italic.tres" type="DynamicFont" id=3]
 [ext_resource path="res://custom_resources/NotoSerif-Regular.tres" type="DynamicFont" id=4]
 [ext_resource path="res://custom_resources/NotoSerif-BoldItalic.tres" type="DynamicFont" id=5]
-[ext_resource path="res://custom_resources/grabber_orange.svg" type="Texture" id=6]
-[ext_resource path="res://custom_resources/grabber_green.svg" type="Texture" id=7]
-[ext_resource path="res://custom_resources/grabber_white.svg" type="Texture" id=8]
-[ext_resource path="res://custom_resources/x_green.svg" type="Texture" id=9]
-[ext_resource path="res://custom_resources/x.svg" type="Texture" id=10]
+[ext_resource path="res://icons/x_green.svg" type="Texture" id=6]
+[ext_resource path="res://icons/grabber_green.svg" type="Texture" id=7]
+[ext_resource path="res://icons/x.svg" type="Texture" id=8]
+[ext_resource path="res://icons/grabber_orange.svg" type="Texture" id=9]
+[ext_resource path="res://icons/grabber_white.svg" type="Texture" id=10]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.0392157, 0.117647, 0.196078, 1 )
@@ -225,7 +225,10 @@ border_width_bottom = 1
 border_color = Color( 0.0313726, 0.313726, 0.156863, 1 )
 
 [sub_resource type="StyleBoxFlat" id=13]
+content_margin_left = 3.0
+content_margin_right = 3.0
 content_margin_top = 5.0
+content_margin_bottom = 3.0
 bg_color = Color( 0, 0.0627451, 0.12549, 1 )
 border_width_left = 1
 border_width_top = 1
@@ -258,7 +261,6 @@ bg_color = Color( 0.0196078, 0.27451, 0.392157, 1 )
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
-border_width_bottom = 1
 border_color = Color( 0.0980392, 0.392157, 0.235294, 1 )
 corner_radius_top_left = 3
 corner_radius_top_right = 3
@@ -303,8 +305,8 @@ Button/styles/hover = SubResource( 2 )
 Button/styles/normal = SubResource( 3 )
 Button/styles/pressed = SubResource( 4 )
 HSeparator/styles/separator = SubResource( 18 )
-HSlider/icons/grabber = ExtResource( 8 )
-HSlider/icons/grabber_disabled = ExtResource( 6 )
+HSlider/icons/grabber = ExtResource( 10 )
+HSlider/icons/grabber_disabled = ExtResource( 9 )
 HSlider/icons/grabber_highlight = ExtResource( 7 )
 HSlider/styles/grabber_area = SubResource( 16 )
 HSlider/styles/grabber_area_highlight = SubResource( 15 )
@@ -341,6 +343,6 @@ Tree/styles/bg = SubResource( 5 )
 Tree/styles/title_button_normal = SubResource( 17 )
 VSeparator/styles/separator = SubResource( 19 )
 WindowDialog/colors/title_color = Color( 1, 1, 1, 1 )
-WindowDialog/icons/close = ExtResource( 10 )
-WindowDialog/icons/close_highlight = ExtResource( 9 )
+WindowDialog/icons/close = ExtResource( 8 )
+WindowDialog/icons/close_highlight = ExtResource( 6 )
 WindowDialog/styles/panel = SubResource( 22 )

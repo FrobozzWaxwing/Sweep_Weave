@@ -53,7 +53,7 @@ func evaluate_operand_at_index(operand_index, leaf, report):
 func clear():
 	treeview_node = null
 	for operand in operands:
-		if (null != operand and operand is SWScriptElement):
+		if (operand is SWScriptElement):
 			operand.clear()
 			operand.call_deferred("free")
 	operands.clear()

@@ -10,17 +10,21 @@ var items_to_delete = []
 #Clipboard system variables:
 var clipboard = null
 #Display options:
-#Track whether or not to display the quick reaction desirability script editor.
+#Track whether or not to display the quick desirability script editors.
+var display_encounter_qdse = false
 var display_reaction_qdse = true
+#Clarity is a light mode theme, while Lapis Lazuli is a dark mode theme.
+var light_mode = true
 
 signal refresh_graphview()
 signal refresh_encounter_list()
 
 func refresh_encounter_list():
 	$Column1/VScroll/EncountersList.clear()
-	var sort_method_id = $Column1/SortMenu.get_selected_id()
-	var sort_method = $Column1/SortMenu.get_popup().get_item_text(sort_method_id)
-	storyworld.sort_encounters(sort_method)
+	var sort_method_id = $Column1/SortBar/SortMenu.get_selected_id()
+	var sort_method = $Column1/SortBar/SortMenu.get_popup().get_item_text(sort_method_id)
+	var reversed = $Column1/SortBar/ToggleReverseButton.pressed
+	storyworld.sort_encounters(sort_method, reversed)
 	var index = 0
 	for entry in storyworld.encounters:
 		if ("" == entry.title):
@@ -32,16 +36,61 @@ func refresh_encounter_list():
 	if (0 == storyworld.encounters.size()):
 		Clear_Encounter_Editing_Screen()
 
+onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
+onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
+onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
+onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
+onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
+onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
+onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
+onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
+
+func refresh_sort_icon():
+	var sort_index = $Column1/SortBar/SortMenu.get_selected()
+	var sort_method = $Column1/SortBar/SortMenu.get_popup().get_item_text(sort_index)
+	var reversed = $Column1/SortBar/ToggleReverseButton.pressed
+	if (light_mode):
+		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
+			if (reversed):
+				$Column1/SortBar/ToggleReverseButton.icon = sort_rev_alpha_icon_dark
+			else:
+				$Column1/SortBar/ToggleReverseButton.icon = sort_alpha_icon_dark
+		else:
+			if (reversed):
+				$Column1/SortBar/ToggleReverseButton.icon = sort_rev_numeric_icon_dark
+			else:
+				$Column1/SortBar/ToggleReverseButton.icon = sort_numeric_icon_dark
+	else:
+		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
+			if (reversed):
+				$Column1/SortBar/ToggleReverseButton.icon = sort_rev_alpha_icon_light
+			else:
+				$Column1/SortBar/ToggleReverseButton.icon = sort_alpha_icon_light
+		else:
+			if (reversed):
+				$Column1/SortBar/ToggleReverseButton.icon = sort_rev_numeric_icon_light
+			else:
+				$Column1/SortBar/ToggleReverseButton.icon = sort_numeric_icon_light
+
 func _on_SortMenu_item_selected(index):
-	var sort_method = $Column1/SortMenu.get_popup().get_item_text(index)
-	if ("Word Count" == sort_method || "Rev. Word Count" == sort_method):
+	var sort_method = $Column1/SortBar/SortMenu.get_popup().get_item_text(index)
+	if ("Word Count" == sort_method):
 		for each in storyworld.encounters:
 			update_wordcount(each)
 	refresh_encounter_list()
+	refresh_sort_icon()
 	emit_signal("refresh_encounter_list")
+
+func _on_ToggleReverseButton_toggled(button_pressed):
+	refresh_encounter_list()
+	refresh_sort_icon()
 
 func set_display_encounter_list(display):
 	$Column1.visible = display
+
+func set_display_encounter_qdse(display):
+	display_encounter_qdse = display
+	refresh_quick_encounter_scripting_interface()
 
 func set_display_reaction_qdse(display):
 	display_reaction_qdse = display
@@ -98,89 +147,43 @@ func refresh_reaction_after_effects_list():
 	$EffectEditor/EffectEditorScreen.refresh()
 
 func refresh_bnumber_property_lists():
-	$HSC/Column3/HBCTT/Trait1Selector.reset()
-	$HSC/Column3/HBCTT/Trait2Selector.reset()
-	if (null != current_reaction):
-		if (current_reaction.desirability_script is ScriptManager):
-			if (current_reaction.desirability_script.contents is BlendOperator and 3 == current_reaction.desirability_script.contents.operands.size()):
-				if (current_reaction.desirability_script.contents.operands[0] is BNumberPointer):
-					$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents.operands[0])
-				if (current_reaction.desirability_script.contents.operands[1] is BNumberPointer):
-					$HSC/Column3/HBCTT/Trait2Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents.operands[1])
-			elif (current_reaction.desirability_script.contents is BNumberPointer):
-				$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents)
-	$HSC/Column3/HBCTT/Trait1Selector.allow_coefficient_editing = true
-	$HSC/Column3/HBCTT/Trait1Selector.refresh()
-	$HSC/Column3/HBCTT/Trait2Selector.allow_coefficient_editing = true
-	$HSC/Column3/HBCTT/Trait2Selector.refresh()
+	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.storyworld = storyworld
+	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.refresh_bnumber_property_lists()
+	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.storyworld = storyworld
+	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.refresh_bnumber_property_lists()
 	refresh_reaction_after_effects_list()
 
 func refresh_spool_lists():
 	refresh_reaction_after_effects_list()
 
-func refresh_quick_reaction_scripting_interface():
-	$HSC/Column3/HBCLSL/BlendWeightSelector.set_layout("", 1)
-	$HSC/Column3/HBCLSL/BlendWeightSelector.storyworld = storyworld
-	$HSC/Column3/HBCLSL/BlendWeightSelector.reset()
-	$HSC/Column3/HBCTT/Trait1Selector.allow_coefficient_editing = true
-	$HSC/Column3/HBCTT/Trait1Selector.storyworld = storyworld
-	$HSC/Column3/HBCTT/Trait1Selector.reset()
-	$HSC/Column3/HBCTT/Trait2Selector.allow_coefficient_editing = true
-	$HSC/Column3/HBCTT/Trait2Selector.storyworld = storyworld
-	$HSC/Column3/HBCTT/Trait2Selector.reset()
-	if (null == current_reaction):
-		$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
-		$HSC/Column3/HBCTT/Trait1Selector.refresh()
-		$HSC/Column3/HBCTT/Trait2Selector.refresh()
-	elif (display_reaction_qdse):
-		if (current_reaction.desirability_script is ScriptManager):
-			if (current_reaction.desirability_script.contents is BlendOperator
-				and 3 == current_reaction.desirability_script.contents.operands.size()
-				and current_reaction.desirability_script.contents.operands[0] is BNumberPointer
-				and current_reaction.desirability_script.contents.operands[1] is BNumberPointer
-				and current_reaction.desirability_script.contents.operands[2] is BNumberConstant):
-				$HSC/Column3/HBCLSL/BlendWeightSelector.operator.set_value(current_reaction.desirability_script.contents.operands[2].get_value())
-				$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
-				$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents.operands[0])
-				$HSC/Column3/HBCTT/Trait1Selector.refresh()
-				$HSC/Column3/HBCTT/Trait2Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents.operands[1])
-				$HSC/Column3/HBCTT/Trait2Selector.refresh()
-				$HSC/Column3/IncBlendWeightLabel.visible = true
-				$HSC/Column3/HBCTT/Trait2Selector.visible = true
-				$HSC/Column3/HBCLSL/Label.visible = true
-				$HSC/Column3/HBCLSL/Label2.visible = true
-				$HSC/Column3/HBCLSL.visible = true
-				$HSC/Column3/HBCTT.visible = true
-			elif (current_reaction.desirability_script.contents is BNumberPointer):
-				$HSC/Column3/HBCTT/Trait1Selector.selected_property.set_as_copy_of(current_reaction.desirability_script.contents)
-				$HSC/Column3/HBCTT/Trait1Selector.refresh()
-				$HSC/Column3/IncBlendWeightLabel.visible = true
-				$HSC/Column3/HBCTT/Trait2Selector.visible = false
-				$HSC/Column3/HBCLSL.visible = false
-				$HSC/Column3/HBCTT.visible = true
-			elif (current_reaction.desirability_script.contents is BNumberConstant):
-				$HSC/Column3/HBCLSL/BlendWeightSelector.operator.set_value(current_reaction.desirability_script.contents.get_value())
-				$HSC/Column3/HBCLSL/BlendWeightSelector.refresh()
-				$HSC/Column3/IncBlendWeightLabel.visible = true
-				$HSC/Column3/HBCLSL/Label.visible = false
-				$HSC/Column3/HBCLSL/Label2.visible = false
-				$HSC/Column3/HBCLSL.visible = true
-				$HSC/Column3/HBCTT.visible = false
-			else:
-				$HSC/Column3/IncBlendWeightLabel.visible = false
-				$HSC/Column3/HBCLSL.visible = false
-				$HSC/Column3/HBCTT.visible = false
+func refresh_quick_encounter_scripting_interface():
+	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.storyworld = storyworld
+	if (current_encounter is Encounter and current_encounter.desirability_script is ScriptManager):
+		$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.script_to_edit = current_encounter.desirability_script
+		$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.refresh()
+		if (display_encounter_qdse):
+			$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.set_visible(true)
 		else:
-			$HSC/Column3/IncBlendWeightLabel.visible = false
-			$HSC/Column3/HBCLSL.visible = false
-			$HSC/Column3/HBCTT.visible = false
+			$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.set_visible(false)
 	else:
-		$HSC/Column3/IncBlendWeightLabel.visible = false
-		$HSC/Column3/HBCLSL.visible = false
-		$HSC/Column3/HBCTT.visible = false
+		$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.script_to_edit = null
+		$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.set_visible(false)
+
+func refresh_quick_reaction_scripting_interface():
+	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.storyworld = storyworld
+	if (current_reaction is Reaction and current_reaction.desirability_script is ScriptManager):
+		$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.script_to_edit = current_reaction.desirability_script
+		$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.refresh()
+		if (display_reaction_qdse):
+			$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.set_visible(true)
+		else:
+			$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.set_visible(false)
+	else:
+		$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.script_to_edit = null
+		$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.set_visible(false)
 
 func refresh_reaction_consequence_display():
-	if (null != current_reaction and current_reaction is Reaction):
+	if (current_reaction is Reaction):
 		if (null == current_reaction.consequence):
 			$HSC/Column3/HBCConsequence/ChangeConsequence.visible = false
 			$HSC/Column3/HBCConsequence/ChangeConsequence.set_text("")
@@ -195,19 +198,19 @@ func refresh_reaction_consequence_display():
 func load_Reaction(reaction):
 	current_reaction = reaction
 	if (null == reaction):
-		$HSC/Column3/ReactionText.text = ""
+		$HSC/Column3/ReactionText.set_text("")
 		for each in $HSC/Column3.get_children():
 			if ($HSC/Column3/Null_Reaction_Label == each):
-				each.visible = true
+				each.set_visible(true)
 			else:
-				each.visible = false
+				each.set_visible(false)
 	else:
-		$HSC/Column3/ReactionText.text = reaction.get_text()
+		$HSC/Column3/ReactionText.set_text(reaction.get_text())
 		for each in $HSC/Column3.get_children():
 			if ($HSC/Column3/Null_Reaction_Label == each):
-				each.visible = false
+				each.set_visible(false)
 			else:
-				each.visible = true
+				each.set_visible(true)
 	refresh_reaction_consequence_display()
 	refresh_quick_reaction_scripting_interface()
 	refresh_reaction_after_effects_list()
@@ -232,6 +235,7 @@ func load_Encounter(encounter):
 	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = encounter.title
 	$HSC/Column2/EncounterMainTextEdit.text = encounter.get_text()
 	refresh_bnumber_property_lists()
+	refresh_quick_encounter_scripting_interface()
 	refresh_option_list()
 	if (0 < encounter.options.size()):
 		load_Option(encounter.options[0])
@@ -256,10 +260,10 @@ func Clear_Encounter_Editing_Screen():
 	$HSC/Column3/ReactionsList.items_to_list.clear()
 	$HSC/Column3/ReactionsList.refresh()
 	$HSC/Column3/ReactionText.text = ""
-	$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
 	$HSC/Column3/AfterReactionEffectsDisplay.items_to_list.clear()
 	$HSC/Column3/AfterReactionEffectsDisplay.refresh()
 	refresh_bnumber_property_lists()
+	refresh_quick_encounter_scripting_interface()
 	load_Option(null)
 
 func load_and_focus_first_encounter():
@@ -284,9 +288,6 @@ func _on_AddButton_pressed():
 	log_update(new_encounter)
 	refresh_encounter_list()
 	emit_signal("refresh_graphview")
-	current_encounter = null
-	current_option = null
-	current_reaction = null
 	load_Encounter(new_encounter)
 	$Column1/VScroll/EncountersList.select(storyworld.encounters.find(new_encounter))
 
@@ -599,40 +600,8 @@ func _on_ReactionText_text_changed():
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
-func _on_BlendWeightSelector_bnumber_value_changed(operator):
-	if (null != current_reaction and null != operator and operator is BNumberConstant):
-		if (current_reaction.desirability_script is ScriptManager):
-			if (current_reaction.desirability_script.contents is BlendOperator
-				and 3 == current_reaction.desirability_script.contents.operands.size()
-				and current_reaction.desirability_script.contents.operands[2] is BNumberConstant
-				and current_reaction.desirability_script.contents.operands[0] is BNumberPointer
-				and current_reaction.desirability_script.contents.operands[1] is BNumberPointer):
-				current_reaction.desirability_script.contents.operands[2].set_value(operator.get_value())
-				$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
-				log_update(current_encounter)
-			elif (current_reaction.desirability_script.contents is BNumberConstant):
-				current_reaction.desirability_script.contents.set_value(operator.get_value())
-				$HSC/Column3/IncBlendWeightLabel.text = "Reaction desirability:"
-				log_update(current_encounter)
-
-func _on_Trait1Selector_bnumber_property_selected(selected_property):
-	if (null != current_reaction and null != selected_property):
-		if (selected_property is BNumberPointer):
-			if (current_reaction.desirability_script is ScriptManager):
-				if (current_reaction.desirability_script.contents is BlendOperator and 3 == current_reaction.desirability_script.contents.operands.size()):
-					current_reaction.desirability_script.contents.operands[0].set_as_copy_of(selected_property)
-					log_update(current_encounter)
-				elif (current_reaction.desirability_script.contents is BNumberPointer):
-					current_reaction.desirability_script.contents.set_as_copy_of(selected_property)
-					log_update(current_encounter)
-
-func _on_Trait2Selector_bnumber_property_selected(selected_property):
-	if (null != current_reaction and null != selected_property):
-		if (selected_property is BNumberPointer):
-			if (current_reaction.desirability_script is ScriptManager):
-				if (current_reaction.desirability_script.contents is BlendOperator and 3 == current_reaction.desirability_script.contents.operands.size()):
-					current_reaction.desirability_script.contents.operands[1].set_as_copy_of(selected_property)
-					log_update(current_encounter)
+func _on_SimplifiedReactionDesirabilityScriptingInterface_sw_script_changed(sw_script):
+	log_update(current_encounter)
 
 #Reaction list context menu:
 
@@ -698,7 +667,7 @@ func _on_ReactionsList_paste_at(index):
 #Effect editing interface:
 
 func _on_ChangeConsequence_pressed():
-	if (null != current_reaction and current_reaction is Reaction):
+	if (current_reaction is Reaction):
 		$EffectEditor/EffectEditorScreen.storyworld = storyworld
 		$EffectEditor/EffectEditorScreen.reset()
 		$EffectEditor/EffectEditorScreen.load_effect(current_reaction.consequence)
@@ -782,6 +751,16 @@ func _on_AfterReactionEffectsDisplay_item_activated():
 			items_to_delete.append(effect)
 			$EffectEditor.popup_centered()
 
+func _on_AfterReactionEffectsDisplay_edit_effect_script(effect):
+	if (effect is SWEffect):
+		if (null != storyworld):
+			$EffectEditor/EffectEditorScreen.storyworld = storyworld
+			$EffectEditor/EffectEditorScreen.reset()
+			$EffectEditor/EffectEditorScreen.load_effect(effect)
+			items_to_delete.clear()
+			items_to_delete.append(effect)
+			$EffectEditor.popup_centered()
+
 #Effect list context menu:
 
 func add_effects_at_position(effects_to_add, position):
@@ -844,16 +823,16 @@ func _on_AfterReactionEffectsDisplay_paste_at(index):
 
 func update_wordcount(encounter):
 	#In order to try to avoid sluggishness, we only do this if sort_by is set to word count or rev. word count.
-	var sort_method_id = $Column1/SortMenu.get_selected_id()
-	var sort_method = $Column1/SortMenu.get_popup().get_item_text(sort_method_id)
-	if ("Word Count" == sort_method || "Rev. Word Count" == sort_method):
+	var sort_method_id = $Column1/SortBar/SortMenu.get_selected_id()
+	var sort_method = $Column1/SortBar/SortMenu.get_popup().get_item_text(sort_method_id)
+	if ("Word Count" == sort_method):
 		var word_count = encounter.wordcount()
 		log_update(encounter)
 		refresh_encounter_list()
 
 func _ready():
-	if (0 < $Column1/SortMenu.get_item_count()):
-		$Column1/SortMenu.select(0)
+	if (0 < $Column1/SortBar/SortMenu.get_item_count()):
+		$Column1/SortBar/SortMenu.select(0)
 	$HSC/Column2/OptionsList.context_menu_enabled = true
 	$HSC/Column2/OptionsList.item_type = "option"
 	$HSC/Column3/ReactionsList.context_menu_enabled = true
@@ -864,8 +843,8 @@ func _ready():
 #Script Editing:
 
 func _on_EditEncounterAcceptabilityScriptButton_pressed():
-	if (null != current_encounter and current_encounter is Encounter):
-		$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = current_encounter.title + " Acceptability Script"
+	if (current_encounter is Encounter):
+		$ScriptEditWindow.window_title = current_encounter.title + " Acceptability Script"
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_encounter.acceptability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
@@ -873,48 +852,84 @@ func _on_EditEncounterAcceptabilityScriptButton_pressed():
 		$ScriptEditWindow.popup_centered()
 
 func _on_EditEncounterDesirabilityScriptButton_pressed():
-	if (null != current_encounter and current_encounter is Encounter):
-		$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = current_encounter.title + " Desirability Script"
+	if (current_encounter is Encounter):
+		$ScriptEditWindow.window_title = current_encounter.title + " Desirability Script"
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_encounter.desirability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
 		$ScriptEditWindow.popup_centered()
 
-func _on_ARDSEButton_pressed():
-	var title = current_reaction.get_truncated_text(40)
-	title += "Reaction Desirability Script"
-	$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
-	$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
-	$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_reaction.desirability_script
-	$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
-	$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
-	$ScriptEditWindow.popup_centered()
+func _on_ReactionDesirabilityScriptEditButton_pressed():
+	if (current_reaction is Reaction):
+		var title = '"' + current_reaction.get_listable_text(40) + '"'
+		title += " Desirability Script"
+		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
+		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_reaction.desirability_script
+		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
+		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
+		$ScriptEditWindow.popup_centered()
+
+func _on_ReactionsList_edit_desirability_script(reaction):
+	if (reaction is Reaction):
+		var title = '"' + reaction.get_listable_text(40) + '"'
+		title += " Desirability Script"
+		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
+		$ScriptEditWindow/ScriptEditScreen.script_to_edit = reaction.desirability_script
+		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
+		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
+		$ScriptEditWindow.popup_centered()
 
 func _on_ScriptEditScreen_sw_script_changed(sw_script):
-	if (current_reaction.desirability_script == sw_script):
-		load_Reaction(current_reaction)
+	if (current_encounter.desirability_script == sw_script):
+		refresh_quick_encounter_scripting_interface()
+	elif (current_reaction.desirability_script == sw_script):
+		refresh_quick_reaction_scripting_interface()
 	emit_signal("refresh_graphview")
 	log_update(current_encounter)
 
 func _on_EditOptionVisibilityScriptButton_pressed():
-	if (null != current_option and current_option is Option):
-		var title = current_option.get_truncated_text(40)
-		title += "Option Visibility Script"
-		$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
+	if (current_option is Option):
+		var title = '"' + current_option.get_listable_text(40) + '"'
+		title += " Visibility Script"
+		$ScriptEditWindow.window_title = title
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_option.visibility_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
 		$ScriptEditWindow.popup_centered()
 
+func _on_OptionsList_edit_visibility_script(option):
+	if (option is Option):
+		var title = '"' + option.get_listable_text(40) + '"'
+		title += " Visibility Script"
+		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
+		$ScriptEditWindow/ScriptEditScreen.script_to_edit = option.visibility_script
+		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
+		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
+		$ScriptEditWindow.popup_centered()
+
 func _on_EditOptionPerformabilityScriptButton_pressed():
-	if (null != current_option and current_option is Option):
-		var title = current_option.get_truncated_text(40)
-		title += "Option Performability Script"
-		$ScriptEditWindow/ScriptEditScreen/Background/VBC/Label.text = title
+	if (current_option is Option):
+		var title = '"' + current_option.get_listable_text(40) + '"'
+		title += " Performability Script"
+		$ScriptEditWindow.window_title = title
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_option.performability_script
+		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
+		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
+		$ScriptEditWindow.popup_centered()
+
+func _on_OptionsList_edit_performability_script(option):
+	if (option is Option):
+		var title = '"' + option.get_listable_text(40) + '"'
+		title += " Performability Script"
+		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
+		$ScriptEditWindow/ScriptEditScreen.script_to_edit = option.performability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
 		$ScriptEditWindow/ScriptEditScreen.refresh_script_display()
 		$ScriptEditWindow.popup_centered()
@@ -922,47 +937,73 @@ func _on_EditOptionPerformabilityScriptButton_pressed():
 
 #GUI Themes:
 
-onready var add_icon_light = preload("res://custom_resources/add_icon.svg")
-onready var add_icon_dark = preload("res://custom_resources/add_icon_dark.svg")
-onready var delete_icon_light = preload("res://custom_resources/delete_icon.svg")
-onready var delete_icon_dark = preload("res://custom_resources/delete_icon_dark.svg")
-onready var move_up_icon_light = preload("res://custom_resources/arrow-up-circle.svg")
-onready var move_up_icon_dark = preload("res://custom_resources/arrow-up-circle_dark.svg")
-onready var move_down_icon_light = preload("res://custom_resources/arrow-down-circle.svg")
-onready var move_down_icon_dark = preload("res://custom_resources/arrow-down-circle_dark.svg")
+onready var add_icon_light = preload("res://icons/add.svg")
+onready var add_icon_dark = preload("res://icons/add_dark.svg")
+onready var delete_icon_light = preload("res://icons/delete.svg")
+onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
+onready var move_up_icon_light = preload("res://icons/arrow-up.svg")
+onready var move_up_icon_dark = preload("res://icons/arrow-up_dark.svg")
+onready var move_down_icon_light = preload("res://icons/arrow-down.svg")
+onready var move_down_icon_dark = preload("res://icons/arrow-down_dark.svg")
+onready var acceptability_icon = preload("res://icons/check.svg")
+onready var acceptability_icon_dark = preload("res://icons/check_dark.svg")
+onready var desirability_icon = preload("res://icons/bullseye.svg")
+onready var desirability_icon_dark = preload("res://icons/bullseye_dark.svg")
+onready var visibility_icon = preload("res://icons/eye.svg")
+onready var visibility_icon_dark = preload("res://icons/eye_dark.svg")
+onready var performability_icon = preload("res://icons/hand.svg")
+onready var performability_icon_dark = preload("res://icons/hand_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	match theme_name:
 		"Clarity":
 			$Column1/HBC/AddButton.icon = add_icon_dark
 			$Column1/HBC/DeleteButton.icon = delete_icon_dark
+			$HSC/Column2/HBCTitle/EditEncounterAcceptabilityScriptButton.icon = acceptability_icon_dark
+			$HSC/Column2/HBCTitle/EditEncounterDesirabilityScriptButton.icon = desirability_icon_dark
 			$HSC/Column2/HBCOptionButtons/AddOption.icon = add_icon_dark
 			$HSC/Column2/HBCOptionButtons/DeleteOption.icon = delete_icon_dark
 			$HSC/Column2/HBCOptionButtons/MoveOptionUpButton.icon = move_up_icon_dark
 			$HSC/Column2/HBCOptionButtons/MoveOptionDownButton.icon = move_down_icon_dark
+			$HSC/Column2/HBCOptionButtons/EditOptionVisibilityScriptButton.icon = visibility_icon_dark
+			$HSC/Column2/HBCOptionButtons/EditOptionPerformabilityScriptButton.icon = performability_icon_dark
 			$HSC/Column3/HBC/AddReaction.icon = add_icon_dark
 			$HSC/Column3/HBC/DeleteReaction.icon = delete_icon_dark
 			$HSC/Column3/HBC/MoveReactionUpButton.icon = move_up_icon_dark
 			$HSC/Column3/HBC/MoveReactionDownButton.icon = move_down_icon_dark
+			$HSC/Column3/HBC/ReactionDesirabilityScriptEditButton.icon = desirability_icon_dark
 			$HSC/Column3/HBCEffectButtons/AddEffect.icon = add_icon_dark
 			$HSC/Column3/HBCEffectButtons/DeleteEffect.icon = delete_icon_dark
 			$HSC/Column3/HBCEffectButtons/MoveEffectUpButton.icon = move_up_icon_dark
 			$HSC/Column3/HBCEffectButtons/MoveEffectDownButton.icon = move_down_icon_dark
+			light_mode = true
 		"Lapis Lazuli":
 			$Column1/HBC/AddButton.icon = add_icon_light
 			$Column1/HBC/DeleteButton.icon = delete_icon_light
+			$HSC/Column2/HBCTitle/EditEncounterAcceptabilityScriptButton.icon = acceptability_icon
+			$HSC/Column2/HBCTitle/EditEncounterDesirabilityScriptButton.icon = desirability_icon
 			$HSC/Column2/HBCOptionButtons/AddOption.icon = add_icon_light
 			$HSC/Column2/HBCOptionButtons/DeleteOption.icon = delete_icon_light
 			$HSC/Column2/HBCOptionButtons/MoveOptionUpButton.icon = move_up_icon_light
 			$HSC/Column2/HBCOptionButtons/MoveOptionDownButton.icon = move_down_icon_light
+			$HSC/Column2/HBCOptionButtons/EditOptionVisibilityScriptButton.icon = visibility_icon
+			$HSC/Column2/HBCOptionButtons/EditOptionPerformabilityScriptButton.icon = performability_icon
 			$HSC/Column3/HBC/AddReaction.icon = add_icon_light
 			$HSC/Column3/HBC/DeleteReaction.icon = delete_icon_light
 			$HSC/Column3/HBC/MoveReactionUpButton.icon = move_up_icon_light
 			$HSC/Column3/HBC/MoveReactionDownButton.icon = move_down_icon_light
+			$HSC/Column3/HBC/ReactionDesirabilityScriptEditButton.icon = desirability_icon
 			$HSC/Column3/HBCEffectButtons/AddEffect.icon = add_icon_light
 			$HSC/Column3/HBCEffectButtons/DeleteEffect.icon = delete_icon_light
 			$HSC/Column3/HBCEffectButtons/MoveEffectUpButton.icon = move_up_icon_light
 			$HSC/Column3/HBCEffectButtons/MoveEffectDownButton.icon = move_down_icon_light
-	$HSC/Column3/HBCLSL/BlendWeightSelector.set_gui_theme(theme_name, background_color)
+			light_mode = false
 	$EffectEditor/EffectEditorScreen.set_gui_theme(theme_name, background_color)
 	$ScriptEditWindow/ScriptEditScreen.set_gui_theme(theme_name, background_color)
+	refresh_sort_icon()
+
+
+
+
+
+

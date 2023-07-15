@@ -314,44 +314,57 @@ func set_as_copy_of(original):
 	for spool in spools:
 		spool.remap(self)
 
-func sort_encounters(sort_method):
-	match sort_method:
-		"Alphabetical":
-			encounters.sort_custom(EncounterSorter, "sort_a_z")
-		"Rev. Alphabetical":
-			encounters.sort_custom(EncounterSorter, "sort_z_a")
-		"Creation Time":
-			encounters.sort_custom(EncounterSorter, "sort_created")
-		"Rev. Creation Time":
-			encounters.sort_custom(EncounterSorter, "sort_r_created")
-		"Last Modified":
-			encounters.sort_custom(EncounterSorter, "sort_modified")
-		"Rev. Last Modified":
-			encounters.sort_custom(EncounterSorter, "sort_r_modified")
-		"Earliest Turn":
-			encounters.sort_custom(EncounterSorter, "sort_e_turn")
-		"Rev. Earliest Turn":
-			encounters.sort_custom(EncounterSorter, "sort_r_e_turn")
-		"Latest Turn":
-			encounters.sort_custom(EncounterSorter, "sort_l_turn")
-		"Rev. Latest Turn":
-			encounters.sort_custom(EncounterSorter, "sort_r_l_turn")
-		"Fewest Options":
-			encounters.sort_custom(EncounterSorter, "sort_options")
-		"Most Options":
-			encounters.sort_custom(EncounterSorter, "sort_r_options")
-		"Fewest Reactions":
-			encounters.sort_custom(EncounterSorter, "sort_reactions")
-		"Most Reactions":
-			encounters.sort_custom(EncounterSorter, "sort_r_reactions")
-		"Fewest Effects":
-			encounters.sort_custom(EncounterSorter, "sort_effects")
-		"Most Effects":
-			encounters.sort_custom(EncounterSorter, "sort_r_effects")
-		"Word Count":
-			encounters.sort_custom(EncounterSorter, "sort_word_count")
-		"Rev. Word Count":
-			encounters.sort_custom(EncounterSorter, "sort_r_word_count")
+func sort_encounters(sort_method, reverse):
+	if (reverse):
+		match sort_method:
+			"Alphabetical":
+				encounters.sort_custom(EncounterSorter, "sort_z_a")
+			"Creation Time":
+				encounters.sort_custom(EncounterSorter, "sort_r_created")
+			"Modified Time":
+				encounters.sort_custom(EncounterSorter, "sort_r_modified")
+			"Option Count":
+				encounters.sort_custom(EncounterSorter, "sort_r_options")
+			"Reaction Count":
+				encounters.sort_custom(EncounterSorter, "sort_r_reactions")
+			"Effect Count":
+				encounters.sort_custom(EncounterSorter, "sort_r_effects")
+			"Characters":
+				for encounter in encounters:
+					encounter.connected_characters = encounter.connected_characters().values()
+					encounter.connected_characters.sort_custom(CharacterSorter, "sort_a_z")
+				encounters.sort_custom(EncounterSorter, "sort_r_characters")
+			"Spools":
+				for encounter in encounters:
+					encounter.connected_spools.sort_custom(SpoolSorter, "sort_a_z")
+				encounters.sort_custom(EncounterSorter, "sort_r_spools")
+			"Word Count":
+				encounters.sort_custom(EncounterSorter, "sort_r_word_count")
+	else:
+		match sort_method:
+			"Alphabetical":
+				encounters.sort_custom(EncounterSorter, "sort_a_z")
+			"Creation Time":
+				encounters.sort_custom(EncounterSorter, "sort_created")
+			"Modified Time":
+				encounters.sort_custom(EncounterSorter, "sort_modified")
+			"Option Count":
+				encounters.sort_custom(EncounterSorter, "sort_options")
+			"Reaction Count":
+				encounters.sort_custom(EncounterSorter, "sort_reactions")
+			"Effect Count":
+				encounters.sort_custom(EncounterSorter, "sort_effects")
+			"Characters":
+				for encounter in encounters:
+					encounter.connected_characters = encounter.connected_characters().values()
+					encounter.connected_characters.sort_custom(CharacterSorter, "sort_a_z")
+				encounters.sort_custom(EncounterSorter, "sort_characters")
+			"Spools":
+				for encounter in encounters:
+					encounter.connected_spools.sort_custom(SpoolSorter, "sort_a_z")
+				encounters.sort_custom(EncounterSorter, "sort_spools")
+			"Word Count":
+				encounters.sort_custom(EncounterSorter, "sort_word_count")
 
 func create_default_bnumber_pointer():
 	if (0 == authored_properties.size() or 0 == characters.size()):

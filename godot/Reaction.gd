@@ -57,7 +57,7 @@ func get_listable_text(maximum_output_length = 50):
 
 func calculate_desirability(leaf, report):
 	var result = null
-	if (null != desirability_script and desirability_script is ScriptManager):
+	if (desirability_script is ScriptManager):
 		#If everything is working as intended, desirability_script will always contain either a ScriptManager object or a null value.
 		result = desirability_script.get_value(leaf, report)
 	return result
@@ -73,7 +73,7 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 	result["id"] = id
 	result["text_script"] = text_script.compile(parent_storyworld, include_editor_only_variables)
 	result["desirability_script"] = null
-	if (null != desirability_script and desirability_script is ScriptManager):
+	if (desirability_script is ScriptManager):
 		result["desirability_script"] = desirability_script.compile(parent_storyworld, include_editor_only_variables)
 	if (null == consequence):
 		result["consequence_id"] = "wild"

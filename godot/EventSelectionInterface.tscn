@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://EventSelectionInterface.gd" type="Script" id=1]
 [ext_resource path="res://SortMenu.gd" type="Script" id=2]
+[ext_resource path="res://icons/sort-alpha-down.svg" type="Texture" id=3]
 
 [node name="Control" type="Control"]
 anchor_right = 1.0
@@ -49,22 +50,29 @@ placeholder_text = "Enter search term"
 [node name="SortBar" type="HBoxContainer" parent="Background/VBC"]
 margin_top = 28.0
 margin_right = 1366.0
-margin_bottom = 48.0
+margin_bottom = 58.0
 
 [node name="Label" type="Label" parent="Background/VBC/SortBar"]
-margin_top = 3.0
+margin_top = 8.0
 margin_right = 52.0
-margin_bottom = 17.0
+margin_bottom = 22.0
 text = " Sort by:"
 
 [node name="SortMenu" type="OptionButton" parent="Background/VBC/SortBar"]
 margin_left = 56.0
 margin_right = 85.0
-margin_bottom = 20.0
+margin_bottom = 30.0
 script = ExtResource( 2 )
 
+[node name="ToggleReverseButton" type="Button" parent="Background/VBC/SortBar"]
+margin_left = 89.0
+margin_right = 125.0
+margin_bottom = 30.0
+toggle_mode = true
+icon = ExtResource( 3 )
+
 [node name="EventTree" type="Tree" parent="Background/VBC"]
-margin_top = 52.0
+margin_top = 62.0
 margin_right = 1366.0
 margin_bottom = 706.0
 rect_min_size = Vector2( 256, 128 )
@@ -80,6 +88,7 @@ text = "Negated"
 
 [connection signal="text_entered" from="Background/VBC/SearchBar/LineEdit" to="." method="_on_LineEdit_text_entered"]
 [connection signal="item_selected" from="Background/VBC/SortBar/SortMenu" to="." method="_on_SortMenu_item_selected"]
+[connection signal="toggled" from="Background/VBC/SortBar/ToggleReverseButton" to="." method="_on_ToggleReverseButton_toggled"]
 [connection signal="item_activated" from="Background/VBC/EventTree" to="." method="_on_EventTree_item_activated"]
 [connection signal="item_selected" from="Background/VBC/EventTree" to="." method="_on_EventTree_item_selected"]
 [connection signal="pressed" from="Background/VBC/NegatedCheckBox" to="." method="_on_NegatedCheckBox_pressed"]

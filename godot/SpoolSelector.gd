@@ -18,7 +18,7 @@ func fill_spool_selection_list(selector):
 	for spool in storyworld.spools:
 		selector.add_item(spool.spool_name)
 		selector.set_item_metadata(option_index, spool)
-		if (null != selected_pointer and (selected_pointer is SpoolPointer or selected_pointer is SpoolStatusPointer)):
+		if (selected_pointer is SpoolPointer or selected_pointer is SpoolStatusPointer):
 			if (selected_pointer.spool == spool):
 				selected_index = option_index
 		option_index += 1

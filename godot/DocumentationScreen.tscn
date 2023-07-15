@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://DocumentationScreen.gd" type="Script" id=6]
-[ext_resource path="res://custom_resources/arrow-left.svg" type="Texture" id=7]
-[ext_resource path="res://custom_resources/arrow-right.svg" type="Texture" id=8]
+[ext_resource path="res://icons/arrow-left.svg" type="Texture" id=7]
+[ext_resource path="res://icons/arrow-right.svg" type="Texture" id=8]
 [ext_resource path="res://DocPageDisplay.tscn" type="PackedScene" id=9]
 
 [node name="Control" type="Control"]

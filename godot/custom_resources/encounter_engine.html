@@ -894,34 +894,6 @@ function desirability(encounter){
     }
 }
 
-function loadMostDesirableEncounter(acceptableEncounters){
-    //Choose an encounter from the pool of acceptable encounters.
-    //Find one that has a desirability greater than or equal to that of all the others.
-    var flag = true;
-    var highest_desirability = -1;
-    var encounter;
-    //To help keep our results consistent and relatively predictable,
-    //sort our array of acceptable encounters alphabetically, by encounter title.
-    //acceptableEncounters.sort(comparePageTitleAlphabetically);
-    for (encounter of acceptableEncounters){
-        var doe = desirability(encounter);
-        console.log("Desirability of encounter " + encounter.title + " equals " + doe + ".");
-        if (flag){//First iteration of loop.
-            highest_desirability = doe;
-            next_page = encounter;
-            flag = false;
-        } else {
-            if (doe > highest_desirability){
-                highest_desirability = doe;
-                next_page = encounter;
-            }
-        }
-    }
-    console.log("Encounter: " + next_page.title + " selected.");
-    //Add the chosen encounter to the historybook, then display it.
-    loadEncounter(next_page.id);
-}
-
 //Select which encounter comes next:
 
 function selectEncounter(){
@@ -936,8 +908,8 @@ function selectEncounter(){
     } else {
         //Otherwise:
         var each_id;
-        var acceptable_encounters = [];//These encounters are acceptable.
         var checked_encounters = {};//These encounters have already been checked.
+		var highest_desirability = -1;
         for (spool of spools){
             if (spool.currently_active){
                 console.log("Checking spool: " + spool.name + ".");
@@ -946,18 +918,24 @@ function selectEncounter(){
                         checked_encounters[each_id] = true;
                         var encounter = encounters[each_id];
                         if (!quick_historybook.hasOwnProperty(encounter.id) && evaluateSWScript(encounter.acceptability_script)){
-                            acceptable_encounters.push(encounter);
-                            console.log("Encounter: " + encounter.title + " deemed acceptable.");
+							var encounter_desirability = desirability(encounter);
+                            console.log("Encounter: " + encounter.title + " deemed acceptable. Desirability equals " + encounter_desirability + ".");
+							if (encounter_desirability > highest_desirability){
+								highest_desirability = encounter_desirability;
+								next_page = encounter;
+							}
                         }
                     }
                 }
             }
         }
         //If no encounters are deemed acceptable, display a message saying "THE END" instead of an encounter.
-        if (0 == acceptable_encounters.length){
+        if ("wild" == next_page){
             loadTheEnd(true);
         } else {
-            loadMostDesirableEncounter(acceptable_encounters);
+            console.log("Encounter: " + next_page.title + " selected.");
+			//Add the chosen encounter to the historybook, then display it.
+			loadEncounter(next_page.id);
         }
     }
 }

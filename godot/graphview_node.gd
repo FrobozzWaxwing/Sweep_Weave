@@ -30,8 +30,8 @@ func _on_Button_pressed():
 
 #GUI Themes:
 
-onready var edit_icon_light = preload("res://custom_resources/edit-3.svg")
-onready var edit_icon_dark = preload("res://custom_resources/edit-3_dark.svg")
+onready var edit_icon_light = preload("res://icons/edit.svg")
+onready var edit_icon_dark = preload("res://icons/edit_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	match theme_name:

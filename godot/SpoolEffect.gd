@@ -14,12 +14,11 @@ func _init(in_assignee = null, in_assignment_script = null):
 		assignment_script = in_assignment_script
 
 func enact(leaf = null):
-	if (null != assignee and assignee is SpoolPointer and null != assignment_script and assignment_script is ScriptManager):
+	if (assignee is SpoolPointer and assignment_script is ScriptManager):
 		var activate_spool = null
 		activate_spool = assignment_script.get_value(leaf, false)
 		if (null != activate_spool):
 			if (true == activate_spool):
-				print("test")
 				assignee.activate()
 			else:
 				assignee.deactivate()
@@ -88,14 +87,14 @@ func load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load):
 			assignee = script_element
 		var script = ScriptManager.new()
 		var output_datatype = sw_script_data_types.VARIANT
-		if (null != assignee and assignee is SWPointer):
+		if (assignee is SWPointer):
 			if (assignee.output_type == sw_script_data_types.BNUMBER):
 				output_datatype = sw_script_data_types.BNUMBER
 			elif (assignee.output_type == sw_script_data_types.BOOLEAN):
 				output_datatype = sw_script_data_types.BOOLEAN
 		script.load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load["to"], output_datatype)
 		assignment_script = script
-	if (null != assignee and assignee is SpoolPointer and null != assignment_script and assignment_script is ScriptManager):
+	if (assignee is SpoolPointer and assignment_script is ScriptManager):
 		return true
 	else:
 		return false

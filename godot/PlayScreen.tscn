@@ -2,7 +2,7 @@
 
 [ext_resource path="res://PlayScreen.gd" type="Script" id=1]
 [ext_resource path="res://ScriptDisplay.tscn" type="PackedScene" id=2]
-[ext_resource path="res://custom_resources/edit-3.svg" type="Texture" id=3]
+[ext_resource path="res://icons/edit.svg" type="Texture" id=3]
 
 [node name="Background" type="ColorRect"]
 anchor_right = 1.0

@@ -111,7 +111,7 @@ func change_keyring(keyring_index, option_index, option_metadata):
 
 func reset():
 	#This function resets the selected property to default, or creates a new property if necessary.
-	if (null != storyworld and storyworld is Storyworld):
+	if (storyworld is Storyworld):
 		if (0 < storyworld.characters.size() and 0 < storyworld.authored_property_directory.size()):
 			if (null != selected_property and is_instance_valid(selected_property)):
 				var temporary = storyworld.create_default_bnumber_pointer()

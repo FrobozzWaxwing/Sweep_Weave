@@ -21,6 +21,7 @@ var graph_position = Vector2(40, 40)
 var word_count = 0
 var graphview_node = null
 var occurrences = 0 #Number of times this encounter occurs during a rehearsal.
+var connected_characters = [] #Used for sorting encounters by connected characters.
 
 func _init(in_storyworld, in_id, in_title, in_text, in_creation_index, in_creation_time = OS.get_unix_time(), in_modified_time = OS.get_unix_time(), in_graph_position = Vector2(40, 40)):
 	storyworld = in_storyworld
@@ -63,7 +64,7 @@ func get_listable_text(maximum_output_length = 50):
 
 func calculate_desirability(leaf, report):
 	var result = null
-	if (null != desirability_script and desirability_script is ScriptManager):
+	if (desirability_script is ScriptManager):
 		#If everything is working as intended, desirability_script will always contain either a ScriptManager object or a null value.
 		result = desirability_script.get_value(leaf, report)
 	return result
@@ -171,32 +172,32 @@ func has_search_text(searchterm):
 
 func connected_characters():
 	var characters = {}
-	if (null != acceptability_script and acceptability_script is ScriptManager):
+	if (acceptability_script is ScriptManager):
 		characters.merge(acceptability_script.find_all_characters_involved())
-	if (null != desirability_script and desirability_script is ScriptManager):
+	if (desirability_script is ScriptManager):
 		characters.merge(desirability_script.find_all_characters_involved())
-	if (null != text_script and text_script is ScriptManager):
+	if (text_script is ScriptManager):
 		characters.merge(text_script.find_all_characters_involved())
 	for option in options:
-		if (null != option.visibility_script and option.visibility_script is ScriptManager):
+		if (option.visibility_script is ScriptManager):
 			characters.merge(option.visibility_script.find_all_characters_involved())
-		if (null != option.performability_script and option.performability_script is ScriptManager):
+		if (option.performability_script is ScriptManager):
 			characters.merge(option.performability_script.find_all_characters_involved())
-		if (null != option.text_script and option.text_script is ScriptManager):
+		if (option.text_script is ScriptManager):
 			characters.merge(option.text_script.find_all_characters_involved())
 		for reaction in option.reactions:
-			if (null != reaction.desirability_script and reaction.desirability_script is ScriptManager):
+			if (reaction.desirability_script is ScriptManager):
 				characters.merge(reaction.desirability_script.find_all_characters_involved())
-			if (null != reaction.text_script and reaction.text_script is ScriptManager):
+			if (reaction.text_script is ScriptManager):
 				characters.merge(reaction.text_script.find_all_characters_involved())
 			for effect in reaction.after_effects:
 				if (effect is BNumberEffect):
-					if (null != effect.assignee and effect.assignee is BNumberPointer and null != effect.assignee.character and effect.assignee.character is Actor):
+					if (effect.assignee is BNumberPointer and effect.assignee.character is Actor):
 						characters[effect.assignee.character.id] = effect.assignee.character
-					if (null != effect.assignment_script and effect.assignment_script is ScriptManager):
+					if (effect.assignment_script is ScriptManager):
 						characters.merge(effect.assignment_script.find_all_characters_involved())
 				elif (effect is SpoolEffect):
-					if (null != effect.assignment_script and effect.assignment_script is ScriptManager):
+					if (effect.assignment_script is ScriptManager):
 						characters.merge(effect.assignment_script.find_all_characters_involved())
 	return characters
 
@@ -206,10 +207,10 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 	result["title"] = title
 	result["text_script"] = text_script.compile(parent_storyworld, include_editor_only_variables)
 	result["acceptability_script"] = null
-	if (null != acceptability_script and acceptability_script is ScriptManager):
+	if (acceptability_script is ScriptManager):
 		result["acceptability_script"] = acceptability_script.compile(parent_storyworld, include_editor_only_variables)
 	result["desirability_script"] = null
-	if (null != desirability_script and desirability_script is ScriptManager):
+	if (desirability_script is ScriptManager):
 		result["desirability_script"] = desirability_script.compile(parent_storyworld, include_editor_only_variables)
 	result["earliest_turn"] = earliest_turn
 	result["latest_turn"] = latest_turn

@@ -3,6 +3,8 @@ extends Control
 var storyworld = null
 var searchterm = ""
 var encounters_to_delete = []
+var light_mode = true
+#Clarity is a light mode theme, while Lapis Lazuli is a dark mode theme.
 
 signal encounter_load_requested(encounter)
 signal refresh_graphview()
@@ -66,7 +68,8 @@ func refresh():
 		return
 	var sort_index = $Background/VBC/HFlowContainer/SortBar/SortMenu.get_selected()
 	var sort_method = $Background/VBC/HFlowContainer/SortBar/SortMenu.get_popup().get_item_text(sort_index)
-	storyworld.sort_encounters(sort_method)
+	var reversed = $Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.pressed
+	storyworld.sort_encounters(sort_method, reversed)
 	table_of_encounters.clear()
 	var root = table_of_encounters.create_item()
 	root.set_text(0, "Encounters: ")
@@ -130,12 +133,66 @@ func refresh():
 				entry.set_custom_bg_color(6, Color(0.235294, 0.470588, 0.941176, 0.392157))
 			even = !even
 
+onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
+onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
+onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
+onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
+onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
+onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
+onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
+onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
+
+func refresh_sort_icon():
+	var sort_index = $Background/VBC/HFlowContainer/SortBar/SortMenu.get_selected()
+	var sort_method = $Background/VBC/HFlowContainer/SortBar/SortMenu.get_popup().get_item_text(sort_index)
+	var reversed = $Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.pressed
+	if (light_mode):
+		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
+			if (reversed):
+				$Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.icon = sort_rev_alpha_icon_dark
+			else:
+				$Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.icon = sort_alpha_icon_dark
+		else:
+			if (reversed):
+				$Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.icon = sort_rev_numeric_icon_dark
+			else:
+				$Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.icon = sort_numeric_icon_dark
+	else:
+		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
+			if (reversed):
+				$Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.icon = sort_rev_alpha_icon_light
+			else:
+				$Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.icon = sort_alpha_icon_light
+		else:
+			if (reversed):
+				$Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.icon = sort_rev_numeric_icon_light
+			else:
+				$Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.icon = sort_numeric_icon_light
+
 func _on_SortMenu_item_selected(index):
 	refresh()
+	refresh_sort_icon()
+
+func _on_ToggleReverseButton_toggled(button_pressed):
+	refresh()
+	refresh_sort_icon()
+
+func _on_EncounterList_column_title_pressed(column):
+	var current_sort_index = $Background/VBC/HFlowContainer/SortBar/SortMenu.get_selected()
+	var current_pressed = $Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.is_pressed()
+	if ((0 == current_sort_index and 0 == column) or (column + 2 == current_sort_index)):
+		#If the user clicked the title of the column currently being used to sort the encounters, reverse the sorting algorithm.
+		$Background/VBC/HFlowContainer/SortBar/ToggleReverseButton.set_pressed_no_signal(!current_pressed)
+	else:
+		if (0 == column):
+			$Background/VBC/HFlowContainer/SortBar/SortMenu.select(0)
+		else:
+			$Background/VBC/HFlowContainer/SortBar/SortMenu.select(column+2)
+	refresh()
+	refresh_sort_icon()
 
 func _on_LineEdit_text_entered(new_text):
 	searchterm = new_text
-	print("Searching events for \"" + new_text + "\"")
 	refresh()
 
 func _on_EncounterList_item_activated():
@@ -193,10 +250,10 @@ func _on_DuplicateEncounterButton_pressed():
 		emit_signal("refresh_encounter_list")
 		emit_signal("encounter_load_requested", encounter_to_load)
 
-onready var add_icon_light = preload("res://custom_resources/add_icon.svg")
-onready var add_icon_dark = preload("res://custom_resources/add_icon_dark.svg")
-onready var delete_icon_light = preload("res://custom_resources/delete_icon.svg")
-onready var delete_icon_dark = preload("res://custom_resources/delete_icon_dark.svg")
+onready var add_icon_light = preload("res://icons/add.svg")
+onready var add_icon_dark = preload("res://icons/add_dark.svg")
+onready var delete_icon_light = preload("res://icons/delete.svg")
+onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	$Background.color = background_color
@@ -204,6 +261,11 @@ func set_gui_theme(theme_name, background_color):
 		"Clarity":
 			$Background/VBC/HFlowContainer/AddEncounterButton.set_button_icon(add_icon_dark)
 			$Background/VBC/HFlowContainer/DeleteEncounterButton.set_button_icon(delete_icon_dark)
+			light_mode = true
 		"Lapis Lazuli":
 			$Background/VBC/HFlowContainer/AddEncounterButton.set_button_icon(add_icon_light)
 			$Background/VBC/HFlowContainer/DeleteEncounterButton.set_button_icon(delete_icon_light)
+			light_mode = false
+	refresh_sort_icon()
+
+

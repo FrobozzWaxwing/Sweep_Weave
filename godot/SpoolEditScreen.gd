@@ -173,10 +173,10 @@ func _on_RemoveEncounterButton_pressed():
 
 #GUI Themes:
 
-onready var add_icon_light = preload("res://custom_resources/add_icon.svg")
-onready var add_icon_dark = preload("res://custom_resources/add_icon_dark.svg")
-onready var delete_icon_light = preload("res://custom_resources/delete_icon.svg")
-onready var delete_icon_dark = preload("res://custom_resources/delete_icon_dark.svg")
+onready var add_icon_light = preload("res://icons/add.svg")
+onready var add_icon_dark = preload("res://icons/add_dark.svg")
+onready var delete_icon_light = preload("res://icons/delete.svg")
+onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	$Background.color = background_color

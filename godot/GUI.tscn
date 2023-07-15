@@ -93,10 +93,10 @@ __meta__ = {
 }
 
 [node name="Overview" parent="Background/VBC/EditorTabs" instance=ExtResource( 10 )]
-margin_left = 1.0
+margin_left = 3.0
 margin_top = 29.0
-margin_right = -1.0
-margin_bottom = -1.0
+margin_right = -3.0
+margin_bottom = -3.0
 
 [node name="Encounters" parent="Background/VBC/EditorTabs" instance=ExtResource( 3 )]
 visible = false

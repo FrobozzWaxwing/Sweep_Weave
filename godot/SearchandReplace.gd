@@ -74,7 +74,7 @@ var searchterm = ""
 #
 #func _on_SortMenu_item_selected(index):
 #	var sort_method = $Background/VBC/SortBar/SortMenu.get_popup().get_item_text(index)
-#	if ("Word Count" == sort_method || "Rev. Word Count" == sort_method):
+#	if ("Word Count" == sort_method):
 #		for encounter in storyworld.encounters:
 #			encounter.wordcount() #Update recorded wordcount of each encounter.
 #	storyworld.sort_encounters(sort_method)
@@ -90,7 +90,6 @@ func find_occurrences_of_string(needle, haystack):
 		index = haystack.find(needle, index)
 		if (-1 != index):
 			results.append(index)
-			print(str(index))
 			index += 1
 	return results
 

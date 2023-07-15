@@ -128,10 +128,10 @@ func _on_PageText_meta_clicked(meta):
 
 #GUI Themes:
 
-onready var previous_icon_light = preload("res://custom_resources/arrow-left.svg")
-onready var previous_icon_dark = preload("res://custom_resources/arrow-left_dark.svg")
-onready var next_icon_light = preload("res://custom_resources/arrow-right.svg")
-onready var next_icon_dark = preload("res://custom_resources/arrow-right_dark.svg")
+onready var previous_icon_light = preload("res://icons/arrow-left.svg")
+onready var previous_icon_dark = preload("res://icons/arrow-left_dark.svg")
+onready var next_icon_light = preload("res://icons/arrow-right.svg")
+onready var next_icon_dark = preload("res://icons/arrow-right_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	match theme_name:

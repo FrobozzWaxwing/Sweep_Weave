@@ -6,6 +6,8 @@ var selected_event = null #An EventPointer.
 var searchterm = ""
 var display_options = true #If true, the refresh function will display the options of encounters as branches of those encounters in the EventTree.
 var display_negated_checkbox = true
+var light_mode = true
+#Clarity is a light mode theme, while Lapis Lazuli is a dark mode theme.
 
 signal selected_event_changed(selected_event)
 signal event_doubleclicked(selected_event)
@@ -59,14 +61,49 @@ func refresh():
 							entry_r.set_metadata(0, {"encounter": encounter, "option": option, "reaction": reaction})
 	$Background/VBC/NegatedCheckBox.visible = display_negated_checkbox
 
+onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
+onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
+onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
+onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
+onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
+onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
+onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
+onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
+
+func refresh_sort_icon():
+	var sort_index = $Background/VBC/SortBar/SortMenu.get_selected()
+	var sort_method = $Background/VBC/SortBar/SortMenu.get_popup().get_item_text(sort_index)
+	var reversed = $Background/VBC/SortBar/ToggleReverseButton.pressed
+	if (light_mode):
+		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
+			if (reversed):
+				$Background/VBC/SortBar/ToggleReverseButton.icon = sort_rev_alpha_icon_dark
+			else:
+				$Background/VBC/SortBar/ToggleReverseButton.icon = sort_alpha_icon_dark
+		else:
+			if (reversed):
+				$Background/VBC/SortBar/ToggleReverseButton.icon = sort_rev_numeric_icon_dark
+			else:
+				$Background/VBC/SortBar/ToggleReverseButton.icon = sort_numeric_icon_dark
+	else:
+		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
+			if (reversed):
+				$Background/VBC/SortBar/ToggleReverseButton.icon = sort_rev_alpha_icon_light
+			else:
+				$Background/VBC/SortBar/ToggleReverseButton.icon = sort_alpha_icon_light
+		else:
+			if (reversed):
+				$Background/VBC/SortBar/ToggleReverseButton.icon = sort_rev_numeric_icon_light
+			else:
+				$Background/VBC/SortBar/ToggleReverseButton.icon = sort_numeric_icon_light
+
 func _on_LineEdit_text_entered(new_text):
 	searchterm = new_text
-	print("Searching events for \"" + new_text + "\"")
 	refresh()
 
 func _on_EventTree_item_selected():
 	var item = event_selection_tree.get_selected()
-	if(null != item && item is TreeItem && null != item.get_metadata(0) and selected_event is EventPointer):
+	if (item is TreeItem && null != item.get_metadata(0) and selected_event is EventPointer):
 		var metadata = item.get_metadata(0)
 		var encounter = metadata["encounter"]
 		var option = metadata["option"]
@@ -82,11 +119,17 @@ func _on_NegatedCheckBox_pressed():
 
 func _on_SortMenu_item_selected(index):
 	var sort_method = $Background/VBC/SortBar/SortMenu.get_popup().get_item_text(index)
-	if ("Word Count" == sort_method || "Rev. Word Count" == sort_method):
+	if ("Word Count" == sort_method):
 		for encounter in storyworld.encounters:
 			encounter.wordcount() #Update recorded wordcount of each encounter.
-	storyworld.sort_encounters(sort_method)
+	var reversed = $Background/VBC/SortBar/ToggleReverseButton.pressed
+	storyworld.sort_encounters(sort_method, reversed)
 	refresh()
+	refresh_sort_icon()
+
+func _on_ToggleReverseButton_toggled(button_pressed):
+	refresh()
+	refresh_sort_icon()
 
 func _on_EventTree_item_activated():
 	emit_signal("event_doubleclicked", selected_event)
@@ -95,3 +138,9 @@ func _on_EventTree_item_activated():
 
 func set_gui_theme(theme_name, background_color):
 	$Background.color = background_color
+	match theme_name:
+		"Clarity":
+			light_mode = true
+		"Lapis Lazuli":
+			light_mode = false
+	refresh_sort_icon()

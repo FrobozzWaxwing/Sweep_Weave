@@ -4,7 +4,7 @@ var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
 
-var sweepweave_version_number = "0.1.1"
+var sweepweave_version_number = "0.1.2"
 var storyworld = null
 var clipboard = Clipboard.new()
 
@@ -48,6 +48,7 @@ func load_project(file_text):
 func save_project(save_as = false):
 	storyworld.save_project(current_project_path, save_as)
 	storyworld.project_saved = true
+	$Background/VBC/EditorTabs/Settings/VBC/SavePathDisplay.set_text("Current project save path: " + current_project_path)
 	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title)
 	$Background/VBC/EditorTabs/Encounters.refresh_encounter_list()
 
@@ -74,19 +75,23 @@ func new_storyworld():
 	#Initiate personality / relationship model.
 	storyworld.init_classical_personality_model()
 	#Add at least one character to the storyworld.
-	var new_character = storyworld.create_default_character()
-	storyworld.add_character(new_character)
-	new_character.initialize_bnumber_properties(storyworld.characters, storyworld.authored_properties)
-	$Background/VBC/EditorTabs/Characters.log_update(new_character)
+	var first_character = storyworld.create_default_character()
+	storyworld.add_character(first_character)
+	first_character.initialize_bnumber_properties(storyworld.characters, storyworld.authored_properties)
+	$Background/VBC/EditorTabs/Characters.log_update(first_character)
 	$Background/VBC/EditorTabs/Characters.refresh_character_list()
-	$Background/VBC/EditorTabs/Characters.load_character(new_character)
+	$Background/VBC/EditorTabs/Characters.load_character(first_character)
 	$Background/VBC/EditorTabs/Characters.refresh_property_list()
-	$Background/VBC/EditorTabs/Encounters._on_AddButton_pressed() #Add at least one encounter to the storyworld.
+	#Add at least one encounter to the storyworld.
+	var first_encounter = storyworld.create_new_generic_encounter()
+	storyworld.add_encounter(first_encounter)
+	log_update(first_encounter)
 	$Background/VBC/EditorTabs/Encounters.refresh_encounter_list()
 	$Background/VBC/EditorTabs/Encounters.refresh_bnumber_property_lists()
 	$Background/VBC/EditorTabs/Encounters.Clear_Encounter_Editing_Screen()
 	$Background/VBC/EditorTabs/Encounters.load_and_focus_first_encounter()
-	$Background/VBC/EditorTabs/Spools._on_AddButton_pressed() #Add at least one spool to the storyworld.
+	#Add at least one spool to the storyworld.
+	$Background/VBC/EditorTabs/Spools._on_AddButton_pressed()
 	#Add encounter to spool.
 	storyworld.spools.front().encounters.append(storyworld.encounters.front())
 	storyworld.encounters.front().connected_spools.append(storyworld.spools.front())
@@ -125,7 +130,6 @@ func _ready():
 	$Background/VBC/EditorTabs/Play.connect("encounter_edit_button_pressed", self, "display_encounter_by_id")
 	$Background/VBC/EditorTabs/Characters.connect("new_character_created", $Background/VBC/EditorTabs/Encounters, "add_character_to_lists")
 	$Background/VBC/EditorTabs/Characters.connect("character_deleted", $Background/VBC/EditorTabs/Encounters, "replace_character")
-	$Background/VBC/EditorTabs/Characters.connect("character_name_changed", self, "on_character_name_changed")
 	$Background/VBC/EditorTabs/Characters.connect("character_name_changed", self, "on_character_name_changed")
 	$Background/VBC/EditorTabs/Characters.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/PersonalityModel, "refresh_property_list")
 	$Background/VBC/EditorTabs/Characters.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Encounters, "refresh_bnumber_property_lists")
@@ -247,6 +251,8 @@ func _on_viewmenu_item_toggled(tab, id, checked):
 				0:
 					$Background/VBC/EditorTabs/Encounters.set_display_encounter_list(checked)
 				1:
+					$Background/VBC/EditorTabs/Encounters.set_display_encounter_qdse(checked)
+				2:
 					$Background/VBC/EditorTabs/Encounters.set_display_reaction_qdse(checked)
 		"Play":
 			match id:

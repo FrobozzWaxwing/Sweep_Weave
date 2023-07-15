@@ -4,7 +4,7 @@ var storyworld = null
 var script_to_edit = null
 var current_operator = null
 var allow_root_character_editing = false
-var allow_coefficient_editing = true
+var allow_coefficient_editing = false
 var bnumberpointer_editor_scene = load("res://BNumberPropertySelector.tscn")
 var bnumberconstant_editor_scene = load("res://BNumberConstantEditingInterface.tscn")
 var spool_selector_scene = load("res://SpoolSelector.tscn")
@@ -18,28 +18,24 @@ func _ready():
 	pass
 
 func refresh_script_display():
-	if ("" == $Background/VBC/Label.text):
-		$Background/VBC/Label.visible = false
-	else:
-		$Background/VBC/Label.visible = true
-	$Background/VBC/HBC/VBC1/ScriptDisplay.clear()
-	var root = $Background/VBC/HBC/VBC1/ScriptDisplay.create_item()
-	$Background/VBC/HBC/VBC1/ScriptDisplay.set_hide_root(true)
+	$Background/HBC/VBC1/ScriptDisplay.clear()
+	var root = $Background/HBC/VBC1/ScriptDisplay.create_item()
+	$Background/HBC/VBC1/ScriptDisplay.set_hide_root(true)
 	#Fill out the script display by using a recursive algorithm to run through the script tree.
 	if (null != script_to_edit):
-		$Background/VBC/HBC/VBC1/ScriptDisplay.recursively_add_to_script_display(root, script_to_edit.contents)
+		$Background/HBC/VBC1/ScriptDisplay.recursively_add_to_script_display(root, script_to_edit.contents)
 		load_operator(script_to_edit.contents)
 	else:
 		load_operator(null)
 
 func add_option_to_toolbox(text, hint):
-	var index = $Background/VBC/HBC/AvailableOperatorList.get_item_count()
-	$Background/VBC/HBC/AvailableOperatorList.add_item(text)
-	$Background/VBC/HBC/AvailableOperatorList.set_item_tooltip(index, hint)
+	var index = $Background/HBC/AvailableOperatorList.get_item_count()
+	$Background/HBC/AvailableOperatorList.add_item(text)
+	$Background/HBC/AvailableOperatorList.set_item_tooltip(index, hint)
 
 func refresh_operator_options_display(operator):
 	#This fills the options of the side panel of the script editing window.
-	$Background/VBC/HBC/AvailableOperatorList.clear()
+	$Background/HBC/AvailableOperatorList.clear()
 	if (null == operator):
 		return
 	if (operator is SWScriptElement):
@@ -86,42 +82,38 @@ func refresh_operator_options_display(operator):
 func load_operator(operator):
 	current_operator = operator
 	refresh_operator_options_display(operator)
-	var nodes_to_delete = $Background/VBC/HBC/VBC1/OperatorEditPanel.get_children()
+	var nodes_to_delete = $Background/HBC/VBC1/OperatorEditPanel.get_children()
 	for each in nodes_to_delete:
 		each.call_deferred("free")
 	if (null == operator):
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = false
+		$Background/HBC/VBC1/OperatorEditPanel.visible = false
 	elif (operator is ArithmeticComparator):
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
+		$Background/HBC/VBC1/OperatorEditPanel.visible = true
 		var operator_editing_interface = OptionButton.new()
 		operator_editing_interface.add_item("Greater than")
 		operator_editing_interface.add_item("Greater than or Equal to")
 		operator_editing_interface.add_item("Less than")
 		operator_editing_interface.add_item("Less than or Equal to")
-		operator_editing_interface.connect("item_selected", self, "on_operator_changed")
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
+		operator_editing_interface.connect("item_selected", self, "on_comparator_changed")
+		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 		operator_editing_interface.select(operator.operator_subtype)
 	elif (operator is BooleanComparator):
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
+		$Background/HBC/VBC1/OperatorEditPanel.visible = true
 		var operator_editing_interface = OptionButton.new()
 		operator_editing_interface.add_item("And")
 		operator_editing_interface.add_item("Or")
-		operator_editing_interface.connect("item_selected", self, "on_operator_changed")
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
+		operator_editing_interface.connect("item_selected", self, "on_comparator_changed")
+		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 		operator_editing_interface.select(operator.operator_subtype)
 	elif (operator is BNumberConstant):
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
+		$Background/HBC/VBC1/OperatorEditPanel.visible = true
 		var operator_editing_interface = bnumberconstant_editor_scene.instance()
-		operator_editing_interface.set_gui_theme("", gui_background_color)
-		operator_editing_interface.storyworld = storyworld
-		operator_editing_interface.reset()
-		operator_editing_interface.operator.set_value(operator.get_value())
+		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
+		operator_editing_interface.set_reference_operator(operator)
 		operator_editing_interface.set_layout("Bounded number constant:", 2)
-		operator_editing_interface.refresh()
-		operator_editing_interface.connect("bnumber_value_changed", self, "on_operator_changed")
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
+		operator_editing_interface.connect("bnumber_value_changed", self, "on_bnumber_constant_changed")
 	elif (operator is BNumberPointer):
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
+		$Background/HBC/VBC1/OperatorEditPanel.visible = true
 		var operator_editing_interface = bnumberpointer_editor_scene.instance()
 		operator_editing_interface.storyworld = storyworld
 		operator_editing_interface.reset()
@@ -129,10 +121,10 @@ func load_operator(operator):
 		operator_editing_interface.allow_coefficient_editing = allow_coefficient_editing
 		operator_editing_interface.selected_property.set_as_copy_of(operator)
 		operator_editing_interface.refresh()
-		operator_editing_interface.connect("bnumber_property_selected", self, "on_operator_changed")
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
+		operator_editing_interface.connect("bnumber_property_selected", self, "on_pointer_changed")
+		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 	elif (operator is SpoolStatusPointer):
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = true
+		$Background/HBC/VBC1/OperatorEditPanel.visible = true
 		var operator_editing_interface = spool_selector_scene.instance()
 		operator_editing_interface.storyworld = storyworld
 		#Set the interface up to use a SpoolStatusPointer, rather than a SpoolPointer.
@@ -140,10 +132,10 @@ func load_operator(operator):
 		operator_editing_interface.allow_negation = true
 		operator_editing_interface.selected_pointer.set_as_copy_of(operator)
 		operator_editing_interface.refresh()
-		operator_editing_interface.connect("spool_selected", self, "on_operator_changed")
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
+		operator_editing_interface.connect("spool_selected", self, "on_pointer_changed")
+		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 	else:
-		$Background/VBC/HBC/VBC1/OperatorEditPanel.visible = false
+		$Background/HBC/VBC1/OperatorEditPanel.visible = false
 	if (operator is SWScriptElement and operator.treeview_node is TreeItem):
 		operator.treeview_node.select(0)
 
@@ -164,48 +156,59 @@ func replace_element(old_element, new_element):
 		old_element.call_deferred("free")
 
 func _on_ScriptDisplay_item_selected():
-	var operator = $Background/VBC/HBC/VBC1/ScriptDisplay.get_selected().get_metadata(0)
+	var operator = $Background/HBC/VBC1/ScriptDisplay.get_selected().get_metadata(0)
 	load_operator(operator)
 
-func on_operator_changed(new_operator):
-	var text = " "
-	if (current_operator is ArithmeticComparator and TYPE_INT == typeof(new_operator)):
-		current_operator.operator_subtype = new_operator
-		text += current_operator.operator_subtype_to_longstring()
-	elif (current_operator is BooleanComparator and TYPE_INT == typeof(new_operator)):
-		current_operator.operator_subtype = new_operator
-		text += current_operator.operator_subtype_to_string()
-	elif (current_operator is BNumberConstant and new_operator is BNumberConstant):
-		current_operator.set_value(new_operator.get_value())
-		text += current_operator.data_to_string()
-	elif (current_operator is BNumberPointer and new_operator is BNumberPointer):
-		current_operator.set_as_copy_of(new_operator)
-		text += current_operator.data_to_string()
-	elif (current_operator is SpoolStatusPointer and new_operator is SpoolStatusPointer):
-		current_operator.set_as_copy_of(new_operator)
-		text += current_operator.data_to_string()
-	var selected_display_element = $Background/VBC/HBC/VBC1/ScriptDisplay.get_selected()
-	if (null != selected_display_element and selected_display_element is TreeItem):
-		if (current_operator.parent_operator is SWIfOperator):
-			if (0 == current_operator.script_index):
+func refresh_element_text(element):
+	if (element.treeview_node is TreeItem):
+		var text = " "
+		if (element is ArithmeticComparator):
+			text += element.operator_subtype_to_longstring()
+		elif (element is BooleanComparator):
+			text += element.operator_subtype_to_string()
+		elif (element is BNumberConstant or element is BNumberPointer or element is SpoolStatusPointer):
+			text += element.data_to_string()
+		if (element.parent_operator is SWIfOperator):
+			if (0 == element.script_index):
 				text = " (If)" + text
-			elif (1 == current_operator.script_index % 2):
+			elif (1 == element.script_index % 2):
 				text = " (Then)" + text
-			elif (0 == current_operator.script_index % 2 and current_operator.script_index != (current_operator.parent_operator.operands.size()-1)):
+			elif (0 == element.script_index % 2 and element.script_index != (element.parent_operator.operands.size()-1)):
 				text = " (Else If)" + text
 			else:
 				text = " (Else)" + text
-		elif (current_operator.parent_operator is BlendOperator):
-			if (2 == current_operator.script_index):
+		elif (element.parent_operator is BlendOperator):
+			if (2 == element.script_index):
 				text = " (Weight)" + text
-		elif (current_operator.parent_operator is NudgeOperator):
-			if (1 == current_operator.script_index):
+		elif (element.parent_operator is NudgeOperator):
+			if (1 == element.script_index):
 				text = " (Weight)" + text
-		selected_display_element.set_text(0, text)
+		element.treeview_node.set_text(0, text)
+
+func on_comparator_changed(new_value):
+	if (current_operator is ArithmeticComparator and TYPE_INT == typeof(new_value)):
+		current_operator.operator_subtype = new_value
+	elif (current_operator is BooleanComparator and TYPE_INT == typeof(new_value)):
+		current_operator.operator_subtype = new_value
+	refresh_element_text(current_operator)
+	emit_signal("sw_script_changed", script_to_edit)
+
+func on_bnumber_constant_changed(element, new_value):
+	if (element is BNumberConstant and (TYPE_INT == typeof(new_value) or TYPE_REAL == typeof(new_value))):
+		element.set_value(new_value)
+	refresh_element_text(element)
+	emit_signal("sw_script_changed", script_to_edit)
+
+func on_pointer_changed(new_value):
+	if (current_operator is BNumberPointer and new_value is BNumberPointer):
+		current_operator.set_as_copy_of(new_value)
+	elif (current_operator is SpoolStatusPointer and new_value is SpoolStatusPointer):
+		current_operator.set_as_copy_of(new_value)
+	refresh_element_text(current_operator)
 	emit_signal("sw_script_changed", script_to_edit)
 
 func _on_AvailableOperatorList_item_activated(index):
-	var operator_class = $Background/VBC/HBC/AvailableOperatorList.get_item_text(index)
+	var operator_class = $Background/HBC/AvailableOperatorList.get_item_text(index)
 	var new_element = null
 	var change_made = false
 	match operator_class:
@@ -403,5 +406,5 @@ func _on_EventSelectionDialog_confirmed():
 func set_gui_theme(theme_name, background_color):
 	gui_background_color = background_color
 	$Background.color = background_color
-	$Background/VBC/HBC/VBC1/OperatorEditPanel.color = background_color
+	$Background/HBC/VBC1/OperatorEditPanel.color = background_color
 	$EventSelectionDialog/EventSelectionInterface.set_gui_theme(theme_name, background_color)

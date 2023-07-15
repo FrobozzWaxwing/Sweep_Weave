@@ -31,12 +31,12 @@ func data_to_string():
 	if (2 != operands.size()):
 		return "Invalid Proximity-to operator."
 	var result = "How close is "
-	if (null != operands[0] and operands[0] is SWScriptElement):
+	if (operands[0] is SWScriptElement):
 		result += operands[0].data_to_string()
 	else:
 		result += str(operands[0])
 	result += " to "
-	if (null != operands[1] and operands[1] is SWScriptElement):
+	if (operands[1] is SWScriptElement):
 		result += operands[1].data_to_string()
 	else:
 		result += str(operands[1])

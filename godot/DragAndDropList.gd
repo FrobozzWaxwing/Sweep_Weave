@@ -15,6 +15,10 @@ signal copy(items)
 signal paste_at(index)
 signal delete(items)
 signal duplicate(items)
+signal edit_visibility_script(option)
+signal edit_performability_script(option)
+signal edit_desirability_script(reaction)
+signal edit_effect_script(effect)
 
 func _ready():
 	refresh()
@@ -78,7 +82,7 @@ func drop_data(position, item): # end drag
 func get_first_selected_metadata():
 	#Returns the element stored as metadata in the first currently selected list item.
 	var selected_item = get_next_selected(null)
-	if (null != selected_item and selected_item is TreeItem):
+	if (selected_item is TreeItem):
 		return selected_item.get_metadata(0)["listed_object"]
 	else:
 		return null
@@ -86,7 +90,7 @@ func get_first_selected_metadata():
 func get_first_selected_index():
 	#Returns the index of the first currently selected list item.
 	var selected_item = get_next_selected(null)
-	if (null != selected_item and selected_item is TreeItem):
+	if (selected_item is TreeItem):
 		return selected_item.get_metadata(0)["index"]
 	else:
 		return null
@@ -194,6 +198,13 @@ func _on_item_rmb_selected(position):
 		context_menu.add_item("Duplicate", 9)
 		context_menu.add_item("Select all", 10)
 		context_menu.add_item("Deselect all", 11)
+		if ("option" == item_type):
+			context_menu.add_item("Edit visibility script", 12)
+			context_menu.add_item("Edit performability script", 13)
+		if ("reaction" == item_type):
+			context_menu.add_item("Edit desirability script", 14)
+		if ("effect" == item_type):
+			context_menu.add_item("Edit effect script", 15)
 		context_menu.popup(Rect2(mouse_position.x, mouse_position.y, context_menu.rect_size.x, context_menu.rect_size.y))
 
 func show_outer_context_menu():
@@ -276,3 +287,19 @@ func _on_ContextMenu_id_pressed(id):
 			#Deselect all
 			deselect_all()
 			print ("Deselecting all " + item_type + "s.")
+		12:
+			#Edit visibility script
+			emit_signal("edit_visibility_script", focused_item)
+			print ("Editing visibility script.")
+		13:
+			#Edit performability script
+			emit_signal("edit_performability_script", focused_item)
+			print ("Editing performability script.")
+		14:
+			#Edit desirability script
+			emit_signal("edit_desirability_script", focused_item)
+			print ("Editing desirability script.")
+		15:
+			#Edit effect script
+			emit_signal("edit_effect_script", focused_item)
+			print ("Editing effect script.")

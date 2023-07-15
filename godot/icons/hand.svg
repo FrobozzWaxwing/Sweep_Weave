@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   fill="currentColor"
+   class="bi bi-hand-index-thumb"
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg8292"
+   sodipodi:docname="hand.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs8296" />
+  <sodipodi:namedview
+     id="namedview8294"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="35.583333"
+     inkscape:cx="7.5175644"
+     inkscape:cy="12"
+     inkscape:window-width="2560"
+     inkscape:window-height="1057"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg8292" />
+  <path
+     d="m 10.400895,5 a 0.75,0.75 0 0 1 0.75,0.75 V 12 a 0.5,0.5 0 0 0 1,0 V 9.4670004 l 0.086,-0.004 c 0.317,-0.012 0.637,-0.008 0.816,0.027 0.134,0.027 0.294,0.096 0.448,0.182 0.077,0.042 0.15,0.147 0.15,0.314 V 12 a 0.50000015,0.50000015 0 0 0 1,0 v -1.565 l 0.106,-0.01 c 0.316,-0.024 0.584,-0.01 0.708,0.04 0.118,0.046 0.3,0.207 0.486,0.43 0.081,0.096 0.15,0.19 0.2,0.259 V 12.5 a 0.5,0.5 0 1 0 1,0 v -1 h 0.342 a 1,1 0 0 1 0.995,1.1 l -0.271,2.715 a 2.5,2.5 0 0 1 -0.317,0.991 l -1.395,2.442 A 0.5,0.5 0 0 1 16.070895,19 H 9.7688949 a 0.5,0.5 0 0 1 -0.447,-0.276 l -1.232,-2.465 -2.512,-4.185 a 0.517,0.517 0 0 1 0.809,-0.631 l 2.41,2.41 a 0.5,0.5 0 0 0 0.854,-0.353 V 5.75 A 0.75,0.75 0 0 1 10.400895,5 Z m 1.75,3.4660004 V 5.75 a 1.75,1.75 0 1 0 -3.5000001,0 v 6.543 l -1.557,-1.557 a 1.517,1.517 0 0 0 -2.3730001,1.852 l 2.4910001,4.153 1.215,2.43 a 1.5,1.5 0 0 0 1.342,0.829 h 6.3020001 a 1.5,1.5 0 0 0 1.302,-0.756 l 1.395,-2.441 a 3.5,3.5 0 0 0 0.444,-1.389 l 0.271,-2.715 a 2,2 0 0 0 -1.99,-2.199 h -0.581 a 5.114,5.114 0 0 0 -0.195,-0.248 c -0.191,-0.229 -0.51,-0.5679996 -0.88,-0.7159996 -0.364,-0.146 -0.846,-0.132 -1.158,-0.108 l -0.132,0.012 a 1.26,1.26 0 0 0 -0.56,-0.642 2.632,2.632 0 0 0 -0.738,-0.288 c -0.31,-0.062 -0.739,-0.058 -1.05,-0.046 z m 2.094,2.0249996 z"
+     id="path8290"
+     style="stroke:none;stroke-opacity:1;fill:#ffffff;fill-opacity:1" />
+</svg>
