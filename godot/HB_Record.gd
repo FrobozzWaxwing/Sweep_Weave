@@ -11,13 +11,17 @@ var antagonist_choice = null
 var encounter = null
 var is_an_ending_leaf = false
 var turn = 0
-var fully_explored = false
 var relationship_values = {}
 # {character id: copy of bnumber_properties}
 var spool_statuses = {}
 # {spool id: copy of is_active}
 var parent_record = null
-var branch_records = []
+var explored_branches = []
+var unexplored_branches = []
+var parallel_to = []
+var can_be_skipped = false
+var path_multiplier = 1
+var path_count = 0 #The number of paths branching off from this record. The count is recursive: if this record has only one child but the child record has two children, both of which are ending leaves, then this record's branch count should be 2.
 
 func record_character_states(storyworld):
 	#Clear out any old data.
@@ -26,13 +30,40 @@ func record_character_states(storyworld):
 	for character in storyworld.characters:
 		relationship_values[character.id] = character.bnumber_properties.duplicate(true)
 
-func record_occurrences():
+func record_yielding_paths():
+	#Add the record's branch count to the yielding path count of each of the record's events.
+	var additional_paths = path_count * path_multiplier
+	if (null != player_choice):
+		player_choice.yielding_paths += additional_paths
+	if (null != antagonist_choice):
+		antagonist_choice.yielding_paths += additional_paths
+	if (null != encounter):
+		encounter.yielding_paths += additional_paths
+	for each in parallel_to:
+		each.path_count = path_count
+		each.record_yielding_paths()
+
+func set_as_ending_leaf():
+	is_an_ending_leaf = true
+	path_count = 1
+	if (null != encounter):
+		encounter.potential_ending = true
+
+func increment_occurrences():
 	if (null != player_choice):
 		player_choice.occurrences += 1
 	if (null != antagonist_choice):
 		antagonist_choice.occurrences += 1
 	if (null != encounter):
 		encounter.occurrences += 1
+
+func decrement_occurrences():
+	if (null != player_choice):
+		player_choice.occurrences -= 1
+	if (null != antagonist_choice):
+		antagonist_choice.occurrences -= 1
+	if (null != encounter):
+		encounter.occurrences -= 1
 
 func record_spool_statuses(storyworld):
 	#Clear out any old data.
@@ -44,43 +75,41 @@ func record_spool_statuses(storyworld):
 func get_parent():
 	return parent_record
 
-func get_children():
-	return branch_records
-
 func add_branch(page):
 	page.parent_record = self
-	branch_records.append(page)
+	unexplored_branches.append(page)
 
-func get_fully_explored():
-	if (fully_explored):
-		return true
-	elif (is_an_ending_leaf):
-		return true
-	if (0 < branch_records.size()):
-		for each in branch_records:
-			if (false == each.fully_explored):
-				return false
-		return true
+func is_parallel_to(sibling):
+	if (null != antagonist_choice and null != sibling.antagonist_choice):
+		if (antagonist_choice.is_parallel_to(sibling.antagonist_choice)):
+			return true
 	return false
 
 func _init(in_parent = null):
 	parent_record = in_parent
 
-func clear():
-	var children = get_children().duplicate()
+func clear_children():
+	var children = explored_branches.duplicate()
 	for child in children:
 		child.clear()
 		child.call_deferred("free")
+	explored_branches.clear()
+	children = unexplored_branches.duplicate()
+	for child in children:
+		child.clear()
+		child.call_deferred("free")
+	unexplored_branches.clear()
+
+func clear():
+	clear_children()
 	player_choice = null
 	antagonist_choice = null
 	encounter = null
 	is_an_ending_leaf = false
 	turn = 0
-	fully_explored = false
 	relationship_values.clear()
 	spool_statuses.clear()
 	parent_record = null
-	branch_records.clear()
 
 func set_as_copy_of(original):
 	clear()
@@ -89,20 +118,22 @@ func set_as_copy_of(original):
 	encounter = original.encounter
 	is_an_ending_leaf = original.is_an_ending_leaf
 	turn = original.turn
-	fully_explored = original.fully_explored
-	relationship_values = original.relationship_values
-	spool_statuses = original.spool_statuses
+	relationship_values = original.relationship_values.duplicate()
+	spool_statuses = original.spool_statuses.duplicate()
 	parent_record = original.parent_record
-	for page in original.branch_records:
+	for page in original.explored_branches:
 		#Branches will still have original parent.
-		branch_records.append(page)
+		explored_branches.append(page)
+	for page in original.unexplored_branches:
+		#Branches will still have original parent.
+		unexplored_branches.append(page)
 
 func stringify_option(cutoff = 50):
 	var result = ""
 	if (null == player_choice):
 		result += "null"
 	else:
-		var fulltext = player_choice.get_text(self)
+		var fulltext = player_choice.get_text()
 		if ("" == fulltext):
 			result += "[Blank Option]"
 		else:
@@ -117,7 +148,7 @@ func stringify_reaction(cutoff = 50):
 	if (null == antagonist_choice):
 		result += "null"
 	else:
-		var fulltext = antagonist_choice.get_text(self)
+		var fulltext = antagonist_choice.get_text()
 		if ("" == fulltext):
 			result += "[Blank Reaction]"
 		else:

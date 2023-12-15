@@ -6,17 +6,17 @@ var coefficient = 1
 var keyring = []
 
 func _init(in_character = null, in_keyring = []):
-	pointer_type = "Bounded Number Pointer"
 	output_type = sw_script_data_types.BNUMBER
 	character = in_character
 	keyring = in_keyring.duplicate()
 
-func get_value(leaf = null, report = false):
+static func get_pointer_type():
+	return "Bounded Number Pointer"
+
+func get_value():
 	var output = null
 	if (character is Actor):
 		output = coefficient * character.get_bnumber_property(keyring)
-	if (report):
-		report_value(output)
 	return output
 
 func set_value(value):
@@ -52,7 +52,7 @@ func get_character_name_from_id(character_id):
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Pointer"
-	output["pointer_type"] = pointer_type
+	output["pointer_type"] = get_pointer_type()
 	output["coefficient"] = coefficient
 	if (include_editor_only_variables):
 		output["character"] = character.id
@@ -133,9 +133,17 @@ func validate(intended_script_output_datatype):
 	elif (character is Actor and is_instance_valid(character)):
 		if (!character.bnumber_properties.has(keyring[0])):
 			report += "\n" + "Character does not possess the property that this pointer refers to."
-		elif (null == get_value(null)):
+		elif (null == get_value()):
 			report += "\n" + "Value is null."
 	if ("" == report):
 		return "Passed."
 	else:
-		return pointer_type + " errors:" + report
+		return get_pointer_type() + " errors:" + report
+
+func is_parallel_to(sibling):
+	if (character == sibling.character and coefficient == sibling.coefficient and keyring.size() == sibling.keyring.size()):
+		for index in range(keyring.size()):
+			if (keyring[index] != sibling.keyring[index]):
+				return false
+		return true
+	return false

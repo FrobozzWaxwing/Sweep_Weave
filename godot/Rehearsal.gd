@@ -1,11 +1,9 @@
 extends Object
 class_name Rehearsal
 
-#var history = Tree.new()
 var starting_page = null
 var turn = 0
 var current_page = null
-var ending_leaves = []
 var storyworld = null
 var initial_pValues = null
 
@@ -16,26 +14,7 @@ func _init(in_storyworld):
 	initial_pValues = HB_Record.new()
 	initial_pValues.record_character_states(storyworld)
 
-func has_occurred_on_branch(encounter, leaf):
-	#Checks whether an encounter has occurred.
-	if (null == encounter):
-		return null
-	elif (null == leaf):
-		#Playthrough has only just begun.
-		return false
-	var node = leaf
-	while (null != node):
-		if (null != node.encounter and node.encounter == encounter):
-			return true
-		#No match for this node.
-		#Go farther towards the root of the tree.
-		if (node != starting_page):
-			node = node.get_parent()
-		else:
-			break
-	return false
-
-func select_page(reaction = null, leaf = null):
+func select_page(reaction = null):
 	if (null != reaction and null != reaction.consequence):
 		#Check for a direct link from the most recent reaction, (if any have yet occurred,) to an encounter.
 		return reaction.consequence
@@ -49,11 +28,10 @@ func select_page(reaction = null, leaf = null):
 				for encounter in spool.encounters:
 					if (!checked.has(encounter.id)):
 						checked[encounter.id] = true
-						#At the start of a playthrough, leaf should be null.
-						if (!has_occurred_on_branch(encounter, leaf) and encounter.acceptability_script.get_value(leaf)):
+						if (0 == encounter.occurrences and encounter.acceptability_script.get_value()):
 							#If the encounter has not yet occurred and is acceptable, then calculate its desirability.
-							var encounter_desirability = encounter.desirability_script.get_value(leaf)
-							if (encounter_desirability > greatest_desirability):
+							var encounter_desirability = encounter.calculate_desirability()
+							if (null != encounter_desirability and encounter_desirability > greatest_desirability):
 								greatest_desirability = encounter_desirability
 								selection = encounter
 		return selection
@@ -64,17 +42,17 @@ func find_open_options(leaf):
 	var all_options = leaf.encounter.options
 	var open_options = []
 	for option in all_options:
-		if (option.visibility_script.get_value(leaf) && option.performability_script.get_value(leaf)):
+		if (option.visibility_script.get_value() && option.performability_script.get_value()):
 			open_options.append(option)
 	return open_options
 
-func select_reaction(option, leaf):
+func select_reaction(option:Option):
 	#This determines how a character reacts to a choice made by the player.
 	var topInclination = -1
 	var workingChoice = null
 	for reaction in option.reactions:
-		var latestInclination = reaction.calculate_desirability(leaf, false)
-		if (latestInclination > topInclination):
+		var latestInclination = reaction.calculate_desirability()
+		if (null != latestInclination and latestInclination > topInclination):
 			topInclination = latestInclination
 			workingChoice = reaction
 	return workingChoice
@@ -89,33 +67,23 @@ func reset_spools_to(record:HB_Record):
 		var spool = storyworld.spool_directory[spool_id]
 		spool.is_active = record.spool_statuses[spool_id]
 
-func execute_reaction(reaction):
-	for change in reaction.after_effects:
-		if (change is SWEffect):
-			change.enact()
-
-func execute_option(root_page, option):
-	reset_pValues_to(root_page)
-	reset_spools_to(root_page)
-	turn = root_page.turn + 1
-	var reaction = select_reaction(option, root_page)
-	execute_reaction(reaction)
-	#next_page will be null if "The End" screen is reached.
-	#Record option, reaction, and resulting encounter to new branch.
-	var new_page = HB_Record.new(root_page)
-	root_page.add_branch(new_page)
-	new_page.player_choice = option
-	new_page.antagonist_choice = reaction
-	new_page.record_character_states(storyworld)
-	new_page.record_spool_statuses(storyworld)
-	new_page.turn = turn
-	var next_page = select_page(reaction, new_page)
-	new_page.encounter = next_page
-	new_page.record_occurrences() #Useful for tracking whether an event can occur. Intended for use with automatic rehearsal.
-	if (null == next_page):
-		new_page.is_an_ending_leaf = true
-		new_page.fully_explored = true
-	return new_page
+func reset_occurrences_to(record:HB_Record):
+	for encounter in storyworld.encounters:
+		encounter.occurrences = 0
+		for option in encounter.options:
+			option.occurrences = 0
+			for reaction in option.reactions:
+				reaction.occurrences = 0
+	var node = record
+	while (null != node):
+		if (null != node.encounter):
+			node.encounter.occurrences += 1
+		if (null != node.antagonist_choice):
+			node.antagonist_choice.occurrences += 1
+		if (null != node.player_choice):
+			node.player_choice.occurrences += 1
+		#Go farther towards the start of the story.
+		node = node.get_parent()
 
 func clear_all_data():
 	clear_history()
@@ -130,63 +98,185 @@ func clear_history():
 		starting_page.call_deferred("free")
 	starting_page = null
 	current_page = null
-	ending_leaves = []
 	turn = 0
 	for encounter in storyworld.encounters:
 		encounter.occurrences = 0
+		encounter.reachable = false
+		encounter.yielding_paths = 0
+		encounter.potential_ending = false
 		for option in encounter.options:
 			option.occurrences = 0
+			option.reachable = false
+			option.yielding_paths = 0
 			for reaction in option.reactions:
 				reaction.occurrences = 0
+				reaction.reachable = false
+				reaction.yielding_paths = 0
 
 func begin_playthrough():
 	clear_history()
 	starting_page = HB_Record.new()
 	starting_page.encounter = select_page()
+	if (null != starting_page.encounter):
+		starting_page.encounter.occurrences += 1
+		starting_page.encounter.reachable = true
 	starting_page.turn = turn
 	starting_page.record_character_states(storyworld)
 	starting_page.record_spool_statuses(storyworld)
-	starting_page.record_occurrences()
 	current_page = starting_page
+
+func turn_to_page(leaf):
+	#Turns to a specific page of the history book, setting all variables appropriately. Used for playtesting.
+	reset_occurrences_to(leaf)
+	step_playthrough(leaf)
 
 func step_playthrough(leaf):
 	current_page = leaf
 	reset_pValues_to(leaf)
 	reset_spools_to(leaf)
-	turn = leaf.turn + 1
-	if (leaf.get_children().empty() and !leaf.fully_explored):
+	turn = leaf.turn
+	if (null != leaf.encounter):
+		leaf.encounter.reachable = true
+	if (leaf.explored_branches.empty() and leaf.unexplored_branches.empty()):
 		var options = find_open_options(leaf)
 		if (options.empty()):
-			if (!ending_leaves.has(leaf)):
-				ending_leaves.append(leaf)
-			leaf.is_an_ending_leaf = true
-			leaf.fully_explored = true
-		elif (0 < options.size()):
+			leaf.set_as_ending_leaf()
+		else:
 			for option in options:
 				#Add new branch to history tree.
-				execute_option(leaf, option)
-		reset_pValues_to(leaf)
-		reset_spools_to(leaf)
-		turn = leaf.turn + 1
+				var new_page = HB_Record.new(leaf)
+				leaf.add_branch(new_page)
+				new_page.turn = turn + 1
+				#Execute option:
+				option.occurrences += 1
+				option.reachable = true
+				#Execute reaction:
+				var reaction = select_reaction(option)
+				reaction.occurrences += 1
+				reaction.reachable = true
+				var characters_changed = false
+				var spools_changed = false
+				for change in reaction.after_effects:
+					if (change is SWEffect):
+						change.enact()
+						if (change is BNumberEffect):
+							characters_changed = true
+						if (change is SpoolEffect):
+							spools_changed = true
+				#Select the next encounter:
+				new_page.encounter = select_page(reaction)
+				if (null == new_page.encounter):
+					#"The End" screen has been reached.
+					new_page.set_as_ending_leaf()
+				#Record option, reaction, and encounter to the history book.
+				new_page.player_choice = option
+				new_page.antagonist_choice = reaction
+				new_page.record_character_states(storyworld)
+				new_page.record_spool_statuses(storyworld)
+				#Rewind:
+				option.occurrences -= 1
+				reaction.occurrences -= 1
+				if (characters_changed):
+					reset_pValues_to(leaf)
+				if (spools_changed):
+					reset_spools_to(leaf)
+			if (leaf.encounter.parallels_detected):
+				#Some branches may be parallel.
+				for first_branch_index in range(leaf.unexplored_branches.size()):
+					var first_branch = leaf.unexplored_branches[first_branch_index]
+					if (!first_branch.can_be_skipped):
+						for second_branch_index in range(first_branch_index + 1, leaf.unexplored_branches.size()):
+							var second_branch = leaf.unexplored_branches[second_branch_index]
+							if (first_branch.is_parallel_to(second_branch)):
+								first_branch.parallel_to.append(second_branch)
+								second_branch.can_be_skipped = true
+			var nonskippable = []
+			for branch in leaf.unexplored_branches:
+				branch.path_multiplier = leaf.path_multiplier * (1 + leaf.parallel_to.size())
+				if (branch.can_be_skipped):
+					leaf.explored_branches.append(branch)
+				else:
+					nonskippable.append(branch)
+			leaf.unexplored_branches = nonskippable
 
 func rehearse_depth_first():
 	if (null == starting_page or null == current_page):
 		begin_playthrough()
 	step_playthrough(current_page)
 	if (current_page.is_an_ending_leaf):
-		current_page.fully_explored = true
+		#An ending has been reached.
+		#Add the record's branch count to the yielding path count of each of the record's events.
+		current_page.record_yielding_paths()
+		#Rewind
+		current_page.decrement_occurrences()
 		current_page = current_page.get_parent()
+		if (null == current_page):
+			#All paths have been explored and we have returned to the beginning. Rehearsal complete.
+			return true
 	else:
-		var branches = current_page.get_children()
-		var left_to_explore = []
-		for each in branches:
-			if (false == each.fully_explored):
-				left_to_explore.append(each)
-		if (0 < left_to_explore.size()):
-			current_page = left_to_explore.front()
-		else:
-			current_page.fully_explored = true
-			current_page = current_page.get_parent()
-			if (null == current_page):
-				return true
+		while (!current_page.unexplored_branches.empty()):
+			var branch = current_page.unexplored_branches.pop_back()
+			current_page.explored_branches.append(branch)
+			if (branch.is_an_ending_leaf):
+				#Add the record's branch count to the yielding path count of each of the record's events.
+				branch.record_yielding_paths()
+			else:
+				current_page = branch
+				current_page.increment_occurrences()
+				#Rehearsal incomplete.
+				return false
+		current_page.path_count = 0
+		for branch in current_page.explored_branches:
+			current_page.path_count += branch.path_count
+		#All of the current page's branches have been explored.
+		#Add the record's branch count to the yielding path count of each of the record's events.
+		current_page.record_yielding_paths()
+		current_page.clear_children()
+		#Rewind
+		current_page.decrement_occurrences()
+		current_page = current_page.get_parent()
+		if (null == current_page):
+			#All paths have been explored and we have returned to the beginning. Rehearsal complete.
+			return true
+	#Rehearsal incomplete.
 	return false
+
+#func randomly_rehearse_depth_first():
+#	if (null == starting_page or null == current_page):
+#		begin_playthrough()
+#	step_playthrough(current_page)
+#	if (current_page.is_an_ending_leaf):
+#		current_page.fully_explored = true
+#		current_page.record_yielding_paths(yielding_path_multiplier) #Add the record's branch count to the yielding path count of each of the record's events.
+#		current_page.decrement_occurrences()
+#		current_page = current_page.get_parent()
+#		if (null == current_page):
+#			#Rehearsal complete.
+#			return true
+#	else:
+#		var branches = current_page.get_children()
+#		var left_to_explore = []
+#		current_page.path_count = 0
+#		for branch in branches:
+#			if (branch.fully_explored):
+#				current_page.path_count += branch.path_count
+#			elif (branch.is_an_ending_leaf):
+#				branch.fully_explored = true
+#				branch.record_yielding_paths(yielding_path_multiplier)
+#				current_page.path_count += branch.path_count
+#			else:
+#				left_to_explore.append(branch)
+#		if (0 < left_to_explore.size()):
+#			current_page = left_to_explore[randi() % left_to_explore.size()]
+#			current_page.increment_occurrences()
+#		else:
+#			current_page.fully_explored = true
+#			current_page.record_yielding_paths(yielding_path_multiplier) #Add the record's branch count to the yielding path count of each of the record's events.
+#			current_page.clear_children()
+#			current_page.decrement_occurrences()
+#			current_page = current_page.get_parent()
+#			if (null == current_page):
+#				#Rehearsal complete.
+#				return true
+#	#Rehearsal incomplete.
+#	return false

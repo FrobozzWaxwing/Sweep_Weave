@@ -5,7 +5,6 @@ enum operator_subtypes {GT, GTE, LT, LTE, EQUALS}
 var operator_subtype = operator_subtypes.GT
 
 func _init(in_operator_subtype = "GT", in_x = null, in_y = null):
-	operator_type = "Arithmetic Comparator"
 	input_type = sw_script_data_types.BNUMBER
 	output_type = sw_script_data_types.BOOLEAN
 	can_add_operands = false
@@ -14,12 +13,15 @@ func _init(in_operator_subtype = "GT", in_x = null, in_y = null):
 	add_operand(in_x)
 	add_operand(in_y)
 
-func get_value(leaf = null, report = false):
+static func get_operator_type():
+	return "Arithmetic Comparator"
+
+func get_value():
 	var output = null
 	if (0 == operands.size()):
 		print ("Warning: arithmetic comparator has no operands.")
-	var x = evaluate_operand_at_index(0, leaf, report)
-	var y = evaluate_operand_at_index(1, leaf, report)
+	var x = evaluate_operand_at_index(0)
+	var y = evaluate_operand_at_index(1)
 	if ((TYPE_INT == typeof(x) or TYPE_REAL == typeof(x)) and (TYPE_INT == typeof(y) or TYPE_REAL == typeof(y))):
 		if (operator_subtypes.GT == operator_subtype):
 			output = (x > y)
@@ -32,8 +34,26 @@ func get_value(leaf = null, report = false):
 		elif (operator_subtypes.EQUALS == operator_subtype):
 			#Unused.
 			output = (x == y)
-	if (report):
-		report_value(output)
+	return output
+
+func get_and_report_value():
+	var output = null
+	if (0 == operands.size()):
+		print ("Warning: arithmetic comparator has no operands.")
+	var x = evaluate_and_report_operand_at_index(0)
+	var y = evaluate_and_report_operand_at_index(1)
+	if ((TYPE_INT == typeof(x) or TYPE_REAL == typeof(x)) and (TYPE_INT == typeof(y) or TYPE_REAL == typeof(y))):
+		if (operator_subtypes.GT == operator_subtype):
+			output = (x > y)
+		elif (operator_subtypes.GTE == operator_subtype):
+			output = (x >= y)
+		elif (operator_subtypes.LT == operator_subtype):
+			output = (x < y)
+		elif (operator_subtypes.LTE == operator_subtype):
+			output = (x <= y)
+		elif (operator_subtypes.EQUALS == operator_subtype):
+			#Unused.
+			output = (x == y)
 	return output
 
 func operator_subtype_to_longstring():
@@ -100,7 +120,7 @@ func data_to_string():
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Operator"
-	output["operator_type"] = operator_type
+	output["operator_type"] = get_operator_type()
 	output["operator_subtype"] = operator_subtype_to_string()
 	if (!include_editor_only_variables):
 		output["input_type"] = stringify_input_type()

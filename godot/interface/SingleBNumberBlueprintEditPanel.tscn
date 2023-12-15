@@ -1,0 +1,136 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://interface/SingleBNumberBlueprintEditPanel.gd" type="Script" id=1]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_vertical = 3
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_vertical = 3
+color = Color( 0, 0.0627451, 0.12549, 1 )
+
+[node name="VBC" type="VBoxContainer" parent="ColorRect"]
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_right = 281.0
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="ColorRect/VBC"]
+margin_right = 281.0
+margin_bottom = 14.0
+text = "Property Name:"
+
+[node name="NameEdit" type="LineEdit" parent="ColorRect/VBC"]
+margin_top = 18.0
+margin_right = 281.0
+margin_bottom = 42.0
+placeholder_text = "[Unnamed Property]"
+placeholder_alpha = 0.4
+
+[node name="HBC" type="HBoxContainer" parent="ColorRect/VBC"]
+margin_top = 46.0
+margin_right = 281.0
+margin_bottom = 70.0
+
+[node name="DepthLabel" type="Label" parent="ColorRect/VBC/HBC"]
+margin_top = 5.0
+margin_right = 43.0
+margin_bottom = 19.0
+text = "Depth:"
+
+[node name="DepthEdit" type="SpinBox" parent="ColorRect/VBC/HBC"]
+margin_left = 47.0
+margin_right = 121.0
+margin_bottom = 24.0
+max_value = 2.0
+
+[node name="Label3" type="Label" parent="ColorRect/VBC"]
+margin_top = 74.0
+margin_right = 281.0
+margin_bottom = 88.0
+text = "Default Value:"
+
+[node name="DefaultValueEdit" type="SpinBox" parent="ColorRect/VBC"]
+margin_top = 92.0
+margin_right = 281.0
+margin_bottom = 116.0
+min_value = -0.99
+max_value = 0.99
+step = 0.01
+
+[node name="AttributionTargetEdit" type="OptionButton" parent="ColorRect/VBC"]
+margin_top = 120.0
+margin_right = 281.0
+margin_bottom = 140.0
+
+[node name="AffectedCharactersLabel" type="Label" parent="ColorRect/VBC"]
+margin_top = 144.0
+margin_right = 281.0
+margin_bottom = 158.0
+text = "Who to apply property to:"
+
+[node name="AddCharacterButton" type="Button" parent="ColorRect/VBC"]
+margin_top = 162.0
+margin_right = 281.0
+margin_bottom = 182.0
+text = "Add a character to affected characters."
+
+[node name="DeleteCharacterButton" type="Button" parent="ColorRect/VBC"]
+margin_top = 186.0
+margin_right = 281.0
+margin_bottom = 206.0
+text = "Delete character from affected characters."
+
+[node name="AffectedCharactersList" type="ItemList" parent="ColorRect/VBC"]
+margin_top = 210.0
+margin_right = 281.0
+margin_bottom = 736.0
+rect_min_size = Vector2( 0, 64 )
+size_flags_vertical = 3
+select_mode = 1
+
+[node name="SelectNewAffectedCharacterWindow" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 200, 200 )
+window_title = "Select new affected characters:"
+resizable = true
+
+[node name="NoCharactersAvailableMessage" type="Label" parent="SelectNewAffectedCharacterWindow"]
+visible = false
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 445.0
+margin_bottom = 164.0
+text = "All characters in the storyworld are already affected by this property."
+
+[node name="PossibleNewAffectedCharactersList" type="ItemList" parent="SelectNewAffectedCharacterWindow"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 445.0
+margin_bottom = 164.0
+select_mode = 1
+
+[node name="ConfirmRemoveAffectedCharactersWindow" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+
+[node name="VBC" type="VBoxContainer" parent="ConfirmRemoveAffectedCharactersWindow"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 192.0
+margin_bottom = 34.0
+
+[connection signal="text_changed" from="ColorRect/VBC/NameEdit" to="." method="_on_NameEdit_text_changed"]
+[connection signal="value_changed" from="ColorRect/VBC/HBC/DepthEdit" to="." method="_on_DepthEdit_value_changed"]
+[connection signal="value_changed" from="ColorRect/VBC/DefaultValueEdit" to="." method="_on_DefaultValueEdit_value_changed"]
+[connection signal="item_selected" from="ColorRect/VBC/AttributionTargetEdit" to="." method="_on_AttributionTargetEdit_item_selected"]
+[connection signal="pressed" from="ColorRect/VBC/AddCharacterButton" to="." method="_on_AddCharacterButton_pressed"]
+[connection signal="pressed" from="ColorRect/VBC/DeleteCharacterButton" to="." method="_on_DeleteCharacterButton_pressed"]
+[connection signal="confirmed" from="SelectNewAffectedCharacterWindow" to="." method="_on_SelectNewAffectedCharacterWindow_confirmed"]
+[connection signal="confirmed" from="ConfirmRemoveAffectedCharactersWindow" to="." method="_on_ConfirmRemoveAffectedCharactersWindow_confirmed"]

@@ -22,17 +22,31 @@ func get_template_from_file():
 		print(error_message)
 	return html_content
 
-func _init(game_data, storyworld_title, storyworld_author, ifid, storyworld_debug_mode_on, template = "res://custom_resources/encounter_engine.html"):
+func _init(game_data, storyworld, template = "res://custom_resources/encounter_engine.html"):
 	file_to_read = template
 	output = get_template_from_file()
-	if (!storyworld_debug_mode_on):
+	if (!storyworld.storyworld_debug_mode_on):
 		var regex = RegEx.new()
 		regex.compile("\\s*console\\.log\\(.*\\);")
 		output = regex.sub(output, "", true)
-	if ("" != storyworld_title):
-		output = output.replacen("<title>SweepWeave Storyworld Interpreter</title>", "<title>" + storyworld_title + "</title>")
-	if ("" != storyworld_author):
-		output = output.replacen("<meta name=\"author\" content=\"Anonymous\">", "<meta name=\"author\" content=\"" + storyworld_author + "\">")
-	if ("" != ifid):
-		output = output.replacen("<meta prefix=\"ifiction: http://babel.ifarchive.org/protocol/iFiction/\" property=\"ifiction:ifid\" content=\"\">", "<meta prefix=\"ifiction: http://babel.ifarchive.org/protocol/iFiction/\" property=\"ifiction:ifid\" content=\"" + ifid + "\">")
+	if ("" != storyworld.language):
+		output = output.replacen("<html>", '<html lang="' + storyworld.language + '">')
+	var meta = ""
+	if ("" == storyworld.storyworld_title):
+		meta += "<title>An Interactive Storyworld</title>"
+	else:
+		meta += "<title>" + storyworld.storyworld_title + "</title>"
+	if ("" == storyworld.storyworld_author):
+		meta += '<meta name="author" content="Anonymous">"'
+	else:
+		meta += '<meta name="author" content="' + storyworld.storyworld_author + '">'
+	if ("" != storyworld.ifid):
+		meta += '<meta prefix="ifiction: http://babel.ifarchive.org/protocol/iFiction/" property="ifiction:ifid" content="' + storyworld.ifid + '">'
+	if ("" != storyworld.sweepweave_version_number):
+		meta += '<meta name="generator" content="SweepWeave ' + storyworld.sweepweave_version_number + '">'
+	if ("" != storyworld.meta_description):
+		meta += '<meta name="description" content="' + storyworld.meta_description + '">'
+	if ("" != storyworld.rating):
+		meta += '<meta name="rating" content="' + storyworld.rating + '">'
+	output = output.replacen("<!-- Storyworld Metadata -->", meta)
 	output = output.replacen('<script type="text/javascript" src="storyworld_data.js"></script>', "<script>" + game_data.replacen("\\n", "<br>\\n") + "</script>")

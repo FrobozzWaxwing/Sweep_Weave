@@ -4,11 +4,13 @@ class_name SpoolPointer
 var spool = null
 
 func _init(in_spool = null):
-	pointer_type = "Spool Pointer"
 	output_type = sw_script_data_types.VARIANT
 	set_value(in_spool)
 
-func get_value(leaf = null, report = false):
+static func get_pointer_type():
+	return "Spool Pointer"
+
+func get_value():
 	return spool
 
 func set_value(in_spool):
@@ -52,13 +54,6 @@ func deactivate():
 		return false
 
 func compile(parent_storyworld, include_editor_only_variables = false):
-#	var output = {}
-#	output["script_element_type"] = "Pointer"
-#	output["pointer_type"] = pointer_type
-#	if (spool is Spool):
-#		output["spool"] = spool.id
-#	else:
-#		output["spool"] = null
 	var output = null
 	if (spool is Spool):
 		output = spool.id
@@ -82,4 +77,7 @@ func validate(intended_script_output_datatype):
 	if ("" == report):
 		return "Passed."
 	else:
-		return pointer_type + " errors:" + report
+		return get_pointer_type() + " errors:" + report
+
+func is_parallel_to(sibling):
+	return spool == sibling.spool

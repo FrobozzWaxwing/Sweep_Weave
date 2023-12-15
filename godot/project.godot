@@ -17,7 +17,7 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "Actor",
 "language": "GDScript",
-"path": "res://Actor.gd"
+"path": "res://storyworld_elements/Actor.gd"
 }, {
 "base": "SWOperator",
 "class": "ArithmeticComparator",
@@ -37,12 +37,12 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "AuthoredPropertySorter",
 "language": "GDScript",
-"path": "res://AuthoredPropertySorter.gd"
+"path": "res://sorters/AuthoredPropertySorter.gd"
 }, {
 "base": "Object",
 "class": "BNumberBlueprint",
 "language": "GDScript",
-"path": "res://BNumberBlueprint.gd"
+"path": "res://storyworld_elements/BNumberBlueprint.gd"
 }, {
 "base": "SWPointer",
 "class": "BNumberConstant",
@@ -52,7 +52,7 @@ _global_script_classes=[ {
 "base": "SWEffect",
 "class": "BNumberEffect",
 "language": "GDScript",
-"path": "res://BNumberEffect.gd"
+"path": "res://storyworld_elements/BNumberEffect.gd"
 }, {
 "base": "SWPointer",
 "class": "BNumberPointer",
@@ -82,12 +82,12 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "CharacterSorter",
 "language": "GDScript",
-"path": "res://CharacterSorter.gd"
+"path": "res://sorters/CharacterSorter.gd"
 }, {
 "base": "Object",
 "class": "Clipboard",
 "language": "GDScript",
-"path": "res://Clipboard.gd"
+"path": "res://interface/Clipboard.gd"
 }, {
 "base": "Object",
 "class": "Compiler",
@@ -102,27 +102,27 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "DocChapter",
 "language": "GDScript",
-"path": "res://DocChapter.gd"
+"path": "res://documentation_elements/DocChapter.gd"
 }, {
 "base": "Object",
 "class": "DocPage",
 "language": "GDScript",
-"path": "res://DocPage.gd"
+"path": "res://documentation_elements/DocPage.gd"
 }, {
 "base": "Object",
 "class": "DocSection",
 "language": "GDScript",
-"path": "res://DocSection.gd"
+"path": "res://documentation_elements/DocSection.gd"
 }, {
 "base": "Object",
 "class": "Encounter",
 "language": "GDScript",
-"path": "res://Encounter.gd"
+"path": "res://storyworld_elements/Encounter.gd"
 }, {
 "base": "Object",
 "class": "EncounterSorter",
 "language": "GDScript",
-"path": "res://EncounterSorter.gd"
+"path": "res://sorters/EncounterSorter.gd"
 }, {
 "base": "Object",
 "class": "ErrorReport",
@@ -147,7 +147,7 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "InclinationSorter",
 "language": "GDScript",
-"path": "res://InclinationSorter.gd"
+"path": "res://sorters/InclinationSorter.gd"
 }, {
 "base": "SWOperator",
 "class": "NudgeOperator",
@@ -157,12 +157,12 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "Option",
 "language": "GDScript",
-"path": "res://Option.gd"
+"path": "res://storyworld_elements/Option.gd"
 }, {
 "base": "Object",
 "class": "Reaction",
 "language": "GDScript",
-"path": "res://Reaction.gd"
+"path": "res://storyworld_elements/Reaction.gd"
 }, {
 "base": "Object",
 "class": "Rehearsal",
@@ -172,7 +172,7 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "SWEffect",
 "language": "GDScript",
-"path": "res://SWEffect.gd"
+"path": "res://storyworld_elements/SWEffect.gd"
 }, {
 "base": "SWOperator",
 "class": "SWEqualsOperator",
@@ -222,12 +222,12 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "Spool",
 "language": "GDScript",
-"path": "res://Spool.gd"
+"path": "res://storyworld_elements/Spool.gd"
 }, {
 "base": "SWEffect",
 "class": "SpoolEffect",
 "language": "GDScript",
-"path": "res://SpoolEffect.gd"
+"path": "res://storyworld_elements/SpoolEffect.gd"
 }, {
 "base": "SWPointer",
 "class": "SpoolPointer",
@@ -237,7 +237,7 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "SpoolSorter",
 "language": "GDScript",
-"path": "res://SpoolSorter.gd"
+"path": "res://sorters/SpoolSorter.gd"
 }, {
 "base": "SWPointer",
 "class": "SpoolStatusPointer",
@@ -247,7 +247,7 @@ _global_script_classes=[ {
 "base": "Object",
 "class": "Storyworld",
 "language": "GDScript",
-"path": "res://Storyworld.gd"
+"path": "res://storyworld_elements/Storyworld.gd"
 }, {
 "base": "SWOperator",
 "class": "StringConcatenationOperator",
@@ -328,7 +328,7 @@ _global_script_class_icons={
 
 config/name="SweepWeave"
 config/description="An experimental authoring tool for interactive storyworlds."
-run/main_scene="res://GUI.tscn"
+run/main_scene="res://interface/GUI.tscn"
 run/low_processor_mode=true
 config/icon="res://custom_resources/ball_of_yarn.png"
 config/windows_native_icon="res://custom_resources/ball_of_yarn.ico"

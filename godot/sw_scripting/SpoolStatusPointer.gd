@@ -6,20 +6,20 @@ var spool = null
 var negated = false
 
 func _init(in_spool = null, in_negated = false):
-	pointer_type = "Spool Status Pointer"
 	output_type = sw_script_data_types.BOOLEAN
 	if (in_spool is Spool):
 		spool = in_spool
 	negated = in_negated
 
-func get_value(leaf = null, report = false):
+static func get_pointer_type():
+	return "Spool Status Pointer"
+
+func get_value():
 	var output = null
 	if (spool is Spool):
 		output = spool.is_active
 	else:
 		output = null
-	if (report):
-		report_value(output)
 	return output
 
 func set_as_copy_of(original):
@@ -47,7 +47,7 @@ func clear():
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Pointer"
-	output["pointer_type"] = pointer_type
+	output["pointer_type"] = get_pointer_type()
 	if (spool is Spool):
 		output["spool"] = spool.id
 	else:
@@ -78,4 +78,7 @@ func validate(intended_script_output_datatype):
 	if ("" == report):
 		return "Passed."
 	else:
-		return pointer_type + " errors:" + report
+		return get_pointer_type() + " errors:" + report
+
+func is_parallel_to(sibling):
+	return negated == sibling.negated and spool == sibling.spool

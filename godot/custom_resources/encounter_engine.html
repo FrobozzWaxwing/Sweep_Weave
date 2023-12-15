@@ -1,40 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
+<!-- Storyworld Metadata -->
 <meta charset="UTF-8">
-<meta name="description" content="An interactive storyworld made in SweepWeave. System Designers: Chris Crawford, Sasha Fenn. Interpreter coding and implementation: Sasha Fenn.">
-<meta name="author" content="Anonymous">
-<meta prefix="ifiction: http://babel.ifarchive.org/protocol/iFiction/" property="ifiction:ifid" content="">
+<meta name="keywords" content="interactive fiction, interactive storytelling, text adventure, storyworld, game, SweepWeave">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SweepWeave Storyworld Interpreter</title>
+<!-- SweepWeave storyworld engine designed and developed by Sasha Fenn -->
 <style>
-body {
-    background-color: LavenderBlush;
+/* General */
+html {
+    scroll-behavior: smooth;
 }
 
-.collapsible {
-    background-color: #453d5c;
-    color: white;
+button {
     cursor: pointer;
-    padding: 18px;
+}
+
+/* Collapsibles */
+
+.collapsible {
+    padding: 16px;
     width: 100%;
     border: none;
     text-align: left;
     outline: none;
-    font-size: 15px;
+    font-size: 14px;
 }
 
-.active, .collapsible:hover {
-    background-color: #675c8a;
-}
-
-.content {
-    padding: 0 16px;
+.collapsible-content {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.5s ease-out;
-    background-color: Thistle;
 }
+
+/* Menu */
+
+.menu .row {
+    border: none;
+    display: block;
+    text-align: left;
+    width: 100%;
+}
+
+.menu .row:not(:last-child) {
+    padding: 8px 16px 0px;
+}
+
+.menu .row:last-child {
+    padding: 8px 16px;
+}
+
+.menu button {
+    padding: 4px 6px;
+    border: none;
+    border-radius: 5px;
+}
+
+/* Popup Dialog Box */
 
 #popupBackground {
 	position: fixed;
@@ -55,8 +77,11 @@ body {
 #popupDialog {
 	position: relative;
 	z-index: 99;
-	min-width: 256px; max-width: 512px;
-	align-items: center; justify-content: center;
+	min-width: 256px;
+    max-width: 512px;
+	align-items: center;
+    justify-content: center;
+    text-align: center;
 	padding: 5px;
 	background: #fff;
 	border-radius: 10px;
@@ -65,13 +90,282 @@ body {
 #popupText {
 	padding: 5px;
 }
+
+/* Dropdown Button */
+
+.dropdown {
+    display: inline-block;
+}
+
+.dropbtn {
+    width: 100%;
+    min-width: 80px;
+}
+
+.dropdown.show .dropbtn {
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.dropdown-content {
+    display: none;
+    overflow: auto;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown.show .dropdown-content {
+    display: block;
+}
+
+.dropdown-content button {
+    border: none;
+    display: block;
+    padding: 4px 4px;
+    border-radius: 0px;
+    width: 100%;
+}
+
+.dropdown-content button:last-child {
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+/* Transcript */
+
+#transcript {
+    padding: 0px 16px;
+}
+
+/* Player Options */
+
+#options_list {
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.option {
+    border: 1px solid black;
+    border-width: 1px 1px 0px 1px;
+    padding: 5px;
+    transition: background-color 0.3s;
+}
+
+.option.first {
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.option.last {
+    border-width: 1px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.option.single {
+    border-width: 1px;
+    border-radius: 5px;
+}
+
+.option.disabled {
+}
+
+.option.disabled:hover {
+    cursor: auto;
+}
+
+.option .prefix {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.option:hover .prefix {
+    opacity: 1;
+}
+
+.option.disabled:hover .prefix  {
+    opacity: 0;
+}
+
+/* Decorated Heading */
+
+.decorated_heading {
+    overflow: hidden;
+    text-align: center;
+}
+
+.decorated_heading::before,
+.decorated_heading::after {
+    content: "";
+    border-radius: 25px;
+    display: inline-block;
+    height: 2px;
+    position: relative;
+    vertical-align: middle;
+    width: 50%;
+}
+
+.decorated_heading::before {
+    right: 0.5em;
+    margin-left: -50%;
+}
+
+.decorated_heading::after {
+    left: 0.5em;
+    margin-right: -50%;
+}
+
+/* Story Illustrations */
+
+.illustration {
+    width: auto;
+    object-fit: contain;
+    max-width: 100%;
+    border-style: solid;
+    border-width: 1px;
+    display: block;
+    margin: auto;
+}
+
+/* Visual Theme Options: */
+
+/* Lilac Theme: */
+
+body.lilac {
+    background-color: LavenderBlush;
+}
+
+.lilac .collapsible {
+    background-color: #453d5c;
+    color: White;
+}
+
+.lilac .collapsible:hover {
+    background-color: #675c8a;
+}
+
+.lilac .collapsible-content {
+    background-color: Thistle;
+}
+
+.lilac .menu button {
+    background-color: #453d5c;
+    color: White;
+}
+
+.lilac .menu button:hover {
+    background-color: #675c8a;
+}
+
+.lilac #popupDialog {
+	background: White;
+}
+
+.lilac .dropdown-content button {
+    background-color: LavenderBlush;
+    color: Black;
+}
+
+.lilac .dropdown-content button.selected {
+    background-color: Violet;
+}
+
+.lilac .dropdown-content button:hover {
+    background-color: Violet;
+}
+
+.lilac .option:hover {
+    background-color: PeachPuff;
+}
+
+.lilac .option.disabled {
+    color: DimGray;
+}
+
+.lilac .option.disabled:hover {
+    background-color: LavenderBlush;
+}
+
+.lilac .decorated_heading::before,
+.lilac .decorated_heading::after {
+    background-color: Black;
+}
+
+.lilac .illustration {
+    border-color: Black
+}
+
+/* Nightshade Theme: */
+
+body.nightshade {
+    background-color: Black;
+    color: White;
+}
+
+.nightshade .collapsible {
+    background-color: #11268E;
+    color: White;
+}
+
+.nightshade .collapsible:hover, .nightshade .menu button:hover, .nightshade .dropdown-content button.selected, .nightshade .dropdown-content button:hover {
+    background-color: #5f1cb0;
+}
+
+.nightshade .collapsible-content {
+    background-color: #4185D3;
+    color: White;
+}
+
+.nightshade .menu button {
+    background-color: #11268E;
+    color: White;
+}
+
+.nightshade #popupDialog {
+	background: GhostWhite;
+    color: Black;
+}
+
+.nightshade .dropdown-content button {
+    background-color: #050515;
+}
+
+.nightshade .option {
+    background-color: #050515;
+    border-color: GhostWhite;
+}
+
+.nightshade .option:hover {
+    background-color: #5f1cb0;
+}
+
+.nightshade .option.disabled {
+    color: Silver;
+}
+
+.nightshade .option.disabled:hover {
+    background-color: Black;
+}
+
+.nightshade .decorated_heading::before,
+.nightshade .decorated_heading::after {
+    background-color: GhostWhite;
+}
+
+.nightshade .illustration {
+    border-color: Black
+}
 </style>
 <script type="text/javascript" src="storyworld_data.js"></script>
 <script>
 
 //--------------------------
-//Section 1: Basic Functions
+//Section 1: Interface Functions
 //--------------------------
+
+//Popup Dialog
 
 function showPopupDialog(msg) {
 	if (msg != undefined) {
@@ -87,8 +381,141 @@ function hidePopupDialog(){
 var onPopupConfirmation = hidePopupDialog;
 var popupArgument = "";
 function confirmPopupDialog(){
-	onPopupConfirmation();
 	hidePopupDialog();
+	onPopupConfirmation();
+}
+
+//Menu
+
+var menuOpen = false;
+function toggleMenu(){
+    menuOpen = !menuOpen;
+    if (menuOpen){
+        openMenu();
+    } else {
+        closeMenu();
+    }
+}
+
+function openMenu(){
+    let menu = document.getElementById("main_menu");
+    menu.style.maxHeight = menu.scrollHeight + "px";
+}
+
+function closeMenu(){
+    let menu = document.getElementById("main_menu");
+    menu.style.maxHeight = "0px";
+}
+
+function refreshMenu(){
+    if (menuOpen){
+        openMenu();
+    } else {
+        closeMenu();
+    }
+}
+
+//About Popup
+
+function displayAboutText(){
+    onPopupConfirmation = hidePopupDialog;
+    showPopupDialog(evaluateSWScript(storyworld_data.about_text));
+}
+
+//Transcript
+
+var transcriptOpen = false;
+function toggleTranscript(){
+    transcriptOpen = !(transcriptOpen || "" == playthrough_transcript);
+    if (transcriptOpen){
+        openTranscript();
+    } else {
+        closeTranscript();
+    }
+}
+
+function openTranscript(){
+    let element = document.getElementById("transcript");
+    let height = element.scrollHeight + 8;
+    element.style.maxHeight = height + "px";
+}
+
+
+function closeTranscript(){
+    let element = document.getElementById("transcript");
+    element.style.maxHeight = "0px";
+}
+
+function refreshTranscript(){
+    if (transcriptOpen){
+        openTranscript();
+    } else {
+        closeTranscript();
+    }
+}
+
+//Autoscroll
+
+function focusStory(){
+    let element = document.getElementById("story");
+    element.scrollIntoView();
+}
+
+//Graphics Options
+function setTheme(theme_name){
+    var body = document.getElementsByTagName("BODY")[0];
+    var lilac_button = document.getElementById("lilac_button");
+    var nightshade_button = document.getElementById("nightshade_button");
+    switch (theme_name){
+        case "lilac":
+            body.classList.remove("nightshade");
+            body.classList.add("lilac");
+            nightshade_button.classList.remove("selected");
+            lilac_button.classList.add("selected");
+            break;
+        case "nightshade":
+            body.classList.remove("lilac");
+            body.classList.add("nightshade");
+            lilac_button.classList.remove("selected");
+            nightshade_button.classList.add("selected");
+            break;
+    }
+}
+
+function setFontSize(size){
+    var element = document.getElementById("main_menu");
+    element.style.fontSize = size + "px";
+    element = document.getElementById("transcript");
+    element.style.fontSize = size + "px";
+    element = document.getElementsByTagName("BODY")[0];
+    element.style.fontSize = size + "px";
+    var options = ["14", "16", "18", "20"];
+    for (option of options){
+        element = document.getElementById("set_font_" + option);
+        if (option == size){
+            element.classList.add("selected");
+        } else {
+            element.classList.remove("selected");
+        }
+    }
+}
+
+function initiateGUI(){
+    if (typeof storyworld_data !== 'undefined' && typeof storyworld_data.css_theme !== 'undefined' && typeof storyworld_data.font_size !== 'undefined'){
+        setTheme(storyworld_data.css_theme);
+        setFontSize(storyworld_data.font_size);
+    } else {
+        setTheme("lilac");
+        setFontSize("16");
+    }
+}
+
+//Dropdown Buttons
+
+function toggleDropdown(id){
+    var element = document.getElementById(id);
+    element.classList.toggle("show");
+    openMenu();//Used to refresh the height of the main menu.
 }
 
 //------------------
@@ -305,6 +732,7 @@ function importSpoolData(){
 }
 
 function importGameData(){
+    document.getElementById("about_button").innerHTML = "About " + storyworld_data.storyworld_title;
     importCharacterData();
     importSpoolData();
     var eachEn;
@@ -330,41 +758,33 @@ function comparePageTitleAlphabetically(a, b){
 //Section 4: Saving and Loading
 //-----------------------------
 
-function setCookie(cname,cvalue,exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires=" + d.toGMTString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/;SameSite=Lax";
-}
-
-function getCookie(cname) {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-}
-
 var save_profile = {};
 
-var save_profile_string = getCookie("save_profile");
-if (save_profile_string != "") {
-    save_profile = JSON.parse(save_profile_string);
+function importSaveProfile(){
+    if (typeof(Storage) === "undefined") {
+        //Browser does not support local storage.
+        return;
+    }
+    let save_profile_string = localStorage.getItem("save_profile");
+    if (null !== save_profile_string) {
+        save_profile = JSON.parse(save_profile_string);
+    }
 }
 
+importSaveProfile();
+
+//var maximum_save_count = 7; //Maximum number of saved games, excluding autosave.
+
 function saveGame(save_filename){
+    if (typeof(Storage) === "undefined") {
+        //Browser does not support local storage.
+        return;
+    }
     save_filename = encodeURIComponent(save_filename);
     var save_dictionary = {};
     save_dictionary.save_filename = save_filename;
-    save_dictionary.slow_historybook = slow_historybook;
+    save_dictionary.date = new Date().toUTCString();
+    save_dictionary.historybook = slow_historybook;
     save_dictionary.characters = [];
 	for (character of characters){
 		save_dictionary.characters.push(character.saveData());
@@ -374,17 +794,28 @@ function saveGame(save_filename){
         save_dictionary.spool_directory[spool.id] = spool.currently_active;
     }
     var save_file = JSON.stringify(save_dictionary);
-    setCookie("saved_game_" + save_filename, save_file, 4096);
-    save_profile[save_filename] = new Date().toUTCString();
-    setCookie("save_profile", JSON.stringify(save_profile), 4096);
+    localStorage.setItem("saved_game_" + save_filename, save_file);
+    save_profile[save_filename] = save_dictionary.date;
+    localStorage.setItem("save_profile", JSON.stringify(save_profile));
     displaySaveProfile();
     console.log("Saved game: " + save_filename);
 }
 
 function loadGame(save_filename){
+    if (typeof(Storage) === "undefined") {
+        //Browser does not support local storage.
+        return;
+    }
     //Set slow historybook to saved historybook.
-    var save_dictionary = JSON.parse(getCookie("saved_game_" + save_filename));
-    slow_historybook = save_dictionary.slow_historybook;
+    let saved_game_string = localStorage.getItem("saved_game_" + save_filename);
+    if (null === saved_game_string) {
+        //Saved game not found.
+        onPopupConfirmation = hidePopupDialog;
+        showPopupDialog('Error: Failed to load saved game: "' + save_filename + '"');
+        return;
+    }
+    var save_dictionary = JSON.parse(saved_game_string);
+    slow_historybook = save_dictionary.historybook;
 	importCharacterData(save_dictionary.characters);
     for (spool of spools){
         spool.currently_active = save_dictionary.spool_directory[spool.id];
@@ -402,7 +833,7 @@ function loadGame(save_filename){
 		}
     }
     document.getElementById("transcript").innerHTML = playthrough_transcript;
-    refreshCollapsable(document.getElementById("transcript"));
+    refreshTranscript();
     turn = slow_historybook.length;
     //Load last encounter.
     if ('undefined' === typeof slow_historybook[slow_historybook.length - 1]){
@@ -416,20 +847,37 @@ function loadGame(save_filename){
 }
 
 function deleteSavedGame(save_filename){
-    setCookie("saved_game_" + save_filename, "", 0);
+    if (typeof(Storage) === "undefined") {
+        //Browser does not support local storage.
+        return;
+    }
+    localStorage.removeItem("saved_game_" + save_filename);
     delete save_profile[save_filename];
-    setCookie("save_profile", JSON.stringify(save_profile), 4096);
+    localStorage.setItem("save_profile", JSON.stringify(save_profile));
     displaySaveProfile();
     console.log("Deleted saved game: " + save_filename);
 }
 
-function confirmSaveGame(save_filename){
-    if ("" == getCookie("saved_game_" + save_filename)){//No save file by this name exists.
+function confirmSaveGame(){
+    if (typeof(Storage) === "undefined") {
+        //Browser does not support local storage.
+        return;
+    }
+    let save_name_form = document.getElementById('save_name');
+    if (null === save_name_form){
+        //Show error message.
+		onPopupConfirmation = hidePopupDialog;
+		showPopupDialog('Error: Could not read name of save game.');
+        return;
+    }
+    let save_filename = save_name_form.value;
+    if (null === localStorage.getItem("saved_game_" + save_filename)){
+        //No save file by this name exists.
         saveGame(save_filename);
     } else {
 		popupArgument = save_filename;
 		onPopupConfirmation = onSaveOverwriteConfirmed;
-		showPopupDialog("Do you wish to overwrite this savefile? (" + save_filename + ")");
+		showPopupDialog('Do you wish to overwrite this savefile? "' + save_filename + '"');
     }
 }
 
@@ -440,7 +888,7 @@ function onSaveOverwriteConfirmed(){
 function confirmLoadGame(save_filename){
 	popupArgument = save_filename;
 	onPopupConfirmation = onLoadConfirmed;
-	showPopupDialog("Do you wish to load this saved game? (" + save_filename + ") Unsaved progress will be lost.");
+	showPopupDialog('Do you wish to load this saved game? "' + save_filename + '" Unsaved progress will be lost.');
 }
 
 function onLoadConfirmed(){
@@ -451,7 +899,7 @@ function onLoadConfirmed(){
 function confirmDeleteSavedGame(save_filename){
 	popupArgument = save_filename;
 	onPopupConfirmation = onDeleteConfirmed;
-	showPopupDialog("Do you wish to delete this saved game? (" + save_filename + ") The savefile will be permanently erased.");
+	showPopupDialog('Do you wish to delete this saved game? "' + save_filename + '" The savefile will be permanently erased.');
 }
 
 function onDeleteConfirmed(){
@@ -459,12 +907,28 @@ function onDeleteConfirmed(){
 }
 
 function displaySaveProfile(){
-    var text = "<p><b>Saved Games:</b></p>";
-    for (each in save_profile){
-        text = text + "<p>" + '<a href="javascript:confirmLoadGame(\'' + each + '\')">Load</a> / <a href="javascript:confirmDeleteSavedGame(\'' + each + '\')">Delete</a> ' + decodeURIComponent(each) + " : " + save_profile[each] + "</p>";
+    if (0 == Object.keys(save_profile).length){
+        //No saved games were found.
+        document.getElementById("saved_game_list").innerHTML = "";
+    } else {
+        var text = '<div class="menu row"><b>Saved Games:</b></div>';
+        for (each in save_profile){
+            text = text + '<div class="menu row">' + '<button onclick="confirmLoadGame(\'' + each + '\')">Load</button> / <button onclick="confirmDeleteSavedGame(\'' + each + '\')">Delete</button> ' + decodeURIComponent(each) + " : " + save_profile[each] + "</div>";
+        }
+        document.getElementById("saved_game_list").innerHTML = text;
     }
-    document.getElementById("saved_game_list").innerHTML = text;
-    refreshCollapsable(document.getElementById("main_menu"));
+    refreshMenu();
+}
+
+function openSaveNameDialog(){
+    if (typeof(Storage) === "undefined") {
+        //Browser does not support local storage.
+        onPopupConfirmation = hidePopupDialog;
+        showPopupDialog("Your browser does not appear to support localStorage. Saving your game has, therefore, been disabled.");
+    } else {
+        onPopupConfirmation = confirmSaveGame;
+        showPopupDialog('Enter a name for your saved game. <input type="text" id="save_name"></input>');
+    }
 }
 
 //--------------------
@@ -668,6 +1132,24 @@ function enactEffect(effect_data){
 //Section 7: Main Process
 //-----------------------
 
+function printPerformableOption(css_class, index, text) {
+    var output = '<div class="' + css_class + '"';
+    output = output + ' onclick="executeOption(' + index.toString() + ')">';
+    output = output + '<span class="prefix">&gt; </span>';
+    output = output + text;
+    output = output + '</div>';
+    return output;
+}
+
+function printDisabledOption(css_class, index, text) {
+    var output = '<div class="' + css_class + '"';
+    output = output + ' onclick="executeOption(' + index.toString() + ')">';
+    output = output + '<span class="prefix">&gt; </span>';
+    output = output + '<del>&nbsp;' + text + '&nbsp;</del>';
+    output = output + '</div>';
+    return output;
+}
+
 //Load an encounter:
 //This one is mildly complicated. It looks up an encounter in the above database and displays it to the player.
 function loadEncounter(encounter_id, record = true) {
@@ -708,53 +1190,55 @@ function loadEncounter(encounter_id, record = true) {
     var option;
     var compiled_options = "";
     var index = 0;
-    var option_visible = true;
-    var option_performable = true;
+    var visible_options = [];
+    var visible_option_indices = [];
     for (option of encounter.options){
-        //This produces HTML code from a list of options.
-        option_visible = evaluateSWScript(option.visibility_script);
-        option_performable = evaluateSWScript(option.performability_script);
-        if (option_visible){
-            let option_text = evaluateSWScript(option.text_script);
-            if (option_performable){
-                entry = '&gt; <a href="javascript:executeOption(';
-                entry = entry + index.toString();
-                entry = entry + ')">';
-                entry = entry + option_text;
-                entry = entry + '</a><br>';
-                compiled_options = compiled_options + entry;
-            } else {
-                entry = '&gt; <del>';
-                entry = entry + option_text;
-                entry = entry + '</del><br>';
-                compiled_options = compiled_options + entry;
-            }
+        if (evaluateSWScript(option.visibility_script)){
+            visible_options.push(option);
+            visible_option_indices.push(index);
         }
         index++;
     }
-    document.getElementById("options_list").innerHTML = compiled_options;
-    
-    //If there are no options for this encounter, or the encounter has multiple sections separated by "continue" commands, then hide the options field.
-    if(0 == encounter.options.length || 1 < encounter_sections.length){
-        document.getElementById("options_text").style.display = "none";
-    } else {
-        document.getElementById("options_text").style.display = "block";
+    for (let i = 0; i < visible_options.length; i++) {
+        option = visible_options[i];
+        let css_class = "option";
+        index = visible_option_indices[i];
+        let option_text = evaluateSWScript(option.text_script);
+        if (1 == visible_options.length){
+            css_class = css_class + " single";
+        } else if (0 == i){
+            css_class = css_class + " first";
+        } else if (i == visible_options.length - 1){
+            css_class = css_class + " last";
+        } 
+        if (evaluateSWScript(option.performability_script)){
+            compiled_options = compiled_options + printPerformableOption(css_class, index, option_text);
+        } else {
+            css_class = css_class + " disabled";
+            compiled_options = compiled_options + printDisabledOption(css_class, index, option_text);
+        }
     }
-    
+    document.getElementById("options_list").innerHTML = compiled_options;
+    //If there are no options for this encounter, or the encounter has multiple sections separated by "continue" commands, then hide the options field.
+    if (0 == visible_options.length || 1 < encounter_sections.length){
+        document.getElementById("options_list").style.display = "none";
+    } else {
+        document.getElementById("options_list").style.display = "block";
+    }
     //Render the reaction field invisible.
     document.getElementById("reaction_field").style.display = "none";
     document.getElementById("reaction_text").innerHTML = "";
-    
-    if(record){//if we're recording to the historybook and transcript:
+    if (record){//if we're recording to the historybook and transcript:
         //Update the transcript.
         document.getElementById("transcript").innerHTML = playthrough_transcript;
-        refreshCollapsable(document.getElementById("transcript"));
+        refreshTranscript();
     
         //Update the historybook.
         slow_historybook[turn] = {"encounter": current_page.id, "option": -1, "reaction": -1};
         quick_historybook[current_page.id] = turn;
         //Most encounters can only be displayed once. However, the "consequence" property of character reactions bypasses the check of whether an encounter has already been displayed. In these cases the quick_historybook will only record the latest turn the encounter was displayed. Since the quick_historybook is primarilly used to check for prerequisites and disqualifiers, and to avoid displaying encounters more than once, the information needed is whether an encounter has occured; when it occured is presently less important. If future changes to the overall design eventually require it, entries to the quick_historybook can be changed to arrays of integers, rather than integers, to record all turns an encounter is displayed.
     }
+    focusStory();//Scroll to start of current reaction / encounter text.
     //If all goes well... It's the player's turn!
 }
 
@@ -773,7 +1257,7 @@ function continueFromBreak(step){
     if (encounter_sections.length <= (step + 1)){
         //Last step.
         document.getElementById("encounter_text").innerHTML = text_buffer;
-        document.getElementById("options_text").style.display = "block";
+        document.getElementById("options_list").style.display = "block";
     } else {
         button_code += '<a href="javascript:continueFromBreak(';
         var x = step + 1;
@@ -848,7 +1332,7 @@ function loadTheEnd(record = true){
     if(record){//if we're recording to the historybook and transcript:
         //Update the transcript.
         document.getElementById("transcript").innerHTML = playthrough_transcript;
-        refreshCollapsable(document.getElementById("transcript"));
+        refreshTranscript();
         slow_historybook[turn] = {"encounter": "end", "option": -1, "reaction": -1};
         quick_historybook["end"] = turn;
     }
@@ -862,7 +1346,7 @@ function loadTheEnd(record = true){
         ending_text += text_buffer + "<br>";//text_buffer should be holding the text of the reaction that needs displayed.
     }
     document.getElementById("encounter_text").innerHTML = ending_text + "<b>THE END</b>";
-    document.getElementById("options_text").style.display = "none";
+    document.getElementById("options_list").style.display = "none";
     document.getElementById("reaction_field").style.display = "none";
 }
 
@@ -877,9 +1361,17 @@ function writeEncounterToTranscript(encounter_name, option, reaction){
     encounter = encounters[encounter_name];
     if ('undefined' == typeof encounter.options[option] || 'undefined' == typeof encounter.options[option].reactions[reaction]){
         //Test for corrupted savefile, or other errors.
-        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + evaluateSWScript(encounter.text_script) + "<p>" + '&gt; ' + "Option and/or reaction undefined." + "</p>";
+        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>";
+        if (storyworld_data["debug_mode"]) {
+            playthrough_transcript = playthrough_transcript + "<b>(" + encounter.title + ")</b><br><br>";
+        }
+        playthrough_transcript = playthrough_transcript + evaluateSWScript(encounter.text_script) + "<p>" + '&gt; ' + "Option and/or reaction undefined." + "</p>";
     } else {
-        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>" + "<b>(" + encounter.title + ")</b><br><br>" + evaluateSWScript(encounter.text_script) + "<p>" + '&gt; ' + evaluateSWScript(encounter.options[option].text_script) + "</p><p>" + evaluateSWScript(encounter.options[option].reactions[reaction].text_script) + "</p>";
+        playthrough_transcript = playthrough_transcript + "<p><b>~~~~~</b></p>";
+        if (storyworld_data["debug_mode"]) {
+            playthrough_transcript = playthrough_transcript + "<b>(" + encounter.title + ")</b><br><br>";
+        }
+        playthrough_transcript = playthrough_transcript + evaluateSWScript(encounter.text_script) + "<p>" + '&gt; ' + evaluateSWScript(encounter.options[option].text_script) + "</p><p>" + evaluateSWScript(encounter.options[option].reactions[reaction].text_script) + "</p>";
     }
 }
 
@@ -948,9 +1440,11 @@ function confirmNewGame(){
 }
 
 function startNewGame(){
+    closeMenu();
 	slow_historybook = [];
 	quick_historybook = {};
 	playthrough_transcript = "";
+    closeTranscript();
 	text_buffer = "";
 	turn = 0;
 	current_page = null;
@@ -969,29 +1463,40 @@ function startNewGame(){
 <div id="popupBackground">
 	<div id="popupDialog">
 		<div id="popupText"></div>
-		<input type="button" value="Confirm" onclick="confirmPopupDialog()"><input type="button" value="Cancel" onclick="hidePopupDialog()">
+		<button id="popup_confirm_button" onclick="confirmPopupDialog()">Confirm</button> <button id="popup_cancel_button" onclick="hidePopupDialog()">Cancel</button>
 	</div>
 </div>
 <!-- Menu -->
-<button class="collapsible">Menu</button>
-<div id="main_menu" class="content">
-<p><a href="javascript:confirmNewGame()">Start New Game</a></p>
+<button class="collapsible" onclick="toggleMenu()">Menu</button>
+<div id="main_menu" class="collapsible-content menu">
+<div class="row"><button id="about_button" onclick="displayAboutText()">About</button></div>
+<div class="row"><button onclick="confirmNewGame()">Start New Game</button></div>
+<div class="row"><button id="save_game_button" onclick="openSaveNameDialog()">Save Game</button></div>
 <div id="saved_game_list"></div>
-<p><a href="javascript:confirmSaveGame(document.getElementById('save_name').value)">Save Game As:</a> <input type="text" id="save_name"></input></p>
+<div class="row"><div class="dropdown" id="setTheme">
+<button onclick="toggleDropdown('setTheme')" class="dropbtn">Theme</button>
+<div class="dropdown-content">
+<button id="lilac_button" onclick="setTheme('lilac')">Lilac</button>
+<button id="nightshade_button" onclick="setTheme('nightshade')">Nightshade</button>
+</div></div></div>
+<div class="row"><div class="dropdown" id="setFont">
+<button onclick="toggleDropdown('setFont')" class="dropbtn">Font Size</button>
+<div class="dropdown-content">
+<button id="set_font_14" onclick="setFontSize('14')">14</button>
+<button id="set_font_16" onclick="setFontSize('16')">16</button>
+<button id="set_font_18" onclick="setFontSize('18')">18</button>
+<button id="set_font_20" onclick="setFontSize('20')">20</button>
+</div></div></div>
 </div>
-<button class="collapsible">~Transcript~</button>
-<div id="transcript" class="content">
-<p>~~~~~</p>
-</div>
-<fieldset>
+<!-- Transcript -->
+<button class="collapsible" onclick="toggleTranscript()">Story So Far</button>
+<div id="transcript" class="collapsible-content"></div>
+<!-- Story -->
+<fieldset id="story">
 <legend><i>~~~</i></legend>
 <div id="encounter_text">Once the game begins, encounter text will be placed here by a properly functioning script.</div>
 </fieldset><br>
-<div id="options_text"><form action="#" method="post" id="optionsForm">
-<fieldset><legend>~~~</legend>
 <div id="options_list"></div>
-</fieldset>
-</form></div>
 <div id="reaction_field">
 <fieldset>
 <legend><i>~~~</i></legend>
@@ -1001,38 +1506,17 @@ function startNewGame(){
 </div><br>
 
 <script>
-//This script enables collapsible sections to work, such as the playthrough-transcript.
-var coll = document.getElementsByClassName("collapsible");
-var i;
-
-for (i = 0; i < coll.length; i++) {
-    coll[i].addEventListener("click", function() {
-        this.classList.toggle("active");
-        var content = this.nextElementSibling;
-        if (content.style.maxHeight){
-            content.style.maxHeight = null;
-        } else {
-            content.style.maxHeight = content.scrollHeight + "px";
-        } 
-    });
-}
-
-function refreshCollapsable(element){
-    if (element.style.maxHeight){
-        element.style.maxHeight = element.scrollHeight + "px";
-    }
-}
 //Popup dialog functionality:
 const popupBackgroundElement = document.getElementById("popupBackground");
 const popupDialogElement = document.getElementById("popupDialog");
 popupBackgroundElement.addEventListener("click", function(event) {
-	let BackgroundClicked = !popupDialogElement.contains(event.target);
-	if (BackgroundClicked) {
-		hidePopupDialog()
+	if (!popupDialogElement.contains(event.target)) {
+		hidePopupDialog();
 	}
 });
 //Import game data and load an encounter.
 importGameData();
+initiateGUI();
 displaySaveProfile();
 selectEncounter();
 </script>

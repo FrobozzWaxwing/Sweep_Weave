@@ -3,7 +3,6 @@ class_name SWNotOperator
 #Returns the Boolean negation of the input.
 
 func _init(in_operand = null):
-	operator_type = "Not"
 	input_type = sw_script_data_types.BOOLEAN
 	output_type = sw_script_data_types.BOOLEAN
 	can_add_operands = false
@@ -11,18 +10,31 @@ func _init(in_operand = null):
 	if (null != in_operand):
 		add_operand(in_operand)
 
-func get_value(leaf = null, report = false):
+static func get_operator_type():
+	return "Not"
+
+func get_value():
 	var output = null
 	if (1 <= operands.size()):
-		output = evaluate_operand_at_index(0, leaf, report)
+		output = evaluate_operand_at_index(0)
 		if (true == output):
 			output = false
 		elif (false == output):
 			output = true
 	else:
 		print ("Warning: not operator has no operands.")
-	if (report):
-		report_value(output)
+	return output
+
+func get_and_report_value():
+	var output = null
+	if (1 <= operands.size()):
+		output = evaluate_and_report_operand_at_index(0)
+		if (true == output):
+			output = false
+		elif (false == output):
+			output = true
+	else:
+		print ("Warning: not operator has no operands.")
 	return output
 
 func data_to_string():

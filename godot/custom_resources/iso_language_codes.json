@@ -1,0 +1,122 @@
+﻿[
+    {
+        "language": "Arabic",
+        "code": "ar"
+    },
+    {
+        "language": "Bengali (Bangla)",
+        "code": "bn"
+    },
+    {
+        "language": "Chinese (Simplified)",
+        "code": "zh-Hans"
+    },
+    {
+        "language": "Chinese (Traditional)",
+        "code": "zh-Hant"
+    },
+    {
+        "language": "Danish",
+        "code": "da"
+    },
+    {
+        "language": "Dutch",
+        "code": "nl"
+    },
+    {
+        "language": "English",
+        "code": "en"
+    },
+    {
+        "language": "Finnish",
+        "code": "fi"
+    },
+    {
+        "language": "French",
+        "code": "fr"
+    },
+    {
+        "language": "German",
+        "code": "de"
+    },
+    {
+        "language": "Greek",
+        "code": "el"
+    },
+    {
+        "language": "Hebrew",
+        "code": "he"
+    },
+    {
+        "language": "Hindi",
+        "code": "hi"
+    },
+    {
+        "language": "Icelandic",
+        "code": "is"
+    },
+    {
+        "language": "Igbo",
+        "code": "ig"
+    },
+    {
+        "language": "Indonesian",
+        "code": "id"
+    },
+    {
+        "language": "Italian",
+        "code": "it"
+    },
+    {
+        "language": "Japanese",
+        "code": "ja"
+    },
+    {
+        "language": "Korean",
+        "code": "ko"
+    },
+    {
+        "language": "Marathi",
+        "code": "mr"
+    },
+    {
+        "language": "Marshallese",
+        "code": "mh"
+    },
+    {
+        "language": "Norwegian",
+        "code": "no"
+    },
+    {
+        "language": "Portuguese",
+        "code": "pt"
+    },
+    {
+        "language": "Russian",
+        "code": "ru"
+    },
+    {
+        "language": "Spanish",
+        "code": "es"
+    },
+    {
+        "language": "Swedish",
+        "code": "sv"
+    },
+    {
+        "language": "Tamil",
+        "code": "ta"
+    },
+    {
+        "language": "Turkish",
+        "code": "tr"
+    },
+    {
+        "language": "Ukrainian",
+        "code": "uk"
+    },
+    {
+        "language": "Urdu",
+        "code": "ur"
+    },
+]

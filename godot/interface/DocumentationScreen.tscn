@@ -1,0 +1,71 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://interface/DocumentationScreen.gd" type="Script" id=6]
+[ext_resource path="res://icons/arrow-left.svg" type="Texture" id=7]
+[ext_resource path="res://icons/arrow-right.svg" type="Texture" id=8]
+[ext_resource path="res://interface/DocPageDisplay.tscn" type="PackedScene" id=9]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource( 6 )
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Contents" type="Tree" parent="Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+hide_root = true
+
+[node name="PageDisplay" type="VBoxContainer" parent="Background"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 3.0
+
+[node name="PageTitle" type="Label" parent="Background/PageDisplay"]
+margin_right = 1363.0
+margin_bottom = 14.0
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Background/PageDisplay"]
+margin_top = 18.0
+margin_right = 1363.0
+margin_bottom = 22.0
+
+[node name="PageText" parent="Background/PageDisplay" instance=ExtResource( 9 )]
+size_flags_vertical = 3
+
+[node name="Footer" type="HBoxContainer" parent="Background/PageDisplay"]
+margin_top = 716.0
+margin_right = 1363.0
+margin_bottom = 736.0
+alignment = 1
+
+[node name="GoToPrevious" type="Button" parent="Background/PageDisplay/Footer"]
+margin_left = 588.0
+margin_right = 655.0
+margin_bottom = 20.0
+icon = ExtResource( 7 )
+
+[node name="GoToContents" type="Button" parent="Background/PageDisplay/Footer"]
+margin_left = 659.0
+margin_right = 728.0
+margin_bottom = 20.0
+text = "Contents"
+
+[node name="GoToNext" type="Button" parent="Background/PageDisplay/Footer"]
+margin_left = 732.0
+margin_right = 774.0
+margin_bottom = 20.0
+icon = ExtResource( 8 )
+
+[connection signal="item_selected" from="Background/Contents" to="." method="_on_Contents_item_selected"]
+[connection signal="meta_clicked" from="Background/PageDisplay/PageText" to="." method="_on_PageText_meta_clicked"]
+[connection signal="pressed" from="Background/PageDisplay/Footer/GoToPrevious" to="." method="_on_GoToPrevious_pressed"]
+[connection signal="pressed" from="Background/PageDisplay/Footer/GoToContents" to="." method="_on_GoToContents_pressed"]
+[connection signal="pressed" from="Background/PageDisplay/Footer/GoToNext" to="." method="_on_GoToNext_pressed"]

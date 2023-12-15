@@ -6,12 +6,14 @@ enum operator_subtypes {AND, OR}
 var operator_subtype = operator_subtypes.AND
 
 func _init(in_operator_subtype = "And", in_operands = []):
-	operator_type = "Boolean Comparator"
 	input_type = sw_script_data_types.BOOLEAN
 	output_type = sw_script_data_types.BOOLEAN
 	set_operator_subtype(in_operator_subtype)
 	for operand in in_operands:
 		add_operand(operand)
+
+static func get_operator_type():
+	return "Boolean Comparator"
 
 func operator_subtype_to_string():
 	if (operator_subtypes.AND == operator_subtype):
@@ -21,12 +23,12 @@ func operator_subtype_to_string():
 	else:
 		return "NULL"
 
-func get_value(leaf = null, report = false):
+func get_value():
 	var output = null
 	if (operator_subtypes.AND == operator_subtype):
 		output = true
 		for operand in operands:
-			var value = evaluate_operand(operand, leaf, report)
+			var value = evaluate_operand(operand)
 			if (null == value or TYPE_BOOL != typeof(value)):
 				#Poison
 				continue
@@ -36,15 +38,37 @@ func get_value(leaf = null, report = false):
 	elif (operator_subtypes.OR == operator_subtype):
 		output = false
 		for operand in operands:
-			var value = evaluate_operand(operand, leaf, report)
+			var value = evaluate_operand(operand)
 			if (null == value or TYPE_BOOL != typeof(value)):
 				#Poison
 				continue
 			elif (value):
 				output = true
 				break
-	if (report):
-		report_value(output)
+	return output
+
+func get_and_report_value():
+	var output = null
+	if (operator_subtypes.AND == operator_subtype):
+		output = true
+		for operand in operands:
+			var value = evaluate_and_report_operand(operand)
+			if (null == value or TYPE_BOOL != typeof(value)):
+				#Poison
+				continue
+			elif (!value):
+				output = false
+				break
+	elif (operator_subtypes.OR == operator_subtype):
+		output = false
+		for operand in operands:
+			var value = evaluate_and_report_operand(operand)
+			if (null == value or TYPE_BOOL != typeof(value)):
+				#Poison
+				continue
+			elif (value):
+				output = true
+				break
 	return output
 
 func set_operator_subtype(in_operator_subtype):
@@ -62,7 +86,7 @@ func set_operator_subtype(in_operator_subtype):
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Operator"
-	output["operator_type"] = operator_type
+	output["operator_type"] = get_operator_type()
 	output["operator_subtype"] = operator_subtype_to_string()
 	if (!include_editor_only_variables):
 		output["input_type"] = stringify_input_type()

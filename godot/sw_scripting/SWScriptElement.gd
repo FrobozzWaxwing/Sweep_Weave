@@ -21,17 +21,17 @@ func remap(storyworld):
 	treeview_node = null
 	return true
 
-func get_value(leaf = null, report = false):
-	# Some operators, particularly EventPointers and BooleanComparators that contain EventPointers, need access to the historybook.
-	# The "leaf" variable grants EventPointers this access.
-	var output = null
-	if (report):
-		report_value(output)
-	return output
+func get_value():
+	return null
 
 func report_value(output):
 	if (treeview_node is TreeItem):
 		treeview_node.set_text(1, str(output))
+
+func get_and_report_value():
+	var output = get_value()
+	report_value(output)
+	return output
 
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}

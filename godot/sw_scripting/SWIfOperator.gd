@@ -2,7 +2,6 @@ extends SWOperator
 class_name SWIfOperator
 
 func _init(in_condition = null, in_outcome1 = null, in_outcome2 = null):
-	operator_type = "If Then"
 	input_type = sw_script_data_types.VARIANT
 	output_type = sw_script_data_types.VARIANT
 	can_add_operands = true
@@ -11,6 +10,9 @@ func _init(in_condition = null, in_outcome1 = null, in_outcome2 = null):
 		add_operand(in_condition)
 		add_operand(in_outcome1)
 		add_operand(in_outcome2)
+
+static func get_operator_type():
+	return "If Then"
 
 func add_conditional(condition, conditional_result):
 	if (null != condition and null != conditional_result):
@@ -39,19 +41,30 @@ func remove_conditional(in_index):
 		if (operand is SWScriptElement):
 			operand.script_index = i
 
-func get_value(leaf = null, report = false):
+func get_value():
 	var output = null
 	var stop = operands.size() - 1
 	for index in range(0, stop, 2):
-		var condition_result = evaluate_operand_at_index(index, leaf, report)
+		var condition_result = evaluate_operand_at_index(index)
 		if (condition_result):
 			var result_index = index + 1
-			output = evaluate_operand_at_index(result_index, leaf, report)
+			output = evaluate_operand_at_index(result_index)
 			break
 	if (null == output):
-		output = evaluate_operand_at_index(stop, leaf, report)
-	if (report):
-		report_value(output)
+		output = evaluate_operand_at_index(stop)
+	return output
+
+func get_and_report_value():
+	var output = null
+	var stop = operands.size() - 1
+	for index in range(0, stop, 2):
+		var condition_result = evaluate_and_report_operand_at_index(index)
+		if (condition_result):
+			var result_index = index + 1
+			output = evaluate_and_report_operand_at_index(result_index)
+			break
+	if (null == output):
+		output = evaluate_and_report_operand_at_index(stop)
 	return output
 
 func data_to_string():

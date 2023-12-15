@@ -2,7 +2,6 @@ extends SWOperator
 class_name AbsoluteValueOperator
 
 func _init(in_operand = null):
-	operator_type = "Absolute Value"
 	input_type = sw_script_data_types.BNUMBER
 	output_type = sw_script_data_types.BNUMBER
 	can_add_operands = false
@@ -10,13 +9,23 @@ func _init(in_operand = null):
 	if (null != in_operand):
 		add_operand(in_operand)
 
-func get_value(leaf = null, report = false):
+static func get_operator_type():
+	return "Absolute Value"
+
+func get_value():
 	var output = null
 	if (0 == operands.size()):
 		print ("Warning: absolute value operator has no operands.")
-	var operand_value = evaluate_operand(operands.front(), leaf, report)
+	var operand_value = evaluate_operand(operands.front())
 	if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
 		output = abs(operand_value)
-	if (report):
-		report_value(output)
+	return output
+
+func get_and_report_value():
+	var output = null
+	if (0 == operands.size()):
+		print ("Warning: absolute value operator has no operands.")
+	var operand_value = evaluate_and_report_operand(operands.front())
+	if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
+		output = abs(operand_value)
 	return output

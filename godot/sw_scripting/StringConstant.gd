@@ -6,13 +6,13 @@ class_name StringConstant
 var value = ""
 
 func _init(in_value = ""):
-	pointer_type = "String Constant"
 	output_type = sw_script_data_types.STRING
 	set_value(in_value)
 
-func get_value(leaf = null, report = false):
-	if (report):
-		report_value(value)
+static func get_pointer_type():
+	return "String Constant"
+
+func get_value():
 	return value
 
 func set_value(in_value):
@@ -29,7 +29,7 @@ func clear():
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Pointer"
-	output["pointer_type"] = pointer_type
+	output["pointer_type"] = get_pointer_type()
 	output["value"] = value
 	return output
 
@@ -45,3 +45,6 @@ func find_occurrences(searchterm):
 			results.append(index)
 			index += 1
 	return results
+
+func is_parallel_to(sibling):
+	return value == sibling.value

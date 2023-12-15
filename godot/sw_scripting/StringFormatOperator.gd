@@ -6,14 +6,14 @@ class_name StringFormatOperator
 var value = ""
 
 func _init(in_value = ""):
-#	pointer_type = "String Constant"
 	input_type = sw_script_data_types.STRING
 	output_type = sw_script_data_types.STRING
 	set_value(in_value)
 
-func get_value(leaf = null, report = false):
-	if (report):
-		report_value(value)
+static func get_operator_type():
+	return "String Format Operator"
+
+func get_value():
 	return value
 
 func set_value(in_value):

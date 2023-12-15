@@ -7,13 +7,13 @@ class_name BooleanConstant
 var value = null
 
 func _init(in_value):
-	pointer_type = "Boolean Constant"
 	output_type = sw_script_data_types.BOOLEAN
 	set_value(in_value)
 
-func get_value(leaf = null, report = false):
-	if (report):
-		report_value(value)
+static func get_pointer_type():
+	return "Boolean Constant"
+
+func get_value():
 	return value
 
 func set_value(in_value):
@@ -29,3 +29,6 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 
 func data_to_string():
 	return str(value)
+
+func is_parallel_to(sibling):
+	return value == sibling.value

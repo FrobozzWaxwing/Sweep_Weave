@@ -2,7 +2,6 @@ extends SWOperator
 class_name NudgeOperator
 
 func _init(in_operand_0 = null, in_operand_1 = null):
-	operator_type = "Nudge"
 	minimum_number_of_operands = 2
 	input_type = sw_script_data_types.BNUMBER
 	output_type = sw_script_data_types.BNUMBER
@@ -11,14 +10,23 @@ func _init(in_operand_0 = null, in_operand_1 = null):
 	add_operand(in_operand_0)
 	add_operand(in_operand_1)
 
-func get_value(leaf = null, report = false):
+static func get_operator_type():
+	return "Nudge"
+
+func get_value():
 	var output = null
-	var value_0 = evaluate_operand_at_index(0, leaf, report)
-	var value_1 = evaluate_operand_at_index(1, leaf, report)
+	var value_0 = evaluate_operand_at_index(0)
+	var value_1 = evaluate_operand_at_index(1)
 	if (null != value_0 and null != value_1):
 		output = (value_0 * (1 - abs(value_1))) + value_1
-	if (report):
-		report_value(output)
+	return output
+
+func get_and_report_value():
+	var output = null
+	var value_0 = evaluate_and_report_operand_at_index(0)
+	var value_1 = evaluate_and_report_operand_at_index(1)
+	if (null != value_0 and null != value_1):
+		output = (value_0 * (1 - abs(value_1))) + value_1
 	return output
 
 func data_to_string():

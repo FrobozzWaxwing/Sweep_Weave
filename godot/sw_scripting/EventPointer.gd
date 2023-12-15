@@ -3,71 +3,38 @@ class_name EventPointer
 # This operator tests whether or not an event has occurred.
 
 var negated = false #Do we negate the result of the evaluation?
-var spool = null
 var encounter = null #Only for historybook lookups. Translated into a string for interpreter.
 var option = null #Only for historybook lookups. Translated into a numerical index for interpreter.
 var reaction = null #Only for historybook lookups. Translated into a numerical index for interpreter.
 
 func _init(in_encounter = null, in_option = null, in_reaction = null):
-	pointer_type = "Event Pointer"
 	output_type = sw_script_data_types.BOOLEAN
 	encounter = in_encounter
 	option = in_option
 	reaction = in_reaction
 
+static func get_pointer_type():
+	return "Event Pointer"
+
 func clear():
 	treeview_node = null
 	negated = false
-	spool = null
 	encounter = null
 	option = null
 	reaction = null
 
-func has_occurred_on_branch(leaf):
-	#Checks whether an encounter has occurred.
-	#Optionally checks whether the player chose a given option,
-	#and / or whether the antagonist chose a given reaction.
-	#null for wildcarding option and reaction.
+func get_value():
 	if (null == encounter):
 		return null
-	elif (null == leaf):
-		#Playthrough has only just begun.
+	var has_occurred = false
+	if (0 < encounter.occurrences):
+		if (null == option or 0 < option.occurrences):
+			if (null == reaction or 0 < reaction.occurrences):
+				has_occurred = true
+	if (negated != has_occurred):
+		return true
+	else:
 		return false
-	elif (null == option && null == reaction):
-		var node = leaf
-		while (null != node):
-			if (null != node.encounter and node.encounter == encounter):
-				return true
-			#No match for this node.
-			#Go farther towards the root of the tree.
-			node = node.get_parent()
-	else:
-		var node = leaf
-		while (null != node and null != node.get_parent()):
-			if (node.get_parent().encounter == encounter):
-				if (null == option && reaction == node.antagonist_choice):
-					return true
-				elif (option == node.player_choice && null == reaction):
-					return true
-				elif (option == node.player_choice && reaction == node.antagonist_choice):
-					return true
-			#No match for this node.
-			#Go farther towards the root of the tree.
-			node = node.get_parent()
-	return false
-
-func get_value(leaf = null, report = false):
-	var output = null
-	var has_occurred = has_occurred_on_branch(leaf)
-	if (null == negated or null == has_occurred):
-		output = null
-	elif (negated != has_occurred):
-		output = true
-	else:
-		output = false
-	if (report):
-		report_value(output)
-	return output
 
 func data_to_string():
 	return summarize()
@@ -92,12 +59,8 @@ func summarize():
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Pointer"
-	output["pointer_type"] = pointer_type
+	output["pointer_type"] = get_pointer_type()
 	output["negated"] = negated
-	if (null == spool):
-		output["spool"] = null
-	else:
-		output["spool"] = spool.id
 	if (null == encounter):
 		output["encounter"] = null
 	else:
@@ -126,18 +89,11 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 
 func set_as_copy_of(original):
 	negated = original.negated
-	spool = original.spool
 	encounter = original.encounter
 	option = original.option
 	reaction = original.reaction
 
 func remap(storyworld):
-	if (null != spool):
-		if (storyworld.spool_directory.has(spool.id)):
-			spool = storyworld.spool_directory[spool.id]
-		else:
-			clear()
-			return false
 	#Returns false if an error occurs, and true if everything goes as planned.
 	if (null != encounter):
 		if (storyworld.encounter_directory.has(encounter.id)):
@@ -161,9 +117,12 @@ func validate(intended_script_output_datatype):
 	#Check negated:
 	if (TYPE_BOOL != typeof(negated)):
 		report += "\n" + "Negated is not a boolean."
-	if (null == spool and null == encounter and null == option and null == reaction):
-		report += "\n" + "Spool, encounter, option, and reaction are all null."
+	if (null == encounter and null == option and null == reaction):
+		report += "\n" + "Encounter, option, and reaction are all null."
 	if ("" == report):
 		return "Passed."
 	else:
-		return pointer_type + " errors:" + report
+		return get_pointer_type() + " errors:" + report
+
+func is_parallel_to(sibling):
+	return negated == sibling.negated and encounter == sibling.encounter and option == sibling.option and reaction == sibling.reaction

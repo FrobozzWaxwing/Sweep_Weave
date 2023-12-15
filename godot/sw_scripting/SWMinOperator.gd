@@ -2,7 +2,6 @@ extends SWOperator
 class_name SWMinOperator
 
 func _init(in_operands = []):
-	operator_type = "Minimum of"
 	input_type = sw_script_data_types.BNUMBER
 	output_type = sw_script_data_types.BNUMBER
 	can_add_operands = true
@@ -10,18 +9,31 @@ func _init(in_operands = []):
 	for operand in in_operands:
 		add_operand(operand)
 
-func get_value(leaf = null, report = false):
+static func get_operator_type():
+	return "Minimum of"
+
+func get_value():
 	var output = null
 	if (0 == operands.size()):
 		print ("Warning: minimum operator has no operands.")
 	else:
 		for operand in operands:
-			var operand_value = evaluate_operand(operand, leaf, report)
+			var operand_value = evaluate_operand(operand)
 			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
 				if (null == output or operand_value < output):
 					output = operand_value
-	if (report):
-		report_value(output)
+	return output
+
+func get_and_report_value():
+	var output = null
+	if (0 == operands.size()):
+		print ("Warning: minimum operator has no operands.")
+	else:
+		for operand in operands:
+			var operand_value = evaluate_and_report_operand(operand)
+			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
+				if (null == output or operand_value < output):
+					output = operand_value
 	return output
 
 func data_to_string():

@@ -2,7 +2,6 @@ extends SWScriptElement
 class_name SWOperator
 
 var input_type = sw_script_data_types.VARIANT
-var operator_type = "Generic Operation"
 var operands = []
 #If "can_add_operands" is true, this operator can employ an arbitrarily long list of operands, though it will require at least one operand to work as intended.
 #If "can_add_operands" is false, this operator has a set number of operands.
@@ -35,20 +34,35 @@ func remap(storyworld):
 			result = (result and check)
 	return result
 
-func evaluate_operand(operand, leaf, report):
+func evaluate_operand(operand):
 	var result = null
 	if (operand is SWScriptElement):
-		result = operand.get_value(leaf, report)
+		result = operand.get_value()
 	if (null == result):
 		print ("Warning: Invalid operand.")
 	return result
 
-func evaluate_operand_at_index(operand_index, leaf, report):
+func evaluate_operand_at_index(operand_index):
 	if (null == operand_index or operand_index >= operands.size()):
 		#Operator does not contain an operand at the index specified.
 		return null
 	var operand = operands[operand_index]
-	return evaluate_operand(operand, leaf, report)
+	return evaluate_operand(operand)
+
+func evaluate_and_report_operand(operand):
+	var result = null
+	if (operand is SWScriptElement):
+		result = operand.get_and_report_value()
+	if (null == result):
+		print ("Warning: Invalid operand.")
+	return result
+
+func evaluate_and_report_operand_at_index(operand_index):
+	if (null == operand_index or operand_index >= operands.size()):
+		#Operator does not contain an operand at the index specified.
+		return null
+	var operand = operands[operand_index]
+	return evaluate_and_report_operand(operand)
 
 func clear():
 	treeview_node = null
@@ -57,6 +71,9 @@ func clear():
 			operand.clear()
 			operand.call_deferred("free")
 	operands.clear()
+
+static func get_operator_type():
+	return "Generic Operation"
 
 func stringify_input_type():
 	if (sw_script_data_types.BOOLEAN == input_type):
@@ -73,7 +90,7 @@ func stringify_input_type():
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Operator"
-	output["operator_type"] = operator_type
+	output["operator_type"] = get_operator_type()
 	if (!include_editor_only_variables):
 		output["input_type"] = stringify_input_type()
 	output["operands"] = []
@@ -128,4 +145,12 @@ func validate(intended_script_output_datatype):
 	if ("" == validation_report):
 		return "Passed."
 	else:
-		return operator_type + validation_report
+		return get_operator_type() + validation_report
+
+func is_parallel_to(sibling):
+	if (get_operator_type() == sibling.get_operator_type() and operands.size() == sibling.operands.size()):
+		for index in range(operands.size()):
+			if (!operands[index].is_parallel_to(sibling.operands[index])):
+				return false
+		return true
+	return false

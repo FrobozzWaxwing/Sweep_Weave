@@ -438,6 +438,20 @@ func delete_encounter(encounter):
 	recursive_delete_encounter(encounter, contents)
 	return script_changed
 
+func recursive_delete_spool(spool, onion):
+	if (onion is SpoolStatusPointer):
+		if (onion.spool == spool):
+			replace_element(onion, BooleanConstant.new(true))
+			script_changed = true
+	elif (onion is SWOperator):
+		for operand in onion.operands:
+			recursive_delete_spool(spool, operand)
+
+func delete_spool(spool):
+	script_changed = false
+	recursive_delete_spool(spool, contents)
+	return script_changed
+
 func recursive_has_search_text(onion, searchterm):
 	if (onion is StringConstant):
 		var text = onion.get_value()
@@ -552,10 +566,32 @@ func find_all_characters_involved():
 	recursive_find_all_characters_involved(contents, results)
 	return results
 
-func get_value(leaf = null, report = false):
+func recursive_trace_referenced_events(element):
+	if (element is EventPointer):
+		if (null != element.encounter):
+			element.encounter.linked_scripts.append(self)
+		if (null != element.option):
+			element.option.linked_scripts.append(self)
+		if (null != element.reaction):
+			element.reaction.linked_scripts.append(self)
+	elif (element is SWOperator):
+		for operand in element.operands:
+			recursive_trace_referenced_events(operand)
+
+func trace_referenced_events():
+	#Finds events referenced by the present script and adds the present script to the linked_scripts property of each event.
+	recursive_trace_referenced_events(contents)
+
+func get_value():
 	var result = null
 	if (contents is SWScriptElement):
-		result = contents.get_value(leaf, report)
+		result = contents.get_value()
+	return result
+
+func get_and_report_value():
+	var result = null
+	if (contents is SWScriptElement):
+		result = contents.get_and_report_value()
 	return result
 
 func clear():
@@ -602,13 +638,13 @@ func proofread(element):
 	if (element is SWOperator):
 		if (element.operands.size() < element.minimum_number_of_operands):
 			if (sw_script_data_types.BNUMBER == element.input_type):
-				for i in range(element.operands.size(), element.minimum_number_of_operands):
+				for _i in range(element.operands.size(), element.minimum_number_of_operands):
 					element.add_operand(BNumberConstant.new(0))
 			elif (sw_script_data_types.BOOLEAN == element.input_type):
-				for i in range(element.operands.size(), element.minimum_number_of_operands):
+				for _i in range(element.operands.size(), element.minimum_number_of_operands):
 					element.add_operand(BooleanConstant.new(true))
 			elif (sw_script_data_types.STRING == element.input_type):
-				for i in range(element.operands.size(), element.minimum_number_of_operands):
+				for _i in range(element.operands.size(), element.minimum_number_of_operands):
 					element.add_operand(StringConstant.new(""))
 	return element
 
@@ -685,7 +721,7 @@ func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load, expected_o
 	else:
 		set_contents(parsed_script)
 
-func recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load):
+func recursive_load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load):
 	var element = null
 	if (TYPE_BOOL == typeof(data_to_load)):
 		#Data should be either a boolean value, (true or false,) or a dictionary.
@@ -723,7 +759,7 @@ func recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load):
 		#Parse operands:
 		var operands = []
 		for operand in data_to_load["operands"]:
-			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, operand)
+			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_1_6(storyworld, operand)
 			if (parsed_operand is SWScriptElement):
 				operands.append(parsed_operand)
 		#Create operator:
@@ -769,8 +805,8 @@ func recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load):
 			element = NudgeOperator.new(operands.pop_front(), operands.pop_front())
 	return proofread(element)
 
-func load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load, expected_output_datatype):
-	var parsed_script = recursive_load_from_json_v0_0_34_through_v0_1_0(storyworld, data_to_load)
+func load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load, expected_output_datatype):
+	var parsed_script = recursive_load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load)
 	if (null == parsed_script):
 		if (sw_script_data_types.BNUMBER == expected_output_datatype):
 #			print ("Warning, script has null or invalid contents. Setting script contents to bounded number constant to match expected output datatype.")
@@ -805,3 +841,9 @@ func validate(intended_script_output_datatype):
 		if ("" == validation_report):
 			return "Passed."
 		return validation_report
+
+func is_parallel_to(sibling):
+	if (contents is SWScriptElement and sibling.contents is SWScriptElement):
+		if ((contents is SWOperator and sibling.contents is SWOperator and contents.get_operator_type() == sibling.contents.get_operator_type()) or (contents is SWPointer and sibling.contents is SWPointer and contents.get_pointer_type() == sibling.contents.get_pointer_type())):
+			return contents.is_parallel_to(sibling.contents)
+	return false
