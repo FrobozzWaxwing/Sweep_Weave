@@ -118,6 +118,7 @@ __meta__ = {
 }
 
 [node name="AntagonistReplacementPicker" type="OptionButton" parent="ConfirmCharacterDeletion/Center"]
+visible = false
 margin_left = 132.0
 margin_top = 69.0
 margin_right = 161.0

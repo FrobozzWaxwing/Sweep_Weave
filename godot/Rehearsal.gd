@@ -7,7 +7,7 @@ var current_page = null
 var storyworld = null
 var initial_pValues = null
 
-func _init(in_storyworld):
+func _init(in_storyworld:Storyworld):
 	storyworld = Storyworld.new()
 	if (null != in_storyworld):
 		storyworld.set_as_copy_of(in_storyworld)
@@ -36,7 +36,7 @@ func select_page(reaction = null):
 								selection = encounter
 		return selection
 
-func find_open_options(leaf):
+func find_open_options(leaf:HB_Record):
 	if (null == leaf.encounter):
 		return []
 	var all_options = leaf.encounter.options
@@ -125,12 +125,12 @@ func begin_playthrough():
 	starting_page.record_spool_statuses(storyworld)
 	current_page = starting_page
 
-func turn_to_page(leaf):
+func turn_to_page(leaf:HB_Record):
 	#Turns to a specific page of the history book, setting all variables appropriately. Used for playtesting.
 	reset_occurrences_to(leaf)
 	step_playthrough(leaf)
 
-func step_playthrough(leaf):
+func step_playthrough(leaf:HB_Record):
 	current_page = leaf
 	reset_pValues_to(leaf)
 	reset_spools_to(leaf)

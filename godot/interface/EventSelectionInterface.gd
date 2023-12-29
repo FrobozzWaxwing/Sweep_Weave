@@ -128,6 +128,9 @@ func _on_SortMenu_item_selected(index):
 	refresh_sort_icon()
 
 func _on_ToggleReverseButton_toggled(button_pressed):
+	var sort_index = $Background/VBC/SortBar/SortMenu.get_selected()
+	var sort_method = $Background/VBC/SortBar/SortMenu.get_popup().get_item_text(sort_index)
+	storyworld.sort_encounters(sort_method, button_pressed)
 	refresh()
 	refresh_sort_icon()
 

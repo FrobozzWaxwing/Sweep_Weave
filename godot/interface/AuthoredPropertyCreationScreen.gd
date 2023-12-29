@@ -6,6 +6,7 @@ var authored_properties_to_delete = []
 enum possible_attribution_targets {STORYWORLD, CAST_MEMBERS, ENTIRE_CAST}
 
 signal refresh_authored_property_lists()
+signal property_deleted()
 
 func _ready():
 	$ColorRect/VBC/HBC/BNumberEditPanel.connect("bnumber_property_name_changed", self, "refresh_property_name")
@@ -124,45 +125,47 @@ func _on_ConfirmPropertyDeletionWindow_confirmed():
 	if (storyworld.characters.empty()):
 		return
 	#Build replacement pointer.
-	var replacement = null
-	if (replacement_property.possible_attribution_targets.ENTIRE_CAST == replacement_property.attribution_target):
-		for layer in range(replacement_property.depth):
-			new_keyring.append(storyworld.characters[0].id)
-		replacement = BNumberPointer.new(storyworld.characters[0], new_keyring.duplicate(true))
-	elif (replacement_property.possible_attribution_targets.CAST_MEMBERS == replacement_property.attribution_target):
-		if (replacement_property.affected_characters.empty()):
-			print ("Error when creating default bnumber pointer: chosen property has no affected characters.")
-			return
-		var character = replacement_property.affected_characters[0]
-		for layer in range(replacement_property.depth):
-			new_keyring.append(character.id)
-		replacement = BNumberPointer.new(character, new_keyring.duplicate(true))
+#	var replacement = null
+#	if (replacement_property.possible_attribution_targets.ENTIRE_CAST == replacement_property.attribution_target):
+#		for layer in range(replacement_property.depth):
+#			new_keyring.append(storyworld.characters[0].id)
+#		replacement = BNumberPointer.new(storyworld.characters[0], new_keyring.duplicate(true))
+#	elif (replacement_property.possible_attribution_targets.CAST_MEMBERS == replacement_property.attribution_target):
+#		if (replacement_property.affected_characters.empty()):
+#			print ("Error when creating default bnumber pointer: chosen property has no affected characters.")
+#			return
+#		var character = replacement_property.affected_characters[0]
+#		for layer in range(replacement_property.depth):
+#			new_keyring.append(character.id)
+#		replacement = BNumberPointer.new(character, new_keyring.duplicate(true))
 	#Replace property references with pointer.
 	for property_blueprint in authored_properties_to_delete:
-		print ("Replacing " + property_blueprint.get_property_name() + " with " + replacement.data_to_string() + ".")
 		#Search scripts and replace the properties that we're deleting with the replacement pointer.
 		for encounter in storyworld.encounters:
-			encounter.acceptability_script.replace_property_with_pointer(property_blueprint, replacement)
-			encounter.desirability_script.replace_property_with_pointer(property_blueprint, replacement)
+			encounter.acceptability_script.delete_property(property_blueprint)
+			encounter.desirability_script.delete_property(property_blueprint)
 			for option in encounter.options:
-				option.visibility_script.replace_property_with_pointer(property_blueprint, replacement)
-				option.performability_script.replace_property_with_pointer(property_blueprint, replacement)
+				option.visibility_script.delete_property(property_blueprint)
+				option.performability_script.delete_property(property_blueprint)
 				for reaction in option.reactions:
-					reaction.desirability_script.replace_property_with_pointer(property_blueprint, replacement)
+					reaction.desirability_script.delete_property(property_blueprint)
 					print (reaction.desirability_script.data_to_string())
-					for effect in reaction.after_effects:
+					var effects = reaction.after_effects.duplicate()
+					for effect in effects:
 						if (effect is BNumberEffect):
 							if (effect.assignee.get_ap_blueprint().id == property_blueprint.id):
-								effect.assignee.set_as_copy_of(replacement)
-							effect.assignment_script.replace_property_with_pointer(property_blueprint, replacement)
+								reaction.after_effects.erase(effect)
+								effect.call_deferred("free")
+								continue
+							effect.assignment_script.delete_property(property_blueprint)
 						elif (effect is SpoolEffect):
-							effect.assignment_script.replace_property_with_pointer(property_blueprint, replacement)
+							effect.assignment_script.delete_property(property_blueprint)
 		#Delete property.
 		storyworld.delete_authored_property(property_blueprint)
 	#Update interface.
 	log_update()
 	refresh_property_list()
-	emit_signal("refresh_authored_property_lists")
+	emit_signal("property_deleted")
 
 func _on_PropertyList_item_selected(index):
 	var property_blueprint = $ColorRect/VBC/HBC/VBC/PropertyList.get_item_metadata(index)

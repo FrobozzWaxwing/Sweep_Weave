@@ -42,7 +42,10 @@ func refresh():
 	if (null == value):
 		set_error_message("Error: Could not find property when checking character.")
 		return false
-	else:
+	elif (TYPE_DICTIONARY == typeof(value)):
+		set_error_message("Error: Could not find bnumber when checking character.")
+		return false
+	elif (TYPE_INT == typeof(value) or TYPE_REAL == typeof(value)):
 		$VBC/HBC2/Slidebar.set_value(value)
 		$VBC/HBC2/SpinBox.set_value(value)
 	var property_id = keyring.front()
@@ -97,7 +100,7 @@ func refresh_keyring_interface(refresh_index):
 			selector.select(selected_index)
 		onion = onion[keyring[keyring_index]]
 
-func change_keyring(keyring_index, option_index, perceived_character):
+func change_keyring(keyring_index, perceived_character):
 	keyring[keyring_index] = perceived_character.id
 	var length = keyring.size()
 	keyring.resize(keyring_index + 1)

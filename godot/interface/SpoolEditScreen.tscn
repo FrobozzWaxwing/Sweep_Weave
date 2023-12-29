@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://interface/SpoolEditScreen.gd" type="Script" id=1]
 [ext_resource path="res://interface/DragAndDropList.tscn" type="PackedScene" id=2]
-[ext_resource path="res://interface/EventSelectionInterface.tscn" type="PackedScene" id=3]
+[ext_resource path="res://icons/sort-alpha-down.svg" type="Texture" id=3]
 [ext_resource path="res://icons/delete.svg" type="Texture" id=4]
 [ext_resource path="res://icons/add.svg" type="Texture" id=5]
+[ext_resource path="res://interface/SortMenu.gd" type="Script" id=6]
 
 [node name="Control" type="Control"]
 anchor_right = 1.0
@@ -110,28 +111,12 @@ margin_bottom = 20.0
 hint_tooltip = "Remove encounter from current spool."
 text = "Remove encounter"
 
-[node name="Encounters_on_current_spool" parent="Background/HBC/Column2" instance=ExtResource( 2 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
+[node name="CurrentSpoolEncounterList" type="ItemList" parent="Background/HBC/Column2"]
 margin_top = 68.0
 margin_right = 453.0
 margin_bottom = 736.0
 size_flags_vertical = 3
-
-[node name="NoSpoolMargin" type="HSeparator" parent="Background/HBC/Column2"]
-visible = false
-margin_top = 732.0
-margin_right = 453.0
-margin_bottom = 736.0
-
-[node name="NoSpoolSelected" type="Label" parent="Background/HBC/Column2"]
-visible = false
-margin_top = 722.0
-margin_right = 453.0
-margin_bottom = 736.0
-text = "Select a spool to display its encounters."
-align = 1
-autowrap = true
+select_mode = 1
 
 [node name="Column3" type="VBoxContainer" parent="Background/HBC"]
 margin_left = 913.0
@@ -139,11 +124,77 @@ margin_right = 1366.0
 margin_bottom = 736.0
 size_flags_horizontal = 3
 
-[node name="ListofAllEncounters" parent="Background/HBC/Column3" instance=ExtResource( 3 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
+[node name="SearchBar" type="HBoxContainer" parent="Background/HBC/Column3"]
+margin_right = 453.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Background/HBC/Column3/SearchBar"]
+margin_top = 5.0
+margin_right = 118.0
+margin_bottom = 19.0
+hint_tooltip = "Press enter after entering search term in order to filter events by search term."
+mouse_filter = 1
+text = " Search Encounter:"
+
+[node name="AddableSearch" type="LineEdit" parent="Background/HBC/Column3/SearchBar"]
+margin_left = 122.0
+margin_right = 453.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 128, 0 )
+hint_tooltip = "Press enter after entering search term in order to filter encounters by search term."
+size_flags_horizontal = 3
+placeholder_text = "Enter search term"
+
+[node name="SortBar" type="HBoxContainer" parent="Background/HBC/Column3"]
+margin_top = 28.0
+margin_right = 453.0
+margin_bottom = 58.0
+
+[node name="Label" type="Label" parent="Background/HBC/Column3/SortBar"]
+margin_top = 8.0
+margin_right = 52.0
+margin_bottom = 22.0
+text = " Sort by:"
+
+[node name="AddableSortMenu" type="OptionButton" parent="Background/HBC/Column3/SortBar"]
+margin_left = 56.0
+margin_right = 85.0
+margin_bottom = 30.0
+script = ExtResource( 6 )
+
+[node name="AddableToggleReverseButton" type="Button" parent="Background/HBC/Column3/SortBar"]
+margin_left = 89.0
+margin_right = 125.0
+margin_bottom = 30.0
+toggle_mode = true
+icon = ExtResource( 3 )
+
+[node name="AddableEncounters" type="ItemList" parent="Background/HBC/Column3"]
+margin_top = 62.0
 margin_right = 453.0
 margin_bottom = 736.0
+size_flags_vertical = 3
+select_mode = 1
+
+[node name="NoSpoolColumn" type="VBoxContainer" parent="Background/HBC"]
+visible = false
+margin_left = 1365.0
+margin_right = 1366.0
+margin_bottom = 736.0
+
+[node name="NoSpoolMargin" type="HSeparator" parent="Background/HBC/NoSpoolColumn"]
+margin_left = -909.0
+margin_top = 732.0
+margin_right = -456.0
+margin_bottom = 736.0
+
+[node name="NoSpoolSelected" type="Label" parent="Background/HBC/NoSpoolColumn"]
+margin_right = 1.0
+margin_bottom = 728.0
+text = "Select a spool to display its encounters."
+align = 1
+autowrap = true
 
 [node name="SpoolDeletionConfirmationDialog" type="ConfirmationDialog" parent="."]
 margin_right = 200.0
@@ -161,4 +212,11 @@ dialog_text = "Storyworlds require at least one spool."
 [connection signal="pressed" from="Background/HBC/Column2/HBC/SpoolStartsActiveCheckBox" to="." method="_on_SpoolStartsActiveCheckBox_pressed"]
 [connection signal="pressed" from="Background/HBC/Column2/HBC2/AddEncounterButton" to="." method="_on_AddEncounterButton_pressed"]
 [connection signal="pressed" from="Background/HBC/Column2/HBC2/RemoveEncounterButton" to="." method="_on_RemoveEncounterButton_pressed"]
+[connection signal="item_activated" from="Background/HBC/Column2/CurrentSpoolEncounterList" to="." method="_on_CurrentSpoolEncounterList_item_activated"]
+[connection signal="multi_selected" from="Background/HBC/Column2/CurrentSpoolEncounterList" to="." method="_on_CurrentSpoolEncounterList_multi_selected"]
+[connection signal="text_entered" from="Background/HBC/Column3/SearchBar/AddableSearch" to="." method="_on_AddableSearch_text_entered"]
+[connection signal="item_selected" from="Background/HBC/Column3/SortBar/AddableSortMenu" to="." method="_on_AddableSortMenu_item_selected"]
+[connection signal="toggled" from="Background/HBC/Column3/SortBar/AddableToggleReverseButton" to="." method="_on_AddableToggleReverseButton_toggled"]
+[connection signal="item_activated" from="Background/HBC/Column3/AddableEncounters" to="." method="_on_AddableEncounters_item_activated"]
+[connection signal="multi_selected" from="Background/HBC/Column3/AddableEncounters" to="." method="_on_AddableEncounters_multi_selected"]
 [connection signal="confirmed" from="SpoolDeletionConfirmationDialog" to="." method="_on_SpoolDeletionConfirmationDialog_confirmed"]

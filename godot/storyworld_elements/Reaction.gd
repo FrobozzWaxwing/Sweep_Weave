@@ -17,7 +17,7 @@ var occurrences = 0 #The number of times that this event has occurred on the cur
 var reachable = false #Used by the automated rehearsal system to keep track of whether or not an event can be reached by the player.
 var yielding_paths #The estimated number of possible paths through the storyworld that reach this event.
 
-func _init(in_option, in_id, in_text, in_desirability_script = null, in_graph_offset = Vector2(0, 0)):
+func _init(in_option, in_id:String, in_text:String, in_desirability_script = null, in_graph_offset = Vector2(0, 0)):
 	option = in_option
 	id = in_id
 	text_script = ScriptManager.new(StringConstant.new(in_text))
@@ -39,19 +39,19 @@ func get_text():
 			return text_script.get_value()
 	return ""
 
-func set_text(new_text):
+func set_text(new_text:String):
 	if (text_script is ScriptManager):
 		if (text_script.contents is StringConstant):
 			text_script.contents.set_value(new_text)
 
-func get_truncated_text(maximum_output_length = 20):
+func get_truncated_text(maximum_output_length:int = 20):
 	var text = get_text()
 	if (maximum_output_length >= text.length()):
 		return text
 	else:
 		return text.left(maximum_output_length - 3) + "..."
 
-func get_listable_text(maximum_output_length = 70):
+func get_listable_text(maximum_output_length:int = 80):
 	var text = get_text()
 	if ("" == text):
 		return "[Blank Reaction]"
@@ -74,13 +74,13 @@ func calculate_and_report_desirability():
 		result = desirability_script.get_and_report_value()
 	return result
 
-func has_search_text(searchterm):
+func has_search_text(searchterm:String):
 	if (text_script.has_search_text(searchterm)):
 		return true
 	else:
 		return false
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(parent_storyworld, include_editor_only_variables:bool = false):
 	var result = {}
 	result["id"] = id
 	result["text_script"] = text_script.compile(parent_storyworld, include_editor_only_variables)
@@ -119,7 +119,7 @@ func clear():
 			change.call_deferred("free")
 	after_effects.clear()
 
-func set_as_copy_of(original, copy_id = true):
+func set_as_copy_of(original, copy_id:bool = true):
 	option = original.option
 	if (copy_id):
 		id = original.id

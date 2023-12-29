@@ -45,13 +45,17 @@ func refresh():
 	var option_index = 0
 	var selected_index = 0
 	for character in storyworld.characters:
-		if (!character.bnumber_properties.empty()):
+		if (character.has_properties()):
 			$Background/InverseParserHBC/RootCharacterSelector.add_item(character.char_name)
 			$Background/InverseParserHBC/RootCharacterSelector.set_item_metadata(option_index, character)
 			if (selected_property.character == character):
 				selected_index = option_index
 			option_index += 1
-		$Background/InverseParserHBC/RootCharacterSelector.select(selected_index)
+		if (0 == option_index):
+			set_error_message("No one selected.", "No characters are available to select. Try adding some characters or adding some properties to your existing characters.")
+			break
+		else:
+			$Background/InverseParserHBC/RootCharacterSelector.select(selected_index)
 	if (0 == selected_property.character.authored_property_directory.size()):
 		$Background/InverseParserHBC/NegateToggleButton.visible = false
 		#The selected character has no authored properties associated with them.
@@ -89,11 +93,18 @@ func refresh():
 						if (selected_property.keyring[keyring_index] == property_blueprint.id):
 							selected_index = option_index
 						option_index += 1
-			selector.select(selected_index)
+			if (0 == option_index):
+				set_error_message("No property selected.", "The selected character, \"" + selected_property.character.char_name + ",\" currently has no properties available to select.")
+				break
+			else:
+				selector.select(selected_index)
 			selector.connect("keyring_change_requested", self, "change_keyring")
 			$Background/InverseParserHBC/KeyringBC.add_child(selector)
 		elif (1 <= keyring_index):
-			if (!onion.empty()):
+			if (onion.empty()):
+				set_error_message("Error: The selected property is empty.")
+				break
+			else:
 				var selector = KeyringOptionButton.instance()
 				selector.keyring_index = keyring_index
 				option_index = 0
@@ -115,7 +126,7 @@ func refresh():
 					break
 	return true
 
-func change_keyring(keyring_index, option_index, option_metadata):
+func change_keyring(keyring_index, option_metadata):
 	if (null == storyworld or storyworld.characters.empty()):
 		return
 	var onion = null
@@ -158,13 +169,10 @@ func _on_NegateToggleButton_pressed():
 	emit_signal("bnumber_property_selected", selected_property)
 
 func _on_RootCharacterSelector_item_selected(index):
-	var metadata = $Background/InverseParserHBC/RootCharacterSelector.get_item_metadata(index)
-	if (metadata is Actor):
+	var character = $Background/InverseParserHBC/RootCharacterSelector.get_item_metadata(index)
+	if (character is Actor):
+		selected_property.character = character
 		var blueprint = selected_property.get_ap_blueprint()
-		if (null != blueprint and blueprint.applies_to(metadata)):
-			selected_property.character = metadata
-		else:
-			reset()
-			selected_property.character = metadata
-		refresh()
-		emit_signal("bnumber_property_selected", selected_property)
+		if (null == blueprint or !blueprint.applies_to(character) or !character.bnumber_properties.has(blueprint.id)):
+			blueprint = character.authored_properties.front()
+		change_keyring(0, blueprint)

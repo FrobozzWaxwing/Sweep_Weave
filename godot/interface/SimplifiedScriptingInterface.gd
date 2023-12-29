@@ -37,24 +37,20 @@ func refresh():
 			and 2 == script_to_edit.contents.operands.size()
 			and script_to_edit.contents.operands[0] is BNumberPointer
 			and script_to_edit.contents.operands[1] is BNumberPointer):
-#			$Rows/Title.set_text("Reaction desirability:")
 			Trait1Selector.selected_property.set_as_copy_of(script_to_edit.contents.operands[0])
 			Trait1Selector.refresh()
 			Trait2Selector.selected_property.set_as_copy_of(script_to_edit.contents.operands[1])
 			Trait2Selector.refresh()
 			$Rows/Title.set_visible(true)
 			$Rows/WeightDisplay.set_visible(false)
-#			$Rows/WeightDisplay/Label.set_visible(true)
-#			$Rows/WeightDisplay/WeightSelector.set_visible(false)
-#			$Rows/WeightDisplay/Label2.set_visible(true)
 			$Rows/TraitsDisplay.set_visible(true)
+			$Rows/TraitsDisplay/VSeparator.set_visible(true)
 			Trait2Selector.set_visible(true)
 		elif (script_to_edit.contents is BlendOperator
 			and 3 == script_to_edit.contents.operands.size()
 			and script_to_edit.contents.operands[0] is BNumberPointer
 			and script_to_edit.contents.operands[1] is BNumberPointer
 			and script_to_edit.contents.operands[2] is BNumberConstant):
-#			$Rows/Title.set_text("Reaction desirability:")
 			WeightSelector.set_reference_operator(script_to_edit.contents.operands[2])
 			Trait1Selector.selected_property.set_as_copy_of(script_to_edit.contents.operands[0])
 			Trait1Selector.refresh()
@@ -66,9 +62,9 @@ func refresh():
 			$Rows/WeightDisplay/WeightSelector.set_visible(true)
 			$Rows/WeightDisplay/Label2.set_visible(true)
 			$Rows/TraitsDisplay.set_visible(true)
+			$Rows/TraitsDisplay/VSeparator.set_visible(true)
 			Trait2Selector.set_visible(true)
 		elif (script_to_edit.contents is BNumberConstant):
-#			$Rows/Title.set_text("Reaction desirability:")
 			WeightSelector.set_reference_operator(script_to_edit.contents)
 			$Rows/Title.set_visible(true)
 			$Rows/WeightDisplay.set_visible(true)
@@ -76,12 +72,12 @@ func refresh():
 			$Rows/WeightDisplay/Label2.set_visible(false)
 			$Rows/TraitsDisplay.set_visible(false)
 		elif (script_to_edit.contents is BNumberPointer):
-#			$Rows/Title.set_text("Reaction desirability:")
 			Trait1Selector.selected_property.set_as_copy_of(script_to_edit.contents)
 			Trait1Selector.refresh()
 			$Rows/Title.set_visible(true)
 			$Rows/WeightDisplay.set_visible(false)
 			$Rows/TraitsDisplay.set_visible(true)
+			$Rows/TraitsDisplay/VSeparator.set_visible(false)
 			Trait2Selector.set_visible(false)
 		else:
 			$Rows.set_visible(false)

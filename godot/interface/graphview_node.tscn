@@ -1,12 +1,13 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://interface/graphview_node.gd" type="Script" id=1]
 [ext_resource path="res://icons/edit.svg" type="Texture" id=2]
+[ext_resource path="res://interface/MinimalScriptingInterface.tscn" type="PackedScene" id=3]
 
 [node name="Control" type="GraphNode"]
-margin_right = -1238.0
-margin_bottom = -608.0
-size_flags_horizontal = 0
+margin_right = 134.0
+margin_bottom = 165.0
+rect_min_size = Vector2( 128, 0 )
 size_flags_vertical = 0
 slot/0/left_enabled = false
 slot/0/left_type = 0
@@ -26,57 +27,60 @@ slot/2/left_color = Color( 1, 1, 1, 1 )
 slot/2/right_enabled = false
 slot/2/right_type = 0
 slot/2/right_color = Color( 1, 1, 1, 1 )
-slot/3/left_enabled = false
-slot/3/left_type = 0
-slot/3/left_color = Color( 1, 1, 1, 1 )
-slot/3/right_enabled = false
-slot/3/right_type = 0
-slot/3/right_color = Color( 1, 1, 1, 1 )
-slot/4/left_enabled = false
-slot/4/left_type = 0
-slot/4/left_color = Color( 1, 1, 1, 1 )
-slot/4/right_enabled = false
-slot/4/right_type = 0
-slot/4/right_color = Color( 1, 1, 1, 1 )
 script = ExtResource( 1 )
 
 [node name="Prereq_Label" type="Label" parent="."]
 margin_left = 16.0
 margin_top = 24.0
-margin_right = 109.0
+margin_right = 118.0
 margin_bottom = 38.0
-text = "Prerequisites"
+hint_tooltip = "This shows when a script in one encounter refers to a different encounter."
+mouse_filter = 1
+text = "Script Links"
 autowrap = true
 
 [node name="Consequence_Label" type="Label" parent="."]
 margin_left = 16.0
 margin_top = 39.0
-margin_right = 109.0
+margin_right = 118.0
 margin_bottom = 53.0
+hint_tooltip = "This shows when a reaction in one encounter leads directly to a different encounter via a next-page effect."
+mouse_filter = 1
 size_flags_horizontal = 0
-text = "Consequences"
+text = "Next-Page Links"
 
-[node name="HSeparator" type="HSeparator" parent="."]
+[node name="VBC" type="VBoxContainer" parent="."]
 margin_left = 16.0
 margin_top = 54.0
-margin_right = 109.0
-margin_bottom = 58.0
+margin_right = 118.0
+margin_bottom = 159.0
+size_flags_horizontal = 3
 
-[node name="Excerpt" type="Label" parent="."]
-margin_left = 16.0
-margin_top = 59.0
-margin_right = 109.0
-margin_bottom = 73.0
+[node name="HSeparator" type="HSeparator" parent="VBC"]
+margin_right = 102.0
+margin_bottom = 4.0
+
+[node name="Excerpt" type="Label" parent="VBC"]
+margin_top = 8.0
+margin_right = 102.0
+margin_bottom = 22.0
 autowrap = true
 
-[node name="Button" type="Button" parent="."]
-margin_left = 16.0
-margin_top = 74.0
-margin_right = 109.0
-margin_bottom = 104.0
+[node name="MinimalEncounterDesirabilityScriptingInterface" parent="VBC" instance=ExtResource( 3 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 26.0
+margin_right = 102.0
+margin_bottom = 71.0
+size_flags_horizontal = 3
+
+[node name="EditButton" type="Button" parent="VBC"]
+margin_top = 75.0
+margin_right = 102.0
+margin_bottom = 105.0
 text = "Edit"
 icon = ExtResource( 2 )
 
 [connection signal="dragged" from="." to="." method="_on_Control_dragged"]
-[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]
-[connection signal="pressed" from="Button" to="Button" method="_on_Button_pressed"]
+[connection signal="sw_script_changed" from="VBC/MinimalEncounterDesirabilityScriptingInterface" to="." method="_on_MinimalEncounterDesirabilityScriptingInterface_sw_script_changed"]
+[connection signal="pressed" from="VBC/EditButton" to="." method="_on_EditButton_pressed"]

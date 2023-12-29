@@ -162,8 +162,12 @@ func add_character(character):
 func delete_character(character):
 	characters.erase(character)
 	character_directory.erase(character)
+	#Delete character from authored properties:
 	for property in authored_properties:
 		property.affected_characters.erase(character)
+	#Delete character from relationships:
+	for observer in characters:
+		observer.delete_character_from_bnumber_properties(character)
 	character.call_deferred("free")
 
 func add_all_characters_from(original):
@@ -462,26 +466,37 @@ func check_for_parallels():
 	for encounter in encounters:
 		encounter.check_for_parallels()
 
+func cast_has_properties():
+	for character in characters:
+		if (character.has_properties()):
+			return true
+	return false
+
 func create_default_bnumber_pointer():
-	if (0 == authored_properties.size() or 0 == characters.size()):
+	if (authored_properties.empty() or characters.empty()):
 		#Something has gone terribly wrong.
 		return null
-	var property = authored_properties[0]
+	var character = null
+	for prospect in characters:
+		if (!prospect.bnumber_properties.empty() and !prospect.authored_properties.empty()):
+			character = prospect
+			break
+	if (null == character):
+		return null
+	var property = character.authored_properties.front()
 	var keyring = []
 	keyring.append(property.id)
-	if (property.possible_attribution_targets.ENTIRE_CAST == property.attribution_target):
-		for layer in range(property.depth):
-			keyring.append(characters[0].id)
-		var result = BNumberPointer.new(characters[0], keyring.duplicate(true))
-		return result
-	elif (property.possible_attribution_targets.CAST_MEMBERS == property.attribution_target):
-		if (property.affected_characters.empty()):
-			print ("Error when creating default bnumber pointer: chosen property has no affected characters.")
-		var character = property.affected_characters[0]
-		for layer in range(property.depth):
-			keyring.append(character.id)
-		var result = BNumberPointer.new(character, keyring.duplicate(true))
-		return result
+	var onion = character.bnumber_properties[property.id]
+	for key_index in range(1, property.depth + 1):
+		if (TYPE_DICTIONARY == typeof(onion)):
+			for prospect in characters:
+				if (onion.has(prospect.id)):
+					keyring.append(prospect.id)
+					onion = onion[prospect.id]
+					break
+		else:
+			break
+	return BNumberPointer.new(character, keyring)
 
 func create_default_character():
 	var new_index = unique_id_seeds["character"]

@@ -50,6 +50,7 @@ margin_left = 209.0
 margin_right = 283.0
 margin_bottom = 24.0
 min_value = 1.0
+max_value = 1000.0
 value = 1.0
 
 [node name="SaveReportButton" type="Button" parent="Panel/VBC/HBC"]

@@ -30,7 +30,7 @@ var yielding_paths = 0 #The estimated number of possible paths through the story
 var potential_ending = false #True if the story ends upon reaching this encounter on at least one possible path through the storyworld.
 var parallels_detected = false
 
-func _init(in_storyworld, in_id, in_title, in_text, in_creation_index, in_creation_time = OS.get_unix_time(), in_modified_time = OS.get_unix_time(), in_graph_position = Vector2(40, 40)):
+func _init(in_storyworld, in_id:String, in_title:String, in_text:String, in_creation_index:int, in_creation_time = OS.get_unix_time(), in_modified_time = OS.get_unix_time(), in_graph_position = Vector2(40, 40)):
 	storyworld = in_storyworld
 	id = in_id
 	title = in_title
@@ -55,12 +55,12 @@ func get_text():
 			return text_script.get_value()
 	return ""
 
-func set_text(new_text):
+func set_text(new_text:String):
 	if (text_script is ScriptManager):
 		if (text_script.contents is StringConstant):
 			text_script.contents.set_value(new_text)
 
-func get_listable_text(maximum_output_length = 70):
+func get_listable_text(maximum_output_length:int = 70):
 	var text = title
 	if ("" == text):
 		return "[Untitled Encounter]"
@@ -68,6 +68,15 @@ func get_listable_text(maximum_output_length = 70):
 		return text
 	else:
 		return text.left(maximum_output_length - 3) + "..."
+
+func get_excerpt(maximum_output_length:int = 256):
+	var text = get_text()
+	if (maximum_output_length >= text.length()):
+		return text
+	else:
+		text = text.left(maximum_output_length - 3)
+		text = text.substr(0, text.find_last(" "))
+		return text + "..."
 
 func calculate_desirability():
 	var result = null
@@ -108,7 +117,7 @@ func clear():
 		option.clear()
 		option.call_deferred("free")
 
-func set_as_copy_of(original, copy_id = true, create_mutual_links = true):
+func set_as_copy_of(original, copy_id:bool = true, create_mutual_links:bool = true):
 	#Sets the properties of this encounter equal to the properties of the input encounter.
 	if (copy_id):
 		id = original.id
@@ -178,7 +187,7 @@ func wordcount():
 	word_count = sum
 	return sum
 
-func has_search_text(searchterm):
+func has_search_text(searchterm:String):
 	if (searchterm in title):
 		return true
 	elif (text_script.has_search_text(searchterm)):
@@ -232,7 +241,7 @@ func check_for_parallels():
 						return true
 	return false
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(parent_storyworld, include_editor_only_variables:bool = false):
 	var result = {}
 	result["id"] = id
 	result["title"] = title

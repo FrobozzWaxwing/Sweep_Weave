@@ -1,6 +1,7 @@
 extends MenuButton
 var popup = get_popup()
 var encounters_sub_menu = PopupMenu.new()
+var graphview_sub_menu = PopupMenu.new()
 var play_sub_menu = PopupMenu.new()
 var theme_sub_menu = PopupMenu.new()
 
@@ -18,6 +19,15 @@ func _ready():
 	popup.add_child(encounters_sub_menu)
 	popup.add_submenu_item("Encounters tab ", "encounters_sub_menu")
 	encounters_sub_menu.connect("id_pressed", self, "_on_encounters_sub_menu_id_pressed")
+	#Graph View tab submenu:
+	graphview_sub_menu.set_name("graphview_sub_menu")
+	graphview_sub_menu.add_check_item("Encounter excerpts")
+	graphview_sub_menu.set_item_checked(0, false)
+#	graphview_sub_menu.add_check_item("Encounter desirabilities")
+#	graphview_sub_menu.set_item_checked(1, false)
+	popup.add_child(graphview_sub_menu)
+	popup.add_submenu_item("Graph View tab ", "graphview_sub_menu")
+	graphview_sub_menu.connect("id_pressed", self, "_on_graphview_sub_menu_id_pressed")
 	#Play tab submenu:
 	play_sub_menu.set_name("play_sub_menu")
 	play_sub_menu.add_check_item("Spoolbook")
@@ -40,6 +50,11 @@ func _on_encounters_sub_menu_id_pressed(id):
 	var check = !encounters_sub_menu.is_item_checked(id)
 	encounters_sub_menu.set_item_checked(id, check)
 	emit_signal("menu_input", "Encounters", id, check)
+
+func _on_graphview_sub_menu_id_pressed(id):
+	var check = !graphview_sub_menu.is_item_checked(id)
+	graphview_sub_menu.set_item_checked(id, check)
+	emit_signal("menu_input", "Graph View", id, check)
 
 func _on_play_sub_menu_id_pressed(id):
 	var check = !play_sub_menu.is_item_checked(id)

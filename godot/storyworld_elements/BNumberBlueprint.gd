@@ -16,7 +16,7 @@ var creation_index = 0
 var creation_time = OS.get_unix_time()
 var modified_time = OS.get_unix_time()
 
-func _init(in_storyworld, in_creation_index, in_id, in_property_name, in_depth = 0, in_default_value = 0):
+func _init(in_storyworld, in_creation_index:int, in_id:String, in_property_name:String, in_depth:int = 0, in_default_value = 0):
 	storyworld = in_storyworld
 	id = in_id
 	property_name = in_property_name
@@ -48,7 +48,7 @@ func applies_to(character):
 func log_update():
 	modified_time = OS.get_unix_time()
 
-func set_as_copy_of(original, create_mutual_links = true):
+func set_as_copy_of(original, create_mutual_links:bool = true):
 	id = original.id
 	property_name = original.property_name
 	depth = original.depth
@@ -80,7 +80,7 @@ func replace_character_with_character(character_to_delete, replacement):
 	elif (possible_attribution_targets.ENTIRE_CAST == attribution_target):
 		affected_characters.erase(character_to_delete)
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(parent_storyworld, include_editor_only_variables:bool = false):
 	var output = {}
 	output["property_type"] = "bounded number"
 	output["id"] = id

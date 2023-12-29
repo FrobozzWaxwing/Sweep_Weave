@@ -56,7 +56,9 @@ func refresh_operator_options_display(operator):
 			add_option_to_toolbox("Less than or Equal to", "Produces true if first operand is less than or equal to second operand.")
 		elif (operator.sw_script_data_types.BNUMBER == operator.output_type):
 			add_option_to_toolbox("Constant", "A number above -1 and below 1, specified by the author.")
-			add_option_to_toolbox("BNumber Property", "A bounded number property associated with a specified character. Useful for tracking character traits and relationships between characters.")
+			if (storyworld.cast_has_properties()):
+				#Check to make sure that a valid bnumber pointer can be created.
+				add_option_to_toolbox("BNumber Property", "A bounded number property associated with a specified character. Useful for tracking character traits and relationships between characters.")
 			add_option_to_toolbox("Absolute Value", "The absolute value of the operand.")
 			add_option_to_toolbox("Arithmetic Negation", "The product of the operand and -1.")
 			add_option_to_toolbox("Average", "The arithmetic mean, or average, of all operands.")

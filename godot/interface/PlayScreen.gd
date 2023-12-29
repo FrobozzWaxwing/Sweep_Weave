@@ -45,7 +45,7 @@ func refresh_spoolbook(next_page = null):
 		$Layout/VBC/Spoolbook_Label.visible = false
 		$Layout/VBC/Spoolbook.visible = false
 
-func set_display_spoolbook(checked):
+func set_display_spoolbook(checked:bool):
 	display_spoolbook = checked
 	refresh_spoolbook()
 
@@ -63,7 +63,7 @@ func refresh_historybook():
 		$Layout/VBC/Historybook.set_item_metadata(index, page)
 		index += 1
 
-func recursive_refresh_castbook(root_display_branch, onion, next_page, method_actor, keyring):
+func recursive_refresh_castbook(root_display_branch:TreeItem, onion, next_page:HB_Record, method_actor:Actor, keyring:Array):
 	var cast = rehearsal.storyworld.characters
 	for perceived_character in cast:
 		if (onion.has(perceived_character.id)):
@@ -115,36 +115,6 @@ func refresh_castbook(next_page = null):
 				var entry_text = bnumber_property.get_property_name() + ": "
 				entry.set_text(0, entry_text)
 				recursive_refresh_castbook(entry, onion, next_page, method_actor, keyring)
-				
-#				var current_layer_items = []
-#				current_layer_items.append(entry)
-#				var next_layer_items = []
-#				for layer in range(bnumber_property.depth):
-#					if (layer < bnumber_property.depth - 1):
-#						for branch in current_layer_items:
-#							for perceived_character in cast:
-#								var leaf = $Layout/L2/VBC/Castbook.create_item(branch)
-#								keyring = branch.get_metadata(0).duplicate()
-#								keyring.append(perceived_character.id)
-#								leaf.set_metadata(0, keyring)
-#								var text = perceived_character.char_name
-#								leaf.set_text(0, text)
-#								next_layer_items.append(leaf)
-#					elif (layer == bnumber_property.depth - 1):
-#						for branch in current_layer_items:
-#							for perceived_character in cast:
-#								var leaf = $Layout/L2/VBC/Castbook.create_item(branch)
-#								keyring = branch.get_metadata(0).duplicate()
-#								keyring.append(perceived_character.id)
-#								leaf.set_metadata(0, keyring)
-#								var text = perceived_character.char_name + ": " + str(character.get_bnumber_property(keyring))
-#								if (null != next_page):
-#									if (character.get_bnumber_property(keyring) != method_actor.get_bnumber_property(keyring)):
-#										text += " -> " + str(method_actor.get_bnumber_property(keyring))
-#								leaf.set_text(0, text)
-#					current_layer_items.clear()
-#					current_layer_items = next_layer_items.duplicate()
-#					next_layer_items.clear()
 		method_actor.call_deferred("free")
 
 func refresh_encountertitle():
@@ -344,7 +314,7 @@ func refresh_reaction_inclinations(option = null):
 			var inclination = reaction.calculate_and_report_desirability()
 			reaction_entry.set_text(1, str(inclination))
 
-func load_Page(page):
+func load_Page(page:HB_Record):
 	page_to_display = page
 	rehearsal.turn_to_page(page)
 	refresh_encountertitle()
@@ -407,7 +377,7 @@ func _on_Edit_Button_pressed():
 	if (null != page_to_display and null != page_to_display.encounter and page_to_display.encounter is Encounter):
 		emit_signal("encounter_edit_button_pressed", page_to_display.encounter.id)
 
-func _on_OptionsList_item_selected(index):
+func _on_OptionsList_item_selected(index:int):
 	var option_page = $Layout/L2/ColorRect/VBC/OptionsList.get_item_metadata(index)
 	if (TYPE_STRING == typeof(option_page)):
 		$Layout/L2/VBC/Resulting_Reaction.visible = false
@@ -426,7 +396,7 @@ func _on_OptionsList_item_selected(index):
 	$Layout/L2/VBC/Resulting_Encounter.visible = true
 	$Layout/L2/VBC/Resulting_Encounter.text = "Encounter: " + option_page.stringify_encounter()
 
-func _on_OptionsList_item_activated(index):
+func _on_OptionsList_item_activated(index:int):
 	var option_page = $Layout/L2/ColorRect/VBC/OptionsList.get_item_metadata(index)
 	if (TYPE_STRING == typeof(option_page)):
 		$Layout/L2/VBC/Resulting_Reaction.visible = false
@@ -439,7 +409,7 @@ func _on_OptionsList_item_activated(index):
 		return
 	load_Page(option_page)
 
-func _on_Historybook_item_activated(index):
+func _on_Historybook_item_activated(index:int):
 	var historybook_page = $Layout/VBC/Historybook.get_item_metadata(index)
 	load_Page(historybook_page)
 
@@ -454,7 +424,7 @@ func _on_EncounterSelectionReportButton_pressed():
 onready var edit_icon_light = preload("res://icons/edit.svg")
 onready var edit_icon_dark = preload("res://icons/edit_dark.svg")
 
-func set_gui_theme(theme_name, background_color):
+func set_gui_theme(theme_name:String, background_color:Color):
 	color = background_color
 	$Layout/L2/ColorRect.color = background_color
 	$EncounterScriptReportWindow/VBC/Background.color = background_color

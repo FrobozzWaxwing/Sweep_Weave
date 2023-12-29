@@ -36,3 +36,4 @@ func set_reference_operator(new_reference_operator):
 func _on_Slidebar_value_changed(new_value):
 	set_value(new_value)
 	emit_signal("bnumber_value_changed", reference_operator, new_value)
+

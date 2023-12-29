@@ -8,7 +8,7 @@ var character_to_delete = null #We want to set this up as a gloabal variable for
 
 signal new_character_created(character)
 signal character_name_changed(character)
-signal character_deleted(deleted_character, replacement)
+signal character_deleted()
 signal refresh_authored_property_lists()
 
 func _ready():
@@ -99,50 +99,44 @@ func _on_DeleteCharacter_pressed():
 			var selection = $HBC/VBC/Scroll/CharacterList.get_selected_items()
 			var dialog_text = 'Are you sure you wish to delete the character: "'
 			character_to_delete = storyworld.characters[selection[0]]
-			dialog_text += character_to_delete.char_name + '"? If so, please select a character to replace them with in every script currently employing them.'
+			dialog_text += character_to_delete.char_name + '"?'
+#			dialog_text += character_to_delete.char_name + '"? If so, please select a character to replace them with in every script currently employing them.'
 			$ConfirmCharacterDeletion.dialog_text = dialog_text
-			$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.clear()
-			var option_index = 0
-			for each in storyworld.characters:
-				if (each != character_to_delete):
-					$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.add_item(each.char_name)
-					$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.set_item_metadata(option_index, each)
-					option_index += 1
-			$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.select(0)
+#			$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.clear()
+#			var option_index = 0
+#			for each in storyworld.characters:
+#				if (each != character_to_delete):
+#					$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.add_item(each.char_name)
+#					$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.set_item_metadata(option_index, each)
+#					option_index += 1
+#			$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.select(0)
 			$ConfirmCharacterDeletion.popup_centered()
 		else:
 			print("The storyworld must have at least one character.")
 
 func _on_ConfirmCharacterDeletion_confirmed():
 	if ($HBC/VBC/Scroll/CharacterList.is_anything_selected()):
-		var replacement = $ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.get_selected_metadata()
-		#Replace character in authored properties:
-		for property in storyworld.authored_properties:
-			property.replace_character_with_character(character_to_delete, replacement)
-			if (!replacement.authored_property_directory.has(property)):
-				replacement.add_property_to_bnumber_properties(property, storyworld.characters)
-		#Replace character in scripts:
+		#Delete character from scripts:
 		for encounter in storyworld.encounters:
-			encounter.acceptability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
-			encounter.desirability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
+			encounter.acceptability_script.delete_character(character_to_delete) #ScriptManager
+			encounter.desirability_script.delete_character(character_to_delete) #ScriptManager
 			for option in encounter.options:
-				option.visibility_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
-				option.performability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
+				option.visibility_script.delete_character(character_to_delete) #ScriptManager
+				option.performability_script.delete_character(character_to_delete) #ScriptManager
 				for reaction in option.reactions:
-					reaction.desirability_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
+					reaction.desirability_script.delete_character(character_to_delete) #ScriptManager
 					for effect in reaction.after_effects:
 						if (effect is BNumberEffect):
-							effect.assignee.replace_character_with_character(character_to_delete, replacement) #BNumberPointer
-							effect.assignment_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
+							effect.assignee.delete_character(character_to_delete) #BNumberPointer
+							effect.assignment_script.delete_character(character_to_delete) #ScriptManager
 						elif (effect is SpoolEffect):
-							effect.assignment_script.replace_character_with_character(character_to_delete, replacement) #ScriptManager
+							effect.assignment_script.delete_character(character_to_delete) #ScriptManager
 		storyworld.delete_character(character_to_delete)
 		log_update(null)
 		refresh_character_list()
-		if (0 < storyworld.characters.size()):
-			$HBC/VBC/Scroll/CharacterList.select(0)
-			load_character(storyworld.characters[0])
-		emit_signal("character_deleted", character_to_delete, replacement)
+		if (!storyworld.characters.empty()):
+			load_character(storyworld.characters.front())
+		emit_signal("character_deleted")
 		emit_signal("refresh_authored_property_lists")
 
 func _on_CharacterList_item_selected(index):

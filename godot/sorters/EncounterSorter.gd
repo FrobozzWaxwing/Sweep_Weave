@@ -61,6 +61,16 @@ static func sort_r_l_turn(a, b):
 		return true
 	return false
 
+static func sort_desirability(a, b):
+	if a.calculate_desirability() > b.calculate_desirability():
+		return true
+	return false
+
+static func sort_r_desirability(a, b):
+	if a.calculate_desirability() < b.calculate_desirability():
+		return true
+	return false
+
 static func sort_options(a, b):
 	if a.options.size() < b.options.size():
 		return true

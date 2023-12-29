@@ -4,7 +4,7 @@ var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
 
-var sweepweave_version_number = "0.1.3"
+var sweepweave_version_number = "0.1.4"
 var storyworld = null
 var clipboard = Clipboard.new()
 
@@ -135,22 +135,29 @@ func _ready():
 	$Background/VBC/MenuBar/HelpMenu.get_popup().connect("id_pressed", self, "_on_helpmenu_item_pressed")
 	$Background/VBC/EditorTabs/Play.connect("encounter_edit_button_pressed", self, "display_encounter_by_id")
 	$Background/VBC/EditorTabs/Characters.connect("new_character_created", $Background/VBC/EditorTabs/Encounters, "add_character_to_lists")
-	$Background/VBC/EditorTabs/Characters.connect("character_deleted", $Background/VBC/EditorTabs/Encounters, "replace_character")
+	$Background/VBC/EditorTabs/Characters.connect("character_deleted", $Background/VBC/EditorTabs/Encounters, "on_character_deleted")
 	$Background/VBC/EditorTabs/Characters.connect("character_name_changed", self, "on_character_name_changed")
 	$Background/VBC/EditorTabs/Characters.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/PersonalityModel, "refresh_property_list")
 	$Background/VBC/EditorTabs/Characters.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Encounters, "refresh_bnumber_property_lists")
+	$Background/VBC/EditorTabs/Characters.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/GraphView, "refresh_quick_scripting_interfaces")
 	$Background/VBC/EditorTabs/Encounters.connect("refresh_graphview", $Background/VBC/EditorTabs/GraphView, "refresh_graphview")
 	$Background/VBC/EditorTabs/Encounters.connect("refresh_encounter_list", $Background/VBC/EditorTabs/Spools, "refresh")
 	$Background/VBC/EditorTabs/Encounters.connect("refresh_encounter_list", $Background/VBC/EditorTabs/Overview, "refresh")
 	$Background/VBC/EditorTabs/Spools.connect("request_overview_change", $Background/VBC/EditorTabs/Overview, "refresh")
 	$Background/VBC/EditorTabs/Spools.connect("request_overview_change", $Background/VBC/EditorTabs/Encounters, "refresh_spool_lists")
+	$Background/VBC/EditorTabs/Spools.connect("encounter_load_requested", self, "display_encounter")
 	$Background/VBC/EditorTabs/Overview.connect("encounter_load_requested", self, "display_encounter")
 	$Background/VBC/EditorTabs/Overview.connect("refresh_graphview", $Background/VBC/EditorTabs/GraphView, "refresh_graphview")
 	$Background/VBC/EditorTabs/Overview.connect("refresh_encounter_list", $Background/VBC/EditorTabs/Spools, "refresh")
 	$Background/VBC/EditorTabs/Overview.connect("refresh_encounter_list", $Background/VBC/EditorTabs/Encounters, "refresh_encounter_list")
 	$Background/VBC/EditorTabs/GraphView.connect("load_encounter_from_graphview", self, "display_encounter")
+	$Background/VBC/EditorTabs/GraphView.connect("encounter_modified", $Background/VBC/EditorTabs/Encounters, "_on_encounter_modified_from_graphview")
 	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Characters, "refresh_property_list")
 	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Encounters, "refresh_bnumber_property_lists")
+	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/GraphView, "refresh_quick_scripting_interfaces")
+	$Background/VBC/EditorTabs/PersonalityModel.connect("property_deleted", $Background/VBC/EditorTabs/Characters, "refresh_property_list")
+	$Background/VBC/EditorTabs/PersonalityModel.connect("property_deleted", $Background/VBC/EditorTabs/Encounters, "on_property_deleted")
+	$Background/VBC/EditorTabs/PersonalityModel.connect("property_deleted", $Background/VBC/EditorTabs/GraphView, "refresh_quick_scripting_interfaces")
 	$About/VBC/VersionMessage.text = "SweepWeave v." + sweepweave_version_number
 	$CheckForUpdates/UpdateScreen/VBC/VersionMessage.text = "Current SweepWeave version: " + sweepweave_version_number
 	$CheckForUpdates/UpdateScreen.sweepweave_version_number = sweepweave_version_number
@@ -263,6 +270,12 @@ func _on_viewmenu_item_toggled(tab, id, checked):
 					$Background/VBC/EditorTabs/Encounters.set_display_encounter_qdse(checked)
 				2:
 					$Background/VBC/EditorTabs/Encounters.set_display_reaction_qdse(checked)
+		"Graph View":
+			match id:
+				0:
+					$Background/VBC/EditorTabs/GraphView.set_display_encounter_excerpts(checked)
+				1:
+					$Background/VBC/EditorTabs/GraphView.set_display_encounter_qdse(checked)
 		"Play":
 			match id:
 				0:

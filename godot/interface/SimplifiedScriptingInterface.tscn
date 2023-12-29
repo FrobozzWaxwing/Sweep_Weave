@@ -49,12 +49,11 @@ text = "Trait
 #2"
 align = 1
 
-[node name="TraitsDisplay" type="HBoxContainer" parent="Rows"]
+[node name="TraitsDisplay" type="HFlowContainer" parent="Rows"]
 margin_top = 67.0
 margin_right = 1366.0
 margin_bottom = 99.0
 rect_min_size = Vector2( 0, 32 )
-alignment = 1
 
 [node name="Trait1Selector" parent="Rows/TraitsDisplay" instance=ExtResource( 3 )]
 anchor_right = 0.0

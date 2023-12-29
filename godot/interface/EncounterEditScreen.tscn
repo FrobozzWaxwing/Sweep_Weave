@@ -170,7 +170,6 @@ anchor_bottom = 0.0
 margin_top = 416.0
 margin_right = 578.0
 margin_bottom = 515.0
-title = "Encounter Desirability:"
 
 [node name="HBCOptionButtons" type="HBoxContainer" parent="HSC/Column2"]
 margin_top = 519.0
@@ -339,7 +338,6 @@ margin_top = 387.0
 margin_right = 578.0
 margin_bottom = 486.0
 rect_min_size = Vector2( 0, 40 )
-title = "Reaction Desirability:"
 
 [node name="HBCConsequence" type="HBoxContainer" parent="HSC/Column3"]
 margin_top = 490.0
@@ -471,6 +469,7 @@ margin_bottom = -36.0
 [connection signal="pressed" from="HSC/Column2/HBCTitle/EditEncounterAcceptabilityScriptButton" to="." method="_on_EditEncounterAcceptabilityScriptButton_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCTitle/EditEncounterDesirabilityScriptButton" to="." method="_on_EditEncounterDesirabilityScriptButton_pressed"]
 [connection signal="text_changed" from="HSC/Column2/EncounterMainTextEdit" to="." method="_on_EncounterMainTextEdit_text_changed"]
+[connection signal="sw_script_changed" from="HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface" to="." method="_on_SimplifiedEncounterDesirabilityScriptingInterface_sw_script_changed"]
 [connection signal="pressed" from="HSC/Column2/HBCOptionButtons/AddOption" to="." method="_on_AddOption_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCOptionButtons/DeleteOption" to="." method="_on_DeleteOption_pressed"]
 [connection signal="pressed" from="HSC/Column2/HBCOptionButtons/MoveOptionUpButton" to="." method="_on_MoveOptionUpButton_pressed"]

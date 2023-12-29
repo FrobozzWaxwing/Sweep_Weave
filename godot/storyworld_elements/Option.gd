@@ -16,7 +16,7 @@ var occurrences = 0 #The number of times that this encounter has occurred on the
 var reachable = false #Used by the automated rehearsal system to keep track of whether or not an encounter can be reached by the player.
 var yielding_paths #The estimated number of possible paths through the storyworld that reach this encounter.
 
-func _init(in_encounter, in_id, in_text, in_graph_offset = Vector2(0, 0)):
+func _init(in_encounter, in_id:String, in_text:String, in_graph_offset = Vector2(0, 0)):
 	encounter = in_encounter
 	id = in_id
 	text_script = ScriptManager.new(StringConstant.new(in_text))
@@ -49,7 +49,7 @@ func get_truncated_text(maximum_output_length = 20):
 	else:
 		return text.left(maximum_output_length - 3) + "..."
 
-func get_listable_text(maximum_output_length = 70):
+func get_listable_text(maximum_output_length = 80):
 	var text = get_text()
 	if ("" == text):
 		return "[Blank Option]"

@@ -26,7 +26,7 @@ func get_index():
 		return storyworld.spools.find(self)
 	return -1
 
-func get_listable_text(maximum_output_length = 70):
+func get_listable_text(maximum_output_length:int = 70):
 	var text = spool_name
 	if ("" == text):
 		return "[Untitled Spool]"
@@ -38,7 +38,7 @@ func get_listable_text(maximum_output_length = 70):
 func log_update():
 	modified_time = OS.get_unix_time()
 
-func set_as_copy_of(original, create_mutual_links = true):
+func set_as_copy_of(original, create_mutual_links:bool = true):
 	#If create_mutual_links == true then the present spool will be added to the connected_spools array of each encounter added to the encounters array of this spool.
 	#When copying or duplicating a spool in order to add a new spool to the same storyworld as the original spool, create_mutual_links should be true.
 	#When copying spools from one storyworld to another, either via the import feature or in order to playtest a storyworld, create_mutual_links should be false.
@@ -59,7 +59,7 @@ func remap(to_storyworld):
 			new_encounters.append(to_storyworld.encounter_directory[encounter.id])
 	encounters = new_encounters.duplicate()
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(parent_storyworld, include_editor_only_variables:bool = false):
 	var result = {}
 	result["id"] = id
 	result["spool_name"] = spool_name

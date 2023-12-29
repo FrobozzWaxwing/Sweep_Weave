@@ -125,10 +125,6 @@ func refresh_reaction_list():
 		$HSC/Column3/ReactionsList.items_to_list.clear()
 		$HSC/Column3/ReactionsList.refresh()
 
-func replace_character(deleted_character, replacement):
-	log_update(null)
-	refresh_bnumber_property_lists()
-
 func add_character_to_lists(character):
 	refresh_bnumber_property_lists()
 
@@ -194,6 +190,16 @@ func refresh_reaction_consequence_display():
 			$HSC/Column3/HBCConsequence/ChangeConsequence.visible = false
 			$HSC/Column3/HBCConsequence/ChangeConsequence.set_text("")
 
+func on_character_deleted():
+	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.refresh()
+	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.refresh()
+	refresh_bnumber_property_lists()
+
+func on_property_deleted():
+	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.refresh()
+	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.refresh()
+	refresh_bnumber_property_lists()
+
 func load_Reaction(reaction):
 	current_reaction = reaction
 	if (null == reaction):
@@ -231,6 +237,11 @@ func load_Encounter(encounter):
 		Clear_Encounter_Editing_Screen()
 		return
 	current_encounter = encounter
+	$Column1/VScroll/EncountersList.unselect_all()
+	for index in range($Column1/VScroll/EncountersList.get_item_count()):
+		if (encounter == $Column1/VScroll/EncountersList.get_item_metadata(index)):
+			$Column1/VScroll/EncountersList.select(index)
+			break
 	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = encounter.title
 	$HSC/Column2/EncounterMainTextEdit.text = encounter.get_text()
 	refresh_bnumber_property_lists()
@@ -330,6 +341,10 @@ func _on_EncounterMainTextEdit_text_changed():
 		log_update(current_encounter)
 		emit_signal("refresh_graphview")
 
+func _on_SimplifiedEncounterDesirabilityScriptingInterface_sw_script_changed(sw_script):
+	log_update(current_encounter)
+	emit_signal("refresh_graphview")
+
 func _on_ConfirmDeletion_confirmed():
 	if (items_to_delete.front() is Encounter):
 		var encounter_to_select = current_encounter
@@ -404,6 +419,10 @@ func _on_DeleteButton_pressed():
 			else:
 				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following encounters?"
 			$ConfirmDeletion.popup_centered()
+
+func _on_encounter_modified_from_graphview(encounter):
+	if (current_encounter == encounter):
+		refresh_quick_encounter_scripting_interface()
 
 #Option editing interface:
 
@@ -601,6 +620,7 @@ func _on_ReactionText_text_changed():
 
 func _on_SimplifiedReactionDesirabilityScriptingInterface_sw_script_changed(sw_script):
 	log_update(current_encounter)
+	emit_signal("refresh_graphview")
 
 #Reaction list context menu:
 
@@ -1000,9 +1020,3 @@ func set_gui_theme(theme_name, background_color):
 	$EffectEditor/EffectEditorScreen.set_gui_theme(theme_name, background_color)
 	$ScriptEditWindow/ScriptEditScreen.set_gui_theme(theme_name, background_color)
 	refresh_sort_icon()
-
-
-
-
-
-

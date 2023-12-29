@@ -395,6 +395,40 @@ func replace_character_and_property_with_pointer(search_character, search_proper
 	if (search_character is Actor and search_property is BNumberBlueprint and replacement is BNumberPointer):
 		recursive_replace_character_and_property_with_pointer(contents, search_character, search_property, replacement)
 
+func recursive_delete_character(character, onion):
+	if (onion is BNumberPointer):
+		if (onion.character == character):
+			replace_element(onion, BNumberConstant.new(0))
+			script_changed = true
+		else:
+			for key in onion.keyring:
+				if (key == character.id):
+					replace_element(onion, BNumberConstant.new(0))
+					script_changed = true
+					break
+	elif (onion is SWOperator):
+		for operand in onion.operands:
+			recursive_delete_character(character, operand)
+
+func delete_character(character):
+	script_changed = false
+	recursive_delete_character(character, contents)
+	return script_changed
+
+func recursive_delete_property(property, onion):
+	if (onion is BNumberPointer):
+		if (onion.keyring.front() == property.id):
+			replace_element(onion, BNumberConstant.new(0))
+			script_changed = true
+	elif (onion is SWOperator):
+		for operand in onion.operands:
+			recursive_delete_property(property, operand)
+
+func delete_property(property):
+	script_changed = false
+	recursive_delete_property(property, contents)
+	return script_changed
+
 func recursive_delete_reaction(reaction, onion):
 	if (onion is EventPointer):
 		if (onion.reaction == reaction):

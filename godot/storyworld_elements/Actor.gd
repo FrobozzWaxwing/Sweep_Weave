@@ -13,7 +13,7 @@ var creation_index = 0
 var creation_time = null
 var modified_time = null
 
-func _init(in_storyworld, in_char_name, in_pronoun, in_bnumber_properties = null):
+func _init(in_storyworld, in_char_name:String, in_pronoun:String, in_bnumber_properties = null):
 	storyworld = in_storyworld
 	char_name = in_char_name
 	pronoun = in_pronoun
@@ -62,12 +62,6 @@ func remap(to_storyworld):
 	for property_blueprint in properties_to_index:
 		if (storyworld.authored_property_directory.has(property_blueprint.id)):
 			index_authored_property(storyworld.authored_property_directory[property_blueprint.id])
-#	for property_blueprint in storyworld.authored_properties:
-#		if (property_blueprint.attribution_target == property_blueprint.possible_attribution_targets.ENTIRE_CAST):
-#			index_authored_property(property_blueprint)
-#		elif (property_blueprint.attribution_target == property_blueprint.possible_attribution_targets.CAST_MEMBERS):
-#			if (property_blueprint.affected_characters.has(self)):
-#				index_authored_property(property_blueprint)
 
 func set_classical_personality_model(in_Bad_Good, in_False_Honest, in_Timid_Dominant, in_pBad_Good, in_pFalse_Honest, in_pTimid_Dominant):
 	initialize_bnumber_properties()
@@ -140,7 +134,7 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 #			onion = onion_b.duplicate()
 #		bnumber_properties[property_blueprint.id] = onion
 
-func fill_onion(characters, excluded_actor_id, layer, onion, value):
+func fill_onion(characters:Array, excluded_actor_id:String, layer:int, onion:Dictionary, value):
 	for character in characters:
 		if (excluded_actor_id != character.id):
 			if (0 == layer):
@@ -149,7 +143,7 @@ func fill_onion(characters, excluded_actor_id, layer, onion, value):
 				onion[character.id] = {}
 				fill_onion(characters, character.id, layer - 1, onion[character.id], value)
 
-func add_property_to_bnumber_properties(property_blueprint, characters = storyworld.characters):
+func add_property_to_bnumber_properties(property_blueprint, characters:Array = storyworld.characters):
 	index_authored_property(property_blueprint)
 	if (0 == property_blueprint.depth):
 		bnumber_properties[property_blueprint.id] = property_blueprint.default_value
@@ -157,7 +151,7 @@ func add_property_to_bnumber_properties(property_blueprint, characters = storywo
 		bnumber_properties[property_blueprint.id] = {}
 		fill_onion(characters, id, property_blueprint.depth - 1, bnumber_properties[property_blueprint.id], property_blueprint.default_value)
 
-func initialize_bnumber_properties(characters = storyworld.characters, in_authored_properties = storyworld.authored_properties):
+func initialize_bnumber_properties(characters:Array = storyworld.characters, in_authored_properties:Array = storyworld.authored_properties):
 	for property_blueprint in in_authored_properties:
 		if (property_blueprint.attribution_target == property_blueprint.possible_attribution_targets.ENTIRE_CAST):
 			add_property_to_bnumber_properties(property_blueprint, characters)
@@ -165,7 +159,7 @@ func initialize_bnumber_properties(characters = storyworld.characters, in_author
 			if (property_blueprint.affected_characters.has(self)):
 				add_property_to_bnumber_properties(property_blueprint, characters)
 
-func get_bnumber_property(keyring):
+func get_bnumber_property(keyring:Array):
 	if (TYPE_ARRAY != typeof(keyring) or keyring.empty()):
 		return null
 	var first_loop = true
@@ -187,7 +181,7 @@ func get_bnumber_property(keyring):
 				return null
 	return onion
 
-func set_bnumber_property(keyring, value):
+func set_bnumber_property(keyring:Array, value):
 	if (TYPE_ARRAY != typeof(keyring) or keyring.empty() or !(TYPE_INT == typeof(value) or TYPE_REAL == typeof(value))):
 		return false #Let the calling function know an error occurred.
 	var property = keyring[0]
@@ -218,7 +212,7 @@ func set_bnumber_property(keyring, value):
 				return false #Let the calling function know an error occurred.
 	if (0 == keyring.size()):
 		print ("Keyring is empty.")
-		return false #Let the calling function know an error occurred.
+		return false #Let the calling function know an error occurred.recursive_has_properties(value)
 
 #func add_to_onion(dictionary, new_key, layer, additions):
 #	if (TYPE_DICTIONARY != typeof(dictionary) or 0 > layer or layer >= additions.size()):
@@ -254,7 +248,7 @@ func set_bnumber_property(keyring, value):
 #	add_to_onion(bnumber_properties[property_id], new_character.id, 0, onions)
 #	return true
 
-func recursive_add_character_to_bnumber_property(new_character, characters, layer, onion, value):
+func recursive_add_character_to_bnumber_property(new_character, characters:Array, layer:int, onion:Dictionary, value):
 	if (0 == layer):
 		onion[new_character.id] = value
 	elif (0 < layer):
@@ -263,11 +257,12 @@ func recursive_add_character_to_bnumber_property(new_character, characters, laye
 		onion[new_character.id] = {}
 		fill_onion(characters, new_character.id, layer - 1, onion[new_character.id], value)
 
-func add_character_to_bnumber_property(new_character, property_blueprint, characters = storyworld.characters):
-	var property_onion = bnumber_properties[property_blueprint.id]
-	recursive_add_character_to_bnumber_property(new_character, characters, property_blueprint.depth - 1, property_onion, property_blueprint.default_value)
+func add_character_to_bnumber_property(new_character, property_blueprint, characters:Array = storyworld.characters):
+	if (0 < property_blueprint.depth):
+		var property_onion = bnumber_properties[property_blueprint.id]
+		recursive_add_character_to_bnumber_property(new_character, characters, property_blueprint.depth - 1, property_onion, property_blueprint.default_value)
 
-func add_character_to_bnumber_properties(new_character, characters = storyworld.characters):
+func add_character_to_bnumber_properties(new_character, characters:Array = storyworld.characters):
 	for property in authored_properties:
 		add_character_to_bnumber_property(new_character, property, characters)
 
@@ -276,7 +271,7 @@ func delete_property_from_bnumber_properties(property_blueprint):
 	authored_properties.erase(property_blueprint)
 	authored_property_directory.erase(property_blueprint.id)
 
-func delete_character_from_onion(character, onion):
+func delete_character_from_onion(character, onion:Dictionary):
 	onion.erase(character.id)
 	for each_key in onion.keys():
 		var each_value = onion[each_key]
@@ -294,6 +289,26 @@ func delete_character_from_bnumber_property(character, property_blueprint):
 func delete_character_from_bnumber_properties(character):
 	for property_blueprint in authored_properties:
 		delete_character_from_bnumber_property(character, property_blueprint)
+
+func recursive_has_properties(onion:Dictionary):
+	var value = onion.values().front()
+	var type = typeof(value)
+	if (TYPE_INT == type or TYPE_REAL == type):
+		return true
+	elif (TYPE_DICTIONARY == type and !value.empty()):
+		return recursive_has_properties(value)
+	return false
+
+func has_properties():
+	if (bnumber_properties.empty()):
+		return false
+	for value in bnumber_properties.values():
+		var type = typeof(value)
+		if (TYPE_INT == type or TYPE_REAL == type):
+			return true
+		elif (TYPE_DICTIONARY == type and !value.empty()):
+			return recursive_has_properties(value)
+	return false
 
 func data_to_string():
 	var result = char_name + ": bnumber_properties: "
