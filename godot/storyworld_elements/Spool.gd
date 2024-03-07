@@ -1,14 +1,13 @@
 extends Object
 class_name Spool
-#A group of encounters, with some associated scripts.
+#A group of encounters.
 #SweepWeave uses spools when deciding which encounter to present next.
 
 var storyworld = null
 var id = ""
 var spool_name = ""
-var encounters = [] #A list of encounters.
-#If multiple encounters are tied for most desirable encounter, the earliest encounter in the list will be selected.
 var starts_active = true #This variable tracks whether or not the spool is active at the start of play.
+var encounters = [] #A list of encounters.
 
 #Variables for editor:
 var creation_index = 0

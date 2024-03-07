@@ -14,7 +14,7 @@ func get_value():
 	return spool
 
 func set_value(in_spool):
-	if (in_spool is Spool):
+	if (in_spool is Spool or in_spool is QuickSpool):
 		spool = in_spool
 	else:
 		spool = null
@@ -22,13 +22,13 @@ func set_value(in_spool):
 func set_as_copy_of(original):
 	if (null == original.spool):
 		spool = null
-	elif (original.spool is Spool):
+	elif (original.spool is Spool or original.spool is QuickSpool):
 		spool = original.spool
 	else:
 		spool = null
 
 func remap(to_storyworld):
-	if (spool is Spool and to_storyworld.spool_directory.has(spool.id)):
+	if ((spool is Spool or spool is QuickSpool) and to_storyworld.spool_directory.has(spool.id)):
 		spool = to_storyworld.spool_directory[spool.id]
 		return true
 	else:
@@ -40,14 +40,14 @@ func clear():
 	spool = null
 
 func activate():
-	if (spool is Spool):
+	if (spool is Spool or spool is QuickSpool):
 		spool.activate()
 		return true
 	else:
 		return false
 
 func deactivate():
-	if (spool is Spool):
+	if (spool is Spool or spool is QuickSpool):
 		spool.deactivate()
 		return true
 	else:
@@ -55,12 +55,12 @@ func deactivate():
 
 func compile(parent_storyworld, include_editor_only_variables = false):
 	var output = null
-	if (spool is Spool):
+	if (spool is Spool or spool is QuickSpool):
 		output = spool.id
 	return output
 
 func data_to_string():
-	if (spool is Spool):
+	if (spool is Spool or spool is QuickSpool):
 		return spool.spool_name
 	else:
 		return "Invalid SpoolPointer"
@@ -70,7 +70,7 @@ func validate(intended_script_output_datatype):
 	#Check spool:
 	if (null == spool):
 		report += "\n" + "Null spool."
-	elif (!(spool is Spool)):
+	elif (!(spool is Spool or spool is QuickSpool)):
 		report += "\n" + "Invalid spool."
 	elif (!is_instance_valid(spool)):
 		report += "\n" + "Spool has been deleted."

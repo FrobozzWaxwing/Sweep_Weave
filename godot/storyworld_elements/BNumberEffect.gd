@@ -21,6 +21,11 @@ func enact():
 		if (null != result):
 			assignee.set_value(result)
 			return true
+	elif (assignee is QuickBNPointer and assignment_script is ScriptManager):
+		var result = assignment_script.get_value()
+		if (null != result):
+			assignee.set_value(result)
+			return true
 	return false #An error occurred.
 
 func set_as_copy_of(original):

@@ -395,6 +395,31 @@ func replace_character_and_property_with_pointer(search_character, search_proper
 	if (search_character is Actor and search_property is BNumberBlueprint and replacement is BNumberPointer):
 		recursive_replace_character_and_property_with_pointer(contents, search_character, search_property, replacement)
 
+func recursive_quicken_bnumberpointers(rehearsal, onion):
+	if (onion is BNumberPointer):
+		var constant = true
+		for index in range(rehearsal.cast_traits_legend.size()):
+			var pointer = rehearsal.cast_traits_legend[index]
+			if (onion.is_parallel_to(pointer)):
+				replace_element(onion, QuickBNPointer.new(rehearsal, index))
+				script_changed = true
+				constant = false
+				break
+		if (constant):
+			for pointer in rehearsal.cast_trait_constants:
+				if (onion.is_parallel_to(pointer)):
+					replace_element(onion, BNumberConstant.new(onion.get_value()))
+					script_changed = true
+					break
+	elif (onion is SWOperator):
+		for operand in onion.operands:
+			recursive_quicken_bnumberpointers(rehearsal, operand)
+
+func quicken_bnumberpointers(rehearsal):
+	script_changed = false
+	recursive_quicken_bnumberpointers(rehearsal, contents)
+	return script_changed
+
 func recursive_delete_character(character, onion):
 	if (onion is BNumberPointer):
 		if (onion.character == character):

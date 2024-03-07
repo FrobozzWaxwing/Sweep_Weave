@@ -2,7 +2,6 @@ extends SWEffect
 class_name SpoolEffect
 #An object used to activate and deactivate spools.
 
-
 enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
 
 func _init(in_assignee = null, in_assignment_script = null):

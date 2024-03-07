@@ -4,7 +4,7 @@ var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
 
-var sweepweave_version_number = "0.1.4"
+var sweepweave_version_number = "0.1.5"
 var storyworld = null
 var clipboard = Clipboard.new()
 
@@ -41,7 +41,7 @@ func load_project(file_text):
 		$Background/VBC/EditorTabs/PersonalityModel.load_authored_property(storyworld.authored_properties.front())
 	$Background/VBC/EditorTabs/Overview.refresh()
 	$Background/VBC/EditorTabs/Play.clear()
-#	$Background/VBC/EditorTabs/Rehearsal.clear()
+	$Background/VBC/EditorTabs/Rehearsal.clear()
 	$StoryworldTroubleshooting/StoryworldValidationInterface.refresh()
 	storyworld.project_saved = true
 	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title)
@@ -66,7 +66,7 @@ func new_storyworld():
 		$Summary/Statistics.storyworld = storyworld
 		$Background/VBC/EditorTabs/GraphView.storyworld = storyworld
 		$Background/VBC/EditorTabs/Play.reference_storyworld = storyworld
-#		$Background/VBC/EditorTabs/Rehearsal.reference_storyworld = storyworld
+		$Background/VBC/EditorTabs/Rehearsal.reference_storyworld = storyworld
 		$Background/VBC/EditorTabs/PersonalityModel.storyworld = storyworld
 		$StoryworldTroubleshooting/StoryworldValidationInterface.storyworld = storyworld
 		clipboard.storyworld = storyworld
@@ -106,7 +106,7 @@ func new_storyworld():
 	if (0 < storyworld.authored_properties.size()):
 		$Background/VBC/EditorTabs/PersonalityModel.load_authored_property(storyworld.authored_properties[0])
 	$Background/VBC/EditorTabs/Play.clear()
-#	$Background/VBC/EditorTabs/Rehearsal.clear()
+	$Background/VBC/EditorTabs/Rehearsal.clear()
 	$StoryworldTroubleshooting/StoryworldValidationInterface.refresh()
 	current_project_path = ""
 	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title)

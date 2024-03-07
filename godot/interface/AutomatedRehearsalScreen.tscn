@@ -65,14 +65,82 @@ margin_top = 5.0
 margin_right = 378.0
 margin_bottom = 19.0
 
-[node name="Tree" type="Tree" parent="Panel/VBC"]
+[node name="ReportTabs" type="TabContainer" parent="Panel/VBC"]
 margin_top = 28.0
 margin_right = 1352.0
 margin_bottom = 722.0
 size_flags_vertical = 3
+
+[node name="EventIndex" type="VBoxContainer" parent="Panel/VBC/ReportTabs"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="HBC" type="HBoxContainer" parent="Panel/VBC/ReportTabs/EventIndex"]
+margin_right = 1344.0
+margin_bottom = 20.0
+
+[node name="CollapseAllEvents" type="Button" parent="Panel/VBC/ReportTabs/EventIndex/HBC"]
+margin_right = 87.0
+margin_bottom = 20.0
+text = "Collapse All"
+
+[node name="ExpandAllEvents" type="Button" parent="Panel/VBC/ReportTabs/EventIndex/HBC"]
+margin_left = 91.0
+margin_right = 169.0
+margin_bottom = 20.0
+text = "Expand All"
+
+[node name="EventTree" type="Tree" parent="Panel/VBC/ReportTabs/EventIndex"]
+margin_top = 24.0
+margin_right = 1344.0
+margin_bottom = 658.0
+size_flags_vertical = 3
 columns = 3
 column_titles_visible = true
 hide_root = true
+
+[node name="CastVariablesIndex" type="VBoxContainer" parent="Panel/VBC/ReportTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="HBC" type="HBoxContainer" parent="Panel/VBC/ReportTabs/CastVariablesIndex"]
+visible = false
+margin_right = 1344.0
+margin_bottom = 20.0
+
+[node name="CollapseAllCast" type="Button" parent="Panel/VBC/ReportTabs/CastVariablesIndex/HBC"]
+margin_right = 87.0
+margin_bottom = 20.0
+text = "Collapse All"
+
+[node name="ExpandAllCast" type="Button" parent="Panel/VBC/ReportTabs/CastVariablesIndex/HBC"]
+margin_left = 91.0
+margin_right = 169.0
+margin_bottom = 20.0
+text = "Expand All"
+
+[node name="CastTree" type="Tree" parent="Panel/VBC/ReportTabs/CastVariablesIndex"]
+visible = false
+margin_top = 24.0
+margin_right = 1344.0
+margin_bottom = 25.0
+size_flags_vertical = 3
+columns = 3
+column_titles_visible = true
+hide_root = true
+
+[node name="TraitList" type="Label" parent="Panel/VBC/ReportTabs/CastVariablesIndex"]
+margin_right = 40.0
+margin_bottom = 14.0
 
 [node name="PeriodicReportTimer" type="Timer" parent="."]
 process_mode = 0
@@ -90,5 +158,9 @@ access = 2
 [connection signal="pressed" from="Panel/VBC/HBC/RefreshButton" to="." method="_on_RefreshButton_pressed"]
 [connection signal="value_changed" from="Panel/VBC/HBC/SpinBox" to="." method="_on_SpinBox_value_changed"]
 [connection signal="pressed" from="Panel/VBC/HBC/SaveReportButton" to="." method="_on_SaveReportButton_pressed"]
+[connection signal="pressed" from="Panel/VBC/ReportTabs/EventIndex/HBC/CollapseAllEvents" to="." method="_on_CollapseAllEvents_pressed"]
+[connection signal="pressed" from="Panel/VBC/ReportTabs/EventIndex/HBC/ExpandAllEvents" to="." method="_on_ExpandAllEvents_pressed"]
+[connection signal="pressed" from="Panel/VBC/ReportTabs/CastVariablesIndex/HBC/CollapseAllCast" to="." method="_on_CollapseAllCast_pressed"]
+[connection signal="pressed" from="Panel/VBC/ReportTabs/CastVariablesIndex/HBC/ExpandAllCast" to="." method="_on_ExpandAllCast_pressed"]
 [connection signal="timeout" from="PeriodicReportTimer" to="." method="_on_PeriodicReportTimer_timeout"]
 [connection signal="file_selected" from="RehearsalReportFileDialog" to="." method="_on_RehearsalReportFileDialog_file_selected"]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://interface/GUI.gd" type="Script" id=1]
 [ext_resource path="res://interface/FileMenu.gd" type="Script" id=2]
@@ -20,6 +20,7 @@
 [ext_resource path="res://custom_resources/gradient_header_texture_clarity.tres" type="Texture" id=18]
 [ext_resource path="res://interface/UpdateScreen.tscn" type="PackedScene" id=19]
 [ext_resource path="res://custom_resources/clarity.tres" type="Theme" id=20]
+[ext_resource path="res://interface/AutomatedRehearsalScreen.tscn" type="PackedScene" id=21]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item
@@ -145,6 +146,9 @@ margin_left = 4.0
 margin_top = 96.0
 margin_right = 4.0
 margin_bottom = 96.0
+
+[node name="Rehearsal" parent="Background/VBC/EditorTabs" instance=ExtResource( 21 )]
+visible = false
 
 [node name="LoadFileDialog" type="FileDialog" parent="."]
 margin_right = 512.0
