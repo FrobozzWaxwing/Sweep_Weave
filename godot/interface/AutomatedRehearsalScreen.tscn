@@ -1,103 +1,77 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=3 uid="uid://du1ip5cjy73ko"]
 
-[ext_resource path="res://interface/AutomatedRehearsalScreen.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://interface/AutomatedRehearsalScreen.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://ykle5gipo0v8" path="res://icons/sort-alpha-down.svg" id="2_qi0tp"]
 
 [node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource( 1 )
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
 
 [node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="VBC" type="VBoxContainer" parent="Panel"]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 1359.0
-margin_bottom = 729.0
+layout_mode = 2
 
 [node name="HBC" type="HBoxContainer" parent="Panel/VBC"]
-margin_right = 1352.0
-margin_bottom = 24.0
+layout_mode = 2
 
 [node name="PlayButton" type="Button" parent="Panel/VBC/HBC"]
-margin_right = 38.0
-margin_bottom = 24.0
+layout_mode = 2
 text = "Play"
 
 [node name="ResetButton" type="Button" parent="Panel/VBC/HBC"]
-margin_left = 42.0
-margin_right = 90.0
-margin_bottom = 24.0
+layout_mode = 2
 text = "Reset"
 
 [node name="RefreshButton" type="Button" parent="Panel/VBC/HBC"]
-margin_left = 94.0
-margin_right = 154.0
-margin_bottom = 24.0
+layout_mode = 2
 text = "Refresh"
 
 [node name="Label" type="Label" parent="Panel/VBC/HBC"]
-margin_left = 158.0
-margin_top = 5.0
-margin_right = 205.0
-margin_bottom = 19.0
+layout_mode = 2
 text = "Speed: "
 
 [node name="SpinBox" type="SpinBox" parent="Panel/VBC/HBC"]
-margin_left = 209.0
-margin_right = 283.0
-margin_bottom = 24.0
+layout_mode = 2
 min_value = 1.0
 max_value = 1000.0
 value = 1.0
 
 [node name="SaveReportButton" type="Button" parent="Panel/VBC/HBC"]
-margin_left = 287.0
-margin_right = 374.0
-margin_bottom = 24.0
+layout_mode = 2
 text = "Save Report"
 
 [node name="ElapsedTimeDisplay" type="Label" parent="Panel/VBC/HBC"]
-margin_left = 378.0
-margin_top = 5.0
-margin_right = 378.0
-margin_bottom = 19.0
+layout_mode = 2
 
 [node name="ReportTabs" type="TabContainer" parent="Panel/VBC"]
-margin_top = 28.0
-margin_right = 1352.0
-margin_bottom = 722.0
+layout_mode = 2
 size_flags_vertical = 3
 
 [node name="EventIndex" type="VBoxContainer" parent="Panel/VBC/ReportTabs"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
+layout_mode = 2
 
 [node name="HBC" type="HBoxContainer" parent="Panel/VBC/ReportTabs/EventIndex"]
-margin_right = 1344.0
-margin_bottom = 20.0
+layout_mode = 2
 
 [node name="CollapseAllEvents" type="Button" parent="Panel/VBC/ReportTabs/EventIndex/HBC"]
-margin_right = 87.0
-margin_bottom = 20.0
+layout_mode = 2
 text = "Collapse All"
 
 [node name="ExpandAllEvents" type="Button" parent="Panel/VBC/ReportTabs/EventIndex/HBC"]
-margin_left = 91.0
-margin_right = 169.0
-margin_bottom = 20.0
+layout_mode = 2
 text = "Expand All"
 
 [node name="EventTree" type="Tree" parent="Panel/VBC/ReportTabs/EventIndex"]
-margin_top = 24.0
-margin_right = 1344.0
-margin_bottom = 658.0
+layout_mode = 2
 size_flags_vertical = 3
 columns = 3
 column_titles_visible = true
@@ -105,52 +79,96 @@ hide_root = true
 
 [node name="CastVariablesIndex" type="VBoxContainer" parent="Panel/VBC/ReportTabs"]
 visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
+layout_mode = 2
 
 [node name="HBC" type="HBoxContainer" parent="Panel/VBC/ReportTabs/CastVariablesIndex"]
 visible = false
-margin_right = 1344.0
-margin_bottom = 20.0
+layout_mode = 2
 
 [node name="CollapseAllCast" type="Button" parent="Panel/VBC/ReportTabs/CastVariablesIndex/HBC"]
-margin_right = 87.0
-margin_bottom = 20.0
+layout_mode = 2
 text = "Collapse All"
 
 [node name="ExpandAllCast" type="Button" parent="Panel/VBC/ReportTabs/CastVariablesIndex/HBC"]
-margin_left = 91.0
-margin_right = 169.0
-margin_bottom = 20.0
+layout_mode = 2
 text = "Expand All"
 
 [node name="CastTree" type="Tree" parent="Panel/VBC/ReportTabs/CastVariablesIndex"]
 visible = false
-margin_top = 24.0
-margin_right = 1344.0
-margin_bottom = 25.0
+layout_mode = 2
 size_flags_vertical = 3
 columns = 3
 column_titles_visible = true
 hide_root = true
 
 [node name="TraitList" type="Label" parent="Panel/VBC/ReportTabs/CastVariablesIndex"]
-margin_right = 40.0
-margin_bottom = 14.0
+layout_mode = 2
+
+[node name="NotableOutcomeIndex" type="VBoxContainer" parent="Panel/VBC/ReportTabs"]
+visible = false
+layout_mode = 2
+
+[node name="HBC" type="HBoxContainer" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex"]
+layout_mode = 2
+
+[node name="CollapseAllOutcomes" type="Button" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC"]
+layout_mode = 2
+text = "Collapse All"
+
+[node name="ExpandToOptions" type="Button" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC"]
+layout_mode = 2
+text = "Expand to Options"
+
+[node name="ExpandToOutcomes" type="Button" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC"]
+layout_mode = 2
+text = "Expand to Outcomes"
+
+[node name="Label" type="Label" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC"]
+layout_mode = 2
+text = "Sort by:"
+
+[node name="SortMenu" type="OptionButton" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC"]
+layout_mode = 2
+item_count = 10
+selected = 0
+popup/item_0/text = "Alphabetical"
+popup/item_0/id = 0
+popup/item_1/text = "Creation Time"
+popup/item_1/id = 1
+popup/item_2/text = "Modified Time"
+popup/item_2/id = 2
+popup/item_3/text = "Option Count"
+popup/item_3/id = 3
+popup/item_4/text = "Reaction Count"
+popup/item_4/id = 4
+popup/item_5/text = "Effect Count"
+popup/item_5/id = 5
+popup/item_6/text = "Characters"
+popup/item_6/id = 6
+popup/item_7/text = "Spools"
+popup/item_7/id = 7
+popup/item_8/text = "Desirability"
+popup/item_8/id = 9
+popup/item_9/text = "Word Count"
+popup/item_9/id = 8
+
+[node name="ToggleReverseButton" type="Button" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC"]
+layout_mode = 2
+toggle_mode = true
+icon = ExtResource("2_qi0tp")
+
+[node name="EventTree" type="Tree" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex"]
+layout_mode = 2
+size_flags_vertical = 3
+columns = 5
+column_titles_visible = true
+hide_root = true
 
 [node name="PeriodicReportTimer" type="Timer" parent="."]
-process_mode = 0
 wait_time = 300.0
 
 [node name="RehearsalReportFileDialog" type="FileDialog" parent="."]
-margin_right = 512.0
-margin_bottom = 512.0
-rect_min_size = Vector2( 200, 256 )
-resizable = true
+size = Vector2i(700, 650)
 access = 2
 
 [connection signal="pressed" from="Panel/VBC/HBC/PlayButton" to="." method="_on_PlayButton_pressed"]
@@ -162,5 +180,10 @@ access = 2
 [connection signal="pressed" from="Panel/VBC/ReportTabs/EventIndex/HBC/ExpandAllEvents" to="." method="_on_ExpandAllEvents_pressed"]
 [connection signal="pressed" from="Panel/VBC/ReportTabs/CastVariablesIndex/HBC/CollapseAllCast" to="." method="_on_CollapseAllCast_pressed"]
 [connection signal="pressed" from="Panel/VBC/ReportTabs/CastVariablesIndex/HBC/ExpandAllCast" to="." method="_on_ExpandAllCast_pressed"]
+[connection signal="pressed" from="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/CollapseAllOutcomes" to="." method="_on_CollapseAllOutcomes_pressed"]
+[connection signal="pressed" from="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ExpandToOptions" to="." method="_on_ExpandToOptions_pressed"]
+[connection signal="pressed" from="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ExpandToOutcomes" to="." method="_on_ExpandToOutcomes_pressed"]
+[connection signal="item_selected" from="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/SortMenu" to="." method="_on_OutcomeSortMenu_item_selected"]
+[connection signal="toggled" from="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton" to="." method="_on_toggle_reverse_button_toggled"]
 [connection signal="timeout" from="PeriodicReportTimer" to="." method="_on_PeriodicReportTimer_timeout"]
 [connection signal="file_selected" from="RehearsalReportFileDialog" to="." method="_on_RehearsalReportFileDialog_file_selected"]

@@ -9,9 +9,9 @@ var branch_z
 
 func _ready():
 	$VBC/Tree.set_column_expand(0, true)
-	$VBC/Tree.set_column_min_width(0, 4)
+	$VBC/Tree.set_column_custom_minimum_width(0, 4)
 	$VBC/Tree.set_column_expand(1, true)
-	$VBC/Tree.set_column_min_width(1, 1)
+	$VBC/Tree.set_column_custom_minimum_width(1, 1)
 	var root = $VBC/Tree.create_item()
 	branch_first_reaction = $VBC/Tree.create_item(root)
 	branch_first_reaction.set_text(0, "Absolutely!")
@@ -38,7 +38,7 @@ func _ready():
 	branch_z.set_range(1, 0)
 	branch_z.set_editable(1, true)
 	refresh()
-	$VBC/Tree.connect("item_edited", self, "refresh")
+	$VBC/Tree.item_edited.connect(refresh)
 
 func refresh():
 	var inclination_a = (branch_x.get_range(1) + branch_y.get_range(1)) / 2
@@ -53,4 +53,4 @@ func refresh():
 		text += "[i]Illustration 2:[/i] Brynn will select \"Absolutely!\""
 	else:
 		text += "[i]Illustration 2:[/i] Brynn will select \"No thanks, I'm good.\""
-	$VBC/Legend.append_bbcode(text)
+	$VBC/Legend.append_text(text)

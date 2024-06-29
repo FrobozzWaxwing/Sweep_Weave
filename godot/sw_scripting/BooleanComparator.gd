@@ -12,7 +12,7 @@ func _init(in_operator_subtype = "And", in_operands = []):
 	for operand in in_operands:
 		add_operand(operand)
 
-static func get_operator_type():
+func get_operator_type():
 	return "Boolean Comparator"
 
 func operator_subtype_to_string():
@@ -83,12 +83,12 @@ func set_operator_subtype(in_operator_subtype):
 	else:
 		operator_subtype = null
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Operator"
 	output["operator_type"] = get_operator_type()
 	output["operator_subtype"] = operator_subtype_to_string()
-	if (!include_editor_only_variables):
+	if (!_include_editor_only_variables):
 		output["input_type"] = stringify_input_type()
 	output["operands"] = []
 	for operand in operands:
@@ -96,10 +96,10 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 			output["operands"].append(null)
 		elif (TYPE_BOOL == typeof(operand)):
 			output["operands"].append(operand)
-		elif (TYPE_INT == typeof(operand) or TYPE_REAL == typeof(operand)):
+		elif (TYPE_INT == typeof(operand) or TYPE_FLOAT == typeof(operand)):
 			output["operands"].append(bool(operand))
 		elif (operand is SWScriptElement):
-			output["operands"].append(operand.compile(parent_storyworld, include_editor_only_variables))
+			output["operands"].append(operand.compile(_parent_storyworld, _include_editor_only_variables))
 	return output
 
 func data_to_string():

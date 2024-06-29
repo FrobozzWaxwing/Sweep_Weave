@@ -56,7 +56,7 @@ func refresh_historybook():
 	while (null != current_page):
 		page_list.append(current_page)
 		current_page = current_page.get_parent()
-	page_list.invert()
+	page_list.reverse()
 	var index = 0
 	for page in page_list:
 		$Layout/VBC/Historybook.add_item(page.stringify_encounter())
@@ -73,7 +73,7 @@ func recursive_refresh_castbook(root_display_branch:TreeItem, onion, next_page:H
 				var leaf = $Layout/L2/VBC/Castbook.create_item(root_display_branch)
 				leaf.set_text(0, perceived_character.char_name)
 				recursive_refresh_castbook(leaf, value, next_page, method_actor, keyring)
-			elif (TYPE_INT == typeof(value) or TYPE_REAL == typeof(value)):
+			elif (TYPE_INT == typeof(value) or TYPE_FLOAT == typeof(value)):
 				var leaf = $Layout/L2/VBC/Castbook.create_item(root_display_branch)
 				var text = perceived_character.char_name + ": " + str(value)
 				if (null != next_page):
@@ -99,7 +99,7 @@ func refresh_castbook(next_page = null):
 			method_actor.bnumber_properties = next_page.relationship_values[character.id].duplicate(true)
 		for bnumber_property in character.authored_properties:
 			var onion = character.bnumber_properties[bnumber_property.id]
-			if (TYPE_DICTIONARY == typeof(onion) and onion.empty()):
+			if (TYPE_DICTIONARY == typeof(onion) and onion.is_empty()):
 				continue
 			var entry = $Layout/L2/VBC/Castbook.create_item(listing)
 			var keyring = []
@@ -139,7 +139,7 @@ func refresh_maintext():
 		text += page_to_display.encounter.get_text()
 	else:
 		text += "The End."
-	$Layout/L2/ColorRect/VBC/MainText.set_bbcode(text)
+	$Layout/L2/ColorRect/VBC/MainText.set_text(text)
 	return text
 
 func refresh_optionslist():
@@ -202,13 +202,13 @@ func report_encounter_scripts(entry):
 		occurred_entry.set_text(0, "Has occurred before")
 		occurred_entry.set_text(1, str(occurred))
 		var acceptability_entry = $EncounterScriptReportWindow/VBC/ScriptDisplay.create_item(encounter_entry)
-		$Layout/L2/VBC/Reaction_Inclinations.recursively_add_to_script_display(acceptability_entry, encounter.acceptability_script.contents)
+		$EncounterScriptReportWindow/VBC/ScriptDisplay.recursively_add_to_script_display(acceptability_entry, encounter.acceptability_script.contents)
 		#Recalculate the encounter's acceptability in order to fill the display with the value produced by each operator.
 		var acceptable = encounter.acceptability_script.get_and_report_value()
 		acceptability_entry.set_text(0, "Acceptability")
 		acceptability_entry.set_text(1, str(acceptable))
 		var desirability_entry = $EncounterScriptReportWindow/VBC/ScriptDisplay.create_item(encounter_entry)
-		$Layout/L2/VBC/Reaction_Inclinations.recursively_add_to_script_display(desirability_entry, encounter.desirability_script.contents)
+		$EncounterScriptReportWindow/VBC/ScriptDisplay.recursively_add_to_script_display(desirability_entry, encounter.desirability_script.contents)
 		#Recalculate the encounter's desirability in order to fill the display with the value produced by each operator.
 		var desirability = encounter.calculate_and_report_desirability()
 		desirability_entry.set_text(0, "Desirability")
@@ -270,17 +270,17 @@ func load_encounter_selection_report():
 					index += 1
 	text += "Active spools: " + str(active_spool_count) + "\n"
 	text += "Acceptable encounters: " + str(acceptable_encounters.size()) + "\n"
-	acceptable_encounters.sort_custom(InclinationSorter, "sort_descending")
+	acceptable_encounters.sort_custom(Callable(InclinationSorter, "sort_descending"))
 	for entry in acceptable_encounters:
 		report_encounter_scripts(entry)
-	unacceptable_encounters.sort_custom(InclinationSorter, "sort_descending")
+	unacceptable_encounters.sort_custom(Callable(InclinationSorter, "sort_descending"))
 	for entry in unacceptable_encounters:
 		report_encounter_scripts(entry)
 	if (null != page_to_display.encounter):
 		text += "Encounter chosen: " + page_to_display.stringify_encounter(100)
 	else:
 		text += "The End."
-	$EncounterScriptReportWindow/VBC/Background/ConsequenceReport.append_bbcode(text)
+	$EncounterScriptReportWindow/VBC/Background/ConsequenceReport.append_text(text)
 	$EncounterScriptReportWindow.popup_centered()
 
 func refresh_reaction_inclinations(option = null):
@@ -299,7 +299,7 @@ func refresh_reaction_inclinations(option = null):
 		entry.append(index)
 		table.append(entry)
 		index += 1
-	table.sort_custom(InclinationSorter, "sort_descending")
+	table.sort_custom(Callable(InclinationSorter, "sort_descending"))
 	var root = $Layout/L2/VBC/Reaction_Inclinations.create_item()
 	$Layout/L2/VBC/Reaction_Inclinations.set_hide_root(true)
 	for entry in table:
@@ -333,21 +333,21 @@ func load_Page(page:HB_Record):
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$Layout/VBC/Spoolbook.set_column_expand(0, true)
-	$Layout/VBC/Spoolbook.set_column_min_width(0, 1)
+	$Layout/VBC/Spoolbook.set_column_custom_minimum_width(0, 1)
 	$Layout/VBC/Spoolbook.set_column_expand(1, true)
-	$Layout/VBC/Spoolbook.set_column_min_width(1, 1)
+	$Layout/VBC/Spoolbook.set_column_custom_minimum_width(1, 1)
 	$Layout/L2/VBC/Reaction_Inclinations.set_column_expand(0, true)
-	$Layout/L2/VBC/Reaction_Inclinations.set_column_min_width(0, 9)
+	$Layout/L2/VBC/Reaction_Inclinations.set_column_custom_minimum_width(0, 9)
 	$Layout/L2/VBC/Reaction_Inclinations.set_column_expand(1, true)
-	$Layout/L2/VBC/Reaction_Inclinations.set_column_min_width(1, 1)
+	$Layout/L2/VBC/Reaction_Inclinations.set_column_custom_minimum_width(1, 1)
 	$OptionScriptReportWindow/ScriptDisplay.set_column_expand(0, true)
-	$OptionScriptReportWindow/ScriptDisplay.set_column_min_width(0, 4)
+	$OptionScriptReportWindow/ScriptDisplay.set_column_custom_minimum_width(0, 4)
 	$OptionScriptReportWindow/ScriptDisplay.set_column_expand(1, true)
-	$OptionScriptReportWindow/ScriptDisplay.set_column_min_width(1, 1)
+	$OptionScriptReportWindow/ScriptDisplay.set_column_custom_minimum_width(1, 1)
 	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_expand(0, true)
-	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_min_width(0, 4)
+	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_custom_minimum_width(0, 4)
 	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_expand(1, true)
-	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_min_width(1, 1)
+	$EncounterScriptReportWindow/VBC/ScriptDisplay.set_column_custom_minimum_width(1, 1)
 
 func clear():
 	$Layout/L2/ColorRect/VBC/TitleBar/Play_Button.text = "Start"
@@ -355,7 +355,7 @@ func clear():
 	$Layout/VBC/Historybook.clear()
 	$Layout/L2/ColorRect/VBC/TitleBar/Edit_Button.visible = false
 	$Layout/L2/ColorRect/VBC/TitleBar/EncounterTitle.text = ""
-	$Layout/L2/ColorRect/VBC/MainText.set_bbcode("")
+	$Layout/L2/ColorRect/VBC/MainText.set_text("")
 	$Layout/L2/VBC/Castbook.clear()
 	$Layout/L2/ColorRect/VBC/OptionsList.clear()
 	$Layout/L2/VBC/Reaction_Inclinations.clear()
@@ -375,7 +375,7 @@ func _on_Play_Button_pressed():
 
 func _on_Edit_Button_pressed():
 	if (null != page_to_display and null != page_to_display.encounter and page_to_display.encounter is Encounter):
-		emit_signal("encounter_edit_button_pressed", page_to_display.encounter.id)
+		encounter_edit_button_pressed.emit(page_to_display.encounter.id)
 
 func _on_OptionsList_item_selected(index:int):
 	var option_page = $Layout/L2/ColorRect/VBC/OptionsList.get_item_metadata(index)
@@ -421,8 +421,8 @@ func _on_EncounterSelectionReportButton_pressed():
 
 #GUI Themes:
 
-onready var edit_icon_light = preload("res://icons/edit.svg")
-onready var edit_icon_dark = preload("res://icons/edit_dark.svg")
+@onready var edit_icon_light = preload("res://icons/edit.svg")
+@onready var edit_icon_dark = preload("res://icons/edit_dark.svg")
 
 func set_gui_theme(theme_name:String, background_color:Color):
 	color = background_color

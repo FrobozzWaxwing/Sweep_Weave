@@ -62,7 +62,7 @@ func get_effect():
 			return null
 
 func reset():
-	if (null == storyworld or storyworld.characters.empty() or storyworld.authored_properties.empty()):
+	if (null == storyworld or storyworld.characters.is_empty() or storyworld.authored_properties.is_empty()):
 		return false
 	#Refresh bounded number tab:
 	$TabContainer/BNumberProperty/VBC/PropertySelector.storyworld = storyworld
@@ -71,6 +71,7 @@ func reset():
 	$TabContainer/BNumberProperty/VBC/PropertySelector.refresh()
 	var new_script = ScriptManager.new(BNumberConstant.new(0))
 	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.storyworld = storyworld
+	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.default_bnumber_property = $TabContainer/BNumberProperty/VBC/PropertySelector.selected_property
 	if (null != $TabContainer/BNumberProperty/VBC/ScriptEditingInterface.script_to_edit and is_instance_valid($TabContainer/BNumberProperty/VBC/ScriptEditingInterface.script_to_edit) and $TabContainer/BNumberProperty/VBC/ScriptEditingInterface.script_to_edit is ScriptManager):
 		$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.script_to_edit.call_deferred("free")
 	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.script_to_edit = new_script
@@ -102,6 +103,7 @@ func refresh():
 	$TabContainer/BNumberProperty/VBC/PropertySelector.storyworld = storyworld
 	$TabContainer/BNumberProperty/VBC/PropertySelector.refresh()
 	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.storyworld = storyworld
+	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.default_bnumber_property = $TabContainer/BNumberProperty/VBC/PropertySelector.selected_property
 	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.refresh_script_display()
 	$TabContainer/SpoolStatus/VBC/SpoolSelector.storyworld = storyworld
 	$TabContainer/SpoolStatus/VBC/SpoolSelector.refresh()
@@ -121,6 +123,9 @@ func _on_NextPageOptionButton_item_selected(index):
 			$TabContainer/NextPage/VBC/EncounterSelector.visible = false
 		1:
 			$TabContainer/NextPage/VBC/EncounterSelector.visible = true
+
+func _on_bnumber_effect_target_selected(selected_property):
+	$TabContainer/BNumberProperty/VBC/ScriptEditingInterface.default_bnumber_property = selected_property
 
 #GUI Themes:
 

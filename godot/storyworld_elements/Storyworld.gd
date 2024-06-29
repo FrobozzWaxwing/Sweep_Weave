@@ -40,20 +40,20 @@ func _init(in_title = "New Storyworld", in_author = "Anonymous", in_sw_version =
 	storyworld_author = in_author
 	about_text = ScriptManager.new(StringConstant.new(""))
 	sweepweave_version_number = in_sw_version
-	creation_time = OS.get_unix_time()
-	modified_time = OS.get_unix_time()
+	creation_time = Time.get_unix_time_from_system()
+	modified_time = Time.get_unix_time_from_system()
 	ifid = IFIDGenerator.IFID_from_creation_time(creation_time)
 
 func unique_id(element_type = "encounter", length = 32):
 	var result = "%x" % unique_id_seeds[element_type]
-	result += "_" + str(OS.get_unix_time())
+	result += "_" + str(Time.get_unix_time_from_system())
 	result = result.sha1_text()
 	result = result.left(length)
 	unique_id_seeds[element_type] += 1
 	return result
 
 func log_update():
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 
 func clear():
 	unique_id_seeds = {"character": 0, "encounter": 0, "option": 0, "reaction": 0, "spool": 0, "authored_property": 0}
@@ -64,8 +64,8 @@ func clear():
 	sweepweave_version_number = "?"
 	storyworld_debug_mode_on = false
 	storyworld_display_mode = 1
-	creation_time = OS.get_unix_time()
-	modified_time = OS.get_unix_time()
+	creation_time = Time.get_unix_time_from_system()
+	modified_time = Time.get_unix_time_from_system()
 	ifid = IFIDGenerator.IFID_from_creation_time(creation_time)
 	language = "en"
 	rating = "general"
@@ -176,7 +176,7 @@ func add_all_characters_from(original):
 		newbie.set_as_copy_of(character, false) #create_mutual_links == false
 		newbie.creation_index = character.creation_index
 		newbie.creation_time = character.creation_time
-		newbie.modified_time = OS.get_unix_time()
+		newbie.modified_time = Time.get_unix_time_from_system()
 		newbie.remap(self)
 		add_character(newbie)
 
@@ -186,7 +186,7 @@ func import_characters(original_characters):
 		newbie.set_as_copy_of(character, false) #create_mutual_links == false
 		newbie.creation_index = character.creation_index
 		newbie.creation_time = character.creation_time
-		newbie.modified_time = OS.get_unix_time()
+		newbie.modified_time = Time.get_unix_time_from_system()
 		newbie.remap(self)
 		add_character(newbie)
 
@@ -264,8 +264,8 @@ func duplicate_encounter(encounter):
 	new_encounter.set_as_copy_of(encounter, false, true) #copy_id = false, create_mutual_links == true
 	new_encounter.title += " copy"
 	new_encounter.creation_index = new_id_seed
-	new_encounter.creation_time = OS.get_unix_time()
-	new_encounter.modified_time = OS.get_unix_time()
+	new_encounter.creation_time = Time.get_unix_time_from_system()
+	new_encounter.modified_time = Time.get_unix_time_from_system()
 	add_encounter(new_encounter)
 	return new_encounter
 
@@ -392,53 +392,57 @@ func sort_encounters(sort_method, reverse):
 	if (reverse):
 		match sort_method:
 			"Alphabetical":
-				encounters.sort_custom(EncounterSorter, "sort_z_a")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_z_a"))
 			"Creation Time":
-				encounters.sort_custom(EncounterSorter, "sort_r_created")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_created"))
 			"Modified Time":
-				encounters.sort_custom(EncounterSorter, "sort_r_modified")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_modified"))
 			"Option Count":
-				encounters.sort_custom(EncounterSorter, "sort_r_options")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_options"))
 			"Reaction Count":
-				encounters.sort_custom(EncounterSorter, "sort_r_reactions")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_reactions"))
 			"Effect Count":
-				encounters.sort_custom(EncounterSorter, "sort_r_effects")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_effects"))
 			"Characters":
 				for encounter in encounters:
-					encounter.connected_characters = encounter.connected_characters().values()
-					encounter.connected_characters.sort_custom(CharacterSorter, "sort_a_z")
-				encounters.sort_custom(EncounterSorter, "sort_r_characters")
+					encounter.connected_characters = encounter.get_connected_characters().values()
+					encounter.connected_characters.sort_custom(Callable(CharacterSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_characters"))
 			"Spools":
 				for encounter in encounters:
-					encounter.connected_spools.sort_custom(SpoolSorter, "sort_a_z")
-				encounters.sort_custom(EncounterSorter, "sort_r_spools")
+					encounter.connected_spools.sort_custom(Callable(SpoolSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_spools"))
+			"Desirability":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_desirability"))
 			"Word Count":
-				encounters.sort_custom(EncounterSorter, "sort_r_word_count")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_word_count"))
 	else:
 		match sort_method:
 			"Alphabetical":
-				encounters.sort_custom(EncounterSorter, "sort_a_z")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_a_z"))
 			"Creation Time":
-				encounters.sort_custom(EncounterSorter, "sort_created")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_created"))
 			"Modified Time":
-				encounters.sort_custom(EncounterSorter, "sort_modified")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_modified"))
 			"Option Count":
-				encounters.sort_custom(EncounterSorter, "sort_options")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_options"))
 			"Reaction Count":
-				encounters.sort_custom(EncounterSorter, "sort_reactions")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_reactions"))
 			"Effect Count":
-				encounters.sort_custom(EncounterSorter, "sort_effects")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_effects"))
 			"Characters":
 				for encounter in encounters:
-					encounter.connected_characters = encounter.connected_characters().values()
-					encounter.connected_characters.sort_custom(CharacterSorter, "sort_a_z")
-				encounters.sort_custom(EncounterSorter, "sort_characters")
+					encounter.connected_characters = encounter.get_connected_characters().values()
+					encounter.connected_characters.sort_custom(Callable(CharacterSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_characters"))
 			"Spools":
 				for encounter in encounters:
-					encounter.connected_spools.sort_custom(SpoolSorter, "sort_a_z")
-				encounters.sort_custom(EncounterSorter, "sort_spools")
+					encounter.connected_spools.sort_custom(Callable(SpoolSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_spools"))
+			"Desirability":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_desirability"))
 			"Word Count":
-				encounters.sort_custom(EncounterSorter, "sort_word_count")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_word_count"))
 
 func trace_referenced_events():
 	#Run through the storyworld and connect events to the scripts that reference them.
@@ -473,12 +477,12 @@ func cast_has_properties():
 	return false
 
 func create_default_bnumber_pointer():
-	if (authored_properties.empty() or characters.empty()):
+	if (authored_properties.is_empty() or characters.is_empty()):
 		#Something has gone terribly wrong.
 		return null
 	var character = null
 	for prospect in characters:
-		if (!prospect.bnumber_properties.empty() and !prospect.authored_properties.empty()):
+		if (!prospect.bnumber_properties.is_empty() and !prospect.authored_properties.is_empty()):
 			character = prospect
 			break
 	if (null == character):
@@ -624,8 +628,8 @@ func load_from_json_v0_0_07_through_v0_0_15(data_to_load):
 			newbie.creation_time = entry["creation_time"]
 			newbie.modified_time = entry["modified_time"]
 		else:
-			newbie.creation_time = OS.get_unix_time()
-			newbie.modified_time = OS.get_unix_time()
+			newbie.creation_time = Time.get_unix_time_from_system()
+			newbie.modified_time = Time.get_unix_time_from_system()
 		if (entry.has_all(["creation_index"])):
 			newbie.creation_index = entry["creation_index"]
 		else:
@@ -675,11 +679,11 @@ func load_from_json_v0_0_07_through_v0_0_15(data_to_load):
 			var new_option = Option.new(new_encounter, unique_id("option", 32), each["text"], graph_offset)
 			new_option.reactions = parse_reactions_data_v0_0_07_through_v0_0_15(each["reactions"], incomplete_reactions, new_option, antagonist)
 			if (typeof(each) == TYPE_DICTIONARY && each.has("visibility_prerequisites") && each.has("performability_prerequisites")):
-				if (!each["visibility_prerequisites"].empty()):
+				if (!each["visibility_prerequisites"].is_empty()):
 					new_option.visibility_script.set_contents(BooleanComparator.new("And"))
 					for prerequisite in each["visibility_prerequisites"]:
 						new_option.visibility_script.contents.operands.append(prerequisite)
-				if (!each["performability_prerequisites"].empty()):
+				if (!each["performability_prerequisites"].is_empty()):
 					new_option.performability_script.set_contents(BooleanComparator.new("And"))
 					for prerequisite in each["performability_prerequisites"]:
 						new_option.performability_script.contents.operands.append(prerequisite)
@@ -896,7 +900,7 @@ func load_from_json_v0_0_21_through_v0_0_29(data_to_load):
 
 #Functions for loading project files made in SweepWeave versions 0.0.34 through 0.0.35:
 
-func parse_reactions_data_v0_0_34_through_v0_1_6(reactions_data, option):
+func parse_reactions_data_v0_0_34_through_v0_1_8(reactions_data, option):
 	var result = []
 	for reaction_data in reactions_data:
 		var graph_offset = Vector2(0, 0)
@@ -952,7 +956,7 @@ func load_from_json_v0_0_34_through_v0_1_2(data_to_load):
 				#if (option_data.has("graph_offset_x") && option_data.has("graph_offset_y")):
 				#	graph_offset = Vector2(option_data["graph_offset_x"], option_data["graph_offset_y"])
 				var new_option = Option.new(new_encounter, option_data["id"], "", graph_offset)
-				new_option.reactions = parse_reactions_data_v0_0_34_through_v0_1_6(option_data["reactions"], new_option)
+				new_option.reactions = parse_reactions_data_v0_0_34_through_v0_1_8(option_data["reactions"], new_option)
 				new_option.text_script = option_data["text_script"]
 				new_option.visibility_script = option_data["visibility_script"]
 				new_option.performability_script = option_data["performability_script"]
@@ -969,41 +973,41 @@ func load_from_json_v0_0_34_through_v0_1_2(data_to_load):
 	#Parse scripts:
 	for encounter in encounters:
 		var new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_6(self, encounter.text_script, sw_script_data_types.STRING)
+		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.text_script, sw_script_data_types.STRING)
 		encounter.text_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_6(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
+		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
 		encounter.acceptability_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_6(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
+		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
 		encounter.desirability_script = new_script
 		for option in encounter.options:
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_6(self, option.text_script, sw_script_data_types.STRING)
+			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.text_script, sw_script_data_types.STRING)
 			option.text_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_6(self, option.visibility_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.visibility_script, sw_script_data_types.BOOLEAN)
 			option.visibility_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_6(self, option.performability_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.performability_script, sw_script_data_types.BOOLEAN)
 			option.performability_script = new_script
 			for reaction in option.reactions:
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_1_6(self, reaction.text_script, sw_script_data_types.STRING)
+				new_script.load_from_json_v0_0_34_through_v0_1_8(self, reaction.text_script, sw_script_data_types.STRING)
 				reaction.text_script = new_script
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_1_6(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
+				new_script.load_from_json_v0_0_34_through_v0_1_8(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
 				reaction.desirability_script = new_script
 				var parsed_effects = []
 				for effect_data in reaction.after_effects:
 					if ("Bounded Number Effect" == effect_data["effect_type"] and effect_data["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == effect_data["Set"]["pointer_type"] and TYPE_STRING == typeof(effect_data["Set"]["character"]) and effect_data["to"].has("script_element_type")):
 						var new_effect = BNumberEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_6(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_8(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 					elif ("Spool Effect" == effect_data["effect_type"] and TYPE_STRING == typeof(effect_data["Set"])):
 						var new_effect = SpoolEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_6(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_8(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 				reaction.after_effects.clear()
@@ -1065,7 +1069,7 @@ func load_from_json_v0_0_34_through_v0_1_2(data_to_load):
 	reaction_directory.clear()
 	print("Project Loaded: " + storyworld_title + " by " + storyworld_author + ". (Storyworld SWV# " + sweepweave_version_number + ")")
 
-func load_from_json_v0_1_3_through_v0_1_6(data_to_load):
+func load_from_json_v0_1_3_through_v0_1_8(data_to_load):
 	#Load characters.
 	for entry in data_to_load.characters:
 		if (entry.has_all(["name", "pronoun", "bnumber_properties", "id", "creation_index", "creation_time", "modified_time"])):
@@ -1105,7 +1109,7 @@ func load_from_json_v0_1_3_through_v0_1_6(data_to_load):
 				#if (option_data.has("graph_offset_x") && option_data.has("graph_offset_y")):
 				#	graph_offset = Vector2(option_data["graph_offset_x"], option_data["graph_offset_y"])
 				var new_option = Option.new(new_encounter, option_data["id"], "", graph_offset)
-				new_option.reactions = parse_reactions_data_v0_0_34_through_v0_1_6(option_data["reactions"], new_option)
+				new_option.reactions = parse_reactions_data_v0_0_34_through_v0_1_8(option_data["reactions"], new_option)
 				new_option.text_script = option_data["text_script"]
 				new_option.visibility_script = option_data["visibility_script"]
 				new_option.performability_script = option_data["performability_script"]
@@ -1122,41 +1126,41 @@ func load_from_json_v0_1_3_through_v0_1_6(data_to_load):
 	#Parse scripts:
 	for encounter in encounters:
 		var new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_6(self, encounter.text_script, sw_script_data_types.STRING)
+		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.text_script, sw_script_data_types.STRING)
 		encounter.text_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_6(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
+		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
 		encounter.acceptability_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_6(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
+		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
 		encounter.desirability_script = new_script
 		for option in encounter.options:
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_6(self, option.text_script, sw_script_data_types.STRING)
+			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.text_script, sw_script_data_types.STRING)
 			option.text_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_6(self, option.visibility_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.visibility_script, sw_script_data_types.BOOLEAN)
 			option.visibility_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_6(self, option.performability_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.performability_script, sw_script_data_types.BOOLEAN)
 			option.performability_script = new_script
 			for reaction in option.reactions:
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_1_6(self, reaction.text_script, sw_script_data_types.STRING)
+				new_script.load_from_json_v0_0_34_through_v0_1_8(self, reaction.text_script, sw_script_data_types.STRING)
 				reaction.text_script = new_script
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_1_6(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
+				new_script.load_from_json_v0_0_34_through_v0_1_8(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
 				reaction.desirability_script = new_script
 				var parsed_effects = []
 				for effect_data in reaction.after_effects:
 					if ("Bounded Number Effect" == effect_data["effect_type"] and effect_data["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == effect_data["Set"]["pointer_type"] and TYPE_STRING == typeof(effect_data["Set"]["character"]) and effect_data["to"].has("script_element_type")):
 						var new_effect = BNumberEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_6(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_8(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 					elif ("Spool Effect" == effect_data["effect_type"] and TYPE_STRING == typeof(effect_data["Set"])):
 						var new_effect = SpoolEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_6(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_8(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 				reaction.after_effects.clear()
@@ -1216,7 +1220,7 @@ func load_from_json_v0_1_3_through_v0_1_6(data_to_load):
 		ifid = IFIDGenerator.IFID_from_creation_time(creation_time)
 	#about_text, meta_description, language, rating, css_theme and font_size were added in 0.1.3.
 	if (data_to_load.has("about_text")):
-		about_text.load_from_json_v0_0_34_through_v0_1_6(self, data_to_load.about_text, sw_script_data_types.STRING)
+		about_text.load_from_json_v0_0_34_through_v0_1_8(self, data_to_load.about_text, sw_script_data_types.STRING)
 	if (data_to_load.has("meta_description")):
 		meta_description = data_to_load.meta_description
 	if (data_to_load.has("language")):
@@ -1234,7 +1238,13 @@ func load_from_json_v0_1_3_through_v0_1_6(data_to_load):
 #Function for determining the version of SweepWeave used to make a project file, and then loading the file via the appropriate functions:
 
 func load_from_json(file_text):
-	var data_to_load = JSON.parse(file_text).result
+	var json_parser = JSON.new()
+	var parse_result = json_parser.parse(file_text)
+	if not parse_result == OK:
+		var error_message = "JSON Parse Error: " + json_parser.get_error_message() + " at line " + str(json_parser.get_error_line())
+		print (error_message)
+		return error_message
+	var data_to_load = json_parser.get_data()
 	if (data_to_load.has("sweepweave_version")):
 		var version = data_to_load.sweepweave_version.split(".")
 		if (3 == version.size()):
@@ -1254,9 +1264,9 @@ func load_from_json(file_text):
 				clear()
 				load_from_json_v0_0_34_through_v0_1_2(data_to_load)
 				return "Passed."
-			elif (0 == int(version[0]) and 1 == int(version[1]) and 3 <= int(version[2]) and 6 >= int(version[2])):
+			elif (0 == int(version[0]) and 1 == int(version[1]) and 3 <= int(version[2]) and 8 >= int(version[2])):
 				clear()
-				load_from_json_v0_1_3_through_v0_1_6(data_to_load)
+				load_from_json_v0_1_3_through_v0_1_8(data_to_load)
 				return "Passed."
 			else:
 				print ("Cannot load project file. The project appears to have been made using an unrecognized version of SweepWeave.")
@@ -1271,17 +1281,17 @@ func load_from_json(file_text):
 func save_project(file_path, save_as = false):
 	var file_data = {}
 	# Save characters:
-	characters.sort_custom(CharacterSorter, "sort_created")
+	characters.sort_custom(Callable(CharacterSorter, "sort_created"))
 	file_data["characters"] = []
 	for entry in characters:
 		file_data["characters"].append(entry.compile(self, true))
 	# Save authored properties:
-	authored_properties.sort_custom(AuthoredPropertySorter, "sort_created")
+	authored_properties.sort_custom(Callable(AuthoredPropertySorter, "sort_created"))
 	file_data["authored_properties"] = []
 	for entry in authored_properties:
 		file_data["authored_properties"].append(entry.compile(self, true))
 	# Save encounters:
-	encounters.sort_custom(EncounterSorter, "sort_created")
+	encounters.sort_custom(Callable(EncounterSorter, "sort_created"))
 	file_data["encounters"] = []
 	for entry in encounters:
 		file_data["encounters"].append(entry.compile(self, true))
@@ -1311,23 +1321,22 @@ func save_project(file_path, save_as = false):
 	# Write contents to json file:
 	var file_text = ""
 	if (storyworld_debug_mode_on):
-		file_text += JSON.print(file_data, "\t")
+		file_text += JSON.stringify(file_data, "\t")
 	else:
-		file_text += JSON.print(file_data, "\t")
-	var file = File.new()
-	file.open(file_path, File.WRITE)
+		file_text += JSON.stringify(file_data, "\t")
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
 	file.store_string(file_text)
 	file.close()
 
-func compile_to_html(path):
+func compile_to_html(file_path):
 	var file_data = {}
 	# Compile characters:
-	characters.sort_custom(CharacterSorter, "sort_created")
+	characters.sort_custom(Callable(CharacterSorter, "sort_created"))
 	file_data["characters"] = []
 	for entry in characters:
 		file_data["characters"].append(entry.compile(self, false))
 	# Compile encounters:
-	encounters.sort_custom(EncounterSorter, "sort_created")
+	encounters.sort_custom(Callable(EncounterSorter, "sort_created"))
 	file_data["encounters"] = []
 	for entry in encounters:
 		file_data["encounters"].append(entry.compile(self, false))
@@ -1348,33 +1357,31 @@ func compile_to_html(path):
 	# Write data to html file:
 	var file_text = "var storyworld_data = "
 	if (storyworld_debug_mode_on):
-		file_text += JSON.print(file_data, "\t")
+		file_text += JSON.stringify(file_data, "\t")
 	else:
-		file_text += JSON.print(file_data)
+		file_text += JSON.stringify(file_data)
 	var compiler = Compiler.new(file_text, self)
-	var file = File.new()
-	file.open(path, File.WRITE)
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
 	file.store_string(compiler.output)
 	file.close()
 
-func export_to_txt(path):
+func export_to_txt(file_path):
 	var file_data = ""
 	# Compile metadata:
 	file_data += storyworld_title + "\n"
 	file_data += "by " + storyworld_author + "\n"
 	file_data += ifid + "\n"
 	# Compile characters:
-	characters.sort_custom(CharacterSorter, "sort_created")
+	characters.sort_custom(Callable(CharacterSorter, "sort_created"))
 	file_data += "\n*** Cast: ***\n"
 	for entry in characters:
 		file_data += entry.char_name + "\n"
 	# Compile encounters:
-	encounters.sort_custom(EncounterSorter, "sort_created")
+	encounters.sort_custom(Callable(EncounterSorter, "sort_created"))
 	file_data += "\n*** Encounters: ***\n"
 	for entry in encounters:
 		file_data += entry.export_to_txt()
 	# Save to file:
-	var file = File.new()
-	file.open(path, File.WRITE)
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
 	file.store_string(file_data)
 	file.close()

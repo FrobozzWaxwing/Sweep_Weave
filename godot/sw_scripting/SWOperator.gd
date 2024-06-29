@@ -72,7 +72,7 @@ func clear():
 			operand.call_deferred("free")
 	operands.clear()
 
-static func get_operator_type():
+func get_operator_type():
 	return "Generic Operation"
 
 func stringify_input_type():
@@ -87,11 +87,11 @@ func stringify_input_type():
 	else:
 		return ""
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Operator"
 	output["operator_type"] = get_operator_type()
-	if (!include_editor_only_variables):
+	if (!_include_editor_only_variables):
 		output["input_type"] = stringify_input_type()
 	output["operands"] = []
 	for operand in operands:
@@ -99,10 +99,10 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 			output["operands"].append(null)
 		elif (TYPE_BOOL == typeof(operand)):
 			output["operands"].append(operand)
-		elif (TYPE_INT == typeof(operand) or TYPE_REAL == typeof(operand)):
+		elif (TYPE_INT == typeof(operand) or TYPE_FLOAT == typeof(operand)):
 			output["operands"].append(operand)
 		elif (operand is SWScriptElement):
-			output["operands"].append(operand.compile(parent_storyworld, include_editor_only_variables))
+			output["operands"].append(operand.compile(_parent_storyworld, _include_editor_only_variables))
 	return output
 
 func stringify_operand_at_index(operand_index):
@@ -113,7 +113,7 @@ func stringify_operand_at_index(operand_index):
 	var result = "null"
 	if (null == operand):
 		pass
-	elif (TYPE_BOOL == typeof(operand) or TYPE_INT == typeof(operand) or TYPE_REAL == typeof(operand)):
+	elif (TYPE_BOOL == typeof(operand) or TYPE_INT == typeof(operand) or TYPE_FLOAT == typeof(operand)):
 		result = str(operand)
 	elif (TYPE_STRING == typeof(operand)):
 		result = "\"" + operand + "\""
@@ -124,24 +124,34 @@ func stringify_operand_at_index(operand_index):
 func data_to_string():
 	return "SweepWeave Script Operator"
 
-func validate(intended_script_output_datatype):
+func validate(_intended_script_output_datatype):
 	var validation_report = ""
-	if (operands.empty()):
+	if (operands.is_empty()):
 		validation_report += " contains no operands."
 	elif (minimum_number_of_operands > operands.size()):
 		validation_report += " contains only " + str(operands.size()) + " operands, while requiring at least " + str(minimum_number_of_operands) + " operands."
+	var index = 0
 	for operand in operands:
 		if (!(operand is SWScriptElement)):
 			if (null == operand):
 				validation_report += "\n" + "Operand is null."
-			if (TYPE_BOOL == typeof(operand) or TYPE_INT == typeof(operand) or TYPE_REAL == typeof(operand)):
+			if (TYPE_BOOL == typeof(operand) or TYPE_INT == typeof(operand) or TYPE_FLOAT == typeof(operand)):
 				validation_report += "\n" + "Operand is raw data, (" + str(operand) + ",) rather than a SweepWeave script element."
 		elif (!is_instance_valid(operand)):
 			validation_report += "\n" + "Operand has been deleted, but not properly nullified."
 		else:
-			var operand_report = operand.validate(intended_script_output_datatype)
+			if (null == operand.parent_operator):
+				validation_report += "\n" + "Operand " + str(index) + " has null parent operator."
+			elif (!is_instance_valid(operand.parent_operator)):
+				validation_report += "\n" + "The parent operator of operand " + str(index) + " is an invalid instance."
+			elif (operand.parent_operator != self):
+				validation_report += "\n" + "Operand " + str(index) + " has incorrect parent operator."
+			if (operand.script_index != index):
+				validation_report += "\n" + "Operand " + str(index) + " has incorrect script index."
+			var operand_report = operand.validate(_intended_script_output_datatype)
 			if ("Passed." != operand_report):
 				validation_report += "\n" + operand_report
+		index += 1
 	if ("" == validation_report):
 		return "Passed."
 	else:

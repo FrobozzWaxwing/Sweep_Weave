@@ -6,400 +6,49 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=4
-
-_global_script_classes=[ {
-"base": "SWOperator",
-"class": "AbsoluteValueOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/AbsoluteValueOperator.gd"
-}, {
-"base": "Object",
-"class": "Actor",
-"language": "GDScript",
-"path": "res://storyworld_elements/Actor.gd"
-}, {
-"base": "SWOperator",
-"class": "ArithmeticComparator",
-"language": "GDScript",
-"path": "res://sw_scripting/ArithmeticComparator.gd"
-}, {
-"base": "SWOperator",
-"class": "ArithmeticMeanOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/ArithmeticMeanOperator.gd"
-}, {
-"base": "SWOperator",
-"class": "ArithmeticNegationOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/ArithmeticNegationOperator.gd"
-}, {
-"base": "Object",
-"class": "AuthoredPropertySorter",
-"language": "GDScript",
-"path": "res://sorters/AuthoredPropertySorter.gd"
-}, {
-"base": "Object",
-"class": "AutoRehearsal",
-"language": "GDScript",
-"path": "res://AutoRehearsal.gd"
-}, {
-"base": "Object",
-"class": "BNumberBlueprint",
-"language": "GDScript",
-"path": "res://storyworld_elements/BNumberBlueprint.gd"
-}, {
-"base": "SWPointer",
-"class": "BNumberConstant",
-"language": "GDScript",
-"path": "res://sw_scripting/BNumberConstant.gd"
-}, {
-"base": "SWEffect",
-"class": "BNumberEffect",
-"language": "GDScript",
-"path": "res://storyworld_elements/BNumberEffect.gd"
-}, {
-"base": "SWPointer",
-"class": "BNumberPointer",
-"language": "GDScript",
-"path": "res://sw_scripting/BNumberPointer.gd"
-}, {
-"base": "SWOperator",
-"class": "BSumOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/BSumOperator.gd"
-}, {
-"base": "SWOperator",
-"class": "BlendOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/BlendOperator.gd"
-}, {
-"base": "SWOperator",
-"class": "BooleanComparator",
-"language": "GDScript",
-"path": "res://sw_scripting/BooleanComparator.gd"
-}, {
-"base": "SWPointer",
-"class": "BooleanConstant",
-"language": "GDScript",
-"path": "res://sw_scripting/BooleanConstant.gd"
-}, {
-"base": "Object",
-"class": "CharacterSorter",
-"language": "GDScript",
-"path": "res://sorters/CharacterSorter.gd"
-}, {
-"base": "Object",
-"class": "Clipboard",
-"language": "GDScript",
-"path": "res://interface/Clipboard.gd"
-}, {
-"base": "Object",
-"class": "Compiler",
-"language": "GDScript",
-"path": "res://Compiler.gd"
-}, {
-"base": "SWOperator",
-"class": "Desideratum",
-"language": "GDScript",
-"path": "res://sw_scripting/Desideratum.gd"
-}, {
-"base": "Object",
-"class": "DocChapter",
-"language": "GDScript",
-"path": "res://documentation_elements/DocChapter.gd"
-}, {
-"base": "Object",
-"class": "DocPage",
-"language": "GDScript",
-"path": "res://documentation_elements/DocPage.gd"
-}, {
-"base": "Object",
-"class": "DocSection",
-"language": "GDScript",
-"path": "res://documentation_elements/DocSection.gd"
-}, {
-"base": "Object",
-"class": "Encounter",
-"language": "GDScript",
-"path": "res://storyworld_elements/Encounter.gd"
-}, {
-"base": "Object",
-"class": "EncounterSorter",
-"language": "GDScript",
-"path": "res://sorters/EncounterSorter.gd"
-}, {
-"base": "Object",
-"class": "ErrorReport",
-"language": "GDScript",
-"path": "res://ErrorReport.gd"
-}, {
-"base": "SWPointer",
-"class": "EventPointer",
-"language": "GDScript",
-"path": "res://sw_scripting/EventPointer.gd"
-}, {
-"base": "Object",
-"class": "HB_Record",
-"language": "GDScript",
-"path": "res://HB_Record.gd"
-}, {
-"base": "Object",
-"class": "IFIDGenerator",
-"language": "GDScript",
-"path": "res://IFIDGenerator.gd"
-}, {
-"base": "Object",
-"class": "InclinationSorter",
-"language": "GDScript",
-"path": "res://sorters/InclinationSorter.gd"
-}, {
-"base": "SWOperator",
-"class": "NudgeOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/NudgeOperator.gd"
-}, {
-"base": "Object",
-"class": "Option",
-"language": "GDScript",
-"path": "res://storyworld_elements/Option.gd"
-}, {
-"base": "SWPointer",
-"class": "QuickBNPointer",
-"language": "GDScript",
-"path": "res://sw_scripting/QuickBNPointer.gd"
-}, {
-"base": "Object",
-"class": "QuickEncounter",
-"language": "GDScript",
-"path": "res://quickened_elements/QuickEncounter.gd"
-}, {
-"base": "Object",
-"class": "QuickHB_Record",
-"language": "GDScript",
-"path": "res://quickened_elements/QuickHB_Record.gd"
-}, {
-"base": "Object",
-"class": "QuickSpool",
-"language": "GDScript",
-"path": "res://quickened_elements/QuickSpool.gd"
-}, {
-"base": "Object",
-"class": "QuickStoryworld",
-"language": "GDScript",
-"path": "res://quickened_elements/QuickStoryworld.gd"
-}, {
-"base": "Object",
-"class": "Reaction",
-"language": "GDScript",
-"path": "res://storyworld_elements/Reaction.gd"
-}, {
-"base": "Object",
-"class": "Rehearsal",
-"language": "GDScript",
-"path": "res://Rehearsal.gd"
-}, {
-"base": "Object",
-"class": "SWEffect",
-"language": "GDScript",
-"path": "res://storyworld_elements/SWEffect.gd"
-}, {
-"base": "SWOperator",
-"class": "SWEqualsOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/SWEqualsOperator.gd"
-}, {
-"base": "SWOperator",
-"class": "SWIfOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/SWIfOperator.gd"
-}, {
-"base": "SWOperator",
-"class": "SWMaxOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/SWMaxOperator.gd"
-}, {
-"base": "SWOperator",
-"class": "SWMinOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/SWMinOperator.gd"
-}, {
-"base": "SWOperator",
-"class": "SWNotOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/SWNotOperator.gd"
-}, {
-"base": "SWScriptElement",
-"class": "SWOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/SWOperator.gd"
-}, {
-"base": "SWScriptElement",
-"class": "SWPointer",
-"language": "GDScript",
-"path": "res://sw_scripting/SWPointer.gd"
-}, {
-"base": "Object",
-"class": "SWScriptElement",
-"language": "GDScript",
-"path": "res://sw_scripting/SWScriptElement.gd"
-}, {
-"base": "Object",
-"class": "ScriptManager",
-"language": "GDScript",
-"path": "res://sw_scripting/ScriptManager.gd"
-}, {
-"base": "Object",
-"class": "Spool",
-"language": "GDScript",
-"path": "res://storyworld_elements/Spool.gd"
-}, {
-"base": "SWEffect",
-"class": "SpoolEffect",
-"language": "GDScript",
-"path": "res://storyworld_elements/SpoolEffect.gd"
-}, {
-"base": "SWPointer",
-"class": "SpoolPointer",
-"language": "GDScript",
-"path": "res://sw_scripting/SpoolPointer.gd"
-}, {
-"base": "Object",
-"class": "SpoolSorter",
-"language": "GDScript",
-"path": "res://sorters/SpoolSorter.gd"
-}, {
-"base": "SWPointer",
-"class": "SpoolStatusPointer",
-"language": "GDScript",
-"path": "res://sw_scripting/SpoolStatusPointer.gd"
-}, {
-"base": "Object",
-"class": "Storyworld",
-"language": "GDScript",
-"path": "res://storyworld_elements/Storyworld.gd"
-}, {
-"base": "SWOperator",
-"class": "StringConcatenationOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/StringConcatenationOperator.gd"
-}, {
-"base": "SWPointer",
-"class": "StringConstant",
-"language": "GDScript",
-"path": "res://sw_scripting/StringConstant.gd"
-}, {
-"base": "SWOperator",
-"class": "StringFormatOperator",
-"language": "GDScript",
-"path": "res://sw_scripting/StringFormatOperator.gd"
-}, {
-"base": "Object",
-"class": "UUID",
-"language": "GDScript",
-"path": "res://UUID.gd"
-} ]
-_global_script_class_icons={
-"AbsoluteValueOperator": "",
-"Actor": "",
-"ArithmeticComparator": "",
-"ArithmeticMeanOperator": "",
-"ArithmeticNegationOperator": "",
-"AuthoredPropertySorter": "",
-"AutoRehearsal": "",
-"BNumberBlueprint": "",
-"BNumberConstant": "",
-"BNumberEffect": "",
-"BNumberPointer": "",
-"BSumOperator": "",
-"BlendOperator": "",
-"BooleanComparator": "",
-"BooleanConstant": "",
-"CharacterSorter": "",
-"Clipboard": "",
-"Compiler": "",
-"Desideratum": "",
-"DocChapter": "",
-"DocPage": "",
-"DocSection": "",
-"Encounter": "",
-"EncounterSorter": "",
-"ErrorReport": "",
-"EventPointer": "",
-"HB_Record": "",
-"IFIDGenerator": "",
-"InclinationSorter": "",
-"NudgeOperator": "",
-"Option": "",
-"QuickBNPointer": "",
-"QuickEncounter": "",
-"QuickHB_Record": "",
-"QuickSpool": "",
-"QuickStoryworld": "",
-"Reaction": "",
-"Rehearsal": "",
-"SWEffect": "",
-"SWEqualsOperator": "",
-"SWIfOperator": "",
-"SWMaxOperator": "",
-"SWMinOperator": "",
-"SWNotOperator": "",
-"SWOperator": "",
-"SWPointer": "",
-"SWScriptElement": "",
-"ScriptManager": "",
-"Spool": "",
-"SpoolEffect": "",
-"SpoolPointer": "",
-"SpoolSorter": "",
-"SpoolStatusPointer": "",
-"Storyworld": "",
-"StringConcatenationOperator": "",
-"StringConstant": "",
-"StringFormatOperator": "",
-"UUID": ""
-}
+config_version=5
 
 [application]
 
 config/name="SweepWeave"
 config/description="An experimental authoring tool for interactive storyworlds."
+config/version="0.1.7.0"
 run/main_scene="res://interface/GUI.tscn"
+config/features=PackedStringArray("4.2")
 run/low_processor_mode=true
 config/icon="res://custom_resources/ball_of_yarn.png"
 config/windows_native_icon="res://custom_resources/ball_of_yarn.ico"
 
 [display]
 
-window/size/width=1366
-window/size/height=736
+window/size/viewport_width=1366
+window/size/viewport_height=736
 
 [input]
 
 project_save_overwrite={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":true,"meta":false,"command":true,"pressed":false,"scancode":83,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
- ]
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"pressed":false,"keycode":83,"physical_keycode":0,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
 }
 project_save_as={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":true,"shift":false,"control":true,"meta":false,"command":true,"pressed":false,"scancode":83,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
- ]
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":true,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"pressed":false,"keycode":83,"physical_keycode":0,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
 }
 project_new={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":true,"meta":false,"command":true,"pressed":false,"scancode":78,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
- ]
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"pressed":false,"keycode":78,"physical_keycode":0,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
 }
 project_load={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":true,"meta":false,"command":true,"pressed":false,"scancode":79,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
- ]
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"pressed":false,"keycode":79,"physical_keycode":0,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
 }
 
 [rendering]
 
+environment/defaults/default_environment="res://default_env.tres"
 quality/driver/driver_name="GLES2"
 vram_compression/import_etc=true
-vram_compression/import_etc2=false
-environment/default_environment="res://default_env.tres"

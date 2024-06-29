@@ -12,8 +12,7 @@ var encounter = null
 var is_an_ending_leaf = false
 var turn = 0
 var relationship_values = []
-var spool_statuses = {}
-# {spool id: copy of is_active}
+var active_spools = []
 var parent_record = null
 var explored_branches = []
 var unexplored_branches = []
@@ -60,12 +59,8 @@ func decrement_occurrences():
 	if (null != encounter):
 		encounter.occurrences -= 1
 
-func record_spool_statuses(storyworld):
-	#Clear out any old data.
-	spool_statuses = {}
-	#Add new data.
-	for spool in storyworld.spools:
-		spool_statuses[spool.id] = spool.is_active
+func record_spool_statuses(rehearsal):
+	active_spools = rehearsal.active_spools.duplicate()
 
 func get_parent():
 	return parent_record
@@ -84,13 +79,11 @@ func _init(in_parent = null):
 	parent_record = in_parent
 
 func clear_children():
-	var children = explored_branches.duplicate()
-	for child in children:
+	for child in explored_branches:
 		child.clear()
 		child.call_deferred("free")
 	explored_branches.clear()
-	children = unexplored_branches.duplicate()
-	for child in children:
+	for child in unexplored_branches:
 		child.clear()
 		child.call_deferred("free")
 	unexplored_branches.clear()
@@ -103,7 +96,7 @@ func clear():
 	is_an_ending_leaf = false
 	turn = 0
 	relationship_values.clear()
-	spool_statuses.clear()
+	active_spools.clear()
 	parent_record = null
 
 func set_as_copy_of(original):
@@ -114,7 +107,7 @@ func set_as_copy_of(original):
 	is_an_ending_leaf = original.is_an_ending_leaf
 	turn = original.turn
 	relationship_values = original.relationship_values.duplicate()
-	spool_statuses = original.spool_statuses.duplicate()
+	active_spools = original.active_spools.duplicate()
 	parent_record = original.parent_record
 	for page in original.explored_branches:
 		#Branches will still have original parent.

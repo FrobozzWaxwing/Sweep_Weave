@@ -1,9 +1,9 @@
-[gd_resource type="GradientTexture2D" load_steps=2 format=2]
+[gd_resource type="GradientTexture2D" load_steps=2 format=3 uid="uid://wp4ompm5nogd"]
 
-[ext_resource path="res://custom_resources/gradient_header_lapis_lazuli.tres" type="Gradient" id=1]
+[ext_resource type="Gradient" uid="uid://c5qx1onlrsw0r" path="res://custom_resources/gradient_header_lapis_lazuli.tres" id="1"]
 
 [resource]
-gradient = ExtResource( 1 )
+gradient = ExtResource("1")
 width = 256
-fill_from = Vector2( 0, 0.3 )
-fill_to = Vector2( 1, 0.7 )
+fill_from = Vector2(0, 0.3)
+fill_to = Vector2(1, 0.7)

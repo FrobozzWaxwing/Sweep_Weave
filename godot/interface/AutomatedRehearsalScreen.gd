@@ -12,31 +12,49 @@ var total_steps_taken = 0
 var periodic_report = ""
 var periodic_report_time = 0
 var initial_steps_per_frame = 1 # The number of steps per frame when the rehearsal begins.
+#Clarity is a light mode theme, while Lapis Lazuli is a dark mode theme.
+var light_mode = true
 
 func _ready():
 	$Panel/VBC/ReportTabs.set_tab_title(0, "Event Index")
 	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_title(0, "Event")
 	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_expand(0, true)
-	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_min_width(0, 5)
+	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_custom_minimum_width(0, 5)
 	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_title(1, "Reachable")
 	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_expand(1, true)
-	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_min_width(1, 1)
+	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_custom_minimum_width(1, 1)
 	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_title(2, "Yielding Paths")
 	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_expand(2, true)
-	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_min_width(2, 1)
+	$Panel/VBC/ReportTabs/EventIndex/EventTree.set_column_custom_minimum_width(2, 1)
 	$Panel/VBC/ReportTabs.set_tab_title(1, "Cast Properties Index")
 	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_title(0, "Property")
 	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_expand(0, true)
-	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_min_width(0, 5)
+	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_custom_minimum_width(0, 5)
 	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_title(1, "Minimum")
 	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_expand(1, true)
-	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_min_width(1, 1)
+	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_custom_minimum_width(1, 1)
 	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_title(2, "Maximum")
 	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_expand(2, true)
-	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_min_width(2, 1)
+	$Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.set_column_custom_minimum_width(2, 1)
+	$Panel/VBC/ReportTabs.set_tab_title(2, "Notable Outcome Index")
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_title(0, "Event")
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_expand(0, true)
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_custom_minimum_width(0, 5)
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_title(1, "Impact")
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_expand(1, true)
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_custom_minimum_width(1, 1)
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_title(2, "Range")
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_expand(2, true)
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_custom_minimum_width(2, 1)
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_title(3, "Occurrences")
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_expand(3, true)
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_custom_minimum_width(3, 1)
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_title(4, "Percentage")
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_expand(4, true)
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.set_column_custom_minimum_width(4, 1)
 	$RehearsalReportFileDialog.set_current_dir(OS.get_executable_path().get_base_dir())
 	$RehearsalReportFileDialog.set_current_file("report.txt")
-	$RehearsalReportFileDialog.set_filters(PoolStringArray(["*.txt ; TXT Files"]))
+	$RehearsalReportFileDialog.set_filters(PackedStringArray(["*.txt ; TXT Files"]))
 
 func reset_rehearsal():
 	rehearsal_status = rehearsal_statuses.SET
@@ -48,9 +66,7 @@ func reset_rehearsal():
 	if (null == rehearsal):
 		rehearsal = AutoRehearsal.new(reference_storyworld)
 	else:
-		rehearsal.clear_all_data()
-		rehearsal.storyworld.set_as_quickened_copy_of(reference_storyworld)
-		rehearsal.quicken_bnumberpointers()
+		rehearsal.reset(reference_storyworld)
 	rehearsal.storyworld.trace_referenced_events()
 	rehearsal.storyworld.check_for_parallels()
 	$PeriodicReportTimer.set_paused(true)
@@ -78,11 +94,11 @@ func say_time(time):
 		time_description += "%s days%s " % [days, delimiter]
 	if (1 == hours):
 		time_description += "%s hour%s " % [hours, delimiter]
-	if (0 < hours):
+	elif (0 < hours):
 		time_description += "%s hours%s " % [hours, delimiter]
 	if (1 == minutes):
 		time_description += "%s minute%s " % [minutes, delimiter]
-	if (0 < minutes):
+	elif (0 < minutes):
 		time_description += "%s minutes%s " % [minutes, delimiter]
 	if (0 < days or 0 < hours or 0 < minutes):
 		time_description += "and "
@@ -113,24 +129,63 @@ func readable_datetime(unixdatetime):
 	result += " (UTC)"
 	return result
 
-func recursive_refresh_castbook(root_display_branch:TreeItem, onion, keyring:Array):
-	var cast = rehearsal.storyworld.characters
-	for perceived_character in cast:
-		if (onion.has(perceived_character.id)):
-			var value = onion[perceived_character.id]
-			keyring.append(perceived_character.id)
-			if (TYPE_DICTIONARY == typeof(value)):
-				var leaf = $Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.create_item(root_display_branch)
-				leaf.set_text(0, perceived_character.char_name)
-				recursive_refresh_castbook(leaf, value, keyring)
-			elif (TYPE_INT == typeof(value) or TYPE_REAL == typeof(value)):
-				var leaf = $Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.create_item(root_display_branch)
-				var text = perceived_character.char_name + ": " + str(value)
-				leaf.set_text(0, text)
-			keyring.pop_back()
+func sort_encounters(encounters, sort_method, reverse):
+	if (reverse):
+		match sort_method:
+			"Alphabetical":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_z_a"))
+			"Creation Time":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_created"))
+			"Modified Time":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_modified"))
+			"Option Count":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_options"))
+			"Reaction Count":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_reactions"))
+			"Effect Count":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_effects"))
+			"Characters":
+				for encounter in encounters:
+					encounter.connected_characters = encounter.get_connected_characters().values()
+					encounter.connected_characters.sort_custom(Callable(CharacterSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_characters"))
+			"Spools":
+				for encounter in encounters:
+					encounter.connected_spools.sort_custom(Callable(SpoolSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_spools"))
+			"Desirability":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_desirability"))
+			"Word Count":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_word_count"))
+	else:
+		match sort_method:
+			"Alphabetical":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_a_z"))
+			"Creation Time":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_created"))
+			"Modified Time":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_modified"))
+			"Option Count":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_options"))
+			"Reaction Count":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_reactions"))
+			"Effect Count":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_effects"))
+			"Characters":
+				for encounter in encounters:
+					encounter.connected_characters = encounter.get_connected_characters().values()
+					encounter.connected_characters.sort_custom(Callable(CharacterSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_characters"))
+			"Spools":
+				for encounter in encounters:
+					encounter.connected_spools.sort_custom(Callable(SpoolSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_spools"))
+			"Desirability":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_desirability"))
+			"Word Count":
+				encounters.sort_custom(Callable(EncounterSorter, "sort_word_count"))
 
-func refresh():
-	# Refresh Event Index:
+func refresh_event_index():
 	$Panel/VBC/ReportTabs/EventIndex/EventTree.clear()
 	var root = $Panel/VBC/ReportTabs/EventIndex/EventTree.create_item()
 	for encounter in rehearsal.storyworld.encounters:
@@ -163,6 +218,114 @@ func refresh():
 				else:
 					reaction_branch.set_text(1, "Unknown")
 				reaction_branch.set_text(2, str(reaction.yielding_paths))
+
+func recursive_refresh_castbook(root_display_branch:TreeItem, onion, keyring:Array):
+	var cast = rehearsal.storyworld.characters
+	for perceived_character in cast:
+		if (onion.has(perceived_character.id)):
+			var value = onion[perceived_character.id]
+			keyring.append(perceived_character.id)
+			if (TYPE_DICTIONARY == typeof(value)):
+				var leaf = $Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.create_item(root_display_branch)
+				leaf.set_text(0, perceived_character.char_name)
+				recursive_refresh_castbook(leaf, value, keyring)
+			elif (TYPE_INT == typeof(value) or TYPE_FLOAT == typeof(value)):
+				var leaf = $Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.create_item(root_display_branch)
+				var text = perceived_character.char_name + ": " + str(value)
+				leaf.set_text(0, text)
+			keyring.pop_back()
+
+func estimate_event_impacts():
+	var notable_events = []
+	for encounter in rehearsal.storyworld.encounters:
+		if (encounter.potential_ending):
+			notable_events.append(encounter)
+	notable_events.sort_custom(Callable(EncounterSorter, "sort_a_z"))
+	for encounter in rehearsal.storyworld.encounters:
+		var options = encounter.get_options()
+		var option_count = options.size()
+		encounter.impact = 0
+		encounter.outcome_range = 0
+		if (2 > option_count):
+			# If the encounter has no options, or only has one option, then the encounter's impact is 0.
+			if (1 == option_count):
+				# If the encounter has a single option, that option's impact is also 0.
+				var option = options.front()
+				option.impact = 0
+				option.outcome_range = 0
+			continue
+		# If the encounter has more than one option:
+		var divisor = option_count - 1
+		for option_index in range(option_count):
+			var option = options[option_index]
+			option.impact = 0
+			option.outcome_range = 0
+			if (0 == option.yielding_paths):
+				# The rehearsal system has not finished updating this option. Skip it.
+				continue
+			for comparison_index in range(option_count):
+				if (option_index != comparison_index):
+					var comparison = options[comparison_index]
+					if (0 == comparison.yielding_paths):
+						# The rehearsal system has not finished updating this option. Skip it.
+						continue
+					var distance = 0
+					for event in notable_events:
+						var x = 0
+						if (option.notable_outcomes.has(event)):
+							x = float(option.notable_outcomes[event]) / float(option.yielding_paths)
+						var y = 0
+						if (comparison.notable_outcomes.has(event)):
+							y = float(comparison.notable_outcomes[event]) / float(comparison.yielding_paths)
+						distance += abs(x - y) / 2
+					if (distance > option.outcome_range):
+						option.outcome_range = distance
+					option.impact += distance
+			if (option.outcome_range > encounter.outcome_range):
+				encounter.outcome_range = option.outcome_range
+			option.impact /= divisor
+			encounter.impact += option.impact
+		encounter.impact /= option_count
+
+func refresh_outcome_index():
+	estimate_event_impacts()
+	$Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.clear()
+	var root = $Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.create_item()
+	var sort_method_id = $Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/SortMenu.get_selected_id()
+	var sort_method = $Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/SortMenu.get_popup().get_item_text(sort_method_id)
+	var reversed = $Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.is_pressed()
+	#Duplicate the list of encounters before sorting it.
+	#Resorting the rehearsal's internal encounter list shouldn't cause any issues, but I want to avoid having to worry about the order when changing the rehearsal class.
+	var list_of_encounters = rehearsal.storyworld.encounters.duplicate()
+	sort_encounters(list_of_encounters, sort_method, reversed)
+	for encounter in list_of_encounters:
+		var encounter_branch = $Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.create_item(root)
+		encounter_branch.set_text(0, encounter.title)
+		encounter_branch.set_text(1, encounter.get_listable_impact())
+		encounter_branch.set_text(2, encounter.get_listable_outcome_range())
+		encounter_branch.set_text(3, str(encounter.yielding_paths))
+		for option in encounter.get_options():
+			var option_branch = $Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.create_item(encounter_branch)
+			option_branch.set_text(0, option.get_listable_text())
+			option_branch.set_text(1, option.get_listable_impact())
+			option_branch.set_text(2, option.get_listable_outcome_range())
+			option_branch.set_text(3, str(option.yielding_paths))
+			var outcomes = option.notable_outcomes.keys()
+			outcomes.sort_custom(Callable(EncounterSorter, "sort_a_z"))
+			# Sort?
+			for outcome in outcomes:
+				var outcome_branch = $Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.create_item(option_branch)
+				outcome_branch.set_text(0, outcome.title)
+				outcome_branch.set_text(3, str(option.notable_outcomes[outcome]))
+				if (0 < option.yielding_paths):
+					var percentage = float(option.notable_outcomes[outcome]) / float(option.yielding_paths)
+					percentage *= 100
+					percentage = floor(percentage)
+					outcome_branch.set_text(4, str(percentage) + "%")
+
+func refresh():
+	# Refresh Event Index:
+	refresh_event_index()
 	# Refresh Cast Variable Index:
 	var trait_text = "Cast trait constants:\n"
 	for pointer in rehearsal.cast_trait_constants:
@@ -195,6 +358,8 @@ func refresh():
 #				var entry_text = bnumber_property.get_property_name() + ": "
 #				entry.set_text(0, entry_text)
 #				recursive_refresh_castbook(entry, onion, keyring)
+	# Refresh Notable Outcome Index:
+	refresh_outcome_index()
 	# Refresh Elapsed Time:
 	update_elapsed_time()
 	var elapsed_time_description = say_time(elapsed_time)
@@ -244,7 +409,7 @@ func add_to_report():
 	update_elapsed_time()
 	periodic_report += str(periodic_report_time) + " minutes: " + report_steps() + "\n"
 
-func export_rehearsal_report(path):
+func export_rehearsal_report(file_path):
 	var file_data = ""
 	# Compile metadata:
 	file_data += rehearsal.storyworld.storyworld_title + "\n"
@@ -278,9 +443,14 @@ func export_rehearsal_report(path):
 	for index in range(rehearsal.cast_traits_legend.size()):
 		var pointer = rehearsal.cast_traits_legend[index]
 		file_data += pointer.data_to_string() + " min: " + str(rehearsal.cast_traits_min[index]) + " max: " + str(rehearsal.cast_traits_max[index]) + "\n"
+	# Compile encounter impact and range estimates:
+	file_data += "Encounter impact and range estimates:\n"
+	var list_of_encounters = rehearsal.storyworld.encounters.duplicate()
+	sort_encounters(list_of_encounters, "Spools", false)
+	for encounter in list_of_encounters:
+		file_data += encounter.title + "," + encounter.get_listable_impact() + "," + encounter.get_listable_outcome_range() + "\n"
 	# Save to file:
-	var file = File.new()
-	file.open(path, File.WRITE)
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
 	file.store_string(file_data)
 	file.close()
 
@@ -325,25 +495,98 @@ func _on_PeriodicReportTimer_timeout():
 	refresh()
 
 func _on_CollapseAllEvents_pressed():
-	var branch = $Panel/VBC/ReportTabs/EventIndex/EventTree.get_root().get_children()
+	var branch = $Panel/VBC/ReportTabs/EventIndex/EventTree.get_root().get_first_child()
 	while (null != branch):
-		branch.set_collapsed(true)
+		branch.call_recursive("set_collapsed", true)
 		branch = branch.get_next()
 
 func _on_ExpandAllEvents_pressed():
-	var branch = $Panel/VBC/ReportTabs/EventIndex/EventTree.get_root().get_children()
+	var branch = $Panel/VBC/ReportTabs/EventIndex/EventTree.get_root().get_first_child()
 	while (null != branch):
-		branch.set_collapsed(false)
+		branch.call_recursive("set_collapsed", false)
 		branch = branch.get_next()
 
 func _on_CollapseAllCast_pressed():
-	var branch = $Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.get_root().get_children()
+	var branch = $Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.get_root().get_first_child()
 	while (null != branch):
 		branch.set_collapsed(true)
 		branch = branch.get_next()
 
 func _on_ExpandAllCast_pressed():
-	var branch = $Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.get_root().get_children()
+	var branch = $Panel/VBC/ReportTabs/CastVariablesIndex/CastTree.get_root().get_first_child()
 	while (null != branch):
 		branch.set_collapsed(false)
 		branch = branch.get_next()
+
+func _on_CollapseAllOutcomes_pressed():
+	var branch = $Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.get_root().get_first_child()
+	while (null != branch):
+		branch.call_recursive("set_collapsed", true)
+		branch = branch.get_next()
+
+func _on_ExpandToOptions_pressed():
+	var branch = $Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.get_root().get_first_child()
+	while (null != branch):
+		branch.set_collapsed(false)
+		for leaf in branch.get_children():
+			leaf.set_collapsed(true)
+		branch = branch.get_next()
+
+func _on_ExpandToOutcomes_pressed():
+	var branch = $Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.get_root().get_first_child()
+	while (null != branch):
+		branch.call_recursive("set_collapsed", false)
+		branch = branch.get_next()
+
+@onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
+@onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
+@onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
+@onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
+@onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
+@onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
+@onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
+@onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
+
+func refresh_outcome_sort_icon():
+	var sort_index = $Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/SortMenu.get_selected()
+	var sort_method = $Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/SortMenu.get_popup().get_item_text(sort_index)
+	var reversed = $Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.is_pressed()
+	if (light_mode):
+		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
+			if (reversed):
+				$Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.icon = sort_rev_alpha_icon_dark
+			else:
+				$Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.icon = sort_alpha_icon_dark
+		else:
+			if (reversed):
+				$Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.icon = sort_rev_numeric_icon_dark
+			else:
+				$Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.icon = sort_numeric_icon_dark
+	else:
+		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
+			if (reversed):
+				$Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.icon = sort_rev_alpha_icon_light
+			else:
+				$Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.icon = sort_alpha_icon_light
+		else:
+			if (reversed):
+				$Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.icon = sort_rev_numeric_icon_light
+			else:
+				$Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC/ToggleReverseButton.icon = sort_numeric_icon_light
+
+func _on_OutcomeSortMenu_item_selected(_index):
+	refresh_outcome_index()
+	refresh_outcome_sort_icon()
+
+func _on_toggle_reverse_button_toggled(_toggled_on):
+	refresh_outcome_index()
+	refresh_outcome_sort_icon()
+
+func set_gui_theme(theme_name, _background_color):
+	match theme_name:
+		"Clarity":
+			light_mode = true
+		"Lapis Lazuli":
+			light_mode = false
+	refresh_outcome_sort_icon()
+

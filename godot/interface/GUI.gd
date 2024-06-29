@@ -4,18 +4,18 @@ var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
 
-var sweepweave_version_number = "0.1.5"
+var sweepweave_version_number = "0.1.7"
 var storyworld = null
 var clipboard = Clipboard.new()
 
 #Theme variables:
 var theme_background_colors = {}
 #Clarity:
-onready var clarity_gradient_header = preload("res://custom_resources/gradient_header_texture_clarity.tres")
-onready var clarity_theme = preload("res://custom_resources/clarity.tres")
+@onready var clarity_gradient_header = preload("res://custom_resources/gradient_header_texture_clarity.tres")
+@onready var clarity_theme = preload("res://custom_resources/clarity.tres")
 #Lapis Lazuli:
-onready var lapis_lazuli_gradient_header = preload("res://custom_resources/gradient_header_texture_lapis_lazuli.tres")
-onready var lapis_lazuli_theme = preload("res://custom_resources/lapis_lazuli.tres")
+@onready var lapis_lazuli_gradient_header = preload("res://custom_resources/gradient_header_texture_lapis_lazuli.tres")
+@onready var lapis_lazuli_theme = preload("res://custom_resources/lapis_lazuli.tres")
 
 func on_character_name_changed(character):
 	$Background/VBC/EditorTabs/Encounters.refresh_character_names()
@@ -44,13 +44,13 @@ func load_project(file_text):
 	$Background/VBC/EditorTabs/Rehearsal.clear()
 	$StoryworldTroubleshooting/StoryworldValidationInterface.refresh()
 	storyworld.project_saved = true
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title)
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title)
 
 func save_project(save_as = false):
 	storyworld.save_project(current_project_path, save_as)
 	storyworld.project_saved = true
 	$Background/VBC/EditorTabs/Settings/Scroll/VBC/SavePathDisplay.set_text("Current project save path: " + current_project_path)
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title)
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title)
 	$Background/VBC/EditorTabs/Encounters.refresh_encounter_list()
 
 # On Startup
@@ -109,57 +109,58 @@ func new_storyworld():
 	$Background/VBC/EditorTabs/Rehearsal.clear()
 	$StoryworldTroubleshooting/StoryworldValidationInterface.refresh()
 	current_project_path = ""
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title)
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title)
 	storyworld.project_saved = true
 
 func _ready():
 	get_tree().set_auto_accept_quit(false)
 	$LoadFileDialog.set_current_dir(OS.get_executable_path().get_base_dir())
 	$LoadFileDialog.set_current_file("story.json")
-	$LoadFileDialog.set_filters(PoolStringArray(["*.json ; JSON Files"]))
+	$LoadFileDialog.set_filters(PackedStringArray(["*.json ; JSON Files"]))
 	$SaveAsFileDialog.set_current_dir(OS.get_executable_path().get_base_dir())
 	$SaveAsFileDialog.set_current_file("story.json")
-	$SaveAsFileDialog.set_filters(PoolStringArray(["*.json ; JSON Files"]))
+	$SaveAsFileDialog.set_filters(PackedStringArray(["*.json ; JSON Files"]))
 	$CompileFileDialog.set_current_dir(OS.get_executable_path().get_base_dir())
 	$CompileFileDialog.set_current_file("story.html")
-	$CompileFileDialog.set_filters(PoolStringArray(["*.html ; HTML Files","*.htm ; HTM Files"]))
+	$CompileFileDialog.set_filters(PackedStringArray(["*.html ; HTML Files","*.htm ; HTM Files"]))
 	$ExportToTxtFileDialog.set_current_dir(OS.get_executable_path().get_base_dir())
 	$ExportToTxtFileDialog.set_current_file("story.txt")
-	$ExportToTxtFileDialog.set_filters(PoolStringArray(["*.txt ; TXT Files"]))
-	$About.get_ok().set_text("Read MIT License")
-	$About.get_cancel().set_text("Close")
+	$ExportToTxtFileDialog.set_filters(PackedStringArray(["*.txt ; TXT Files"]))
+	$About.get_ok_button().set_text("Read MIT License")
+	$About.get_cancel_button().set_text("Close")
 	new_storyworld()
-	$Background/VBC/MenuBar/FileMenu.get_popup().connect("id_pressed", self, "_on_filemenu_item_pressed")
-	$Background/VBC/MenuBar/ViewMenu.get_popup().connect("id_pressed", self, "_on_viewmenu_item_pressed")
-	$Background/VBC/MenuBar/ViewMenu.connect("menu_input", self, "_on_viewmenu_item_toggled")
-	$Background/VBC/MenuBar/HelpMenu.get_popup().connect("id_pressed", self, "_on_helpmenu_item_pressed")
-	$Background/VBC/EditorTabs/Play.connect("encounter_edit_button_pressed", self, "display_encounter_by_id")
-	$Background/VBC/EditorTabs/Characters.connect("new_character_created", $Background/VBC/EditorTabs/Encounters, "add_character_to_lists")
-	$Background/VBC/EditorTabs/Characters.connect("character_deleted", $Background/VBC/EditorTabs/Encounters, "on_character_deleted")
-	$Background/VBC/EditorTabs/Characters.connect("character_name_changed", self, "on_character_name_changed")
-	$Background/VBC/EditorTabs/Characters.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/PersonalityModel, "refresh_property_list")
-	$Background/VBC/EditorTabs/Characters.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Encounters, "refresh_bnumber_property_lists")
-	$Background/VBC/EditorTabs/Characters.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/GraphView, "refresh_quick_scripting_interfaces")
-	$Background/VBC/EditorTabs/Encounters.connect("refresh_graphview", $Background/VBC/EditorTabs/GraphView, "refresh_graphview")
-	$Background/VBC/EditorTabs/Encounters.connect("refresh_encounter_list", $Background/VBC/EditorTabs/Spools, "refresh")
-	$Background/VBC/EditorTabs/Encounters.connect("refresh_encounter_list", $Background/VBC/EditorTabs/Overview, "refresh")
-	$Background/VBC/EditorTabs/Spools.connect("request_overview_change", $Background/VBC/EditorTabs/Overview, "refresh")
-	$Background/VBC/EditorTabs/Spools.connect("request_overview_change", $Background/VBC/EditorTabs/Encounters, "refresh_spool_lists")
-	$Background/VBC/EditorTabs/Spools.connect("encounter_load_requested", self, "display_encounter")
-	$Background/VBC/EditorTabs/Overview.connect("encounter_load_requested", self, "display_encounter")
-	$Background/VBC/EditorTabs/Overview.connect("refresh_graphview", $Background/VBC/EditorTabs/GraphView, "refresh_graphview")
-	$Background/VBC/EditorTabs/Overview.connect("refresh_encounter_list", $Background/VBC/EditorTabs/Spools, "refresh")
-	$Background/VBC/EditorTabs/Overview.connect("refresh_encounter_list", $Background/VBC/EditorTabs/Encounters, "refresh_encounter_list")
-	$Background/VBC/EditorTabs/GraphView.connect("load_encounter_from_graphview", self, "display_encounter")
-	$Background/VBC/EditorTabs/GraphView.connect("encounter_modified", $Background/VBC/EditorTabs/Encounters, "_on_encounter_modified_from_graphview")
-	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Characters, "refresh_property_list")
-	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/Encounters, "refresh_bnumber_property_lists")
-	$Background/VBC/EditorTabs/PersonalityModel.connect("refresh_authored_property_lists", $Background/VBC/EditorTabs/GraphView, "refresh_quick_scripting_interfaces")
-	$Background/VBC/EditorTabs/PersonalityModel.connect("property_deleted", $Background/VBC/EditorTabs/Characters, "refresh_property_list")
-	$Background/VBC/EditorTabs/PersonalityModel.connect("property_deleted", $Background/VBC/EditorTabs/Encounters, "on_property_deleted")
-	$Background/VBC/EditorTabs/PersonalityModel.connect("property_deleted", $Background/VBC/EditorTabs/GraphView, "refresh_quick_scripting_interfaces")
-	$About/VBC/VersionMessage.text = "SweepWeave v." + sweepweave_version_number
-	$CheckForUpdates/UpdateScreen/VBC/VersionMessage.text = "Current SweepWeave version: " + sweepweave_version_number
+	$Background/VBC/MenuBar/FileMenu.get_popup().id_pressed.connect(_on_filemenu_item_pressed)
+	$Background/VBC/MenuBar/ViewMenu.get_popup().id_pressed.connect(_on_viewmenu_item_pressed)
+	$Background/VBC/MenuBar/ViewMenu.menu_input.connect(_on_viewmenu_item_toggled)
+	$Background/VBC/MenuBar/HelpMenu.get_popup().id_pressed.connect(_on_helpmenu_item_pressed)
+	$Background/VBC/EditorTabs/Play.encounter_edit_button_pressed.connect(display_encounter_by_id)
+	$Background/VBC/EditorTabs/Characters.new_character_created.connect($Background/VBC/EditorTabs/Encounters.add_character_to_lists)
+	$Background/VBC/EditorTabs/Characters.character_deleted.connect($Background/VBC/EditorTabs/Encounters.on_character_deleted)
+	$Background/VBC/EditorTabs/Characters.character_name_changed.connect(on_character_name_changed)
+	$Background/VBC/EditorTabs/Characters.refresh_authored_property_lists.connect($Background/VBC/EditorTabs/PersonalityModel.refresh_property_list)
+	$Background/VBC/EditorTabs/Characters.refresh_authored_property_lists.connect($Background/VBC/EditorTabs/Encounters.refresh_bnumber_property_lists)
+	$Background/VBC/EditorTabs/Characters.refresh_authored_property_lists.connect($Background/VBC/EditorTabs/GraphView.refresh_quick_scripting_interfaces)
+	$Background/VBC/EditorTabs/Encounters.refresh_graphview.connect($Background/VBC/EditorTabs/GraphView.refresh_graphview)
+	$Background/VBC/EditorTabs/Encounters.encounter_updated.connect($Background/VBC/EditorTabs/Spools.refresh)
+	$Background/VBC/EditorTabs/Encounters.encounter_updated.connect($Background/VBC/EditorTabs/Overview.refresh)
+	$Background/VBC/EditorTabs/Spools.request_overview_change.connect($Background/VBC/EditorTabs/Overview.refresh)
+	$Background/VBC/EditorTabs/Spools.request_overview_change.connect($Background/VBC/EditorTabs/Encounters.refresh_spool_lists)
+	$Background/VBC/EditorTabs/Spools.encounter_load_requested.connect(display_encounter)
+	$Background/VBC/EditorTabs/Overview.encounter_load_requested.connect(display_encounter)
+	$Background/VBC/EditorTabs/Overview.refresh_graphview.connect($Background/VBC/EditorTabs/GraphView.refresh_graphview)
+	$Background/VBC/EditorTabs/Overview.refresh_encounter_list.connect($Background/VBC/EditorTabs/Spools.refresh)
+	$Background/VBC/EditorTabs/Overview.refresh_encounter_list.connect($Background/VBC/EditorTabs/Encounters.refresh_encounter_list)
+	$Background/VBC/EditorTabs/GraphView.load_encounter_from_graphview.connect(display_encounter)
+	$Background/VBC/EditorTabs/GraphView.encounter_modified.connect($Background/VBC/EditorTabs/Encounters._on_encounter_modified_from_graphview)
+	$Background/VBC/EditorTabs/GraphView.encounter_modified.connect($Background/VBC/EditorTabs/Spools.refresh)
+	$Background/VBC/EditorTabs/PersonalityModel.refresh_authored_property_lists.connect($Background/VBC/EditorTabs/Characters.refresh_property_list)
+	$Background/VBC/EditorTabs/PersonalityModel.refresh_authored_property_lists.connect($Background/VBC/EditorTabs/Encounters.refresh_bnumber_property_lists)
+	$Background/VBC/EditorTabs/PersonalityModel.refresh_authored_property_lists.connect($Background/VBC/EditorTabs/GraphView.refresh_quick_scripting_interfaces)
+	$Background/VBC/EditorTabs/PersonalityModel.property_deleted.connect($Background/VBC/EditorTabs/Characters.refresh_property_list)
+	$Background/VBC/EditorTabs/PersonalityModel.property_deleted.connect($Background/VBC/EditorTabs/Encounters.on_property_deleted)
+	$Background/VBC/EditorTabs/PersonalityModel.property_deleted.connect($Background/VBC/EditorTabs/GraphView.refresh_quick_scripting_interfaces)
+	$About/VBC/VersionMessage.set_text("SweepWeave v." + sweepweave_version_number)
+	$CheckForUpdates/UpdateScreen/VBC/VersionMessage.set_text("Current SweepWeave version: " + sweepweave_version_number)
 	$CheckForUpdates/UpdateScreen.sweepweave_version_number = sweepweave_version_number
 	$Background/VBC/EditorTabs.set_tab_title(4, "Personality Model")
 	$Background/VBC/EditorTabs.set_tab_title(7, "Graph View")
@@ -174,7 +175,7 @@ func _ready():
 #GUI Functions
 
 func _notification(what):
-	if (what == MainLoop.NOTIFICATION_WM_QUIT_REQUEST):
+	if (what == NOTIFICATION_WM_CLOSE_REQUEST):
 		if (false == storyworld.project_saved):
 			$ConfirmQuit.popup_centered()
 		else:
@@ -186,24 +187,20 @@ func _on_ConfirmQuit_confirmed():
 func _input(event):
 	if event.is_action_pressed("project_save_as"):
 		#This check must come before the Control + S check, otherwise Control + S will take precedence.
-		print("Control + Alt + S pressed")
 		$SaveAsFileDialog.invalidate()
 		$SaveAsFileDialog.popup_centered()
 	elif event.is_action_pressed("project_save_overwrite"):
-		print("Control + S pressed")
 		if ("" != current_project_path):
 			save_project()
 		else:
 			$SaveAsFileDialog.invalidate()
 			$SaveAsFileDialog.popup_centered()
 	elif event.is_action_pressed("project_new"):
-		print("Control + N pressed")
 		if(false == storyworld.project_saved):
 			$ConfirmNewStoryworld.popup_centered()
 		else:
 			new_storyworld()
 	elif event.is_action_pressed("project_load"):
-		print("Control + O pressed")
 		if(false == storyworld.project_saved):
 			$ConfirmOpenWhenUnsaved.popup_centered()
 		else:
@@ -215,7 +212,7 @@ func log_update(encounter = null):
 	if (null != encounter):
 		encounter.log_update()
 	storyworld.log_update()
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
 
 func _on_filemenu_item_pressed(id):
@@ -319,12 +316,14 @@ func _on_ConfirmOpenWhenUnsaved_confirmed():
 	$LoadFileDialog.popup_centered()
 
 func _on_LoadFileDialog_file_selected(path):
-	current_project_path = path
-	var file = File.new()
-	file.open(path, 1)
-	var json_string = file.get_as_text().replacen("var storyworld_data = ", "")
-	load_project(json_string)
-	file.close()
+	if not FileAccess.file_exists(path):
+		return # Error: File not found.
+	var file = FileAccess.open(path, FileAccess.READ)
+	if (null != file):
+		current_project_path = path
+		var json_string = file.get_as_text()
+		load_project(json_string)
+		file.close()
 
 func _on_SaveAsFileDialog_file_selected(path):
 	current_project_path = path
@@ -386,4 +385,4 @@ func set_gui_theme(theme_name):
 	$Background/VBC/EditorTabs/Documentation.set_gui_theme(theme_name, theme_background_colors[theme_name])
 	$Background/VBC/EditorTabs/GraphView.set_gui_theme(theme_name, theme_background_colors[theme_name])
 	$Background/VBC/EditorTabs/Play.set_gui_theme(theme_name, theme_background_colors[theme_name])
-
+	$Background/VBC/EditorTabs/Rehearsal.set_gui_theme(theme_name, theme_background_colors[theme_name])

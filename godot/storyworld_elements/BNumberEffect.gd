@@ -71,14 +71,14 @@ func data_to_string():
 	result += "."
 	return result
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	if (!(assignee is BNumberPointer and assignment_script is ScriptManager)):
 		print ("Error, attempted to compile invalid Setter.")
 		return null
 	var output = {}
 	output["effect_type"] = effect_type
-	output["Set"] = assignee.compile(parent_storyworld, include_editor_only_variables)
-	output["to"] = assignment_script.compile(parent_storyworld, include_editor_only_variables)
+	output["Set"] = assignee.compile(_parent_storyworld, _include_editor_only_variables)
+	output["to"] = assignment_script.compile(_parent_storyworld, _include_editor_only_variables)
 	return output
 
 func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
@@ -105,7 +105,7 @@ func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
 	else:
 		return false
 
-func load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load):
+func load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load):
 	clear()
 	if (data_to_load.has_all(["Set", "to"])):
 		if (data_to_load["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == data_to_load["Set"]["pointer_type"] and TYPE_STRING == typeof(data_to_load["Set"]["character"]) and storyworld.character_directory.has(data_to_load["Set"]["character"])):
@@ -122,19 +122,19 @@ func load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load):
 					output_datatype = sw_script_data_types.BNUMBER
 				elif (assignee.output_type == sw_script_data_types.BOOLEAN):
 					output_datatype = sw_script_data_types.BOOLEAN
-			script.load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load["to"], output_datatype)
+			script.load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load["to"], output_datatype)
 			assignment_script = script
 	if (assignee is BNumberPointer and assignment_script is ScriptManager):
 		return true
 	else:
 		return false
 
-func validate(intended_script_output_datatype):
+func validate(_intended_script_output_datatype):
 	var validation_report = ""
 	if (null == assignee):
 		validation_report += "Effect \"set\" operand is null."
 	elif (assignee is SWPointer):
-		var set_report = assignee.validate(intended_script_output_datatype)
+		var set_report = assignee.validate(_intended_script_output_datatype)
 		if ("Passed." != set_report):
 			validation_report += "Effect \"set\" operand errors:\n" + set_report
 		if (null == assignment_script):

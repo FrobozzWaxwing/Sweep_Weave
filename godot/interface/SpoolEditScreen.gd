@@ -11,14 +11,14 @@ signal request_overview_change()
 signal encounter_load_requested(encounter)
 
 func _ready():
-	$Background/HBC/Column1/Spools.connect("moved_item", self, "_on_Spool_rearranged_via_draganddrop")
+	$Background/HBC/Column1/Spools.item_moved.connect(_on_Spool_rearranged_via_draganddrop)
 	if (0 < $Background/HBC/Column3/SortBar/AddableSortMenu.get_item_count()):
 		$Background/HBC/Column3/SortBar/AddableSortMenu.select(0)
 
 func refresh():
 	if (null != storyworld):
 		refresh_spools_list()
-		if (!storyworld.spools.empty()):
+		if (!storyworld.spools.is_empty()):
 			display_spool(storyworld.spools.front())
 		else:
 			current_spool = null
@@ -55,10 +55,10 @@ func display_spool(spool:Spool):
 		$Background/HBC/NoSpoolColumn.visible = false
 		set_current_spool(spool)
 		$Background/HBC/Column2/HBC/SpoolNameEdit.text = spool.spool_name
-		$Background/HBC/Column2/HBC/SpoolStartsActiveCheckBox.pressed = spool.starts_active
+		$Background/HBC/Column2/HBC/SpoolStartsActiveCheckBox.button_pressed = spool.starts_active
 		$Background/HBC/Column2/CurrentSpoolEncounterList.clear()
 		var index = 0
-		spool.encounters.sort_custom(EncounterSorter, "sort_desirability")
+		spool.encounters.sort_custom(Callable(EncounterSorter, "sort_desirability"))
 		for encounter in spool.encounters:
 			$Background/HBC/Column2/CurrentSpoolEncounterList.add_item(encounter.get_listable_text())
 			$Background/HBC/Column2/CurrentSpoolEncounterList.set_item_metadata(index, encounter)
@@ -66,7 +66,7 @@ func display_spool(spool:Spool):
 		refresh_addable_encounters()
 
 func load_and_focus_first_spool():
-	if (!storyworld.spools.empty()):
+	if (!storyworld.spools.is_empty()):
 		display_spool(storyworld.spools.front())
 		$Background/HBC/Column1/Spools.select_first_item()
 
@@ -120,7 +120,7 @@ func _on_SpoolNameEdit_text_changed(new_text):
 	refresh_spools_list()
 
 func _on_SpoolStartsActiveCheckBox_pressed():
-	current_spool.starts_active = $Background/HBC/Column2/HBC/SpoolStartsActiveCheckBox.pressed
+	current_spool.starts_active = $Background/HBC/Column2/HBC/SpoolStartsActiveCheckBox.is_pressed()
 
 func add_encounter_to_current_spool(encounter:Encounter):
 	if (!currently_spooled_encounters.has(encounter.id)):
@@ -149,11 +149,11 @@ func _on_AddEncounterButton_pressed():
 	#Log update:
 	current_spool.log_update()
 	storyworld.log_update()
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
 	#Refresh display:
 	display_spool(current_spool)
-	emit_signal("request_overview_change")
+	request_overview_change.emit()
 
 func _on_AddableEncounters_item_activated(index):
 	if (null == current_spool):
@@ -164,11 +164,11 @@ func _on_AddableEncounters_item_activated(index):
 		#Log update:
 		current_spool.log_update()
 		storyworld.log_update()
-		OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+		get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 		storyworld.project_saved = false
 		#Refresh display:
 		display_spool(current_spool)
-		emit_signal("request_overview_change")
+		request_overview_change.emit()
 
 func _on_AddableEncounters_multi_selected(index, selected):
 	refresh_add_encounter_button()
@@ -192,13 +192,13 @@ func _on_SpoolDeletionConfirmationDialog_confirmed():
 		storyworld.delete_spool(spool_to_delete)
 		#Log update:
 		storyworld.log_update()
-		OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+		get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 		storyworld.project_saved = false
 		refresh_spools_list()
-		if (!storyworld.spools.empty()):
+		if (!storyworld.spools.is_empty()):
 			display_spool(storyworld.spools.front())
 			$Background/HBC/Column1/Spools.select_first_item()
-		emit_signal("request_overview_change")
+		request_overview_change.emit()
 
 func _on_Spool_rearranged_via_draganddrop(item, from_index, to_index):
 	if (null == storyworld):
@@ -219,38 +219,38 @@ func _on_RemoveEncounterButton_pressed():
 		var encounter = $Background/HBC/Column2/CurrentSpoolEncounterList.get_item_metadata(index)
 		if (null != encounter):
 			remove_encounter_from_current_spool(encounter)
-	if (!selected_indices.empty()):
+	if (!selected_indices.is_empty()):
 		#Log update:
 		current_spool.log_update()
 		storyworld.log_update()
-		OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+		get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 		storyworld.project_saved = false
 		#Refresh display:
 		display_spool(current_spool)
-		emit_signal("request_overview_change")
+		request_overview_change.emit()
 
 func _on_CurrentSpoolEncounterList_item_activated(index):
 	var encounter = $Background/HBC/Column2/CurrentSpoolEncounterList.get_item_metadata(index)
 	if (null != encounter and encounter is Encounter):
-		emit_signal("encounter_load_requested", encounter)
+		encounter_load_requested.emit(encounter)
 
 func _on_AddableSearch_text_entered(new_text):
 	col3_searchterm = new_text
 	refresh_addable_encounters()
 
-onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
-onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
-onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
-onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
-onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
-onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
-onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
-onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
+@onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
+@onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
+@onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
+@onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
+@onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
+@onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
+@onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
+@onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
 
 func refresh_sort_icon():
 	var sort_index = $Background/HBC/Column3/SortBar/AddableSortMenu.get_selected()
 	var sort_method = $Background/HBC/Column3/SortBar/AddableSortMenu.get_popup().get_item_text(sort_index)
-	var reversed = $Background/HBC/Column3/SortBar/AddableToggleReverseButton.pressed
+	var reversed = $Background/HBC/Column3/SortBar/AddableToggleReverseButton.is_pressed()
 	if (light_mode):
 		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
 			if (reversed):
@@ -279,7 +279,7 @@ func _on_AddableSortMenu_item_selected(index):
 	if ("Word Count" == sort_method):
 		for encounter in storyworld.encounters:
 			encounter.wordcount() #Update recorded wordcount of each encounter.
-	var reversed = $Background/HBC/Column3/SortBar/AddableToggleReverseButton.pressed
+	var reversed = $Background/HBC/Column3/SortBar/AddableToggleReverseButton.is_pressed()
 	storyworld.sort_encounters(sort_method, reversed)
 	refresh_addable_encounters()
 	refresh_sort_icon()
@@ -293,10 +293,10 @@ func _on_AddableToggleReverseButton_toggled(button_pressed):
 
 #GUI Themes:
 
-onready var add_icon_light = preload("res://icons/add.svg")
-onready var add_icon_dark = preload("res://icons/add_dark.svg")
-onready var delete_icon_light = preload("res://icons/delete.svg")
-onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
+@onready var add_icon_light = preload("res://icons/add.svg")
+@onready var add_icon_dark = preload("res://icons/add_dark.svg")
+@onready var delete_icon_light = preload("res://icons/delete.svg")
+@onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	$Background.color = background_color

@@ -4,10 +4,10 @@ var storyworld = null
 var script_to_edit = null
 var current_operator = null
 var allow_root_character_editing = false
-var allow_coefficient_editing = false
 var bnumberpointer_editor_scene = load("res://interface/BNumberPropertySelector.tscn")
 var bnumberconstant_editor_scene = load("res://interface/BNumberConstantEditingInterface.tscn")
 var spool_selector_scene = load("res://interface/SpoolSelector.tscn")
+var default_bnumber_property = null # Used when creating character effects to fill in default values.
 
 #GUI theme variables:
 var gui_background_color = Color(0.941406, 0.941406, 0.941406)
@@ -96,7 +96,7 @@ func load_operator(operator):
 		operator_editing_interface.add_item("Greater than or Equal to")
 		operator_editing_interface.add_item("Less than")
 		operator_editing_interface.add_item("Less than or Equal to")
-		operator_editing_interface.connect("item_selected", self, "on_comparator_changed")
+		operator_editing_interface.item_selected.connect(on_comparator_changed)
 		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 		operator_editing_interface.select(operator.operator_subtype)
 	elif (operator is BooleanComparator):
@@ -104,37 +104,36 @@ func load_operator(operator):
 		var operator_editing_interface = OptionButton.new()
 		operator_editing_interface.add_item("And")
 		operator_editing_interface.add_item("Or")
-		operator_editing_interface.connect("item_selected", self, "on_comparator_changed")
+		operator_editing_interface.item_selected.connect(on_comparator_changed)
 		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 		operator_editing_interface.select(operator.operator_subtype)
 	elif (operator is BNumberConstant):
 		$Background/HBC/VBC1/OperatorEditPanel.visible = true
-		var operator_editing_interface = bnumberconstant_editor_scene.instance()
+		var operator_editing_interface = bnumberconstant_editor_scene.instantiate()
 		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 		operator_editing_interface.set_reference_operator(operator)
 		operator_editing_interface.set_layout("Bounded number constant:", 2)
-		operator_editing_interface.connect("bnumber_value_changed", self, "on_bnumber_constant_changed")
+		operator_editing_interface.bnumber_value_changed.connect(on_bnumber_constant_changed)
 	elif (operator is BNumberPointer):
 		$Background/HBC/VBC1/OperatorEditPanel.visible = true
-		var operator_editing_interface = bnumberpointer_editor_scene.instance()
+		var operator_editing_interface = bnumberpointer_editor_scene.instantiate()
 		operator_editing_interface.storyworld = storyworld
 		operator_editing_interface.reset()
 		operator_editing_interface.allow_root_character_editing = allow_root_character_editing
-		operator_editing_interface.allow_coefficient_editing = allow_coefficient_editing
 		operator_editing_interface.selected_property.set_as_copy_of(operator)
 		operator_editing_interface.refresh()
-		operator_editing_interface.connect("bnumber_property_selected", self, "on_pointer_changed")
+		operator_editing_interface.bnumber_property_selected.connect(on_pointer_changed)
 		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 	elif (operator is SpoolStatusPointer):
 		$Background/HBC/VBC1/OperatorEditPanel.visible = true
-		var operator_editing_interface = spool_selector_scene.instance()
+		var operator_editing_interface = spool_selector_scene.instantiate()
 		operator_editing_interface.storyworld = storyworld
 		#Set the interface up to use a SpoolStatusPointer, rather than a SpoolPointer.
 		operator_editing_interface.reset("SpoolStatusPointer")
 		operator_editing_interface.allow_negation = true
 		operator_editing_interface.selected_pointer.set_as_copy_of(operator)
 		operator_editing_interface.refresh()
-		operator_editing_interface.connect("spool_selected", self, "on_pointer_changed")
+		operator_editing_interface.spool_selected.connect(on_pointer_changed)
 		$Background/HBC/VBC1/OperatorEditPanel.add_child(operator_editing_interface)
 	else:
 		$Background/HBC/VBC1/OperatorEditPanel.visible = false
@@ -148,10 +147,7 @@ func replace_element(old_element, new_element):
 		if (parent is SWOperator):
 			parent.operands[index] = new_element
 		elif (parent is ScriptManager):
-			if (parent.contents is SWScriptElement):
-				parent.contents = new_element
-			elif (TYPE_ARRAY == typeof(parent.contents)):
-				parent.contents[index] = new_element
+			parent.contents = new_element
 		new_element.parent_operator = parent
 		new_element.script_index = index
 		old_element.clear()
@@ -193,13 +189,13 @@ func on_comparator_changed(new_value):
 	elif (current_operator is BooleanComparator and TYPE_INT == typeof(new_value)):
 		current_operator.operator_subtype = new_value
 	refresh_element_text(current_operator)
-	emit_signal("sw_script_changed", script_to_edit)
+	sw_script_changed.emit(script_to_edit)
 
 func on_bnumber_constant_changed(element, new_value):
-	if (element is BNumberConstant and (TYPE_INT == typeof(new_value) or TYPE_REAL == typeof(new_value))):
+	if (element is BNumberConstant and (TYPE_INT == typeof(new_value) or TYPE_FLOAT == typeof(new_value))):
 		element.set_value(new_value)
 	refresh_element_text(element)
-	emit_signal("sw_script_changed", script_to_edit)
+	sw_script_changed.emit(script_to_edit)
 
 func on_pointer_changed(new_value):
 	if (current_operator is BNumberPointer and new_value is BNumberPointer):
@@ -207,7 +203,7 @@ func on_pointer_changed(new_value):
 	elif (current_operator is SpoolStatusPointer and new_value is SpoolStatusPointer):
 		current_operator.set_as_copy_of(new_value)
 	refresh_element_text(current_operator)
-	emit_signal("sw_script_changed", script_to_edit)
+	sw_script_changed.emit(script_to_edit)
 
 func _on_AvailableOperatorList_item_activated(index):
 	var operator_class = $Background/HBC/AvailableOperatorList.get_item_text(index)
@@ -229,7 +225,7 @@ func _on_AvailableOperatorList_item_activated(index):
 			$EventSelectionDialog/EventSelectionInterface.refresh()
 			$EventSelectionDialog.popup_centered()
 		"Spool Status":
-			if (!storyworld.spools.empty()):
+			if (!storyworld.spools.is_empty()):
 				new_element = SpoolStatusPointer.new(storyworld.spools.front(), false) #Second value, (negated,) being false means that the spool being active causes the pointer to return true.
 				replace_element(current_operator, new_element)
 				change_made = true
@@ -349,7 +345,10 @@ func _on_AvailableOperatorList_item_activated(index):
 			replace_element(current_operator, new_element)
 			change_made = true
 		"Nudge":
-			new_element = NudgeOperator.new(storyworld.create_default_bnumber_pointer(), BNumberConstant.new(0))
+			var default_pointer = storyworld.create_default_bnumber_pointer()
+			if (null != default_bnumber_property):
+				default_pointer.set_as_copy_of(default_bnumber_property)
+			new_element = NudgeOperator.new(default_pointer, BNumberConstant.new(0))
 			replace_element(current_operator, new_element)
 			change_made = true
 		#Add and delete
@@ -389,7 +388,7 @@ func _on_AvailableOperatorList_item_activated(index):
 	if (change_made):
 		refresh_script_display()
 		load_operator(new_element)
-		emit_signal("sw_script_changed", script_to_edit)
+		sw_script_changed.emit(script_to_edit)
 
 func _on_EventSelectionDialog_confirmed():
 	if (current_operator is SWScriptElement and (current_operator.sw_script_data_types.VARIANT == current_operator.output_type or current_operator.sw_script_data_types.BOOLEAN == current_operator.output_type)):
@@ -401,7 +400,7 @@ func _on_EventSelectionDialog_confirmed():
 		replace_element(current_operator, new_element)
 		refresh_script_display()
 		load_operator(new_element)
-		emit_signal("sw_script_changed", script_to_edit)
+		sw_script_changed.emit(script_to_edit)
 
 #GUI Themes:
 

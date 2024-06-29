@@ -137,9 +137,9 @@ func step_playthrough(leaf:HB_Record):
 	turn = leaf.turn
 	if (null != leaf.encounter):
 		leaf.encounter.reachable = true
-	if (leaf.explored_branches.empty() and leaf.unexplored_branches.empty()):
+	if (leaf.explored_branches.is_empty() and leaf.unexplored_branches.is_empty()):
 		var options = find_open_options(leaf)
-		if (options.empty()):
+		if (options.is_empty()):
 			leaf.set_as_ending_leaf()
 		else:
 			for option in options:
@@ -214,7 +214,7 @@ func rehearse_depth_first():
 			#All paths have been explored and we have returned to the beginning. Rehearsal complete.
 			return true
 	else:
-		while (!current_page.unexplored_branches.empty()):
+		while (!current_page.unexplored_branches.is_empty()):
 			var branch = current_page.unexplored_branches.pop_back()
 			current_page.explored_branches.append(branch)
 			if (branch.is_an_ending_leaf):

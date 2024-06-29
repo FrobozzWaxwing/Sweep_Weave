@@ -9,6 +9,9 @@ enum clipboard_task_types {NONE, CUT, COPY}
 var clipboard_task = clipboard_task_types.NONE
 enum clippable_item_types {OPTION, REACTION, EFFECT}
 
+signal refresh_graphview()
+signal encounter_updated()
+
 func _init():
 	pass
 
@@ -25,21 +28,21 @@ func clip(items):
 	clipped_originals = items
 	for item in items:
 		if (item is Option):
-			var copy = Option.new(null, "", "")
-			copy.set_as_copy_of(item, false)
-			clipped_copies.append(copy)
+			var item_copy = Option.new(null, "", "")
+			item_copy.set_as_copy_of(item, false)
+			clipped_copies.append(item_copy)
 		elif (item is Reaction):
-			var copy = Reaction.new(null, "", "")
-			copy.set_as_copy_of(item, false)
-			clipped_copies.append(copy)
+			var item_copy = Reaction.new(null, "", "")
+			item_copy.set_as_copy_of(item, false)
+			clipped_copies.append(item_copy)
 		elif (item is BNumberEffect):
-			var copy = BNumberEffect.new()
-			copy.set_as_copy_of(item)
-			clipped_copies.append(copy)
+			var item_copy = BNumberEffect.new()
+			item_copy.set_as_copy_of(item)
+			clipped_copies.append(item_copy)
 		elif (item is SpoolEffect):
-			var copy = SpoolEffect.new()
-			copy.set_as_copy_of(item)
-			clipped_copies.append(copy)
+			var item_copy = SpoolEffect.new()
+			item_copy.set_as_copy_of(item)
+			clipped_copies.append(item_copy)
 
 func cut(items):
 	clip(items)
@@ -54,12 +57,12 @@ func log_update(encounter = null):
 	if (null != encounter):
 		encounter.log_update()
 	storyworld.log_update()
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	#get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
-	emit_signal("refresh_encounter_list")
+	encounter_updated.emit()
 
 func delete_clipped_originals():
-	if (clipped_originals.empty()):
+	if (clipped_originals.is_empty()):
 		return
 	for item in clipped_originals:
 		if (item is Option):
@@ -70,7 +73,7 @@ func delete_clipped_originals():
 				log_update(item.encounter)
 			item.clear()
 			item.call_deferred("free")
-			emit_signal("refresh_graphview")
+			refresh_graphview.emit()
 		elif (item is Reaction):
 			storyworld.delete_reaction_from_scripts(item)
 			if (null != item.option):
@@ -79,7 +82,7 @@ func delete_clipped_originals():
 				log_update(item.option.encounter)
 			item.clear()
 			item.call_deferred("free")
-			emit_signal("refresh_graphview")
+			refresh_graphview.emit()
 		elif (item is BNumberEffect):
 			if (null != item.cause):
 				item.cause.after_effects.erase(item)
@@ -101,19 +104,19 @@ func paste():
 		return items_to_paste
 	for item in clipped_copies:
 		if (item is Option):
-			var copy = storyworld.create_new_generic_option(null)
-			copy.set_as_copy_of(item, false)
-			items_to_paste.append(copy)
+			var item_copy = storyworld.create_new_generic_option(null)
+			item_copy.set_as_copy_of(item, false)
+			items_to_paste.append(item_copy)
 		elif (item is Reaction):
-			var copy = storyworld.create_new_generic_reaction(null)
-			copy.set_as_copy_of(item, false)
-			items_to_paste.append(copy)
+			var item_copy = storyworld.create_new_generic_reaction(null)
+			item_copy.set_as_copy_of(item, false)
+			items_to_paste.append(item_copy)
 		elif (item is BNumberEffect):
-			var copy = BNumberEffect.new()
-			copy.set_as_copy_of(item)
-			items_to_paste.append(copy)
+			var item_copy = BNumberEffect.new()
+			item_copy.set_as_copy_of(item)
+			items_to_paste.append(item_copy)
 		elif (item is SpoolEffect):
-			var copy = SpoolEffect.new()
-			copy.set_as_copy_of(item)
-			items_to_paste.append(copy)
+			var item_copy = SpoolEffect.new()
+			item_copy.set_as_copy_of(item)
+			items_to_paste.append(item_copy)
 	return items_to_paste

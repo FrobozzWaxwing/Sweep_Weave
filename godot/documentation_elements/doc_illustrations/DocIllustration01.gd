@@ -7,9 +7,9 @@ var branch_y = null
 
 func _ready():
 	$VBC/Tree.set_column_expand(0, true)
-	$VBC/Tree.set_column_min_width(0, 4)
+	$VBC/Tree.set_column_custom_minimum_width(0, 4)
 	$VBC/Tree.set_column_expand(1, true)
-	$VBC/Tree.set_column_min_width(1, 1)
+	$VBC/Tree.set_column_custom_minimum_width(1, 1)
 	branch_divide = $VBC/Tree.create_item()
 	branch_divide.set_text(0, "Divide")
 	branch_add = $VBC/Tree.create_item(branch_divide)
@@ -30,7 +30,7 @@ func _ready():
 	two.set_text(0, "2")
 	two.set_text(1, "2")
 	refresh()
-	$VBC/Tree.connect("item_edited", self, "refresh")
+	$VBC/Tree.item_edited.connect(refresh)
 
 func refresh():
 	var sum = branch_x.get_range(1) + branch_y.get_range(1)

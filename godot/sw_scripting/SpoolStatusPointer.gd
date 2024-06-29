@@ -11,7 +11,7 @@ func _init(in_spool = null, in_negated = false):
 		spool = in_spool
 	negated = in_negated
 
-static func get_pointer_type():
+func get_pointer_type():
 	return "Spool Status Pointer"
 
 func get_value():
@@ -44,7 +44,7 @@ func clear():
 	spool = null
 	negated = false
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Pointer"
 	output["pointer_type"] = get_pointer_type()
@@ -66,7 +66,7 @@ func data_to_string():
 	else:
 		return "Invalid Spool Status Pointer"
 
-func validate(intended_script_output_datatype):
+func validate(_intended_script_output_datatype):
 	var report = ""
 	#Check spool:
 	if (null == spool):

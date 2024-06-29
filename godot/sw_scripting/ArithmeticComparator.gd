@@ -13,7 +13,7 @@ func _init(in_operator_subtype = "GT", in_x = null, in_y = null):
 	add_operand(in_x)
 	add_operand(in_y)
 
-static func get_operator_type():
+func get_operator_type():
 	return "Arithmetic Comparator"
 
 func get_value():
@@ -22,7 +22,7 @@ func get_value():
 		print ("Warning: arithmetic comparator has no operands.")
 	var x = evaluate_operand_at_index(0)
 	var y = evaluate_operand_at_index(1)
-	if ((TYPE_INT == typeof(x) or TYPE_REAL == typeof(x)) and (TYPE_INT == typeof(y) or TYPE_REAL == typeof(y))):
+	if ((TYPE_INT == typeof(x) or TYPE_FLOAT == typeof(x)) and (TYPE_INT == typeof(y) or TYPE_FLOAT == typeof(y))):
 		if (operator_subtypes.GT == operator_subtype):
 			output = (x > y)
 		elif (operator_subtypes.GTE == operator_subtype):
@@ -42,7 +42,7 @@ func get_and_report_value():
 		print ("Warning: arithmetic comparator has no operands.")
 	var x = evaluate_and_report_operand_at_index(0)
 	var y = evaluate_and_report_operand_at_index(1)
-	if ((TYPE_INT == typeof(x) or TYPE_REAL == typeof(x)) and (TYPE_INT == typeof(y) or TYPE_REAL == typeof(y))):
+	if ((TYPE_INT == typeof(x) or TYPE_FLOAT == typeof(x)) and (TYPE_INT == typeof(y) or TYPE_FLOAT == typeof(y))):
 		if (operator_subtypes.GT == operator_subtype):
 			output = (x > y)
 		elif (operator_subtypes.GTE == operator_subtype):
@@ -117,12 +117,12 @@ func data_to_string():
 	#var result = stringify_operand_at_index(0) + " " + operator_subtype_to_symbol() + " " + stringify_operand_at_index(1)
 	return result
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Operator"
 	output["operator_type"] = get_operator_type()
 	output["operator_subtype"] = operator_subtype_to_string()
-	if (!include_editor_only_variables):
+	if (!_include_editor_only_variables):
 		output["input_type"] = stringify_input_type()
 	output["operands"] = []
 	for operand in operands:
@@ -130,8 +130,8 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 			output["operands"].append(null)
 		elif (TYPE_BOOL == typeof(operand)):
 			output["operands"].append(operand)
-		elif (TYPE_INT == typeof(operand) or TYPE_REAL == typeof(operand)):
+		elif (TYPE_INT == typeof(operand) or TYPE_FLOAT == typeof(operand)):
 			output["operands"].append(bool(operand))
 		elif (operand is SWScriptElement):
-			output["operands"].append(operand.compile(parent_storyworld, include_editor_only_variables))
+			output["operands"].append(operand.compile(_parent_storyworld, _include_editor_only_variables))
 	return output

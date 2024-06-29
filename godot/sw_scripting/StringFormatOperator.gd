@@ -10,7 +10,7 @@ func _init(in_value = ""):
 	output_type = sw_script_data_types.STRING
 	set_value(in_value)
 
-static func get_operator_type():
+func get_operator_type():
 	return "String Format Operator"
 
 func get_value():
@@ -23,7 +23,7 @@ func set_value(in_value):
 		print ("Cannot set a string constant to a non-string value.")
 		value = ""
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = value
 	return output
 

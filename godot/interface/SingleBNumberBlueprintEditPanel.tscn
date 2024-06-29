@@ -16,115 +16,115 @@ color = Color( 0, 0.0627451, 0.12549, 1 )
 
 [node name="VBC" type="VBoxContainer" parent="ColorRect"]
 anchor_bottom = 1.0
-margin_left = 1.0
-margin_right = 281.0
+offset_left = 1.0
+offset_right = 281.0
 size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="ColorRect/VBC"]
-margin_right = 281.0
-margin_bottom = 14.0
+offset_right = 281.0
+offset_bottom = 14.0
 text = "Property Name:"
 
 [node name="NameEdit" type="LineEdit" parent="ColorRect/VBC"]
-margin_top = 18.0
-margin_right = 281.0
-margin_bottom = 42.0
+offset_top = 18.0
+offset_right = 281.0
+offset_bottom = 42.0
 placeholder_text = "[Unnamed Property]"
 placeholder_alpha = 0.4
 
 [node name="HBC" type="HBoxContainer" parent="ColorRect/VBC"]
-margin_top = 46.0
-margin_right = 281.0
-margin_bottom = 70.0
+offset_top = 46.0
+offset_right = 281.0
+offset_bottom = 70.0
 
 [node name="DepthLabel" type="Label" parent="ColorRect/VBC/HBC"]
-margin_top = 5.0
-margin_right = 43.0
-margin_bottom = 19.0
+offset_top = 5.0
+offset_right = 43.0
+offset_bottom = 19.0
 text = "Depth:"
 
 [node name="DepthEdit" type="SpinBox" parent="ColorRect/VBC/HBC"]
-margin_left = 47.0
-margin_right = 121.0
-margin_bottom = 24.0
+offset_left = 47.0
+offset_right = 121.0
+offset_bottom = 24.0
 max_value = 2.0
 
 [node name="Label3" type="Label" parent="ColorRect/VBC"]
-margin_top = 74.0
-margin_right = 281.0
-margin_bottom = 88.0
+offset_top = 74.0
+offset_right = 281.0
+offset_bottom = 88.0
 text = "Default Value:"
 
 [node name="DefaultValueEdit" type="SpinBox" parent="ColorRect/VBC"]
-margin_top = 92.0
-margin_right = 281.0
-margin_bottom = 116.0
+offset_top = 92.0
+offset_right = 281.0
+offset_bottom = 116.0
 min_value = -0.99
 max_value = 0.99
 step = 0.01
 
 [node name="AttributionTargetEdit" type="OptionButton" parent="ColorRect/VBC"]
-margin_top = 120.0
-margin_right = 281.0
-margin_bottom = 140.0
+offset_top = 120.0
+offset_right = 281.0
+offset_bottom = 140.0
 
 [node name="AffectedCharactersLabel" type="Label" parent="ColorRect/VBC"]
-margin_top = 144.0
-margin_right = 281.0
-margin_bottom = 158.0
+offset_top = 144.0
+offset_right = 281.0
+offset_bottom = 158.0
 text = "Who to apply property to:"
 
 [node name="AddCharacterButton" type="Button" parent="ColorRect/VBC"]
-margin_top = 162.0
-margin_right = 281.0
-margin_bottom = 182.0
+offset_top = 162.0
+offset_right = 281.0
+offset_bottom = 182.0
 text = "Add a character to affected characters."
 
 [node name="DeleteCharacterButton" type="Button" parent="ColorRect/VBC"]
-margin_top = 186.0
-margin_right = 281.0
-margin_bottom = 206.0
+offset_top = 186.0
+offset_right = 281.0
+offset_bottom = 206.0
 text = "Delete character from affected characters."
 
 [node name="AffectedCharactersList" type="ItemList" parent="ColorRect/VBC"]
-margin_top = 210.0
-margin_right = 281.0
-margin_bottom = 736.0
-rect_min_size = Vector2( 0, 64 )
+offset_top = 210.0
+offset_right = 281.0
+offset_bottom = 736.0
+custom_minimum_size = Vector2( 0, 64 )
 size_flags_vertical = 3
 select_mode = 1
 
 [node name="SelectNewAffectedCharacterWindow" type="ConfirmationDialog" parent="."]
-margin_right = 200.0
-margin_bottom = 70.0
-rect_min_size = Vector2( 200, 200 )
+offset_right = 200.0
+offset_bottom = 70.0
+custom_minimum_size = Vector2( 200, 200 )
 window_title = "Select new affected characters:"
 resizable = true
 
 [node name="NoCharactersAvailableMessage" type="Label" parent="SelectNewAffectedCharacterWindow"]
 visible = false
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 445.0
-margin_bottom = 164.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 445.0
+offset_bottom = 164.0
 text = "All characters in the storyworld are already affected by this property."
 
 [node name="PossibleNewAffectedCharactersList" type="ItemList" parent="SelectNewAffectedCharacterWindow"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 445.0
-margin_bottom = 164.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 445.0
+offset_bottom = 164.0
 select_mode = 1
 
 [node name="ConfirmRemoveAffectedCharactersWindow" type="ConfirmationDialog" parent="."]
-margin_right = 200.0
-margin_bottom = 70.0
+offset_right = 200.0
+offset_bottom = 70.0
 
 [node name="VBC" type="VBoxContainer" parent="ConfirmRemoveAffectedCharactersWindow"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 192.0
-margin_bottom = 34.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 192.0
+offset_bottom = 34.0
 
 [connection signal="text_changed" from="ColorRect/VBC/NameEdit" to="." method="_on_NameEdit_text_changed"]
 [connection signal="value_changed" from="ColorRect/VBC/HBC/DepthEdit" to="." method="_on_DepthEdit_value_changed"]

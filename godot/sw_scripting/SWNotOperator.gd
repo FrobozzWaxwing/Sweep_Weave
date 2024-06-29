@@ -10,7 +10,7 @@ func _init(in_operand = null):
 	if (null != in_operand):
 		add_operand(in_operand)
 
-static func get_operator_type():
+func get_operator_type():
 	return "Not"
 
 func get_value():

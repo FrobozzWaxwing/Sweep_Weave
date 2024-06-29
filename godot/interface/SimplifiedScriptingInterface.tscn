@@ -1,78 +1,74 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=4 format=3 uid="uid://bcfedplu40ews"]
 
-[ext_resource path="res://interface/SimplifiedScriptingInterface.gd" type="Script" id=1]
-[ext_resource path="res://interface/BNumberConstantEditingInterface.tscn" type="PackedScene" id=2]
-[ext_resource path="res://interface/BNumberPropertySelector.tscn" type="PackedScene" id=3]
+[ext_resource type="Script" path="res://interface/SimplifiedScriptingInterface.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c5o12u2b2afcq" path="res://interface/BNumberConstantEditingInterface.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://dbsyo01hjfm40" path="res://interface/BNumberPropertySelector.tscn" id="3"]
 
 [node name="Control" type="MarginContainer"]
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource( 1 )
+script = ExtResource("1")
 
 [node name="Rows" type="VBoxContainer" parent="."]
-margin_right = 1366.0
-margin_bottom = 736.0
+layout_mode = 2
 
 [node name="Title" type="Label" parent="Rows"]
-margin_right = 1366.0
-margin_bottom = 14.0
+layout_mode = 2
 size_flags_vertical = 5
 
 [node name="WeightDisplay" type="HBoxContainer" parent="Rows"]
-margin_top = 18.0
-margin_right = 1366.0
-margin_bottom = 63.0
+layout_mode = 2
 alignment = 1
 
 [node name="Label" type="Label" parent="Rows/WeightDisplay"]
-margin_top = 7.0
-margin_right = 28.0
-margin_bottom = 38.0
+layout_mode = 2
 size_flags_horizontal = 5
 text = "Trait
 #1"
-align = 1
 
-[node name="WeightSelector" parent="Rows/WeightDisplay" instance=ExtResource( 2 )]
-anchor_right = 0.0
-margin_left = 32.0
-margin_right = 1334.0
-margin_bottom = 45.0
-rect_min_size = Vector2( 0, 45 )
+[node name="WeightSelector" parent="Rows/WeightDisplay" instance=ExtResource("2")]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
 
 [node name="Label2" type="Label" parent="Rows/WeightDisplay"]
-margin_left = 1338.0
-margin_top = 7.0
-margin_right = 1366.0
-margin_bottom = 38.0
+layout_mode = 2
 text = "Trait
 #2"
-align = 1
 
 [node name="TraitsDisplay" type="HFlowContainer" parent="Rows"]
-margin_top = 67.0
-margin_right = 1366.0
-margin_bottom = 99.0
-rect_min_size = Vector2( 0, 32 )
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
 
-[node name="Trait1Selector" parent="Rows/TraitsDisplay" instance=ExtResource( 3 )]
-anchor_right = 0.0
-margin_right = 677.0
-margin_bottom = 32.0
-rect_min_size = Vector2( 0, 32 )
+[node name="Trait0" type="HBoxContainer" parent="Rows/TraitsDisplay"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NegationToggle" type="Button" parent="Rows/TraitsDisplay/Trait0"]
+custom_minimum_size = Vector2(16, 0)
+layout_mode = 2
+
+[node name="Selector" parent="Rows/TraitsDisplay/Trait0" instance=ExtResource("3")]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
 
 [node name="VSeparator" type="VSeparator" parent="Rows/TraitsDisplay"]
-margin_left = 681.0
-margin_right = 685.0
-margin_bottom = 32.0
+layout_mode = 2
 
-[node name="Trait2Selector" parent="Rows/TraitsDisplay" instance=ExtResource( 3 )]
-anchor_right = 0.0
-margin_left = 689.0
-margin_right = 1366.0
-margin_bottom = 32.0
-rect_min_size = Vector2( 0, 32 )
+[node name="Trait1" type="HBoxContainer" parent="Rows/TraitsDisplay"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NegationToggle" type="Button" parent="Rows/TraitsDisplay/Trait1"]
+custom_minimum_size = Vector2(16, 0)
+layout_mode = 2
+
+[node name="Selector" parent="Rows/TraitsDisplay/Trait1" instance=ExtResource("3")]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
 
 [connection signal="bnumber_value_changed" from="Rows/WeightDisplay/WeightSelector" to="." method="_on_WeightSelector_bnumber_value_changed"]
-[connection signal="bnumber_property_selected" from="Rows/TraitsDisplay/Trait1Selector" to="." method="_on_Trait1Selector_bnumber_property_selected"]
-[connection signal="bnumber_property_selected" from="Rows/TraitsDisplay/Trait2Selector" to="." method="_on_Trait2Selector_bnumber_property_selected"]
+[connection signal="pressed" from="Rows/TraitsDisplay/Trait0/NegationToggle" to="." method="_on_trait0_negation_toggle_pressed"]
+[connection signal="bnumber_property_selected" from="Rows/TraitsDisplay/Trait0/Selector" to="." method="_on_trait0_selector_bnumber_property_selected"]
+[connection signal="pressed" from="Rows/TraitsDisplay/Trait1/NegationToggle" to="." method="_on_trait1_negation_toggle_pressed"]
+[connection signal="bnumber_property_selected" from="Rows/TraitsDisplay/Trait1/Selector" to="." method="_on_trait1_selector_bnumber_property_selected"]

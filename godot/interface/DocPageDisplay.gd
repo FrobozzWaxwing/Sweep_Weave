@@ -22,18 +22,18 @@ func display(page):
 	for section in page.sections:
 		if (null != section.illustration):
 			if (0 <= section.illustration and section.illustration < illustrations.size()):
-				var illustration = illustrations[section.illustration].instance()
+				var illustration = illustrations[section.illustration].instantiate()
 				$Scroll/VBC.add_child(illustration)
 		var frame = RichTextLabel.new()
 		#The frame has to be added to the scene before any bbcode is appended; otherwise, special fonts, such as bold and italics, will not show up.
 		#Three guesses as to how I know. If you said "The documentation?", you now have two guesses. The documentation does not appear to specify this, unless I missed it somewhere.
 		$Scroll/VBC.add_child(frame)
 		#Set the textbox to expand so that all text is visible:
-		frame.set_fit_content_height(true)
+		frame.set_fit_content(true)
 		#Add text:
 		frame.set_use_bbcode(true)
-		frame.append_bbcode(section.text)
-		frame.connect("meta_clicked", self, "forward_meta_clicked")
+		frame.append_text(section.text)
+		frame.meta_clicked.connect(forward_meta_clicked)
 
 func forward_meta_clicked(meta):
-	emit_signal("meta_clicked", meta)
+	meta_clicked.emit(meta)

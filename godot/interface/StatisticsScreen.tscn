@@ -3,14 +3,14 @@
 [ext_resource path="res://interface/StatisticsScreen.gd" type="Script" id=2]
 
 [node name="VBC" type="VBoxContainer"]
-margin_right = 40.0
-margin_bottom = 40.0
+offset_right = 40.0
+offset_bottom = 40.0
 script = ExtResource( 2 )
 
 [node name="StatTree" type="Tree" parent="."]
-margin_right = 40.0
-margin_bottom = 40.0
-rect_min_size = Vector2( 0, 32 )
+offset_right = 40.0
+offset_bottom = 40.0
+custom_minimum_size = Vector2( 0, 32 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 2

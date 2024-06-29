@@ -48,12 +48,21 @@ func load_page(page):
 func load_documentation_from_file():
 	#Load data from file:
 	var path = "res://custom_resources/writing_with_sweepweave.json"
-	var file = File.new()
-	file.open(path, File.READ)
+	if not FileAccess.file_exists(path):
+		return # Error: File not found.
+	var file = FileAccess.open(path, FileAccess.READ)
+	if (null == file):
+		return # Error: Could not open file.
 	var file_text = file.get_as_text()
 	file.close()
 	clear_data()
-	documentation = JSON.parse(file_text).result
+	var json_parser = JSON.new()
+	var parse_result = json_parser.parse(file_text)
+	if not parse_result == OK:
+		var error_message = "JSON Parse Error: " + json_parser.get_error_message() + " at line " + str(json_parser.get_error_line())
+		print (error_message)
+		return # Error: Could not parse json.
+	documentation = json_parser.get_data()
 	#Translate dictionary into objects:
 	for chapter_data in documentation["chapters"]:
 		var chapter = DocChapter.new(chapter_data["title"])
@@ -128,10 +137,10 @@ func _on_PageText_meta_clicked(meta):
 
 #GUI Themes:
 
-onready var previous_icon_light = preload("res://icons/arrow-left.svg")
-onready var previous_icon_dark = preload("res://icons/arrow-left_dark.svg")
-onready var next_icon_light = preload("res://icons/arrow-right.svg")
-onready var next_icon_dark = preload("res://icons/arrow-right_dark.svg")
+@onready var previous_icon_light = preload("res://icons/arrow-left.svg")
+@onready var previous_icon_dark = preload("res://icons/arrow-left_dark.svg")
+@onready var next_icon_light = preload("res://icons/arrow-right.svg")
+@onready var next_icon_dark = preload("res://icons/arrow-right_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	match theme_name:

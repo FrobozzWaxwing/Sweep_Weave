@@ -13,7 +13,7 @@ func _init(in_encounter = null, in_option = null, in_reaction = null):
 	option = in_option
 	reaction = in_reaction
 
-static func get_pointer_type():
+func get_pointer_type():
 	return "Event Pointer"
 
 func clear():
@@ -56,7 +56,7 @@ func summarize():
 	output += "."
 	return output
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Pointer"
 	output["pointer_type"] = get_pointer_type()
@@ -65,7 +65,7 @@ func compile(parent_storyworld, include_editor_only_variables = false):
 		output["encounter"] = null
 	else:
 		output["encounter"] = encounter.id
-	if (include_editor_only_variables):
+	if (_include_editor_only_variables):
 		#Saving to json:
 		if (null == option):
 			output["option"] = null
@@ -112,7 +112,7 @@ func remap(storyworld):
 		reaction = null
 	return true
 
-func validate(intended_script_output_datatype):
+func validate(_intended_script_output_datatype):
 	var report = ""
 	#Check negated:
 	if (TYPE_BOOL != typeof(negated)):

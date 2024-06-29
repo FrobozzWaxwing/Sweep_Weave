@@ -9,7 +9,7 @@ func _init(in_operands = []):
 	for operand in in_operands:
 		add_operand(operand)
 
-static func get_operator_type():
+func get_operator_type():
 	return "Minimum of"
 
 func get_value():
@@ -19,7 +19,7 @@ func get_value():
 	else:
 		for operand in operands:
 			var operand_value = evaluate_operand(operand)
-			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
+			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_FLOAT == typeof(operand_value))):
 				if (null == output or operand_value < output):
 					output = operand_value
 	return output
@@ -31,7 +31,7 @@ func get_and_report_value():
 	else:
 		for operand in operands:
 			var operand_value = evaluate_and_report_operand(operand)
-			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
+			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_FLOAT == typeof(operand_value))):
 				if (null == output or operand_value < output):
 					output = operand_value
 	return output

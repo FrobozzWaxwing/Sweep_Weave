@@ -17,6 +17,9 @@ var occurrences = 0 #The number of times that this event has occurred on the cur
 var reachable = false #Used by the automated rehearsal system to keep track of whether or not an event can be reached by the player.
 var yielding_paths #The estimated number of possible paths through the storyworld that reach this event.
 
+var changes_cast = false
+var changes_spools = false
+
 func _init(in_option, in_id:String, in_text:String, in_desirability_script = null, in_graph_offset = Vector2(0, 0)):
 	option = in_option
 	id = in_id
@@ -80,22 +83,22 @@ func has_search_text(searchterm:String):
 	else:
 		return false
 
-func compile(parent_storyworld, include_editor_only_variables:bool = false):
+func compile(_parent_storyworld, _include_editor_only_variables:bool = false):
 	var result = {}
 	result["id"] = id
-	result["text_script"] = text_script.compile(parent_storyworld, include_editor_only_variables)
+	result["text_script"] = text_script.compile(_parent_storyworld, _include_editor_only_variables)
 	result["desirability_script"] = null
 	if (desirability_script is ScriptManager):
-		result["desirability_script"] = desirability_script.compile(parent_storyworld, include_editor_only_variables)
+		result["desirability_script"] = desirability_script.compile(_parent_storyworld, _include_editor_only_variables)
 	if (null == consequence):
 		result["consequence_id"] = "wild"
 	else:
 		result["consequence_id"] = consequence.id
 	result["after_effects"] = []
 	for change in after_effects:
-		result["after_effects"].append(change.compile(parent_storyworld, include_editor_only_variables))
+		result["after_effects"].append(change.compile(_parent_storyworld, _include_editor_only_variables))
 	#Editor only variables:
-	if (include_editor_only_variables):
+	if (_include_editor_only_variables):
 		result["graph_offset_x"] = graph_offset.x
 		result["graph_offset_y"] = graph_offset.y
 	return result
@@ -151,7 +154,7 @@ func set_as_copy_of(original, copy_id:bool = true):
 
 func is_parallel_to(sibling):
 	#Returns true if this reaction causes the same effects as the sibling in question, and false if some difference is detected.
-	if (!linked_scripts.empty() or !option.linked_scripts.empty()):
+	if (!linked_scripts.is_empty() or !option.linked_scripts.is_empty()):
 		return false
 	if (consequence != sibling.consequence):
 		return false

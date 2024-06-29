@@ -40,13 +40,13 @@ func _init(in_title = "New Storyworld", in_author = "Anonymous", in_sw_version =
 	storyworld_author = in_author
 	about_text = ScriptManager.new(StringConstant.new(""))
 	sweepweave_version_number = in_sw_version
-	creation_time = OS.get_unix_time()
-	modified_time = OS.get_unix_time()
+	creation_time = Time.get_unix_time_from_system()
+	modified_time = Time.get_unix_time_from_system()
 	ifid = IFIDGenerator.IFID_from_creation_time(creation_time)
 
 func unique_id(element_type = "encounter", length = 32):
 	var result = "%x" % unique_id_seeds[element_type]
-	result += "_" + str(OS.get_unix_time())
+	result += "_" + str(Time.get_unix_time_from_system())
 	result = result.sha1_text()
 	result = result.left(length)
 	unique_id_seeds[element_type] += 1
@@ -60,8 +60,8 @@ func clear():
 	sweepweave_version_number = "?"
 	storyworld_debug_mode_on = false
 	storyworld_display_mode = 1
-	creation_time = OS.get_unix_time()
-	modified_time = OS.get_unix_time()
+	creation_time = Time.get_unix_time_from_system()
+	modified_time = Time.get_unix_time_from_system()
 	ifid = IFIDGenerator.IFID_from_creation_time(creation_time)
 	language = "en"
 	rating = "general"
@@ -160,7 +160,7 @@ func add_all_characters_from(original):
 		newbie.set_as_copy_of(character, false) #create_mutual_links == false
 		newbie.creation_index = character.creation_index
 		newbie.creation_time = character.creation_time
-		newbie.modified_time = OS.get_unix_time()
+		newbie.modified_time = Time.get_unix_time_from_system()
 		newbie.remap(self)
 		add_character(newbie)
 
@@ -170,7 +170,7 @@ func import_characters(original_characters):
 		newbie.set_as_copy_of(character, false) #create_mutual_links == false
 		newbie.creation_index = character.creation_index
 		newbie.creation_time = character.creation_time
-		newbie.modified_time = OS.get_unix_time()
+		newbie.modified_time = Time.get_unix_time_from_system()
 		newbie.remap(self)
 		add_character(newbie)
 
@@ -228,6 +228,7 @@ func set_as_quickened_copy_of(original):
 	for encounter in original.encounters:
 		var encounter_copy = QuickEncounter.new(self, encounter)
 		add_encounter(encounter_copy)
+	var checklist_index = 0
 	for spool in original.spools:
 		var spool_copy = QuickSpool.new(self, spool)
 		for encounter in spool.encounters:
@@ -240,7 +241,10 @@ func set_as_quickened_copy_of(original):
 					spool_copy.sorted_encounters.append(quick_encounter)
 				else:
 					spool_copy.unsorted_encounters.append(quick_encounter)
-		spool_copy.sorted_encounters.sort_custom(EncounterSorter, "sort_desirability")
+				quick_encounter.connected_spools.append(spool_copy)
+				quick_encounter.checklist_id = checklist_index
+				checklist_index += 1
+		spool_copy.sorted_encounters.sort_custom(Callable(EncounterSorter, "sort_desirability"))
 		add_spool(spool_copy)
 	for encounter in encounters:
 		encounter.remap(self)
@@ -249,53 +253,53 @@ func sort_encounters(sort_method, reverse):
 	if (reverse):
 		match sort_method:
 			"Alphabetical":
-				encounters.sort_custom(EncounterSorter, "sort_z_a")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_z_a"))
 			"Creation Time":
-				encounters.sort_custom(EncounterSorter, "sort_r_created")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_created"))
 			"Modified Time":
-				encounters.sort_custom(EncounterSorter, "sort_r_modified")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_modified"))
 			"Option Count":
-				encounters.sort_custom(EncounterSorter, "sort_r_options")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_options"))
 			"Reaction Count":
-				encounters.sort_custom(EncounterSorter, "sort_r_reactions")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_reactions"))
 			"Effect Count":
-				encounters.sort_custom(EncounterSorter, "sort_r_effects")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_effects"))
 			"Characters":
 				for encounter in encounters:
-					encounter.connected_characters = encounter.connected_characters().values()
-					encounter.connected_characters.sort_custom(CharacterSorter, "sort_a_z")
-				encounters.sort_custom(EncounterSorter, "sort_r_characters")
+					encounter.connected_characters = encounter.get_connected_characters().values()
+					encounter.connected_characters.sort_custom(Callable(CharacterSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_characters"))
 			"Spools":
 				for encounter in encounters:
-					encounter.connected_spools.sort_custom(SpoolSorter, "sort_a_z")
-				encounters.sort_custom(EncounterSorter, "sort_r_spools")
+					encounter.connected_spools.sort_custom(Callable(SpoolSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_spools"))
 			"Word Count":
-				encounters.sort_custom(EncounterSorter, "sort_r_word_count")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_r_word_count"))
 	else:
 		match sort_method:
 			"Alphabetical":
-				encounters.sort_custom(EncounterSorter, "sort_a_z")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_a_z"))
 			"Creation Time":
-				encounters.sort_custom(EncounterSorter, "sort_created")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_created"))
 			"Modified Time":
-				encounters.sort_custom(EncounterSorter, "sort_modified")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_modified"))
 			"Option Count":
-				encounters.sort_custom(EncounterSorter, "sort_options")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_options"))
 			"Reaction Count":
-				encounters.sort_custom(EncounterSorter, "sort_reactions")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_reactions"))
 			"Effect Count":
-				encounters.sort_custom(EncounterSorter, "sort_effects")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_effects"))
 			"Characters":
 				for encounter in encounters:
-					encounter.connected_characters = encounter.connected_characters().values()
-					encounter.connected_characters.sort_custom(CharacterSorter, "sort_a_z")
-				encounters.sort_custom(EncounterSorter, "sort_characters")
+					encounter.connected_characters = encounter.get_connected_characters().values()
+					encounter.connected_characters.sort_custom(Callable(CharacterSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_characters"))
 			"Spools":
 				for encounter in encounters:
-					encounter.connected_spools.sort_custom(SpoolSorter, "sort_a_z")
-				encounters.sort_custom(EncounterSorter, "sort_spools")
+					encounter.connected_spools.sort_custom(Callable(SpoolSorter, "sort_a_z"))
+				encounters.sort_custom(Callable(EncounterSorter, "sort_spools"))
 			"Word Count":
-				encounters.sort_custom(EncounterSorter, "sort_word_count")
+				encounters.sort_custom(Callable(EncounterSorter, "sort_word_count"))
 
 func trace_referenced_events():
 	#Run through the storyworld and connect events to the scripts that reference them.

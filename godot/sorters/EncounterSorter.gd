@@ -160,6 +160,16 @@ static func sort_r_characters(a, b):
 	return false
 
 static func sort_spools(a, b):
+	if (b.connected_spools.is_empty()):
+		if (a.connected_spools.is_empty()):
+			if (a.title < b.title):
+				return true
+			elif (a.title == b.title && a.id < b.id):
+				return true
+			return false
+		return true
+	elif (a.connected_spools.is_empty()):
+		return false
 	var cursor = 0
 	while (a.connected_spools.size() > cursor and b.connected_spools.size() > cursor):
 		var name_a = a.connected_spools[cursor].spool_name
@@ -170,24 +180,38 @@ static func sort_spools(a, b):
 			return false
 		else:
 			cursor += 1
-	if a.connected_spools.size() < b.connected_spools.size():
+	if (a.connected_spools.size() < b.connected_spools.size()):
+		return true
+	if (a.calculate_desirability() > b.calculate_desirability()):
 		return true
 	return false
 
 static func sort_r_spools(a, b):
+	if (b.connected_spools.is_empty()):
+		if (a.connected_spools.is_empty()):
+			if (a.title < b.title):
+				return false
+			elif (a.title == b.title && a.id < b.id):
+				return false
+			return true
+		return false
+	elif (a.connected_spools.is_empty()):
+		return true
 	var cursor = 0
 	while (a.connected_spools.size() > cursor and b.connected_spools.size() > cursor):
 		var name_a = a.connected_spools[cursor].spool_name
 		var name_b = b.connected_spools[cursor].spool_name
-		if (name_a > name_b):
-			return true
-		elif (name_a < name_b):
+		if (name_a < name_b):
 			return false
+		elif (name_a > name_b):
+			return true
 		else:
 			cursor += 1
-	if a.connected_spools.size() > b.connected_spools.size():
-		return true
-	return false
+	if (a.connected_spools.size() < b.connected_spools.size()):
+		return false
+	if (a.calculate_desirability() > b.calculate_desirability()):
+		return false
+	return true
 
 static func sort_word_count(a, b):
 	if a.word_count > b.word_count:

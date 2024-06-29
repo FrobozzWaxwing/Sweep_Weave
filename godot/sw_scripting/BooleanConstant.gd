@@ -10,7 +10,7 @@ func _init(in_value):
 	output_type = sw_script_data_types.BOOLEAN
 	set_value(in_value)
 
-static func get_pointer_type():
+func get_pointer_type():
 	return "Boolean Constant"
 
 func get_value():
@@ -23,7 +23,7 @@ func set_value(in_value):
 		print ("Cannot set a boolean constant to a non-boolean value.")
 		value = null
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = value
 	return output
 

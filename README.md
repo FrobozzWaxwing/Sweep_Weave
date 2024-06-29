@@ -17,11 +17,11 @@ If you would like to help support me financially, you can do so through my Patre
 https://www.patreon.com/sasha_fenn
 
 Thanks to my patrons for their encouragement and support:
-Chris Conley
-Jóhannes Ævarsson
-Felipe Vega
-Pixel Brownie Software
-Craig Maloney
+* Chris Conley
+* Jóhannes Ævarsson
+* Pixel Brownie Software
 
-Thanks, and peace to you.
-~Sasha Fenn
+Thank you also to Craig Maloney, a patron and community member who sadly passed away.
+
+Peace to you.
+~ Sasha Fenn

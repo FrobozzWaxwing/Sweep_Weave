@@ -9,7 +9,7 @@ func _init(in_operands = []):
 	for operand in in_operands:
 		add_operand(operand)
 
-static func get_operator_type():
+func get_operator_type():
 	return "Concatenate"
 
 func get_value():

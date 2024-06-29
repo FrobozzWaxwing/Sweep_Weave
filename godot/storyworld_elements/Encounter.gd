@@ -15,8 +15,8 @@ var options = []
 
 #Variables for Editor:
 var creation_index = 0
-var creation_time = OS.get_unix_time()
-var modified_time = OS.get_unix_time()
+var creation_time = Time.get_unix_time_from_system()
+var modified_time = Time.get_unix_time_from_system()
 var graph_position = Vector2(40, 40)
 var word_count = 0
 var graphview_node = null
@@ -29,8 +29,9 @@ var reachable = false #Used by the automated rehearsal system to keep track of w
 var yielding_paths = 0 #The estimated number of possible paths through the storyworld that reach this encounter.
 var potential_ending = false #True if the story ends upon reaching this encounter on at least one possible path through the storyworld.
 var parallels_detected = false
+var impact = 0 # An estimate of the difference between the outcomes of this option and the outcomes of this option's siblings.
 
-func _init(in_storyworld, in_id:String, in_title:String, in_text:String, in_creation_index:int, in_creation_time = OS.get_unix_time(), in_modified_time = OS.get_unix_time(), in_graph_position = Vector2(40, 40)):
+func _init(in_storyworld, in_id:String, in_title:String, in_text:String, in_creation_index:int, in_creation_time = Time.get_unix_time_from_system(), in_modified_time = Time.get_unix_time_from_system(), in_graph_position = Vector2(40, 40)):
 	storyworld = in_storyworld
 	id = in_id
 	title = in_title
@@ -75,7 +76,7 @@ func get_excerpt(maximum_output_length:int = 256):
 		return text
 	else:
 		text = text.left(maximum_output_length - 3)
-		text = text.substr(0, text.find_last(" "))
+		text = text.substr(0, text.rfind(" "))
 		return text + "..."
 
 func calculate_desirability():
@@ -101,7 +102,7 @@ func clear():
 	text_script = null
 	earliest_turn = 0
 	latest_turn = 0
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 	graph_position = Vector2(40, 40)
 	linked_scripts.clear()
 	acceptability_script.clear()
@@ -125,7 +126,7 @@ func set_as_copy_of(original, copy_id:bool = true, create_mutual_links:bool = tr
 	text_script.set_as_copy_of(original.text_script)
 	earliest_turn = original.earliest_turn
 	latest_turn = original.latest_turn
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 	acceptability_script.set_as_copy_of(original.acceptability_script)
 	desirability_script.set_as_copy_of(original.desirability_script)
 	options = []
@@ -197,7 +198,7 @@ func has_search_text(searchterm:String):
 			return true
 	return false
 
-func connected_characters():
+func get_connected_characters():
 	var characters = {}
 	if (acceptability_script is ScriptManager):
 		characters.merge(acceptability_script.find_all_characters_involved())
@@ -241,26 +242,26 @@ func check_for_parallels():
 						return true
 	return false
 
-func compile(parent_storyworld, include_editor_only_variables:bool = false):
+func compile(_parent_storyworld, _include_editor_only_variables:bool = false):
 	var result = {}
 	result["id"] = id
 	result["title"] = title
-	result["text_script"] = text_script.compile(parent_storyworld, include_editor_only_variables)
+	result["text_script"] = text_script.compile(_parent_storyworld, _include_editor_only_variables)
 	result["acceptability_script"] = null
 	if (acceptability_script is ScriptManager):
-		result["acceptability_script"] = acceptability_script.compile(parent_storyworld, include_editor_only_variables)
+		result["acceptability_script"] = acceptability_script.compile(_parent_storyworld, _include_editor_only_variables)
 	result["desirability_script"] = null
 	if (desirability_script is ScriptManager):
-		result["desirability_script"] = desirability_script.compile(parent_storyworld, include_editor_only_variables)
+		result["desirability_script"] = desirability_script.compile(_parent_storyworld, _include_editor_only_variables)
 	result["earliest_turn"] = earliest_turn
 	result["latest_turn"] = latest_turn
 	result["options"] = []
 	for each in options:
-		result["options"].append(each.compile(parent_storyworld, include_editor_only_variables))
+		result["options"].append(each.compile(_parent_storyworld, _include_editor_only_variables))
 	result["connected_spools"] = []
 	for spool in connected_spools:
 		result["connected_spools"].append(spool.id)
-	if (include_editor_only_variables):
+	if (_include_editor_only_variables):
 		#Editor only variables:
 		result["creation_index"] = creation_index
 		result["creation_time"] = creation_time
@@ -271,7 +272,7 @@ func compile(parent_storyworld, include_editor_only_variables:bool = false):
 	return result
 
 func log_update():
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 
 func export_to_txt():
 	var result = "\n=== " + title + " ===\n"

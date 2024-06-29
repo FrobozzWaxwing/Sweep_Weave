@@ -70,7 +70,6 @@ var searchterm = ""
 #		selected_event.encounter = encounter
 #		selected_event.option = option
 #		selected_event.reaction = reaction
-#		emit_signal("selected_event_changed", selected_event)
 #
 #func _on_SortMenu_item_selected(index):
 #	var sort_method = $Background/VBC/SortBar/SortMenu.get_popup().get_item_text(index)
@@ -79,9 +78,6 @@ var searchterm = ""
 #			encounter.wordcount() #Update recorded wordcount of each encounter.
 #	storyworld.sort_encounters(sort_method)
 #	refresh()
-#
-#func _on_EventTree_item_activated():
-#	emit_signal("event_doubleclicked", selected_event)
 
 func find_occurrences_of_string(needle, haystack):
 	var results = []
@@ -140,7 +136,7 @@ func search_storyworld(needle):
 		#Search encounter title
 		#Search encounter text script
 		var matches = encounter.text_script.find_occurrences_of_string(needle)
-		if (!matches.empty()):
+		if (!matches.is_empty()):
 			pass
 #		for option in encounter.options:
 			#Search option text script

@@ -1,29 +1,26 @@
 extends Object
 class_name Compiler
 
-var file_to_read = ""
+var template_path = ""
 var output = ""
 var ifid = ""
 
 #File reading:
 func get_template_from_file():
 	var html_content = ""
-	var error_message = "Error: " + file_to_read + " file does not exist."
-	var file = File.new()
-	if (file.file_exists(file_to_read)):
-		var error = file.open(file_to_read, File.READ)
-		if (error == OK):
-			print("Using template: " + file_to_read)
-			html_content = file.get_as_text()
-		else:
-			print("Error opening the file: " + file_to_read)
-		file.close()
+	if not FileAccess.file_exists(template_path):
+		print("Could not find template.")
+		return # Error: File not found.
+	var file = FileAccess.open(template_path, FileAccess.READ)
+	if (null == file):
+		print("Error opening template.")
 	else:
-		print(error_message)
+		html_content = file.get_as_text()
+		file.close()
 	return html_content
 
-func _init(game_data, storyworld, template = "res://custom_resources/encounter_engine.html"):
-	file_to_read = template
+func _init(game_data, storyworld, in_template_path = "res://custom_resources/encounter_engine.html"):
+	template_path = in_template_path
 	output = get_template_from_file()
 	if (!storyworld.storyworld_debug_mode_on):
 		var regex = RegEx.new()

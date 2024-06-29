@@ -19,11 +19,11 @@ func _init(in_storyworld, in_char_name:String, in_pronoun:String, in_bnumber_pro
 	pronoun = in_pronoun
 	if (null != in_bnumber_properties):
 		bnumber_properties = in_bnumber_properties.duplicate(true)
-	creation_time = OS.get_unix_time()
-	modified_time = OS.get_unix_time()
+	creation_time = Time.get_unix_time_from_system()
+	modified_time = Time.get_unix_time_from_system()
 
 func log_update():
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 
 func get_index():
 	if (null != storyworld):
@@ -52,7 +52,7 @@ func set_as_copy_of(in_character, create_mutual_links = true):
 	for key in keys:
 		if (!authored_property_directory.has(key)):
 			bnumber_properties.erase(key)
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 
 func remap(to_storyworld):
 	storyworld = to_storyworld
@@ -72,32 +72,32 @@ func set_classical_personality_model(in_Bad_Good, in_False_Honest, in_Timid_Domi
 	set_bnumber_property(["pFalse_Honest"], in_pFalse_Honest)
 	set_bnumber_property(["pTimid_Dominant"], in_pTimid_Dominant)
 
-func compile_onion(parent_storyworld, onion):
+func compile_onion(_parent_storyworld, onion):
 	var output = null
 	if (TYPE_DICTIONARY == typeof(onion)):
 		output = {}
-		for character in parent_storyworld.characters:
+		for character in _parent_storyworld.characters:
 			if (onion.has(character.id)):
 				var index = character.get_index()
 				if (0 <= index):
-					output[index] = compile_onion(parent_storyworld, onion[character.id])
-	elif (TYPE_INT == typeof(onion) or TYPE_REAL == typeof(onion)):
+					output[index] = compile_onion(_parent_storyworld, onion[character.id])
+	elif (TYPE_INT == typeof(onion) or TYPE_FLOAT == typeof(onion)):
 		output = onion
 	return output
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var result = {}
 	result["name"] = char_name
 	result["pronoun"] = pronoun
-	if (include_editor_only_variables):
+	if (_include_editor_only_variables):
 		result["bnumber_properties"] = bnumber_properties.duplicate(true)
 	else:
 		result["bnumber_properties"] = {}
 		for authored_property in authored_properties:
 			if (bnumber_properties.has(authored_property.id)):
 				var onion = bnumber_properties[authored_property.id]
-				result["bnumber_properties"][authored_property.id] = compile_onion(parent_storyworld, onion)
-	if (include_editor_only_variables):
+				result["bnumber_properties"][authored_property.id] = compile_onion(_parent_storyworld, onion)
+	if (_include_editor_only_variables):
 		#Editor only variables:
 		result["id"] = id
 		result["creation_index"] = creation_index
@@ -160,7 +160,7 @@ func initialize_bnumber_properties(characters:Array = storyworld.characters, in_
 				add_property_to_bnumber_properties(property_blueprint, characters)
 
 func get_bnumber_property(keyring:Array):
-	if (TYPE_ARRAY != typeof(keyring) or keyring.empty()):
+	if (TYPE_ARRAY != typeof(keyring) or keyring.is_empty()):
 		return null
 	var first_loop = true
 	var property = keyring[0]
@@ -182,7 +182,7 @@ func get_bnumber_property(keyring:Array):
 	return onion
 
 func set_bnumber_property(keyring:Array, value):
-	if (TYPE_ARRAY != typeof(keyring) or keyring.empty() or !(TYPE_INT == typeof(value) or TYPE_REAL == typeof(value))):
+	if (TYPE_ARRAY != typeof(keyring) or keyring.is_empty() or !(TYPE_INT == typeof(value) or TYPE_FLOAT == typeof(value))):
 		return false #Let the calling function know an error occurred.
 	var property = keyring[0]
 	var onion = null
@@ -244,7 +244,7 @@ func set_bnumber_property(keyring:Array, value):
 #				onion_b[perceived_character_id] = onion.duplicate()
 #		onion = onion_b.duplicate()
 #		onions.append(onion)
-#	onions.invert()
+#	onions.reverse()
 #	add_to_onion(bnumber_properties[property_id], new_character.id, 0, onions)
 #	return true
 
@@ -293,31 +293,31 @@ func delete_character_from_bnumber_properties(character):
 func recursive_has_properties(onion:Dictionary):
 	var value = onion.values().front()
 	var type = typeof(value)
-	if (TYPE_INT == type or TYPE_REAL == type):
+	if (TYPE_INT == type or TYPE_FLOAT == type):
 		return true
-	elif (TYPE_DICTIONARY == type and !value.empty()):
+	elif (TYPE_DICTIONARY == type and !value.is_empty()):
 		return recursive_has_properties(value)
 	return false
 
 func has_properties():
-	if (bnumber_properties.empty()):
+	if (bnumber_properties.is_empty()):
 		return false
 	for value in bnumber_properties.values():
 		var type = typeof(value)
-		if (TYPE_INT == type or TYPE_REAL == type):
+		if (TYPE_INT == type or TYPE_FLOAT == type):
 			return true
-		elif (TYPE_DICTIONARY == type and !value.empty()):
+		elif (TYPE_DICTIONARY == type and !value.is_empty()):
 			return recursive_has_properties(value)
 	return false
 
 func data_to_string():
 	var result = char_name + ": bnumber_properties: "
 	for key in bnumber_properties.keys():
-		if (TYPE_INT == typeof(bnumber_properties[key]) or TYPE_REAL == typeof(bnumber_properties[key])):
+		if (TYPE_INT == typeof(bnumber_properties[key]) or TYPE_FLOAT == typeof(bnumber_properties[key])):
 			result += "(" + key + ": " + str(bnumber_properties[key]) + ")"
 		elif (TYPE_DICTIONARY == typeof(bnumber_properties[key])):
 			for key2 in bnumber_properties[key].keys():
-				if (TYPE_INT == typeof(bnumber_properties[key][key2]) or TYPE_REAL == typeof(bnumber_properties[key][key2])):
+				if (TYPE_INT == typeof(bnumber_properties[key][key2]) or TYPE_FLOAT == typeof(bnumber_properties[key][key2])):
 					result += "(" + key + "(" + key2 + "): " + str(bnumber_properties[key][key2]) + ")"
 				else:
 					result += "(" + key + "(" + key2 + "): ...)"

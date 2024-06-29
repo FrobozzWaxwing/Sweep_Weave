@@ -8,7 +8,7 @@ var item_type = "" #Used by context menu.
 var focused_item = null
 var clipboard = null
 
-signal moved_item(item, from_index, to_index)
+signal item_moved(item, from_index, to_index)
 signal add_at(index)
 signal cut(items)
 signal copy(items)
@@ -26,7 +26,7 @@ func _ready():
 func list_item(item):
 	var branch = create_item(get_root())
 	branch.set_text(0, item.get_listable_text(500))
-	branch.set_tooltip(0, item.get_listable_text(500))
+	branch.set_tooltip_text(0, item.get_listable_text(500))
 	var meta = {}
 	meta["index"] = item_count
 	meta["listed_object"] = item
@@ -42,19 +42,19 @@ func refresh():
 	for item in items_to_list:
 		list_item(item)
 
-func get_drag_data(position): # begin drag
+func _get_drag_data(position): # begin drag
 	set_drop_mode_flags(DROP_MODE_INBETWEEN)
 	var preview = Label.new()
 	preview.text = "  " + get_selected().get_text(0)
 	set_drag_preview(preview) # This will set the preview label to hover near the cursor while dragging an element.
 	return get_selected() # TreeItem
 
-func can_drop_data(position, data):
+func _can_drop_data(position, data):
 	var shift = get_drop_section_at_position(position)
 	var check = (data is TreeItem and -1 == shift or 1 == shift)
 	return data is TreeItem
 
-func drop_data(position, item): # end drag
+func _drop_data(position, item): # end drag
 	var from_index = item.get_metadata(0)["index"]
 	var shift = get_drop_section_at_position(position)
 	var to_index = -1
@@ -67,7 +67,7 @@ func drop_data(position, item): # end drag
 			to_index = get_item_at_position(position).get_metadata(0)["index"] + 1
 	if (0 <= to_index):
 		var relocated_object = item.get_metadata(0)["listed_object"]
-		emit_signal('moved_item', relocated_object, from_index, to_index)
+		item_moved.emit(relocated_object, from_index, to_index)
 		# Rearrange list.
 		var element = items_to_list.pop_at(from_index)
 		if (to_index > from_index):
@@ -105,7 +105,7 @@ func get_all_selected_metadata():
 	return metadata
 
 func select_first_item():
-	var treeitem = get_root().get_children()
+	var treeitem = get_root().get_first_child()
 	if (null != treeitem):
 		treeitem.select(0)
 
@@ -115,7 +115,7 @@ func select_last_item():
 
 func select_linked_item(search_term):
 	#Finds and selects the treeitem associated with an option, reaction, effect, or other object.
-	var branch = get_root().get_children()
+	var branch = get_root().get_first_child()
 	while (null != branch):
 		if (search_term == branch.get_metadata(0)["listed_object"]):
 			branch.select(0)
@@ -124,7 +124,7 @@ func select_linked_item(search_term):
 
 func select_only_linked_item(search_term):
 	#Selects the linked item while deselecting all other items.
-	var branch = get_root().get_children()
+	var branch = get_root().get_first_child()
 	while (null != branch):
 		if (search_term == branch.get_metadata(0)["listed_object"]):
 			branch.select(0)
@@ -133,15 +133,9 @@ func select_only_linked_item(search_term):
 		branch = branch.get_next()
 
 func select_all():
-	var branch = get_root().get_children()
+	var branch = get_root().get_first_child()
 	while (null != branch):
 		branch.select(0)
-		branch = branch.get_next()
-
-func deselect_all():
-	var branch = get_root().get_children()
-	while (null != branch):
-		branch.deselect(0)
 		branch = branch.get_next()
 
 func raise_selected_item():
@@ -152,7 +146,7 @@ func raise_selected_item():
 		items_to_list[index - 1] = swap
 		refresh()
 		select_linked_item(swap)
-		emit_signal('moved_item', swap, index, index - 1)
+		item_moved.emit(swap, index, index - 1)
 
 func lower_selected_item():
 	var index = get_first_selected_index()
@@ -162,10 +156,10 @@ func lower_selected_item():
 		items_to_list[index + 1] = swap
 		refresh()
 		select_linked_item(swap)
-		emit_signal('moved_item', swap, index, index + 2)
+		item_moved.emit(swap, index, index + 2)
 
 func can_paste():
-	if (clipboard.clipped_copies.empty()):
+	if (clipboard.clipped_copies.is_empty()):
 		return false
 	elif (clipboard.clipped_copies.front() is Option and "option" == item_type):
 		return true
@@ -205,7 +199,11 @@ func _on_item_rmb_selected(position):
 			context_menu.add_item("Edit desirability script", 14)
 		if ("effect" == item_type):
 			context_menu.add_item("Edit effect script", 15)
-		context_menu.popup(Rect2(mouse_position.x, mouse_position.y, context_menu.rect_size.x, context_menu.rect_size.y))
+		context_menu.popup(Rect2(mouse_position.x, mouse_position.y, context_menu.size.x, context_menu.size.y))
+
+func _on_item_mouse_selected(position, mouse_button_index):
+	if (MouseButton.MOUSE_BUTTON_RIGHT == mouse_button_index):
+		_on_item_rmb_selected(position)
 
 func show_outer_context_menu():
 	#This shows the context menu that is designed for when the user clicks the empty part of the tree.
@@ -222,15 +220,11 @@ func show_outer_context_menu():
 		context_menu.set_item_disabled((context_menu.get_item_count() - 1), true)
 	context_menu.add_item("Select all", 10)
 	context_menu.add_item("Deselect all", 11)
-	context_menu.set_as_minsize()
-	context_menu.popup(Rect2(mouse_position.x, mouse_position.y, context_menu.rect_size.x, context_menu.rect_size.y))
+	#context_menu.set_as_minsize()
+	context_menu.popup(Rect2(mouse_position.x, mouse_position.y, context_menu.size.x, context_menu.size.y))
 
-func _on_empty_rmb(position):
-	if (context_menu_enabled):
-		show_outer_context_menu()
-
-func _on_empty_tree_rmb_selected(position):
-	if (context_menu_enabled):
+func _on_empty_clicked(position, mouse_button_index):
+	if (MouseButton.MOUSE_BUTTON_RIGHT == mouse_button_index and context_menu_enabled):
 		show_outer_context_menu()
 
 func _on_ContextMenu_id_pressed(id):
@@ -241,43 +235,43 @@ func _on_ContextMenu_id_pressed(id):
 	match id:
 		0:
 			#Add new item before
-			emit_signal("add_at", index)
+			add_at.emit(index)
 			print ("Adding new " + item_type + " before the selected one.")
 		1:
 			#Add new item after
-			emit_signal("add_at", index + 1)
+			add_at.emit(index + 1)
 			print ("Adding new " + item_type + " after the selected one.")
 		2:
 			#Add new item at end of list
-			emit_signal("add_at", item_count)
+			add_at.emit(item_count)
 			print ("Adding new " + item_type + " at the end of the list.")
 		3:
 			#Cut
-			emit_signal("cut", get_all_selected_metadata())
+			cut.emit(get_all_selected_metadata())
 			print ("Cutting selected " + item_type + " for pasting.")
 		4:
 			#Copy
-			emit_signal("copy", get_all_selected_metadata())
+			copy.emit(get_all_selected_metadata())
 			print ("Copying selected " + item_type + ".")
 		5:
 			#Paste before
-			emit_signal("paste_at", index)
+			paste_at.emit(index)
 			print ("Pasting before selected " + item_type + ".")
 		6:
 			#Paste after
-			emit_signal("paste_at", index + 1)
+			paste_at.emit(index + 1)
 			print ("Pasting after selected " + item_type + ".")
 		7:
 			#Paste at end of list
-			emit_signal("paste_at", item_count)
+			paste_at.emit(item_count)
 			print ("Pasting at the end of the list.")
 		8:
 			#Delete
-			emit_signal("delete", get_all_selected_metadata())
+			delete.emit(get_all_selected_metadata())
 			print ("Asking for confirmation for possible deletion of " + item_type + "s.")
 		9:
 			#Duplicate
-			emit_signal("duplicate", get_all_selected_metadata())
+			duplicate.emit(get_all_selected_metadata())
 			print ("Duplicating selected " + item_type + "s.")
 		10:
 			#Select all
@@ -289,17 +283,18 @@ func _on_ContextMenu_id_pressed(id):
 			print ("Deselecting all " + item_type + "s.")
 		12:
 			#Edit visibility script
-			emit_signal("edit_visibility_script", focused_item)
+			edit_visibility_script.emit(focused_item)
 			print ("Editing visibility script.")
 		13:
 			#Edit performability script
-			emit_signal("edit_performability_script", focused_item)
+			edit_performability_script.emit(focused_item)
 			print ("Editing performability script.")
 		14:
 			#Edit desirability script
-			emit_signal("edit_desirability_script", focused_item)
+			edit_desirability_script.emit(focused_item)
 			print ("Editing desirability script.")
 		15:
 			#Edit effect script
-			emit_signal("edit_effect_script", focused_item)
+			edit_effect_script.emit(focused_item)
 			print ("Editing effect script.")
+

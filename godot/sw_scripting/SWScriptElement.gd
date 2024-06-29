@@ -17,7 +17,7 @@ func _init():
 func clear():
 	treeview_node = null
 
-func remap(storyworld):
+func remap(_storyworld):
 	treeview_node = null
 	return true
 
@@ -33,7 +33,7 @@ func get_and_report_value():
 	report_value(output)
 	return output
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Element"
 	return output
@@ -53,5 +53,5 @@ func stringify_output_type():
 func data_to_string():
 	return "SweepWeave Script Element"
 
-func validate(intended_script_output_datatype):
+func validate(_intended_script_output_datatype):
 	return "Generic script element found."

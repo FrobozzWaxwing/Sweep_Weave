@@ -12,75 +12,75 @@ script = ExtResource( 1 )
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = -258.0
-margin_top = 8.0
-margin_right = 258.0
-margin_bottom = 292.0
+offset_left = -258.0
+offset_top = 8.0
+offset_right = 258.0
+offset_bottom = 292.0
 
 [node name="VBC" type="VBoxContainer" parent="Margin"]
-margin_right = 516.0
-margin_bottom = 300.0
+offset_right = 516.0
+offset_bottom = 300.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="HBC1" type="HBoxContainer" parent="Margin/VBC"]
-margin_right = 516.0
-margin_bottom = 14.0
+offset_right = 516.0
+offset_bottom = 14.0
 
 [node name="Label" type="Label" parent="Margin/VBC/HBC1"]
-margin_right = 512.0
-margin_bottom = 14.0
-rect_min_size = Vector2( 512, 0 )
+offset_right = 512.0
+offset_bottom = 14.0
+custom_minimum_size = Vector2( 512, 0 )
 text = "Importing encounters and characters."
 autowrap = true
 
 [node name="HSeparator" type="HSeparator" parent="Margin/VBC"]
-margin_top = 18.0
-margin_right = 516.0
-margin_bottom = 22.0
+offset_top = 18.0
+offset_right = 516.0
+offset_bottom = 22.0
 
 [node name="HBC2" type="HBoxContainer" parent="Margin/VBC"]
-margin_top = 26.0
-margin_right = 516.0
-margin_bottom = 300.0
+offset_top = 26.0
+offset_right = 516.0
+offset_bottom = 300.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="VBC1" type="VBoxContainer" parent="Margin/VBC/HBC2"]
-margin_right = 256.0
-margin_bottom = 274.0
+offset_right = 256.0
+offset_bottom = 274.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="Margin/VBC/HBC2/VBC1"]
-margin_right = 256.0
-margin_bottom = 14.0
+offset_right = 256.0
+offset_bottom = 14.0
 text = "Select encounters for importation."
 
 [node name="EncounterList" type="ItemList" parent="Margin/VBC/HBC2/VBC1"]
-margin_top = 18.0
-margin_right = 256.0
-margin_bottom = 274.0
-rect_min_size = Vector2( 256, 256 )
+offset_top = 18.0
+offset_right = 256.0
+offset_bottom = 274.0
+custom_minimum_size = Vector2( 256, 256 )
 size_flags_vertical = 3
 select_mode = 1
 
 [node name="VBC2" type="VBoxContainer" parent="Margin/VBC/HBC2"]
-margin_left = 260.0
-margin_right = 516.0
-margin_bottom = 274.0
+offset_left = 260.0
+offset_right = 516.0
+offset_bottom = 274.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="Margin/VBC/HBC2/VBC2"]
-margin_right = 256.0
-margin_bottom = 14.0
+offset_right = 256.0
+offset_bottom = 14.0
 text = "Select Characters for importation."
 
 [node name="CharacterList" type="ItemList" parent="Margin/VBC/HBC2/VBC2"]
-margin_top = 18.0
-margin_right = 256.0
-margin_bottom = 274.0
-rect_min_size = Vector2( 256, 256 )
+offset_top = 18.0
+offset_right = 256.0
+offset_bottom = 274.0
+custom_minimum_size = Vector2( 256, 256 )
 size_flags_vertical = 3
 select_mode = 1

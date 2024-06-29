@@ -16,38 +16,38 @@ var display_reaction_qdse = true
 var light_mode = true
 
 signal refresh_graphview()
-signal refresh_encounter_list()
+signal encounter_updated()
 
 func refresh_encounter_list():
-	$Column1/VScroll/EncountersList.clear()
+	$Column1/EncountersList.clear()
 	var sort_method_id = $Column1/SortBar/SortMenu.get_selected_id()
 	var sort_method = $Column1/SortBar/SortMenu.get_popup().get_item_text(sort_method_id)
-	var reversed = $Column1/SortBar/ToggleReverseButton.pressed
+	var reversed = $Column1/SortBar/ToggleReverseButton.is_pressed()
 	storyworld.sort_encounters(sort_method, reversed)
 	var index = 0
 	for entry in storyworld.encounters:
 		if ("" == entry.title):
-			$Column1/VScroll/EncountersList.add_item("[Untitled]")
+			$Column1/EncountersList.add_item("[Untitled]")
 		else:
-			$Column1/VScroll/EncountersList.add_item(entry.title)
-		$Column1/VScroll/EncountersList.set_item_metadata(index, entry)
+			$Column1/EncountersList.add_item(entry.title)
+		$Column1/EncountersList.set_item_metadata(index, entry)
 		index += 1
 	if (0 == storyworld.encounters.size()):
 		Clear_Encounter_Editing_Screen()
 
-onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
-onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
-onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
-onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
-onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
-onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
-onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
-onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
+@onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
+@onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
+@onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
+@onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
+@onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
+@onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
+@onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
+@onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
 
 func refresh_sort_icon():
 	var sort_index = $Column1/SortBar/SortMenu.get_selected()
 	var sort_method = $Column1/SortBar/SortMenu.get_popup().get_item_text(sort_index)
-	var reversed = $Column1/SortBar/ToggleReverseButton.pressed
+	var reversed = $Column1/SortBar/ToggleReverseButton.is_pressed()
 	if (light_mode):
 		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
 			if (reversed):
@@ -78,7 +78,7 @@ func _on_SortMenu_item_selected(index):
 			update_wordcount(each)
 	refresh_encounter_list()
 	refresh_sort_icon()
-	emit_signal("refresh_encounter_list")
+	encounter_updated.emit()
 
 func _on_ToggleReverseButton_toggled(button_pressed):
 	refresh_encounter_list()
@@ -237,10 +237,10 @@ func load_Encounter(encounter):
 		Clear_Encounter_Editing_Screen()
 		return
 	current_encounter = encounter
-	$Column1/VScroll/EncountersList.unselect_all()
-	for index in range($Column1/VScroll/EncountersList.get_item_count()):
-		if (encounter == $Column1/VScroll/EncountersList.get_item_metadata(index)):
-			$Column1/VScroll/EncountersList.select(index)
+	$Column1/EncountersList.deselect_all()
+	for index in range($Column1/EncountersList.get_item_count()):
+		if (encounter == $Column1/EncountersList.get_item_metadata(index)):
+			$Column1/EncountersList.select(index)
 			break
 	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = encounter.title
 	$HSC/Column2/EncounterMainTextEdit.text = encounter.get_text()
@@ -279,16 +279,16 @@ func Clear_Encounter_Editing_Screen():
 func load_and_focus_first_encounter():
 	if (0 < storyworld.encounters.size()):
 		load_Encounter(storyworld.encounters.front())
-		$Column1/VScroll/EncountersList.select(0)
+		$Column1/EncountersList.select(0)
 
 func log_update(encounter = null):
 	#If encounter == null, then the project as a whole is being updated, rather than a specific encounter, or an encounter has been added, deleted, or duplicated.
 	if (null != encounter):
 		encounter.log_update()
 	storyworld.log_update()
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
-	emit_signal("refresh_encounter_list")
+	encounter_updated.emit()
 
 #Encounter editing interface:
 
@@ -297,20 +297,20 @@ func _on_AddButton_pressed():
 	storyworld.add_encounter(new_encounter)
 	log_update(new_encounter)
 	refresh_encounter_list()
-	emit_signal("refresh_graphview")
+	refresh_graphview.emit()
 	load_Encounter(new_encounter)
-	$Column1/VScroll/EncountersList.select(storyworld.encounters.find(new_encounter))
+	$Column1/EncountersList.select(storyworld.encounters.find(new_encounter))
 
 func _on_EncountersList_multi_selected(index, selected):
-	var encounter_to_edit = $Column1/VScroll/EncountersList.get_item_metadata(index)
+	var encounter_to_edit = $Column1/EncountersList.get_item_metadata(index)
 	load_Encounter(encounter_to_edit)
 
 func _on_Duplicate_pressed():
-	if ($Column1/VScroll/EncountersList.is_anything_selected()):
-		var selected_indices = $Column1/VScroll/EncountersList.get_selected_items()
+	if ($Column1/EncountersList.is_anything_selected()):
+		var selected_indices = $Column1/EncountersList.get_selected_items()
 		var encounters_to_duplicate = []
 		for index in selected_indices:
-			var encounter = $Column1/VScroll/EncountersList.get_item_metadata(index)
+			var encounter = $Column1/EncountersList.get_item_metadata(index)
 			encounters_to_duplicate.append(encounter)
 		var encounter_to_edit = null
 		for entry in encounters_to_duplicate:
@@ -319,10 +319,10 @@ func _on_Duplicate_pressed():
 				encounter_to_edit = new_encounter
 		log_update(null)
 		refresh_encounter_list()
-		emit_signal("refresh_graphview")
+		refresh_graphview.emit()
 		if (encounter_to_edit != null):
 			load_Encounter(encounter_to_edit)
-			$Column1/VScroll/EncountersList.select(storyworld.encounters.find(encounter_to_edit))
+			$Column1/EncountersList.select(storyworld.encounters.find(encounter_to_edit))
 
 func _on_EncounterTitleEdit_text_changed(new_text):
 	#Change encounter title
@@ -331,7 +331,7 @@ func _on_EncounterTitleEdit_text_changed(new_text):
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 		refresh_encounter_list()
-		emit_signal("refresh_graphview")
+		refresh_graphview.emit()
 
 func _on_EncounterMainTextEdit_text_changed():
 	#Change encounter main text
@@ -339,11 +339,11 @@ func _on_EncounterMainTextEdit_text_changed():
 		current_encounter.set_text($HSC/Column2/EncounterMainTextEdit.text)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
-		emit_signal("refresh_graphview")
+		refresh_graphview.emit()
 
 func _on_SimplifiedEncounterDesirabilityScriptingInterface_sw_script_changed(sw_script):
 	log_update(current_encounter)
-	emit_signal("refresh_graphview")
+	refresh_graphview.emit()
 
 func _on_ConfirmDeletion_confirmed():
 	if (items_to_delete.front() is Encounter):
@@ -366,7 +366,7 @@ func _on_ConfirmDeletion_confirmed():
 			storyworld.delete_encounter(each)
 		refresh_encounter_list()
 		if (null != encounter_to_select):
-			$Column1/VScroll/EncountersList.select(storyworld.encounters.find(encounter_to_select))
+			$Column1/EncountersList.select(storyworld.encounters.find(encounter_to_select))
 		log_update(null)
 	elif (items_to_delete.front() is Option):
 		for option in items_to_delete:
@@ -375,7 +375,7 @@ func _on_ConfirmDeletion_confirmed():
 			option.clear()
 			option.call_deferred("free")
 		refresh_option_list()
-		if (!current_encounter.options.empty()):
+		if (!current_encounter.options.is_empty()):
 			load_Option(current_encounter.options.front())
 			$HSC/Column2/OptionsList.select_first_item()
 		else:
@@ -402,18 +402,18 @@ func _on_ConfirmDeletion_confirmed():
 			effect.call_deferred("free")
 		log_update(current_encounter)
 		refresh_reaction_after_effects_list()
-	emit_signal("refresh_graphview")
+	refresh_graphview.emit()
 
 func _on_DeleteButton_pressed():
-	if ($Column1/VScroll/EncountersList.is_anything_selected()):
-		var selected_indices = $Column1/VScroll/EncountersList.get_selected_items()
+	if ($Column1/EncountersList.is_anything_selected()):
+		var selected_indices = $Column1/EncountersList.get_selected_items()
 		items_to_delete.clear()
 		$ConfirmDeletion/ItemsToDelete.clear()
 		for index in selected_indices:
-			var encounter = $Column1/VScroll/EncountersList.get_item_metadata(index)
+			var encounter = $Column1/EncountersList.get_item_metadata(index)
 			items_to_delete.append(encounter)
 			$ConfirmDeletion/ItemsToDelete.add_item(encounter.title)
-		if (!items_to_delete.empty()):
+		if (!items_to_delete.is_empty()):
 			if (1 == items_to_delete.size()):
 				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following encounter?"
 			else:
@@ -440,7 +440,7 @@ func _on_AddOption_pressed():
 
 func confirm_option_deletion(options):
 	items_to_delete = options
-	if (!items_to_delete.empty()):
+	if (!items_to_delete.is_empty()):
 		$ConfirmDeletion/ItemsToDelete.clear()
 		for each in items_to_delete:
 			$ConfirmDeletion/ItemsToDelete.add_item(each.get_listable_text(30))
@@ -453,7 +453,7 @@ func confirm_option_deletion(options):
 func _on_DeleteOption_pressed():
 	confirm_option_deletion($HSC/Column2/OptionsList.get_all_selected_metadata())
 
-func _on_OptionsList_moved_item(item, from_index, to_index):
+func _on_OptionsList_item_moved(item, from_index, to_index):
 	if (null == current_encounter):
 		refresh_option_list()
 		return
@@ -489,22 +489,22 @@ func _on_OptionText_text_changed(new_text):
 
 #Option list context menu:
 
-func add_options_at_position(options_to_add, position):
+func add_options_at_position(options_to_add, position_in_list):
 	if (1 == options_to_add.size()):
-		current_encounter.options.insert(position, options_to_add.front())
-	elif (0 >= position):
+		current_encounter.options.insert(position_in_list, options_to_add.front())
+	elif (0 >= position_in_list):
 		options_to_add.append_array(current_encounter.options)
 		current_encounter.options = options_to_add
-	elif (position < current_encounter.options.size()):
-		var new_array = current_encounter.options.slice(0, (position - 1))
+	elif (position_in_list < current_encounter.options.size()):
+		var new_array = current_encounter.options.slice(0, (position_in_list - 1))
 		new_array.append_array(options_to_add)
-		new_array.append_array(current_encounter.options.slice(position, (current_encounter.options.size() - 1)))
+		new_array.append_array(current_encounter.options.slice(position_in_list, (current_encounter.options.size() - 1)))
 		current_encounter.options = new_array
-	elif (position >= current_encounter.options.size()):
+	elif (position_in_list >= current_encounter.options.size()):
 		current_encounter.options.append_array(options_to_add)
 
 func duplicate_selected_options(selected_items):
-	if (!selected_items.empty()):
+	if (!selected_items.is_empty()):
 		var last_option_added = null
 		for option in selected_items:
 			var new_option = storyworld.create_new_generic_option(current_encounter)
@@ -518,7 +518,7 @@ func duplicate_selected_options(selected_items):
 		$HSC/Column2/OptionsList.select_only_linked_item(last_option_added)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
-		emit_signal("refresh_graphview")
+		refresh_graphview.emit()
 
 func _on_OptionsList_add_at(index):
 	if (null != current_encounter):
@@ -538,7 +538,7 @@ func _on_OptionsList_copy(items):
 
 func _on_OptionsList_paste_at(index):
 	var items_to_add = clipboard.paste()
-	if (!items_to_add.empty()):
+	if (!items_to_add.is_empty()):
 		add_options_at_position(items_to_add, index)
 		if (clipboard.clipboard_task_types.CUT == clipboard.clipboard_task):
 			clipboard.delete_clipped_originals()
@@ -547,7 +547,7 @@ func _on_OptionsList_paste_at(index):
 		$HSC/Column2/OptionsList.select_only_linked_item(items_to_add.front())
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
-		emit_signal("refresh_graphview")
+		refresh_graphview.emit()
 
 #Reaction editing interface:
 
@@ -565,7 +565,7 @@ func _on_AddReaction_pressed():
 
 func confirm_reaction_deletion(reactions):
 	items_to_delete = reactions
-	if (!items_to_delete.empty()):
+	if (!items_to_delete.is_empty()):
 		$ConfirmDeletion/ItemsToDelete.clear()
 		for each in items_to_delete:
 			$ConfirmDeletion/ItemsToDelete.add_item(each.get_listable_text(30))
@@ -573,7 +573,7 @@ func confirm_reaction_deletion(reactions):
 			$CannotDelete.dialog_text = 'Cannot delete reaction. Each option must have at least one reaction.'
 			$CannotDelete.popup_centered()
 		elif(items_to_delete.size() == current_option.reactions.size()):
-			#Print "reactions" instead of "reaction."
+			# Print "reactions" instead of "reaction."
 			$CannotDelete.dialog_text = 'Cannot delete reactions. Each option must have at least one reaction.'
 			$CannotDelete.popup_centered()
 		else:
@@ -586,7 +586,7 @@ func confirm_reaction_deletion(reactions):
 func _on_DeleteReaction_pressed():
 	confirm_reaction_deletion($HSC/Column3/ReactionsList.get_all_selected_metadata())
 
-func _on_ReactionsList_moved_item(item, from_index, to_index):
+func _on_ReactionsList_item_moved(item, from_index, to_index):
 	if (null == current_option):
 		refresh_reaction_list()
 		return
@@ -620,26 +620,26 @@ func _on_ReactionText_text_changed():
 
 func _on_SimplifiedReactionDesirabilityScriptingInterface_sw_script_changed(sw_script):
 	log_update(current_encounter)
-	emit_signal("refresh_graphview")
+	refresh_graphview.emit()
 
 #Reaction list context menu:
 
-func add_reactions_at_position(reactions_to_add, position):
+func add_reactions_at_position(reactions_to_add, position_in_list):
 	if (1 == reactions_to_add.size()):
-		current_option.reactions.insert(position, reactions_to_add.front())
-	elif (0 >= position):
+		current_option.reactions.insert(position_in_list, reactions_to_add.front())
+	elif (0 >= position_in_list):
 		reactions_to_add.append_array(current_option.reactions)
 		current_option.reactions = reactions_to_add
-	elif (position < current_option.reactions.size()):
-		var new_array = current_option.reactions.slice(0, (position - 1))
+	elif (position_in_list < current_option.reactions.size()):
+		var new_array = current_option.reactions.slice(0, (position_in_list - 1))
 		new_array.append_array(reactions_to_add)
-		new_array.append_array(current_option.reactions.slice(position, (current_option.reactions.size() - 1)))
+		new_array.append_array(current_option.reactions.slice(position_in_list, (current_option.reactions.size() - 1)))
 		current_option.reactions = new_array
-	elif (position >= current_option.reactions.size()):
+	elif (position_in_list >= current_option.reactions.size()):
 		current_option.reactions.append_array(reactions_to_add)
 
 func duplicate_selected_reactions(selected_items):
-	if (!selected_items.empty()):
+	if (!selected_items.is_empty()):
 		var last_reaction_added = null
 		for reaction in selected_items:
 			var new_reaction = storyworld.create_new_generic_reaction(current_option)
@@ -653,7 +653,7 @@ func duplicate_selected_reactions(selected_items):
 		$HSC/Column3/ReactionsList.select_only_linked_item(last_reaction_added)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
-		emit_signal("refresh_graphview")
+		refresh_graphview.emit()
 
 func _on_ReactionsList_add_at(index):
 	var new_reaction = storyworld.create_new_generic_reaction(current_option)
@@ -672,7 +672,7 @@ func _on_ReactionsList_copy(items):
 
 func _on_ReactionsList_paste_at(index):
 	var items_to_add = clipboard.paste()
-	if (!items_to_add.empty()):
+	if (!items_to_add.is_empty()):
 		add_reactions_at_position(items_to_add, index)
 		if (clipboard.clipboard_task_types.CUT == clipboard.clipboard_task):
 			clipboard.delete_clipped_originals()
@@ -681,7 +681,7 @@ func _on_ReactionsList_paste_at(index):
 		$HSC/Column3/ReactionsList.select_only_linked_item(items_to_add.front())
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
-		emit_signal("refresh_graphview")
+		refresh_graphview.emit()
 
 #Effect editing interface:
 
@@ -707,7 +707,7 @@ func _on_EffectEditor_confirmed():
 			if (new_change is SWEffect):
 				new_change.cause = current_reaction
 				var index = -1
-				if (!items_to_delete.empty()):
+				if (!items_to_delete.is_empty()):
 					index = current_reaction.after_effects.find(items_to_delete.front())
 				if (-1 == index):
 					current_reaction.after_effects.append(new_change)
@@ -723,15 +723,15 @@ func _on_EffectEditor_confirmed():
 					current_reaction.consequence = new_change.encounter
 					refresh_reaction_consequence_display()
 					log_update(current_encounter)
-					emit_signal("refresh_graphview")
+					refresh_graphview.emit()
 
 func confirm_effect_deletion(effects):
 	items_to_delete = effects.duplicate()
-	if (!items_to_delete.empty()):
+	if (!items_to_delete.is_empty()):
 		$ConfirmDeletion/ItemsToDelete.clear()
 		for each in items_to_delete:
 			$ConfirmDeletion/ItemsToDelete.add_item(each.data_to_string())
-		if (!items_to_delete.empty()):
+		if (!items_to_delete.is_empty()):
 			if (1 == items_to_delete.size()):
 				$ConfirmDeletion.dialog_text = "Are you sure you wish to delete the following effect?"
 			else:
@@ -741,7 +741,7 @@ func confirm_effect_deletion(effects):
 func _on_DeleteEffect_pressed():
 	confirm_effect_deletion($HSC/Column3/AfterReactionEffectsDisplay.get_all_selected_metadata())
 
-func _on_AfterReactionEffectsDisplay_moved_item(item, from_index, to_index):
+func _on_AfterReactionEffectsDisplay_item_moved(item, from_index, to_index):
 	if (null == current_reaction):
 		refresh_reaction_after_effects_list()
 		return
@@ -782,22 +782,22 @@ func _on_AfterReactionEffectsDisplay_edit_effect_script(effect):
 
 #Effect list context menu:
 
-func add_effects_at_position(effects_to_add, position):
+func add_effects_at_position(effects_to_add, position_in_list):
 	if (1 == effects_to_add.size()):
-		current_reaction.after_effects.insert(position, effects_to_add.front())
-	elif (0 >= position):
+		current_reaction.after_effects.insert(position_in_list, effects_to_add.front())
+	elif (0 >= position_in_list):
 		effects_to_add.append_array(current_reaction.after_effects)
 		current_reaction.after_effects = effects_to_add
-	elif (position < current_reaction.after_effects.size()):
-		var new_array = current_reaction.after_effects.slice(0, (position - 1))
+	elif (position_in_list < current_reaction.after_effects.size()):
+		var new_array = current_reaction.after_effects.slice(0, (position_in_list - 1))
 		new_array.append_array(effects_to_add)
-		new_array.append_array(current_reaction.after_effects.slice(position, (current_reaction.after_effects.size() - 1)))
+		new_array.append_array(current_reaction.after_effects.slice(position_in_list, (current_reaction.after_effects.size() - 1)))
 		current_reaction.after_effects = new_array
-	elif (position >= current_reaction.after_effects.size()):
+	elif (position_in_list >= current_reaction.after_effects.size()):
 		current_reaction.after_effects.append_array(effects_to_add)
 
 func duplicate_selected_effects(selected_items):
-	if (!selected_items.empty()):
+	if (!selected_items.is_empty()):
 		for item in selected_items:
 			var change_made = false
 			if (item is BNumberEffect):
@@ -830,7 +830,7 @@ func _on_AfterReactionEffectsDisplay_copy(items):
 
 func _on_AfterReactionEffectsDisplay_paste_at(index):
 	var items_to_paste = clipboard.paste()
-	if (!items_to_paste.empty()):
+	if (!items_to_paste.is_empty()):
 		add_effects_at_position(items_to_paste, index)
 		if (clipboard.clipboard_task_types.CUT == clipboard.clipboard_task):
 			clipboard.delete_clipped_originals()
@@ -850,8 +850,6 @@ func update_wordcount(encounter):
 		refresh_encounter_list()
 
 func _ready():
-	if (0 < $Column1/SortBar/SortMenu.get_item_count()):
-		$Column1/SortBar/SortMenu.select(0)
 	$HSC/Column2/OptionsList.context_menu_enabled = true
 	$HSC/Column2/OptionsList.item_type = "option"
 	$HSC/Column3/ReactionsList.context_menu_enabled = true
@@ -863,7 +861,7 @@ func _ready():
 
 func _on_EditEncounterAcceptabilityScriptButton_pressed():
 	if (current_encounter is Encounter):
-		$ScriptEditWindow.window_title = current_encounter.title + " Acceptability Script"
+		$ScriptEditWindow.set_title(current_encounter.title + " Acceptability Script")
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_encounter.acceptability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
@@ -872,7 +870,7 @@ func _on_EditEncounterAcceptabilityScriptButton_pressed():
 
 func _on_EditEncounterDesirabilityScriptButton_pressed():
 	if (current_encounter is Encounter):
-		$ScriptEditWindow.window_title = current_encounter.title + " Desirability Script"
+		$ScriptEditWindow.set_title(current_encounter.title + " Desirability Script")
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_encounter.desirability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
@@ -883,7 +881,7 @@ func _on_ReactionDesirabilityScriptEditButton_pressed():
 	if (current_reaction is Reaction):
 		var title = '"' + current_reaction.get_listable_text(40) + '"'
 		title += " Desirability Script"
-		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow.set_title(title)
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_reaction.desirability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
@@ -894,7 +892,7 @@ func _on_ReactionsList_edit_desirability_script(reaction):
 	if (reaction is Reaction):
 		var title = '"' + reaction.get_listable_text(40) + '"'
 		title += " Desirability Script"
-		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow.set_title(title)
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = reaction.desirability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
@@ -906,14 +904,14 @@ func _on_ScriptEditScreen_sw_script_changed(sw_script):
 		refresh_quick_encounter_scripting_interface()
 	elif (current_reaction.desirability_script == sw_script):
 		refresh_quick_reaction_scripting_interface()
-	emit_signal("refresh_graphview")
+	refresh_graphview.emit()
 	log_update(current_encounter)
 
 func _on_EditOptionVisibilityScriptButton_pressed():
 	if (current_option is Option):
 		var title = '"' + current_option.get_listable_text(40) + '"'
 		title += " Visibility Script"
-		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow.set_title(title)
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_option.visibility_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
@@ -924,7 +922,7 @@ func _on_OptionsList_edit_visibility_script(option):
 	if (option is Option):
 		var title = '"' + option.get_listable_text(40) + '"'
 		title += " Visibility Script"
-		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow.set_title(title)
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = option.visibility_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
@@ -935,7 +933,7 @@ func _on_EditOptionPerformabilityScriptButton_pressed():
 	if (current_option is Option):
 		var title = '"' + current_option.get_listable_text(40) + '"'
 		title += " Performability Script"
-		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow.set_title(title)
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_option.performability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
@@ -946,7 +944,7 @@ func _on_OptionsList_edit_performability_script(option):
 	if (option is Option):
 		var title = '"' + option.get_listable_text(40) + '"'
 		title += " Performability Script"
-		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow.set_title(title)
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = option.performability_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true
@@ -956,22 +954,22 @@ func _on_OptionsList_edit_performability_script(option):
 
 #GUI Themes:
 
-onready var add_icon_light = preload("res://icons/add.svg")
-onready var add_icon_dark = preload("res://icons/add_dark.svg")
-onready var delete_icon_light = preload("res://icons/delete.svg")
-onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
-onready var move_up_icon_light = preload("res://icons/arrow-up.svg")
-onready var move_up_icon_dark = preload("res://icons/arrow-up_dark.svg")
-onready var move_down_icon_light = preload("res://icons/arrow-down.svg")
-onready var move_down_icon_dark = preload("res://icons/arrow-down_dark.svg")
-onready var acceptability_icon = preload("res://icons/check.svg")
-onready var acceptability_icon_dark = preload("res://icons/check_dark.svg")
-onready var desirability_icon = preload("res://icons/bullseye.svg")
-onready var desirability_icon_dark = preload("res://icons/bullseye_dark.svg")
-onready var visibility_icon = preload("res://icons/eye.svg")
-onready var visibility_icon_dark = preload("res://icons/eye_dark.svg")
-onready var performability_icon = preload("res://icons/hand.svg")
-onready var performability_icon_dark = preload("res://icons/hand_dark.svg")
+@onready var add_icon_light = preload("res://icons/add.svg")
+@onready var add_icon_dark = preload("res://icons/add_dark.svg")
+@onready var delete_icon_light = preload("res://icons/delete.svg")
+@onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
+@onready var move_up_icon_light = preload("res://icons/arrow-up.svg")
+@onready var move_up_icon_dark = preload("res://icons/arrow-up_dark.svg")
+@onready var move_down_icon_light = preload("res://icons/arrow-down.svg")
+@onready var move_down_icon_dark = preload("res://icons/arrow-down_dark.svg")
+@onready var acceptability_icon = preload("res://icons/check.svg")
+@onready var acceptability_icon_dark = preload("res://icons/check_dark.svg")
+@onready var desirability_icon = preload("res://icons/bullseye.svg")
+@onready var desirability_icon_dark = preload("res://icons/bullseye_dark.svg")
+@onready var visibility_icon = preload("res://icons/eye.svg")
+@onready var visibility_icon_dark = preload("res://icons/eye_dark.svg")
+@onready var performability_icon = preload("res://icons/hand.svg")
+@onready var performability_icon_dark = preload("res://icons/hand_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	match theme_name:

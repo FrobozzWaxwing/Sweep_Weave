@@ -3,8 +3,8 @@ extends Control
 var reference_operator = null
 var value = 0
 
-onready var ControlDial = $VBC/GridContainer/SpinBox
-onready var ControlSlider = $VBC/GridContainer/Slidebar
+@onready var ControlDial = $VBC/GridContainer/SpinBox
+@onready var ControlSlider = $VBC/GridContainer/Slidebar
 
 signal bnumber_value_changed(reference_operator, value)
 
@@ -20,7 +20,7 @@ func set_layout(label, number_of_columns):
 	$VBC/GridContainer.columns = number_of_columns
 
 func refresh():
-	$VBC/GridContainer/Slidebar.set_value(value)
+	$VBC/GridContainer/Slidebar.set_value_no_signal(value)
 
 func set_value(new_value):
 	value = new_value
@@ -35,5 +35,4 @@ func set_reference_operator(new_reference_operator):
 
 func _on_Slidebar_value_changed(new_value):
 	set_value(new_value)
-	emit_signal("bnumber_value_changed", reference_operator, new_value)
-
+	bnumber_value_changed.emit(reference_operator, new_value)

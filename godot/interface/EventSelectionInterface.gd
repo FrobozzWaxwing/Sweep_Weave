@@ -14,10 +14,8 @@ signal event_doubleclicked(selected_event)
 
 func _ready():
 	selected_event = EventPointer.new(null, null, null)
-	if (0 < $Background/VBC/SortBar/SortMenu.get_item_count()):
-		$Background/VBC/SortBar/SortMenu.select(0)
 
-onready var event_selection_tree = get_node("Background/VBC/EventTree")
+@onready var event_selection_tree = get_node("Background/VBC/EventTree")
 
 func reset():
 	blacklist.clear()
@@ -61,19 +59,19 @@ func refresh():
 							entry_r.set_metadata(0, {"encounter": encounter, "option": option, "reaction": reaction})
 	$Background/VBC/NegatedCheckBox.visible = display_negated_checkbox
 
-onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
-onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
-onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
-onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
-onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
-onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
-onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
-onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
+@onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
+@onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
+@onready var sort_rev_alpha_icon_light = preload("res://icons/sort-alpha-down-alt.svg")
+@onready var sort_rev_alpha_icon_dark = preload("res://icons/sort-alpha-down-alt_dark.svg")
+@onready var sort_numeric_icon_light = preload("res://icons/sort-numeric-down.svg")
+@onready var sort_numeric_icon_dark = preload("res://icons/sort-numeric-down_dark.svg")
+@onready var sort_rev_numeric_icon_light = preload("res://icons/sort-numeric-down-alt.svg")
+@onready var sort_rev_numeric_icon_dark = preload("res://icons/sort-numeric-down-alt_dark.svg")
 
 func refresh_sort_icon():
 	var sort_index = $Background/VBC/SortBar/SortMenu.get_selected()
 	var sort_method = $Background/VBC/SortBar/SortMenu.get_popup().get_item_text(sort_index)
-	var reversed = $Background/VBC/SortBar/ToggleReverseButton.pressed
+	var reversed = $Background/VBC/SortBar/ToggleReverseButton.is_pressed()
 	if (light_mode):
 		if ("Alphabetical" == sort_method or "Characters" == sort_method or "Spools" == sort_method):
 			if (reversed):
@@ -111,18 +109,18 @@ func _on_EventTree_item_selected():
 		selected_event.encounter = encounter
 		selected_event.option = option
 		selected_event.reaction = reaction
-		emit_signal("selected_event_changed", selected_event)
+		selected_event_changed.emit(selected_event)
 
 func _on_NegatedCheckBox_pressed():
-	selected_event.negated = $Background/VBC/NegatedCheckBox.pressed
-	emit_signal("selected_event_changed", selected_event)
+	selected_event.negated = $Background/VBC/NegatedCheckBox.is_pressed()
+	selected_event_changed.emit(selected_event)
 
 func _on_SortMenu_item_selected(index):
 	var sort_method = $Background/VBC/SortBar/SortMenu.get_popup().get_item_text(index)
 	if ("Word Count" == sort_method):
 		for encounter in storyworld.encounters:
 			encounter.wordcount() #Update recorded wordcount of each encounter.
-	var reversed = $Background/VBC/SortBar/ToggleReverseButton.pressed
+	var reversed = $Background/VBC/SortBar/ToggleReverseButton.is_pressed()
 	storyworld.sort_encounters(sort_method, reversed)
 	refresh()
 	refresh_sort_icon()
@@ -135,7 +133,7 @@ func _on_ToggleReverseButton_toggled(button_pressed):
 	refresh_sort_icon()
 
 func _on_EventTree_item_activated():
-	emit_signal("event_doubleclicked", selected_event)
+	event_doubleclicked.emit(selected_event)
 
 #GUI Themes:
 

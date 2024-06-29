@@ -1,4 +1,4 @@
-[gd_resource type="Gradient" format=2]
+[gd_resource type="Gradient" format=3 uid="uid://c5qx1onlrsw0r"]
 
 [resource]
-colors = PoolColorArray( 0.25098, 0.752941, 0.501961, 1, 0.25098, 0.501961, 0.752941, 1 )
+colors = PackedColorArray(0.25098, 0.752941, 0.501961, 1, 0.25098, 0.501961, 0.752941, 1)

@@ -18,7 +18,7 @@ func log_update(character = null):
 	if (null != character):
 		character.log_update()
 	storyworld.log_update()
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
 
 func refresh_character_list():
@@ -38,9 +38,9 @@ func refresh_property_list():
 		return
 	for key in current_character.bnumber_properties.keys():
 		var onion = current_character.bnumber_properties[key]
-		if (TYPE_DICTIONARY == typeof(onion) and onion.empty()):
+		if (TYPE_DICTIONARY == typeof(onion) and onion.is_empty()):
 			continue
-		var new_node = trait_editing_node_scene.instance()
+		var new_node = trait_editing_node_scene.instantiate()
 		new_node.storyworld = storyworld
 		new_node.character_to_edit = current_character
 		new_node.keyring = [key]
@@ -69,7 +69,7 @@ func _on_AddCharacter_pressed():
 	$HBC/VBC/Scroll/CharacterList.add_item(new_character.char_name)
 	var index = $HBC/VBC/Scroll/CharacterList.get_item_count() - 1
 	$HBC/VBC/Scroll/CharacterList.set_item_metadata(index, new_character)
-	emit_signal("new_character_created", new_character)
+	new_character_created.emit(new_character)
 	load_character(new_character)
 
 func load_character(who):
@@ -87,7 +87,7 @@ func _on_CharNameEdit_text_changed(new_text):
 	for each in $HBC/VBC2/Scroll_Properties/VBC.get_children():
 		each.refresh_character_name(current_character)
 	log_update(current_character)
-	emit_signal("character_name_changed", current_character)
+	character_name_changed.emit(current_character)
 
 func _on_CharPronounEdit_text_changed(new_text):
 	current_character.pronoun = new_text
@@ -134,10 +134,10 @@ func _on_ConfirmCharacterDeletion_confirmed():
 		storyworld.delete_character(character_to_delete)
 		log_update(null)
 		refresh_character_list()
-		if (!storyworld.characters.empty()):
+		if (!storyworld.characters.is_empty()):
 			load_character(storyworld.characters.front())
-		emit_signal("character_deleted")
-		emit_signal("refresh_authored_property_lists")
+		character_deleted.emit()
+		refresh_authored_property_lists.emit()
 
 func _on_CharacterList_item_selected(index):
 	if (0 < storyworld.characters.size()):
@@ -146,10 +146,10 @@ func _on_CharacterList_item_selected(index):
 
 #GUI Themes:
 
-onready var add_icon_light = preload("res://icons/add.svg")
-onready var add_icon_dark = preload("res://icons/add_dark.svg")
-onready var delete_icon_light = preload("res://icons/delete.svg")
-onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
+@onready var add_icon_light = preload("res://icons/add.svg")
+@onready var add_icon_dark = preload("res://icons/add_dark.svg")
+@onready var delete_icon_light = preload("res://icons/delete.svg")
+@onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	color = background_color

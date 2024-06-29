@@ -31,10 +31,12 @@ func load_content_from_files():
 	else:
 		MainLabel.text = "Importing content from files:"
 	for path in file_paths:
-#		print("Opening: " + path)
 		MainLabel.text += " (" + path + ")"
-		var file = File.new()
-		file.open(path, 1)
+		if not FileAccess.file_exists(path):
+			continue # Error: File not found.
+		var file = FileAccess.open(path, FileAccess.READ)
+		if (null == file):
+			continue # Error: Could not open file.
 		var json_string = file.get_as_text().replacen("var storyworld_data = ", "")
 		var storyworld = Storyworld.new()
 		storyworld.load_from_json(json_string)

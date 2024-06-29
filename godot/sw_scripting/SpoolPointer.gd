@@ -7,7 +7,7 @@ func _init(in_spool = null):
 	output_type = sw_script_data_types.VARIANT
 	set_value(in_spool)
 
-static func get_pointer_type():
+func get_pointer_type():
 	return "Spool Pointer"
 
 func get_value():
@@ -53,7 +53,7 @@ func deactivate():
 	else:
 		return false
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = null
 	if (spool is Spool or spool is QuickSpool):
 		output = spool.id
@@ -65,7 +65,7 @@ func data_to_string():
 	else:
 		return "Invalid SpoolPointer"
 
-func validate(intended_script_output_datatype):
+func validate(_intended_script_output_datatype):
 	var report = ""
 	#Check spool:
 	if (null == spool):

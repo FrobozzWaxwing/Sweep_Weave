@@ -11,7 +11,7 @@ func _init(in_condition = null, in_outcome1 = null, in_outcome2 = null):
 		add_operand(in_outcome1)
 		add_operand(in_outcome2)
 
-static func get_operator_type():
+func get_operator_type():
 	return "If Then"
 
 func add_conditional(condition, conditional_result):

@@ -9,7 +9,7 @@ func _init(in_operands = []):
 	for operand in in_operands:
 		add_operand(operand)
 
-static func get_operator_type():
+func get_operator_type():
 	return "Arithmetic Mean"
 
 func get_value():
@@ -21,7 +21,7 @@ func get_value():
 		var count = 0
 		for operand in operands:
 			var operand_value = evaluate_operand(operand)
-			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
+			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_FLOAT == typeof(operand_value))):
 				sum += operand_value
 				count += 1
 		if (0 == count):
@@ -38,7 +38,7 @@ func get_and_report_value():
 		var count = 0
 		for operand in operands:
 			var operand_value = evaluate_and_report_operand(operand)
-			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
+			if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_FLOAT == typeof(operand_value))):
 				sum += operand_value
 				count += 1
 		if (0 == count):

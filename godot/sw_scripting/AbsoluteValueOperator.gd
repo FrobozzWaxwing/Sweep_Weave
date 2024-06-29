@@ -9,7 +9,7 @@ func _init(in_operand = null):
 	if (null != in_operand):
 		add_operand(in_operand)
 
-static func get_operator_type():
+func get_operator_type():
 	return "Absolute Value"
 
 func get_value():
@@ -17,7 +17,7 @@ func get_value():
 	if (0 == operands.size()):
 		print ("Warning: absolute value operator has no operands.")
 	var operand_value = evaluate_operand(operands.front())
-	if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
+	if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_FLOAT == typeof(operand_value))):
 		output = abs(operand_value)
 	return output
 
@@ -26,6 +26,6 @@ func get_and_report_value():
 	if (0 == operands.size()):
 		print ("Warning: absolute value operator has no operands.")
 	var operand_value = evaluate_and_report_operand(operands.front())
-	if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_REAL == typeof(operand_value))):
+	if (null != operand_value and (TYPE_INT == typeof(operand_value) or TYPE_FLOAT == typeof(operand_value))):
 		output = abs(operand_value)
 	return output

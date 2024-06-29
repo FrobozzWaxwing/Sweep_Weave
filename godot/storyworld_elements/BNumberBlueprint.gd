@@ -13,8 +13,8 @@ enum possible_attribution_targets {STORYWORLD, CAST_MEMBERS, ENTIRE_CAST}
 var affected_characters = []
 #Variables for editor:
 var creation_index = 0
-var creation_time = OS.get_unix_time()
-var modified_time = OS.get_unix_time()
+var creation_time = Time.get_unix_time_from_system()
+var modified_time = Time.get_unix_time_from_system()
 
 func _init(in_storyworld, in_creation_index:int, in_id:String, in_property_name:String, in_depth:int = 0, in_default_value = 0):
 	storyworld = in_storyworld
@@ -23,8 +23,8 @@ func _init(in_storyworld, in_creation_index:int, in_id:String, in_property_name:
 	depth = in_depth
 	default_value = in_default_value
 	creation_index = in_creation_index
-	creation_time = OS.get_unix_time()
-	modified_time = OS.get_unix_time()
+	creation_time = Time.get_unix_time_from_system()
+	modified_time = Time.get_unix_time_from_system()
 
 func get_index():
 	if (null != storyworld):
@@ -46,7 +46,7 @@ func applies_to(character):
 	return false
 
 func log_update():
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 
 func set_as_copy_of(original, create_mutual_links:bool = true):
 	id = original.id
@@ -61,7 +61,7 @@ func set_as_copy_of(original, create_mutual_links:bool = true):
 			if (create_mutual_links):
 				if (!character.authored_property_directory.has(self)):
 					character.index_authored_property(self)
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 
 func remap(to_storyworld):
 	storyworld = to_storyworld
@@ -80,7 +80,7 @@ func replace_character_with_character(character_to_delete, replacement):
 	elif (possible_attribution_targets.ENTIRE_CAST == attribution_target):
 		affected_characters.erase(character_to_delete)
 
-func compile(parent_storyworld, include_editor_only_variables:bool = false):
+func compile(_parent_storyworld, _include_editor_only_variables:bool = false):
 	var output = {}
 	output["property_type"] = "bounded number"
 	output["id"] = id
@@ -96,7 +96,7 @@ func compile(parent_storyworld, include_editor_only_variables:bool = false):
 	output["affected_characters"] = []
 	for character in affected_characters:
 		output["affected_characters"].append(character.id)
-	if (include_editor_only_variables):
+	if (_include_editor_only_variables):
 		#Editor only variables:
 		output["creation_index"] = creation_index
 		output["creation_time"] = creation_time

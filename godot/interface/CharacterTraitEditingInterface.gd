@@ -5,8 +5,8 @@ var character_to_edit = null
 var keyring = [] #First entry is bounded number property name, other entries specify the chain of characters.
 var KeyringOptionButton = load("res://interface/KeyringOptionButton.tscn")
 
-onready var ControlDial = $VBC/HBC2/SpinBox
-onready var ControlSlider = $VBC/HBC2/Slidebar
+@onready var ControlDial = $VBC/HBC2/SpinBox
+@onready var ControlSlider = $VBC/HBC2/Slidebar
 
 signal bnumber_property_changed(character, keyring, new_value)
 
@@ -45,9 +45,9 @@ func refresh():
 	elif (TYPE_DICTIONARY == typeof(value)):
 		set_error_message("Error: Could not find bnumber when checking character.")
 		return false
-	elif (TYPE_INT == typeof(value) or TYPE_REAL == typeof(value)):
-		$VBC/HBC2/Slidebar.set_value(value)
-		$VBC/HBC2/SpinBox.set_value(value)
+	elif (TYPE_INT == typeof(value) or TYPE_FLOAT == typeof(value)):
+		$VBC/HBC2/Slidebar.set_value_no_signal(value)
+		$VBC/HBC2/SpinBox.set_value_no_signal(value)
 	var property_id = keyring.front()
 	if (!storyworld.authored_property_directory.has(property_id)):
 		set_error_message("Error: Could not find property when checking storyworld.")
@@ -64,7 +64,7 @@ func refresh():
 		$VBC/HBC1/KeyringHBC.visible = true
 		var onion = character_to_edit.bnumber_properties[property_id]
 		for keyring_index in range(1, keyring.size()):
-			var selector = KeyringOptionButton.instance()
+			var selector = KeyringOptionButton.instantiate()
 			selector.keyring_index = keyring_index
 			var option_index = 0
 			var selected_index = 0
@@ -76,7 +76,7 @@ func refresh():
 						selected_index = option_index
 					option_index += 1
 			selector.select(selected_index)
-			selector.connect("keyring_change_requested", self, "change_keyring")
+			selector.keyring_change_requested.connect(change_keyring)
 			$VBC/HBC1/KeyringHBC.add_child(selector)
 			onion = onion[keyring[keyring_index]]
 	return true
@@ -105,14 +105,14 @@ func change_keyring(keyring_index, perceived_character):
 	var length = keyring.size()
 	keyring.resize(keyring_index + 1)
 	var onion = character_to_edit.get_bnumber_property(keyring)
-	if (!storyworld.characters.empty()):
+	if (!storyworld.characters.is_empty()):
 		while (TYPE_DICTIONARY == typeof(onion) and keyring.size() < length):
 			for prospect in storyworld.characters:
 				if (onion.has(prospect.id)):
 					keyring.append(prospect.id)
 					onion = onion[prospect.id]
 					break
-	if (TYPE_INT == typeof(onion) or TYPE_REAL == typeof(onion)):
+	if (TYPE_INT == typeof(onion) or TYPE_FLOAT == typeof(onion)):
 		ControlSlider.value = onion
 		ControlDial.value = onion
 	if (keyring_index + 1 < keyring.size()):
@@ -122,13 +122,13 @@ func _on_Slidebar_value_changed(value):
 	ControlDial.value = (value)
 	if (0 != keyring.size() and null != character_to_edit):
 		character_to_edit.set_bnumber_property(keyring, value)
-		emit_signal("bnumber_property_changed", character_to_edit, keyring, value)
+		bnumber_property_changed.emit(character_to_edit, keyring, value)
 
 func _on_SpinBox_value_changed(value):
 	ControlSlider.value = value
 	if (0 != keyring.size() and null != character_to_edit):
 		character_to_edit.set_bnumber_property(keyring, value)
-		emit_signal("bnumber_property_changed", character_to_edit, keyring, value)
+		bnumber_property_changed.emit(character_to_edit, keyring, value)
 
 #GUI Themes:
 

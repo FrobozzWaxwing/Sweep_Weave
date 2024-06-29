@@ -9,7 +9,7 @@ func _init(in_value = ""):
 	output_type = sw_script_data_types.STRING
 	set_value(in_value)
 
-static func get_pointer_type():
+func get_pointer_type():
 	return "String Constant"
 
 func get_value():
@@ -26,7 +26,7 @@ func clear():
 	treeview_node = null
 	value = ""
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Pointer"
 	output["pointer_type"] = get_pointer_type()

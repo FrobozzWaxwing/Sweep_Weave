@@ -3,7 +3,6 @@ extends Control
 var storyworld = null
 var selected_property = null
 var allow_root_character_editing = true
-var allow_coefficient_editing = false
 var KeyringOptionButton = load("res://interface/KeyringOptionButton.tscn")
 
 signal bnumber_property_selected(selected_property)
@@ -16,14 +15,14 @@ func set_error_message(text = "", tooltip = ""):
 	if ("" == text):
 		$Background/InverseParserHBC/ErrorMessage.set_visible(true)
 		$Background/InverseParserHBC/ErrorMessage.set_visible(true)
-		$Background/InverseParserHBC/ErrorMessage.set_tooltip("")
+		$Background/InverseParserHBC/ErrorMessage.set_tooltip_text("")
 	else:
 		$Background/InverseParserHBC/ErrorMessage.set_visible(false)
 		$Background/InverseParserHBC/ErrorMessage.set_visible(false)
 		if ("" == tooltip):
-			$Background/InverseParserHBC/ErrorMessage.set_tooltip(text)
+			$Background/InverseParserHBC/ErrorMessage.set_tooltip_text(text)
 		else:
-			$Background/InverseParserHBC/ErrorMessage.set_tooltip(tooltip)
+			$Background/InverseParserHBC/ErrorMessage.set_tooltip_text(tooltip)
 
 func refresh_character_name(character):
 	for index in range($Background/InverseParserHBC/RootCharacterSelector.get_item_count()):
@@ -37,7 +36,7 @@ func refresh_character_name(character):
 func refresh():
 	#This function refreshes the interface.
 	#The reset() function should be called at least once before this function, to create a bounded number property and initialize the editor.
-	if (null == selected_property or null == selected_property.character or selected_property.keyring.empty() or null == storyworld or storyworld.characters.empty()):
+	if (null == selected_property or null == selected_property.character or selected_property.keyring.is_empty() or null == storyworld or storyworld.characters.is_empty()):
 		return false
 	#Refresh character selector.
 	$Background/InverseParserHBC/RootCharacterSelector.visible = allow_root_character_editing
@@ -57,7 +56,6 @@ func refresh():
 		else:
 			$Background/InverseParserHBC/RootCharacterSelector.select(selected_index)
 	if (0 == selected_property.character.authored_property_directory.size()):
-		$Background/InverseParserHBC/NegateToggleButton.visible = false
 		#The selected character has no authored properties associated with them.
 		for child in $Background/InverseParserHBC/KeyringBC.get_children():
 			child.queue_free()
@@ -65,12 +63,6 @@ func refresh():
 		return true
 	else:
 		set_error_message("", "")
-	#Refresh negation toggle button.
-	$Background/InverseParserHBC/NegateToggleButton.visible = allow_coefficient_editing
-	if (1 == selected_property.coefficient):
-		$Background/InverseParserHBC/NegateToggleButton.text = " "
-	elif (-1 == selected_property.coefficient):
-		$Background/InverseParserHBC/NegateToggleButton.text = "-"
 	#Refresh keyring selector.
 	for child in $Background/InverseParserHBC/KeyringBC.get_children():
 		child.queue_free()
@@ -80,14 +72,14 @@ func refresh():
 	var onion = selected_property.character.bnumber_properties[selected_property.keyring.front()]
 	for keyring_index in range(layers + 1):
 		if (0 == keyring_index):
-			var selector = KeyringOptionButton.instance()
+			var selector = KeyringOptionButton.instantiate()
 			selector.keyring_index = keyring_index
 			option_index = 0
 			selected_index = 0
 			for key in selected_property.character.authored_property_directory.keys():
 				var property_blueprint = selected_property.character.authored_property_directory[key]
 				if (property_blueprint.attribution_target == property_blueprint.possible_attribution_targets.ENTIRE_CAST or property_blueprint.affected_characters.has(selected_property.character)):
-					if (0 == property_blueprint.depth or !selected_property.character.bnumber_properties[property_blueprint.id].empty()):
+					if (0 == property_blueprint.depth or !selected_property.character.bnumber_properties[property_blueprint.id].is_empty()):
 						selector.add_item(property_blueprint.get_property_name())
 						selector.set_item_metadata(option_index, property_blueprint)
 						if (selected_property.keyring[keyring_index] == property_blueprint.id):
@@ -98,14 +90,14 @@ func refresh():
 				break
 			else:
 				selector.select(selected_index)
-			selector.connect("keyring_change_requested", self, "change_keyring")
+			selector.keyring_change_requested.connect(change_keyring)
 			$Background/InverseParserHBC/KeyringBC.add_child(selector)
 		elif (1 <= keyring_index):
-			if (onion.empty()):
+			if (onion.is_empty()):
 				set_error_message("Error: The selected property is empty.")
 				break
 			else:
-				var selector = KeyringOptionButton.instance()
+				var selector = KeyringOptionButton.instantiate()
 				selector.keyring_index = keyring_index
 				option_index = 0
 				selected_index = 0
@@ -117,7 +109,7 @@ func refresh():
 							selected_index = option_index
 						option_index += 1
 				selector.select(selected_index)
-				selector.connect("keyring_change_requested", self, "change_keyring")
+				selector.keyring_change_requested.connect(change_keyring)
 				$Background/InverseParserHBC/KeyringBC.add_child(selector)
 				if (onion.has(selected_property.keyring[keyring_index])):
 					onion = onion[selected_property.keyring[keyring_index]]
@@ -127,7 +119,7 @@ func refresh():
 	return true
 
 func change_keyring(keyring_index, option_metadata):
-	if (null == storyworld or storyworld.characters.empty()):
+	if (null == storyworld or storyworld.characters.is_empty()):
 		return
 	var onion = null
 	if (0 == keyring_index):
@@ -145,7 +137,7 @@ func change_keyring(keyring_index, option_metadata):
 				onion = onion[prospect.id]
 				break
 	refresh()
-	emit_signal("bnumber_property_selected", selected_property)
+	bnumber_property_selected.emit(selected_property)
 
 func reset():
 	#This function resets the selected property to default, or creates a new property if necessary.
@@ -158,15 +150,6 @@ func reset():
 			else:
 				selected_property = storyworld.create_default_bnumber_pointer()
 				#Since this is a temporary pointer used by the interface, we need not set the "parent_operator" property.
-
-func _on_NegateToggleButton_pressed():
-	if (1 == selected_property.coefficient):
-		selected_property.coefficient = -1
-		$Background/InverseParserHBC/NegateToggleButton.text = "-"
-	elif (-1 == selected_property.coefficient):
-		selected_property.coefficient = 1
-		$Background/InverseParserHBC/NegateToggleButton.text = " "
-	emit_signal("bnumber_property_selected", selected_property)
 
 func _on_RootCharacterSelector_item_selected(index):
 	var character = $Background/InverseParserHBC/RootCharacterSelector.get_item_metadata(index)

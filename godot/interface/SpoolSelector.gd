@@ -11,7 +11,7 @@ func _ready():
 
 func fill_spool_selection_list(selector):
 	selector.clear()
-	if (null == storyworld or storyworld.spools.empty()):
+	if (null == storyworld or storyworld.spools.is_empty()):
 		return false
 	var option_index = 0
 	var selected_index = 0
@@ -29,7 +29,7 @@ func reset(pointer_type = "SpoolPointer"):
 	#This function resets the selected property to default, or creates a new property if necessary.
 	#Since this is a temporary pointer used by the interface, we need not set the "parent_operator" property of the pointer.
 	if (null != storyworld and storyworld is Storyworld):
-		if (!storyworld.spools.empty()):
+		if (!storyworld.spools.is_empty()):
 			if (null != selected_pointer and is_instance_valid(selected_pointer) and selected_pointer is SWPointer):
 				if (selected_pointer is SpoolPointer):
 					selected_pointer.spool = storyworld.spools[0]
@@ -45,7 +45,7 @@ func reset(pointer_type = "SpoolPointer"):
 func refresh():
 	#This function refreshes the interface.
 	#The reset() function should be called at least once before this function, to create a bounded number property and initialize the editor.
-	if (null == storyworld or storyworld.spools.empty()):
+	if (null == storyworld or storyworld.spools.is_empty()):
 		return false
 	fill_spool_selection_list($Panel/HBC/SpoolSelectionList)
 	if (allow_negation):
@@ -64,18 +64,18 @@ func _on_SpoolSelectionList_item_selected(index):
 	var metadata = $Panel/HBC/SpoolSelectionList.get_item_metadata(index)
 	if (metadata is Spool):
 		selected_pointer.spool = metadata
-		emit_signal("spool_selected", selected_pointer)
+		spool_selected.emit(selected_pointer)
 
 func _on_NegateButton_pressed():
 	if (selected_pointer is SpoolStatusPointer):
 		if (selected_pointer.negated):
 			selected_pointer.negated = false
 			$Panel/HBC/NegateButton.text = " is active"
-			emit_signal("spool_selected", selected_pointer)
+			spool_selected.emit(selected_pointer)
 		else:
 			selected_pointer.negated = true
 			$Panel/HBC/NegateButton.text = " is not active"
-			emit_signal("spool_selected", selected_pointer)
+			spool_selected.emit(selected_pointer)
 	else:
 		$Panel/HBC/Label.visible = true
 		$Panel/HBC/NegateButton.visible = false

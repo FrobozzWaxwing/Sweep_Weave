@@ -11,8 +11,8 @@ var encounters = [] #A list of encounters.
 
 #Variables for editor:
 var creation_index = 0
-var creation_time = OS.get_unix_time()
-var modified_time = OS.get_unix_time()
+var creation_time = Time.get_unix_time_from_system()
+var modified_time = Time.get_unix_time_from_system()
 
 #Variables for playtesting:
 var is_active = true #This variable tracks whether or not the spool is currently active. Used during playtesting.
@@ -35,7 +35,7 @@ func get_listable_text(maximum_output_length:int = 70):
 		return text.left(maximum_output_length - 3) + "..."
 
 func log_update():
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 
 func set_as_copy_of(original, create_mutual_links:bool = true):
 	#If create_mutual_links == true then the present spool will be added to the connected_spools array of each encounter added to the encounters array of this spool.
@@ -49,7 +49,7 @@ func set_as_copy_of(original, create_mutual_links:bool = true):
 			if (create_mutual_links):
 				encounter.connected_spools.append(self)
 	starts_active = original.starts_active
-	modified_time = OS.get_unix_time()
+	modified_time = Time.get_unix_time_from_system()
 
 func remap(to_storyworld):
 	var new_encounters = []
@@ -58,7 +58,7 @@ func remap(to_storyworld):
 			new_encounters.append(to_storyworld.encounter_directory[encounter.id])
 	encounters = new_encounters.duplicate()
 
-func compile(parent_storyworld, include_editor_only_variables:bool = false):
+func compile(_parent_storyworld, _include_editor_only_variables:bool = false):
 	var result = {}
 	result["id"] = id
 	result["spool_name"] = spool_name
@@ -66,7 +66,7 @@ func compile(parent_storyworld, include_editor_only_variables:bool = false):
 	result["encounters"] = []
 	for each in encounters:
 		result["encounters"].append(each.id)
-	if (include_editor_only_variables):
+	if (_include_editor_only_variables):
 		#Editor only variables:
 		result["creation_index"] = creation_index
 		result["creation_time"] = creation_time

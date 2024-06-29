@@ -24,9 +24,9 @@ func readable_date(unixdatetime):
 
 func _ready():
 	$StatTree.set_column_expand(0, true)
-	$StatTree.set_column_min_width(0, 2)
+	$StatTree.set_column_custom_minimum_width(0, 2)
 	$StatTree.set_column_expand(1, true)
-	$StatTree.set_column_min_width(1, 3)
+	$StatTree.set_column_custom_minimum_width(1, 3)
 
 func add_row_to_StatTree(root, label, value):
 	var row = $StatTree.create_item(root)
@@ -68,9 +68,3 @@ func refresh_statistical_overview():
 	add_row_to_StatTree(root, "Total number of spools: ", str(storyworld.spools.size()))
 	add_row_to_StatTree(root, "Total number of properties: ", str(storyworld.authored_properties.size()))
 	add_row_to_StatTree(root, "Total number of words: ", str(sum_words))
-#	var option_reaction_stats = [0,0,0,0,0]
-#	for x in storyworld.encounters:
-#		for y in x.options:
-#			option_reaction_stats[y.reactions.size()] += 1
-#	for each in option_reaction_stats:
-#		print (str(each))

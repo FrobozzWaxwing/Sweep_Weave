@@ -2,7 +2,6 @@ extends Object
 class_name AutoRehearsal
 
 var starting_page = null
-var turn = 0
 var current_page = null
 var storyworld = null
 
@@ -12,11 +11,27 @@ var cast_traits_min = []
 var cast_traits_legend = []
 var cast_trait_constants = []
 
+var active_spools = []
+
+var checklist = []
+
 func _init(in_storyworld:Storyworld):
 	storyworld = QuickStoryworld.new()
 	if (null != in_storyworld):
 		storyworld.set_as_quickened_copy_of(in_storyworld)
 	quicken_bnumberpointers()
+	quicken_reactions()
+	checklist.resize(storyworld.encounters.size())
+	checklist.fill(false)
+
+func reset(in_storyworld:Storyworld):
+	clear_all_data()
+	if (null != in_storyworld):
+		storyworld.set_as_quickened_copy_of(in_storyworld)
+	quicken_bnumberpointers()
+	quicken_reactions()
+	checklist.resize(storyworld.encounters.size())
+	checklist.fill(false)
 
 func quicken_bnumberpointers():
 	cast_traits_legend.clear()
@@ -41,7 +56,7 @@ func quicken_bnumberpointers():
 	for character in storyworld.characters:
 		for bnumber_property in character.authored_properties:
 			var onion = character.bnumber_properties[bnumber_property.id]
-			if (TYPE_DICTIONARY == typeof(onion) and onion.empty()):
+			if (TYPE_DICTIONARY == typeof(onion) and onion.is_empty()):
 				continue
 			if (0 == bnumber_property.depth):
 				for pointer in altered_variables:
@@ -102,6 +117,16 @@ func quicken_bnumberpointers():
 					if (effect is SWEffect):
 						effect.assignment_script.quicken_bnumberpointers(self)
 
+func quicken_reactions():
+	for encounter in storyworld.encounters:
+		for option in encounter.get_options():
+			for reaction in option.reactions:
+				for effect in reaction.after_effects:
+					if (effect is BNumberEffect):
+						reaction.changes_cast = true
+					if (effect is SpoolEffect):
+						reaction.changes_spools = true
+
 #func select_page(reaction = null):
 #	if (null != reaction and null != reaction.consequence):
 #		#Check for a direct link from the most recent reaction, (if any have yet occurred,) to an encounter.
@@ -124,37 +149,92 @@ func quicken_bnumberpointers():
 #								selection = encounter
 #		return selection
 
-func select_page(reaction = null):
-	if (null != reaction and null != reaction.consequence):
-		#Check for a direct link from the most recent reaction, (if any have yet occurred,) to an encounter.
-		return reaction.consequence
-	else:
-		var checked = {}
-		var greatest_desirability = -1
-		var selection = null
-		for spool in storyworld.spools:
-			if (spool.is_active):
-				#Run through active spools and check connected encounters.
-				for encounter in spool.unsorted_encounters:
-					if (!checked.has(encounter.id)):
-						checked[encounter.id] = true
-						if (0 == encounter.occurrences and encounter.acceptability_script.get_value()):
-							#If the encounter has not yet occurred and is acceptable, then calculate its desirability.
-							var encounter_desirability = encounter.calculate_desirability()
-							if (null != encounter_desirability and encounter_desirability > greatest_desirability):
-								greatest_desirability = encounter_desirability
-								selection = encounter
-				for encounter in spool.sorted_encounters:
-					if (!checked.has(encounter.id)):
-						checked[encounter.id] = true
-						if (0 == encounter.occurrences and encounter.acceptability_script.get_value()):
-							#If the encounter has not yet occurred and is acceptable, then calculate its desirability.
-							var encounter_desirability = encounter.calculate_desirability()
-							if (null != encounter_desirability and encounter_desirability > greatest_desirability):
-								greatest_desirability = encounter_desirability
-								selection = encounter
-							break
-		return selection
+#func select_page(reaction = null):
+	#if (null != reaction and null != reaction.consequence):
+		##Check for a direct link from the most recent reaction, (if any have yet occurred,) to an encounter.
+		#return reaction.consequence
+	#else:
+		#var checked = {}
+		#var greatest_desirability = -1
+		#var selection = null
+		#for spool in storyworld.spools:
+			#if (spool.is_active):
+				##Run through active spools and check connected encounters.
+				#for encounter in spool.unsorted_encounters:
+					#if (!checked.has(encounter.id)):
+						#checked[encounter.id] = true
+						#if (0 == encounter.occurrences and encounter.acceptability_script.get_value()):
+							##If the encounter has not yet occurred and is acceptable, then calculate its desirability.
+							#var encounter_desirability = encounter.calculate_desirability()
+							#if (null != encounter_desirability and encounter_desirability > greatest_desirability):
+								#greatest_desirability = encounter_desirability
+								#selection = encounter
+				#for encounter in spool.sorted_encounters:
+					#if (!checked.has(encounter.id)):
+						#checked[encounter.id] = true
+						#if (0 == encounter.occurrences and encounter.acceptability_script.get_value()):
+							##If the encounter has not yet occurred and is acceptable, then calculate its desirability.
+							#var encounter_desirability = encounter.calculate_desirability()
+							#if (null != encounter_desirability and encounter_desirability > greatest_desirability):
+								#greatest_desirability = encounter_desirability
+								#selection = encounter
+							#break
+		#return selection
+
+#func select_page():
+	#checklist.fill(false)
+	#var greatest_desirability = -1
+	#var selection = null
+	#for spool in storyworld.spools:
+		#if (spool.is_active):
+			##Run through active spools and check connected encounters.
+			#for encounter in spool.unsorted_encounters:
+				#if (!checklist[encounter.checklist_id]):
+					#checklist[encounter.checklist_id] = true
+					#if (0 == encounter.occurrences and encounter.acceptability_script.get_value()):
+						##If the encounter has not yet occurred and is acceptable, then calculate its desirability.
+						#var encounter_desirability = encounter.calculate_desirability()
+						#if (null != encounter_desirability and encounter_desirability > greatest_desirability):
+							#greatest_desirability = encounter_desirability
+							#selection = encounter
+			#for encounter in spool.sorted_encounters:
+				#if (!checklist[encounter.checklist_id]):
+					#checklist[encounter.checklist_id] = true
+					#if (0 == encounter.occurrences and encounter.acceptability_script.get_value()):
+						##If the encounter has not yet occurred and is acceptable, then calculate its desirability.
+						#var encounter_desirability = encounter.calculate_desirability()
+						#if (null != encounter_desirability and encounter_desirability > greatest_desirability):
+							#greatest_desirability = encounter_desirability
+							#selection = encounter
+						#break
+	#return selection
+
+func select_page(leaf:QuickHB_Record = null):
+	checklist.fill(false)
+	var greatest_desirability = -1
+	var selection = null
+	for spool in active_spools:
+		#Run through active spools and check connected encounters.
+		for encounter in spool.unsorted_encounters:
+			if (!checklist[encounter.checklist_id]):
+				checklist[encounter.checklist_id] = true
+				if (0 == encounter.occurrences and encounter.acceptability_script.get_value()):
+					#If the encounter has not yet occurred and is acceptable, then calculate its desirability.
+					var encounter_desirability = encounter.calculate_desirability()
+					if (null != encounter_desirability and encounter_desirability > greatest_desirability):
+						greatest_desirability = encounter_desirability
+						selection = encounter
+		for encounter in spool.sorted_encounters:
+			if (!checklist[encounter.checklist_id]):
+				checklist[encounter.checklist_id] = true
+				if (0 == encounter.occurrences and encounter.acceptability_script.get_value()):
+					#If the encounter has not yet occurred and is acceptable, then calculate its desirability.
+					var encounter_desirability = encounter.calculate_desirability()
+					if (null != encounter_desirability and encounter_desirability > greatest_desirability):
+						greatest_desirability = encounter_desirability
+						selection = encounter
+					break
+	return selection
 
 func select_reaction(option:Option):
 	#This determines how a character reacts to a choice made by the player.
@@ -171,19 +251,27 @@ func initialize_cast_traits():
 	cast_traits.clear()
 	cast_traits_max.clear()
 	cast_traits_min.clear()
-	for trait in cast_traits_legend:
-		var starting_value = trait.get_value()
+	for cast_trait in cast_traits_legend:
+		var starting_value = cast_trait.get_value()
 		cast_traits.append(starting_value)
 		cast_traits_max.append(starting_value)
 		cast_traits_min.append(starting_value)
+
+func update_active_spools():
+	active_spools.clear()
+	for spool in storyworld.spools:
+		if (spool.is_active):
+			active_spools.append(spool)
 
 func reset_pValues_to(record:QuickHB_Record):
 	cast_traits = record.relationship_values.duplicate()
 
 func reset_spools_to(record:QuickHB_Record):
-	for spool_id in record.spool_statuses.keys():
-		var spool = storyworld.spool_directory[spool_id]
-		spool.is_active = record.spool_statuses[spool_id]
+	active_spools = record.active_spools.duplicate()
+	for spool in storyworld.spools:
+		spool.is_active = false
+	for spool in active_spools:
+		spool.is_active = true
 
 func reset_occurrences_to(record:QuickHB_Record):
 	for encounter in storyworld.encounters:
@@ -211,7 +299,6 @@ func clear_history():
 		starting_page.call_deferred("free")
 	starting_page = null
 	current_page = null
-	turn = 0
 	for encounter in storyworld.encounters:
 		encounter.occurrences = 0
 		encounter.reachable = false
@@ -221,6 +308,7 @@ func clear_history():
 			option.occurrences = 0
 			option.reachable = false
 			option.yielding_paths = 0
+			option.notable_outcomes.clear()
 			for reaction in option.reactions:
 				reaction.occurrences = 0
 				reaction.reachable = false
@@ -233,38 +321,39 @@ func clear_all_data():
 func begin_playthrough():
 	clear_history()
 	initialize_cast_traits()
+	update_active_spools()
 	starting_page = QuickHB_Record.new()
 	starting_page.encounter = select_page()
 	if (null != starting_page.encounter):
 		starting_page.encounter.occurrences += 1
 		starting_page.encounter.reachable = true
-	starting_page.turn = turn
+	starting_page.turn = 0
 	starting_page.record_character_states(self)
-	starting_page.record_spool_statuses(storyworld)
+	starting_page.record_spool_statuses(self)
 	current_page = starting_page
 
 func turn_to_page(leaf:QuickHB_Record):
 	#Turns to a specific page of the history book, setting all variables appropriately. Used for playtesting.
+	current_page = leaf
 	reset_occurrences_to(leaf)
+	reset_pValues_to(leaf)
+	reset_spools_to(leaf)
 	step_playthrough(leaf)
 
 func step_playthrough(leaf:QuickHB_Record):
-	current_page = leaf
-	reset_pValues_to(leaf)
-	reset_spools_to(leaf)
-	turn = leaf.turn
 	if (null != leaf.encounter):
 		leaf.encounter.reachable = true
-	if (leaf.explored_branches.empty() and leaf.unexplored_branches.empty()):
+	if (leaf.explored_branches.is_empty() and leaf.unexplored_branches.is_empty()):
 		var options = leaf.encounter.get_open_options()
-		if (options.empty()):
+		if (options.is_empty()):
 			leaf.set_as_ending_leaf()
 		else:
+			var next_turn = leaf.turn + 1
 			for option in options:
 				#Add new branch to history tree.
 				var new_page = QuickHB_Record.new(leaf)
 				leaf.add_branch(new_page)
-				new_page.turn = turn + 1
+				new_page.turn = next_turn
 				#Execute option:
 				option.occurrences += 1
 				option.reachable = true
@@ -272,17 +361,18 @@ func step_playthrough(leaf:QuickHB_Record):
 				var reaction = select_reaction(option)
 				reaction.occurrences += 1
 				reaction.reachable = true
-				var characters_changed = false
-				var spools_changed = false
+				#var characters_changed = false
+				#var spools_changed = false
 				for change in reaction.after_effects:
-					if (change is SWEffect):
-						change.enact()
-						if (change is BNumberEffect):
-							characters_changed = true
-						if (change is SpoolEffect):
-							spools_changed = true
-				#Select the next encounter:
-				new_page.encounter = select_page(reaction)
+					change.enact()
+				if (reaction.changes_spools):
+					update_active_spools()
+				# Select the next encounter:
+				# Check for a direct link from the most recent reaction to an encounter.
+				if (null == reaction.consequence):
+					new_page.encounter = select_page()
+				else:
+					new_page.encounter = reaction.consequence
 				if (null == new_page.encounter):
 					#"The End" screen has been reached.
 					new_page.set_as_ending_leaf()
@@ -290,13 +380,13 @@ func step_playthrough(leaf:QuickHB_Record):
 				new_page.player_choice = option
 				new_page.antagonist_choice = reaction
 				new_page.record_character_states(self)
-				new_page.record_spool_statuses(storyworld)
+				new_page.record_spool_statuses(self)
 				#Rewind:
 				option.occurrences -= 1
 				reaction.occurrences -= 1
-				if (characters_changed):
+				if (reaction.changes_cast):
 					reset_pValues_to(leaf)
-				if (spools_changed):
+				if (reaction.changes_spools):
 					reset_spools_to(leaf)
 			if (leaf.encounter.parallels_detected):
 				#Some branches may be parallel.
@@ -317,6 +407,32 @@ func step_playthrough(leaf:QuickHB_Record):
 					nonskippable.append(branch)
 			leaf.unexplored_branches = nonskippable
 
+func rewind(leaf:QuickHB_Record):
+	current_page.decrement_occurrences()
+	var parent = leaf.get_parent()
+	if (null != parent and null != leaf.antagonist_choice):
+		if (leaf.antagonist_choice.changes_cast):
+			reset_pValues_to(parent)
+		if (leaf.antagonist_choice.changes_spools):
+			reset_spools_to(parent)
+	return parent
+
+func record_notable_outcome(leaf:QuickHB_Record):
+	var encounter = leaf.encounter
+	if (null != encounter):
+		var page = leaf.get_parent()
+		while (null != page and null != page.player_choice):
+			if (page.player_choice.notable_outcomes.has(encounter)):
+				page.player_choice.notable_outcomes[encounter] += page.path_multiplier
+			else:
+				page.player_choice.notable_outcomes[encounter] = page.path_multiplier
+			for each in page.parallel_to:
+				if (each.player_choice.notable_outcomes.has(encounter)):
+					each.player_choice.notable_outcomes[encounter] += page.path_multiplier
+				else:
+					each.player_choice.notable_outcomes[encounter] = page.path_multiplier
+			page = page.get_parent()
+
 func rehearse_depth_first():
 	if (null == starting_page or null == current_page):
 		begin_playthrough()
@@ -325,22 +441,27 @@ func rehearse_depth_first():
 		#An ending has been reached.
 		#Add the record's branch count to the yielding path count of each of the record's events.
 		current_page.record_yielding_paths()
+		record_notable_outcome(current_page)
 		#Rewind
-		current_page.decrement_occurrences()
-		current_page = current_page.get_parent()
+		#current_page.decrement_occurrences()
+		#current_page = current_page.get_parent()
+		current_page = rewind(current_page)
 		if (null == current_page):
 			#All paths have been explored and we have returned to the beginning. Rehearsal complete.
 			return true
 	else:
-		while (!current_page.unexplored_branches.empty()):
+		while (!current_page.unexplored_branches.is_empty()):
 			var branch = current_page.unexplored_branches.pop_back()
 			current_page.explored_branches.append(branch)
 			if (branch.is_an_ending_leaf):
 				#Add the record's branch count to the yielding path count of each of the record's events.
 				branch.record_yielding_paths()
+				record_notable_outcome(branch)
 			else:
 				current_page = branch
 				current_page.increment_occurrences()
+				reset_pValues_to(current_page)
+				reset_spools_to(current_page)
 				#Rehearsal incomplete.
 				return false
 		current_page.path_count = 0
@@ -351,8 +472,9 @@ func rehearse_depth_first():
 		current_page.record_yielding_paths()
 		current_page.clear_children()
 		#Rewind
-		current_page.decrement_occurrences()
-		current_page = current_page.get_parent()
+		#current_page.decrement_occurrences()
+		#current_page = current_page.get_parent()
+		current_page = rewind(current_page)
 		if (null == current_page):
 			#All paths have been explored and we have returned to the beginning. Rehearsal complete.
 			return true

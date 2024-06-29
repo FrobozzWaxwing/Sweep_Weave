@@ -5,7 +5,7 @@ var node_scene = preload("res://interface/graphview_node.tscn")
 #Display options:
 #Track whether or not to display the quick desirability script editor for each encounter.
 var display_encounter_excerpts = false
-var display_encounter_qdse = false
+var display_encounter_qdse = true
 #Clarity is a light mode theme, while Lapis Lazuli is a dark mode theme.
 var light_mode = true
 
@@ -20,9 +20,8 @@ func log_update(encounter = null):
 	if (null != encounter):
 		encounter.log_update()
 	storyworld.log_update()
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
-	emit_signal("refresh_encounter_list")
 
 func set_display_encounter_excerpts(display:bool):
 	display_encounter_excerpts = display
@@ -35,12 +34,12 @@ func set_display_encounter_qdse(display:bool):
 #Graphview Functionality
 
 func load_Encounter(encounter):
-	emit_signal("load_encounter_from_graphview", encounter)
+	load_encounter_from_graphview.emit(encounter)
 
 func load_encounter_in_graphview(encounter, zoom_level):
-	var encounter_graph_node = node_scene.instance()
+	var encounter_graph_node = node_scene.instantiate()
 	encounter_graph_node.set_my_encounter(encounter)
-	encounter_graph_node.offset += encounter.graph_position
+	encounter_graph_node.position_offset += encounter.graph_position
 	encounter_graph_node.title = encounter.title
 	$GraphEdit.add_child(encounter_graph_node)
 	encounter_graph_node.set_excerpt(encounter.get_excerpt(128))
@@ -49,8 +48,8 @@ func load_encounter_in_graphview(encounter, zoom_level):
 	encounter_graph_node.set_display_encounter_qdse(display_encounter_qdse)
 	encounter_graph_node.set_light_mode(light_mode)
 	encounter_graph_node.add_to_group("graphview_nodes")
-	encounter_graph_node.connect("load_encounter_from_graphview", self, "load_Encounter")
-	encounter_graph_node.connect("encounter_modified", self, "_on_encounter_modified")
+	encounter_graph_node.load_encounter_from_graphview.connect(load_Encounter)
+	encounter_graph_node.encounter_modified.connect(_on_encounter_modified)
 	encounter.graphview_node = encounter_graph_node
 
 func load_connections_in_graphview(encounter, zoom_level):
@@ -110,7 +109,7 @@ func refresh_quick_scripting_interfaces():
 
 func _on_encounter_modified(encounter):
 	log_update(encounter)
-	emit_signal("encounter_modified", encounter)
+	encounter_modified.emit(encounter)
 
 #GUI Themes:
 

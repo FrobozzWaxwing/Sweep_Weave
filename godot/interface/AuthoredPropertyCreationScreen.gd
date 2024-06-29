@@ -9,15 +9,15 @@ signal refresh_authored_property_lists()
 signal property_deleted()
 
 func _ready():
-	$ColorRect/VBC/HBC/BNumberEditPanel.connect("bnumber_property_name_changed", self, "refresh_property_name")
-	$ColorRect/VBC/HBC/BNumberEditPanel.connect("affected_character_added", self, "on_character_properties_changed")
-	$ColorRect/VBC/HBC/BNumberEditPanel.connect("affected_character_removed", self, "on_character_properties_changed")
+	$ColorRect/VBC/HBC/BNumberEditPanel.bnumber_property_name_changed.connect(refresh_property_name)
+	$ColorRect/VBC/HBC/BNumberEditPanel.affected_character_added.connect(on_character_properties_changed)
+	$ColorRect/VBC/HBC/BNumberEditPanel.affected_character_removed.connect(on_character_properties_changed)
 
 func log_update(property = null):
 	if (null != property):
 		property.log_update()
 	storyworld.log_update()
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
 
 func load_authored_property(property_blueprint):
@@ -25,7 +25,7 @@ func load_authored_property(property_blueprint):
 	$ColorRect/VBC/HBC/BNumberEditPanel.current_authored_property = property_blueprint
 	$PropertyCreationWindow/VBC/BNumberEditPanel.creating_new_property = false
 	$ColorRect/VBC/HBC/BNumberEditPanel.refresh()
-	if (!storyworld.authored_properties.empty()):
+	if (!storyworld.authored_properties.is_empty()):
 		$ColorRect/VBC/HBC/VBC/PropertyList.select(storyworld.authored_properties.find(property_blueprint))
 
 func refresh_property_list():
@@ -35,7 +35,7 @@ func refresh_property_list():
 		$ColorRect/VBC/HBC/VBC/PropertyList.add_item(property_blueprint.get_property_name())
 		$ColorRect/VBC/HBC/VBC/PropertyList.set_item_metadata(item_index, property_blueprint)
 		item_index += 1
-	if (!storyworld.authored_properties.empty()):
+	if (!storyworld.authored_properties.is_empty()):
 		load_authored_property(storyworld.authored_properties.front())
 
 func refresh_property_name(property_blueprint):
@@ -44,7 +44,7 @@ func refresh_property_name(property_blueprint):
 		$ColorRect/VBC/HBC/VBC/PropertyList.set_item_text(index, property_blueprint.get_property_name())
 	else:
 		refresh_property_list()
-	emit_signal("refresh_authored_property_lists")
+	refresh_authored_property_lists.emit()
 
 func _on_AddButton_pressed():
 	var index = storyworld.unique_id_seeds["authored_property"]
@@ -67,7 +67,7 @@ func _on_PropertyCreationWindow_confirmed():
 	log_update(property)
 	refresh_property_list()
 	load_authored_property(property)
-	emit_signal("refresh_authored_property_lists")
+	refresh_authored_property_lists.emit()
 
 func _on_DeleteButton_pressed():
 	#Clear window.
@@ -122,7 +122,7 @@ func _on_ConfirmPropertyDeletionWindow_confirmed():
 	if (null == replacement_property or !(replacement_property is BNumberBlueprint)):
 		#An error has occurred. One cannot delete every property from a storyworld.
 		return
-	if (storyworld.characters.empty()):
+	if (storyworld.characters.is_empty()):
 		return
 	#Build replacement pointer.
 #	var replacement = null
@@ -165,21 +165,21 @@ func _on_ConfirmPropertyDeletionWindow_confirmed():
 	#Update interface.
 	log_update()
 	refresh_property_list()
-	emit_signal("property_deleted")
+	property_deleted.emit()
 
 func _on_PropertyList_item_selected(index):
 	var property_blueprint = $ColorRect/VBC/HBC/VBC/PropertyList.get_item_metadata(index)
 	load_authored_property(property_blueprint)
 
 func on_character_properties_changed(property, character):
-	emit_signal("refresh_authored_property_lists")
+	refresh_authored_property_lists.emit()
 
 #GUI Themes:
 
-onready var add_icon_light = preload("res://icons/add.svg")
-onready var add_icon_dark = preload("res://icons/add_dark.svg")
-onready var delete_icon_light = preload("res://icons/delete.svg")
-onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
+@onready var add_icon_light = preload("res://icons/add.svg")
+@onready var add_icon_dark = preload("res://icons/add_dark.svg")
+@onready var delete_icon_light = preload("res://icons/delete.svg")
+@onready var delete_icon_dark = preload("res://icons/delete_dark.svg")
 
 func set_gui_theme(theme_name, background_color):
 	$ColorRect.color = background_color

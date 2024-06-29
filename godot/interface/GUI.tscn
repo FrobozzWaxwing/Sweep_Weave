@@ -1,252 +1,201 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=22 format=3 uid="uid://bkucfeimb1571"]
 
-[ext_resource path="res://interface/GUI.gd" type="Script" id=1]
-[ext_resource path="res://interface/FileMenu.gd" type="Script" id=2]
-[ext_resource path="res://interface/EncounterEditScreen.tscn" type="PackedScene" id=3]
-[ext_resource path="res://interface/StoryworldMergingScreen.tscn" type="PackedScene" id=4]
-[ext_resource path="res://interface/SettingsEditScreen.tscn" type="PackedScene" id=5]
-[ext_resource path="res://interface/DocumentationScreen.tscn" type="PackedScene" id=6]
-[ext_resource path="res://interface/AuthoredPropertyCreationScreen.tscn" type="PackedScene" id=7]
-[ext_resource path="res://interface/StoryworldValidationInterface.tscn" type="PackedScene" id=8]
-[ext_resource path="res://interface/SpoolEditScreen.tscn" type="PackedScene" id=9]
-[ext_resource path="res://interface/EncounterOverviewScreen.tscn" type="PackedScene" id=10]
-[ext_resource path="res://interface/GraphViewScreen.tscn" type="PackedScene" id=11]
-[ext_resource path="res://interface/PlayScreen.tscn" type="PackedScene" id=12]
-[ext_resource path="res://interface/CharacterEditScreen.tscn" type="PackedScene" id=13]
-[ext_resource path="res://interface/StatisticsScreen.tscn" type="PackedScene" id=14]
-[ext_resource path="res://interface/ViewMenu.gd" type="Script" id=15]
-[ext_resource path="res://interface/HelpMenu.gd" type="Script" id=16]
-[ext_resource path="res://custom_resources/ball_of_yarn.png" type="Texture" id=17]
-[ext_resource path="res://custom_resources/gradient_header_texture_clarity.tres" type="Texture" id=18]
-[ext_resource path="res://interface/UpdateScreen.tscn" type="PackedScene" id=19]
-[ext_resource path="res://custom_resources/clarity.tres" type="Theme" id=20]
-[ext_resource path="res://interface/AutomatedRehearsalScreen.tscn" type="PackedScene" id=21]
-
-[sub_resource type="Shader" id=1]
-code = "shader_type canvas_item
-
-"
-
-[sub_resource type="ShaderMaterial" id=2]
-shader = SubResource( 1 )
+[ext_resource type="Script" path="res://interface/GUI.gd" id="1"]
+[ext_resource type="Script" path="res://interface/FileMenu.gd" id="2"]
+[ext_resource type="PackedScene" uid="uid://bf3pftycfcdvc" path="res://interface/EncounterEditScreen.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://interface/StoryworldMergingScreen.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://2drjtayo0geb" path="res://interface/SettingsEditScreen.tscn" id="5"]
+[ext_resource type="PackedScene" uid="uid://6cxvq1qx3md7" path="res://interface/DocumentationScreen.tscn" id="6"]
+[ext_resource type="PackedScene" uid="uid://dny4elq2jiwd1" path="res://interface/AuthoredPropertyCreationScreen.tscn" id="7"]
+[ext_resource type="PackedScene" uid="uid://drp5b61e34afy" path="res://interface/StoryworldValidationInterface.tscn" id="8"]
+[ext_resource type="PackedScene" uid="uid://cye03y25rfi8" path="res://interface/SpoolEditScreen.tscn" id="9"]
+[ext_resource type="PackedScene" uid="uid://bf14vd68l46tj" path="res://interface/EncounterOverviewScreen.tscn" id="10"]
+[ext_resource type="PackedScene" uid="uid://dnxd03sk3fslv" path="res://interface/GraphViewScreen.tscn" id="11"]
+[ext_resource type="PackedScene" uid="uid://cuwvdxyyh1unn" path="res://interface/PlayScreen.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://interface/CharacterEditScreen.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://interface/StatisticsScreen.tscn" id="14"]
+[ext_resource type="Script" path="res://interface/ViewMenu.gd" id="15"]
+[ext_resource type="Script" path="res://interface/HelpMenu.gd" id="16"]
+[ext_resource type="Texture2D" uid="uid://b5dyxi8juigjy" path="res://custom_resources/ball_of_yarn.png" id="17"]
+[ext_resource type="Texture2D" uid="uid://c8wqpkxexjl35" path="res://custom_resources/gradient_header_texture_clarity.tres" id="18"]
+[ext_resource type="PackedScene" path="res://interface/UpdateScreen.tscn" id="19"]
+[ext_resource type="Theme" uid="uid://xwct71088t17" path="res://custom_resources/clarity.tres" id="20"]
+[ext_resource type="PackedScene" uid="uid://du1ip5cjy73ko" path="res://interface/AutomatedRehearsalScreen.tscn" id="21"]
 
 [node name="GUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 20 )
-script = ExtResource( 1 )
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("20")
+script = ExtResource("1")
 
 [node name="Background" type="TextureRect" parent="."]
-material = SubResource( 2 )
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-texture = ExtResource( 18 )
-expand = true
+texture = ExtResource("18")
+expand_mode = 1
 
 [node name="VBC" type="VBoxContainer" parent="Background"]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="MenuBar" type="HBoxContainer" parent="Background/VBC"]
-margin_right = 1366.0
-margin_bottom = 20.0
-custom_constants/separation = 0
+layout_mode = 2
+theme_override_constants/separation = 0
 
 [node name="FileMenu" type="MenuButton" parent="Background/VBC/MenuBar"]
-margin_right = 37.0
-margin_bottom = 20.0
+layout_mode = 2
 size_flags_horizontal = 0
 text = "File"
 flat = false
-align = 0
 switch_on_hover = true
-script = ExtResource( 2 )
+script = ExtResource("2")
 
 [node name="ViewMenu" type="MenuButton" parent="Background/VBC/MenuBar"]
-margin_left = 37.0
-margin_right = 81.0
-margin_bottom = 20.0
+layout_mode = 2
 text = "View"
 flat = false
 switch_on_hover = true
-script = ExtResource( 15 )
+script = ExtResource("15")
 
 [node name="HelpMenu" type="MenuButton" parent="Background/VBC/MenuBar"]
-margin_left = 81.0
-margin_right = 125.0
-margin_bottom = 20.0
+layout_mode = 2
 text = "Help"
 flat = false
 switch_on_hover = true
-script = ExtResource( 16 )
+script = ExtResource("16")
 
 [node name="EditorTabs" type="TabContainer" parent="Background/VBC"]
-margin_top = 24.0
-margin_right = 1366.0
-margin_bottom = 736.0
-rect_clip_content = true
+clip_contents = true
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Overview" parent="Background/VBC/EditorTabs" instance=ExtResource( 10 )]
-margin_left = 3.0
-margin_top = 29.0
-margin_right = -3.0
-margin_bottom = -3.0
+[node name="Overview" parent="Background/VBC/EditorTabs" instance=ExtResource("10")]
+layout_mode = 2
 
-[node name="Encounters" parent="Background/VBC/EditorTabs" instance=ExtResource( 3 )]
+[node name="Encounters" parent="Background/VBC/EditorTabs" instance=ExtResource("3")]
 visible = false
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -15.0
-margin_bottom = 23.0
+layout_mode = 2
 
-[node name="Spools" parent="Background/VBC/EditorTabs" instance=ExtResource( 9 )]
+[node name="Spools" parent="Background/VBC/EditorTabs" instance=ExtResource("9")]
 visible = false
+layout_mode = 2
 
-[node name="Characters" parent="Background/VBC/EditorTabs" instance=ExtResource( 13 )]
+[node name="Characters" parent="Background/VBC/EditorTabs" instance=ExtResource("13")]
 visible = false
-margin_left = 4.0
-margin_top = 32.0
-margin_right = 4.0
-margin_bottom = 32.0
+layout_mode = 2
 
-[node name="PersonalityModel" parent="Background/VBC/EditorTabs" instance=ExtResource( 7 )]
+[node name="PersonalityModel" parent="Background/VBC/EditorTabs" instance=ExtResource("7")]
 visible = false
+layout_mode = 2
 
-[node name="Settings" parent="Background/VBC/EditorTabs" instance=ExtResource( 5 )]
+[node name="Settings" parent="Background/VBC/EditorTabs" instance=ExtResource("5")]
 visible = false
-margin_left = 4.0
-margin_top = 32.0
-margin_right = 324.0
-margin_bottom = 234.0
+layout_mode = 2
 
-[node name="Documentation" parent="Background/VBC/EditorTabs" instance=ExtResource( 6 )]
+[node name="Documentation" parent="Background/VBC/EditorTabs" instance=ExtResource("6")]
 visible = false
-margin_left = 4.0
-margin_top = 96.0
-margin_right = 4.0
-margin_bottom = 96.0
+layout_mode = 2
 
-[node name="GraphView" parent="Background/VBC/EditorTabs" instance=ExtResource( 11 )]
+[node name="GraphView" parent="Background/VBC/EditorTabs" instance=ExtResource("11")]
 visible = false
-margin_left = 4.0
-margin_top = 96.0
-margin_right = 44.0
-margin_bottom = 136.0
+layout_mode = 2
 
-[node name="Play" parent="Background/VBC/EditorTabs" instance=ExtResource( 12 )]
+[node name="Play" parent="Background/VBC/EditorTabs" instance=ExtResource("12")]
 visible = false
-margin_left = 4.0
-margin_top = 96.0
-margin_right = 4.0
-margin_bottom = 96.0
+layout_mode = 2
 
-[node name="Rehearsal" parent="Background/VBC/EditorTabs" instance=ExtResource( 21 )]
+[node name="Rehearsal" parent="Background/VBC/EditorTabs" instance=ExtResource("21")]
 visible = false
+layout_mode = 2
 
 [node name="LoadFileDialog" type="FileDialog" parent="."]
-margin_right = 512.0
-margin_bottom = 512.0
-rect_min_size = Vector2( 200, 400 )
-window_title = "Load a Saved Project"
-resizable = true
+title = "Load Storyworld"
+size = Vector2i(700, 650)
+popup_window = true
+ok_button_text = "Open"
 mode_overrides_title = false
-mode = 0
+file_mode = 0
 access = 2
 
 [node name="SaveAsFileDialog" type="FileDialog" parent="."]
-margin_right = 512.0
-margin_bottom = 512.0
-rect_min_size = Vector2( 200, 400 )
-resizable = true
+title = "Save Storyworld"
+size = Vector2i(700, 650)
+popup_window = true
 access = 2
 
 [node name="CompileFileDialog" type="FileDialog" parent="."]
-margin_right = 512.0
-margin_bottom = 512.0
-rect_min_size = Vector2( 200, 400 )
-window_title = "Compile to HTML"
-resizable = true
+title = "Compile Storyworld"
+size = Vector2i(700, 650)
+popup_window = true
 access = 2
 
 [node name="ExportToTxtFileDialog" type="FileDialog" parent="."]
-margin_right = 512.0
-margin_bottom = 512.0
-rect_min_size = Vector2( 200, 400 )
-resizable = true
+title = "Export Storyworld to TXT"
+size = Vector2i(700, 650)
+popup_window = true
 access = 2
 
 [node name="ConfirmOpenWhenUnsaved" type="ConfirmationDialog" parent="."]
-margin_right = 700.0
-margin_bottom = 70.0
+size = Vector2i(300, 100)
 dialog_text = "You have not yet saved your current project. Are you sure you wish to open another project without saving?"
+dialog_autowrap = true
 
 [node name="ConfirmQuit" type="ConfirmationDialog" parent="."]
-margin_right = 200.0
-margin_bottom = 70.0
 dialog_text = "You have modified your project without saving. Do you wish to quit without saving first? Progress will be lost."
 dialog_autowrap = true
 
 [node name="ConfirmNewStoryworld" type="ConfirmationDialog" parent="."]
-margin_right = 200.0
-margin_bottom = 70.0
 dialog_text = "You have modified your project since you last saved. Do you wish to start a new project without saving your current one? Progress will be lost."
 dialog_autowrap = true
 
 [node name="About" type="ConfirmationDialog" parent="."]
-margin_right = 500.0
-margin_bottom = 500.0
-rect_min_size = Vector2( 200, 256 )
-size_flags_vertical = 3
-window_title = "About"
-resizable = true
+title = "About SweepWeave"
+size = Vector2i(512, 512)
+popup_window = true
 
 [node name="VBC" type="VBoxContainer" parent="About"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 492.0
-margin_bottom = 466.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 492.0
+offset_bottom = 466.0
 size_flags_vertical = 0
 
 [node name="VersionMessage" type="Label" parent="About/VBC"]
-margin_right = 40.0
-margin_bottom = 40.0
-align = 1
+layout_mode = 2
 
 [node name="HSeparator" type="HSeparator" parent="About/VBC"]
-margin_right = 40.0
-margin_bottom = 4.0
+layout_mode = 2
 
 [node name="HBC" type="HBoxContainer" parent="About/VBC"]
-margin_right = 40.0
-margin_bottom = 40.0
+layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BallOfYarn" type="TextureRect" parent="About/VBC/HBC"]
-margin_right = 40.0
-margin_bottom = 40.0
-texture = ExtResource( 17 )
+layout_mode = 2
+texture = ExtResource("17")
+stretch_mode = 3
 
 [node name="Text" type="RichTextLabel" parent="About/VBC/HBC"]
-margin_right = 40.0
-margin_bottom = 40.0
-focus_mode = 2
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+focus_mode = 2
 text = "An interactive storyworld creation kit, created by Sasha Fenn. Published under an MIT License.
-Made in Godot 3.5.3.
+Made in Godot 4.2.2.
 You can contact me by email at sasha@emptiestvoid.com."
 selection_enabled = true
 
 [node name="Text2" type="RichTextLabel" parent="About/VBC"]
-margin_right = 40.0
-margin_bottom = 40.0
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.5
@@ -260,97 +209,77 @@ Craig Maloney
 If you would like to help support me as well, you can find me at my patreon page via the link below."
 
 [node name="LinkBar" type="HBoxContainer" parent="About/VBC"]
-margin_right = 40.0
-margin_bottom = 40.0
+layout_mode = 2
 alignment = 1
 
 [node name="OpenSweepWeaveHomepage" type="Button" parent="About/VBC/LinkBar"]
-margin_right = 4.0
-margin_bottom = 18.0
+layout_mode = 2
 text = "SweepWeave Homepage"
 
 [node name="OpenPatreon" type="Button" parent="About/VBC/LinkBar"]
-margin_right = 84.0
-margin_bottom = 20.0
+layout_mode = 2
 text = "Sasha's Patreon"
 
 [node name="ImportFromStoryworldFileDialog" type="FileDialog" parent="."]
-margin_right = 512.0
-margin_bottom = 512.0
-rect_min_size = Vector2( 200, 100 )
-window_title = "Import from:"
-resizable = true
-dialog_text = "Choose a storyworld to import content from."
+mode = 1
+title = "Import from Storyworld"
+size = Vector2i(512, 512)
+ok_button_text = "Open"
 dialog_hide_on_ok = true
 mode_overrides_title = false
-mode = 1
+file_mode = 1
 access = 2
 
 [node name="ConfirmImport" type="ConfirmationDialog" parent="."]
-margin_right = 550.0
-margin_bottom = 512.0
-rect_min_size = Vector2( 550, 512 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-window_title = "Import from Storyworld"
-resizable = true
 
 [node name="Margin" type="MarginContainer" parent="ConfirmImport"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 542.0
-margin_bottom = 478.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 542.0
+offset_bottom = 478.0
 
-[node name="StoryworldMergingScreen" parent="ConfirmImport/Margin" instance=ExtResource( 4 )]
-anchor_right = 0.0
-anchor_bottom = 0.0
-margin_right = 534.0
-margin_bottom = 470.0
+[node name="StoryworldMergingScreen" parent="ConfirmImport/Margin" instance=ExtResource("4")]
+layout_mode = 2
 
 [node name="StoryworldTroubleshooting" type="AcceptDialog" parent="."]
-margin_right = 700.0
-margin_bottom = 512.0
-rect_min_size = Vector2( 512, 512 )
-window_title = "Storyworld Validation and Troubleshooting"
-resizable = true
+title = "Storyworld Troubleshooter"
+size = Vector2i(700, 650)
+popup_window = true
 
-[node name="StoryworldValidationInterface" parent="StoryworldTroubleshooting" instance=ExtResource( 8 )]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = -8.0
-margin_bottom = -34.0
+[node name="StoryworldValidationInterface" parent="StoryworldTroubleshooting" instance=ExtResource("8")]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -34.0
 
 [node name="Summary" type="AcceptDialog" parent="."]
-margin_right = 610.0
-margin_bottom = 350.0
-rect_min_size = Vector2( 256, 256 )
-window_title = "Storyworld Summary"
-resizable = true
+title = "Storyworld Summary"
+size = Vector2i(700, 500)
+popup_window = true
 
-[node name="Statistics" parent="Summary" instance=ExtResource( 14 )]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 602.0
-margin_bottom = 316.0
+[node name="Statistics" parent="Summary" instance=ExtResource("14")]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 602.0
+offset_bottom = 316.0
 
 [node name="MITLicenseDialog" type="AcceptDialog" parent="."]
-margin_right = 600.0
-margin_bottom = 400.0
-rect_min_size = Vector2( 100, 100 )
-window_title = "MIT License"
-resizable = true
+title = "MIT License"
+size = Vector2i(512, 512)
+popup_window = true
 dialog_autowrap = true
 
 [node name="Text" type="RichTextLabel" parent="MITLicenseDialog"]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = 592.0
-margin_bottom = 366.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 592.0
+offset_bottom = 366.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "MIT License
+bbcode_enabled = true
+text = "[center]MIT License[/center]
 
-Copyright (c) 2020 - 2023 Sasha Fenn
+[center]Copyright (c) 2020 - 2024 Sasha Fenn[/center]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -359,17 +288,19 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
 
 [node name="CheckForUpdates" type="AcceptDialog" parent="."]
-margin_right = 270.0
-margin_bottom = 200.0
-rect_min_size = Vector2( 256, 128 )
-window_title = "Updates"
-resizable = true
+title = "Checking for Updates"
+size = Vector2i(512, 512)
+popup_window = true
 
-[node name="UpdateScreen" parent="CheckForUpdates" instance=ExtResource( 19 )]
-margin_left = 8.0
-margin_top = 8.0
-margin_right = -8.0
-margin_bottom = -34.0
+[node name="UpdateScreen" parent="CheckForUpdates" instance=ExtResource("19")]
+layout_mode = 3
+anchors_preset = 15
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -34.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [connection signal="file_selected" from="LoadFileDialog" to="." method="_on_LoadFileDialog_file_selected"]
 [connection signal="file_selected" from="SaveAsFileDialog" to="." method="_on_SaveAsFileDialog_file_selected"]

@@ -10,7 +10,7 @@ func _init(in_character = null, in_keyring = []):
 	character = in_character
 	keyring = in_keyring.duplicate()
 
-static func get_pointer_type():
+func get_pointer_type():
 	return "Bounded Number Pointer"
 
 func get_value():
@@ -24,7 +24,7 @@ func set_value(value):
 		character.set_bnumber_property(keyring, value)
 
 func get_ap_blueprint():
-	if (null == character or keyring.empty()):
+	if (null == character or keyring.is_empty()):
 		return null
 	var property_id = keyring[0]
 	if (!character.authored_property_directory.has(property_id)):
@@ -33,7 +33,7 @@ func get_ap_blueprint():
 	return property_blueprint
 
 func get_bnumber_name():
-	if (null == character or keyring.empty()):
+	if (null == character or keyring.is_empty()):
 		return ""
 	var property_blueprint = get_ap_blueprint()
 	if (null == property_blueprint):
@@ -49,24 +49,24 @@ func get_character_name_from_id(character_id):
 	else:
 		return storyworld.character_directory[character_id].char_name
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Pointer"
 	output["pointer_type"] = get_pointer_type()
 	output["coefficient"] = coefficient
-	if (include_editor_only_variables):
+	if (_include_editor_only_variables):
 		output["character"] = character.id
 		output["keyring"] = keyring.duplicate()
 	else:
 		output["character"] = character.get_index()
 		output["keyring"] = []
-		if (!keyring.empty() and character.authored_property_directory.has(keyring[0])):
+		if (!keyring.is_empty() and character.authored_property_directory.has(keyring[0])):
 			for key_index in range(keyring.size()):
 				var key = keyring[key_index]
 				if (0 == key_index):
 					output["keyring"].append(key)
-				elif (parent_storyworld.character_directory.has(key)):
-					output["keyring"].append(parent_storyworld.character_directory[key].get_index())
+				elif (_parent_storyworld.character_directory.has(key)):
+					output["keyring"].append(_parent_storyworld.character_directory[key].get_index())
 	return output
 
 func set_as_copy_of(original):
@@ -115,7 +115,7 @@ func data_to_string():
 #	text += ")"
 	return text
 
-func validate(intended_script_output_datatype):
+func validate(_intended_script_output_datatype):
 	var report = ""
 	#Check character:
 	if (null == character):
@@ -125,10 +125,10 @@ func validate(intended_script_output_datatype):
 	elif (!is_instance_valid(character)):
 		report += "\n" + "Character has been deleted."
 	#Check coefficient:
-	if (TYPE_INT != typeof(coefficient) and TYPE_REAL != typeof(coefficient)):
+	if (TYPE_INT != typeof(coefficient) and TYPE_FLOAT != typeof(coefficient)):
 		report += "\n" + "Coefficient is not a number."
 	#Check keyring and value:
-	if (keyring.empty()):
+	if (keyring.is_empty()):
 		report += "\n" + "Keyring is empty."
 	elif (character is Actor and is_instance_valid(character)):
 		if (!character.bnumber_properties.has(keyring[0])):

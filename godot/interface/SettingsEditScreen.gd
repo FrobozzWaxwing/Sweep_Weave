@@ -6,19 +6,26 @@ var language_codes = {} #Used to quickly convert codes to indices.
 func _ready():
 	#Load data from file:
 	var path = "res://custom_resources/iso_language_codes.json"
-	var file = File.new()
-	file.open(path, File.READ)
-	var file_text = file.get_as_text()
-	file.close()
-	var language_code_dictionary = JSON.parse(file_text).result
-	#Fill language options:
-	var edit_button = $Scroll/VBC/LanguageEdit
-	var index = 0
-	for language in language_code_dictionary:
-		edit_button.add_item(language["language"])
-		edit_button.set_item_metadata(index, language["code"])
-		language_codes[language["code"]] = index
-		index += 1
+	if (FileAccess.file_exists(path)):
+		var file = FileAccess.open(path, FileAccess.READ)
+		if (null != file):
+			var file_text = file.get_as_text()
+			file.close()
+			var json_parser = JSON.new()
+			var parse_result = json_parser.parse(file_text)
+			if not parse_result == OK:
+				var error_message = "JSON Parse Error: " + json_parser.get_error_message() + " at line " + str(json_parser.get_error_line())
+				print (error_message)
+			else:
+				var language_code_dictionary = json_parser.get_data()
+				#Fill language options:
+				var edit_button = $Scroll/VBC/LanguageEdit
+				var index = 0
+				for language in language_code_dictionary:
+					edit_button.add_item(language["language"])
+					edit_button.set_item_metadata(index, language["code"])
+					language_codes[language["code"]] = index
+					index += 1
 	#Fill rating options:
 	$Scroll/VBC/RatingEdit.add_item("general")
 	$Scroll/VBC/RatingEdit.add_item("adult")
@@ -62,18 +69,18 @@ func refresh():
 		"20":
 			$Scroll/VBC/FontEdit.select(3)
 	$Scroll/VBC/HBC1/IFIDDisplay.set_text("Storyworld IFID: " + storyworld.ifid)
-	$Scroll/VBC/HBC2/DBMSwitch.pressed = storyworld.storyworld_debug_mode_on
+	$Scroll/VBC/HBC2/DBMSwitch.button_pressed = storyworld.storyworld_debug_mode_on
 	match storyworld.storyworld_display_mode:
 		0:
-			$Scroll/VBC/HBC3/DisplayModeSwitch.pressed = false
+			$Scroll/VBC/HBC3/DisplayModeSwitch.button_pressed = false
 		1:
-			$Scroll/VBC/HBC3/DisplayModeSwitch.pressed = true
+			$Scroll/VBC/HBC3/DisplayModeSwitch.button_pressed = true
 	$Scroll/VBC/SavePathDisplay.set_text("Current project save path: " + get_node("../../../../").current_project_path)
 
 func log_update():
 	#No arguments for this version of the function, as the settings screen never changes encounters or characters, and thus never needs to log an update on either type of object.
 	storyworld.log_update()
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
 
 #Settings tab interface elements:

@@ -8,7 +8,7 @@ func _init(in_rehearsal, in_index):
 	rehearsal = in_rehearsal
 	ct_index = in_index
 
-static func get_pointer_type():
+func get_pointer_type():
 	return "Quick Bounded Number Pointer"
 
 func get_value():
@@ -21,7 +21,7 @@ func set_value(value):
 	if (value < rehearsal.cast_traits_min[ct_index]):
 		rehearsal.cast_traits_min[ct_index] = value
 
-func validate(intended_script_output_datatype):
+func validate(_intended_script_output_datatype):
 	var report = ""
 	#Check rehearsal:
 	if (null == rehearsal):

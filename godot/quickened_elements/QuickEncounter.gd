@@ -13,6 +13,7 @@ var mercurial_options = [] #These options may or may not be either visible or pe
 #Variables for Editor:
 var connected_characters = [] #Used for sorting encounters by connected characters.
 var linked_scripts = []
+var connected_spools = [] #Used for sorting encounters by connected spools.
 
 #Playtesting and Rehearsal:
 var occurrences = 0 #The number of times that this encounter has occurred on the current branch. Used by the engine to check whether or not an encounter has occurred.
@@ -20,8 +21,12 @@ var reachable = false #Used by the automated rehearsal system to keep track of w
 var yielding_paths = 0 #The estimated number of possible paths through the storyworld that reach this encounter.
 var potential_ending = false #True if the story ends upon reaching this encounter on at least one possible path through the storyworld.
 var parallels_detected = false
+var impact = 0 # An estimate of the average impact of this encounter's options.
+var outcome_range = 0
 
 var has_constant_desirability = false
+
+var checklist_id = -1
 
 func _init(in_storyworld, original_encounter):
 	storyworld = in_storyworld
@@ -77,6 +82,22 @@ func calculate_and_report_desirability():
 		result = desirability_script.get_and_report_value()
 	return result
 
+func get_listable_impact():
+	var estimate = impact * 1000
+	estimate = floor(estimate)
+	estimate = float(estimate)
+	estimate = estimate / 1000
+	estimate = str(estimate)
+	return estimate
+
+func get_listable_outcome_range():
+	var estimate = outcome_range * 1000
+	estimate = floor(estimate)
+	estimate = float(estimate)
+	estimate = estimate / 1000
+	estimate = str(estimate)
+	return estimate
+
 func clear():
 	storyworld = null
 	id = ""
@@ -119,7 +140,7 @@ func remap(to_storyworld):
 	acceptability_script.remap(to_storyworld)
 	desirability_script.remap(to_storyworld)
 
-func connected_characters():
+func get_connected_characters():
 	var characters = {}
 	if (acceptability_script is ScriptManager):
 		characters.merge(acceptability_script.find_all_characters_involved())

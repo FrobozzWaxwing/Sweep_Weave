@@ -16,17 +16,15 @@ func log_update(property = null):
 	if (null != property):
 		property.log_update()
 	storyworld.log_update()
-	OS.set_window_title("SweepWeave - " + storyworld.storyworld_title + "*")
+	get_window().set_title("SweepWeave - " + storyworld.storyworld_title + "*")
 	storyworld.project_saved = false
 
 func add_character_to_affected_characters(character):
-	if (current_authored_property.affected_characters.has(character)):
-		print ("A property's list of affected characters should not contain duplicate entries.")
-	else:
+	if (!current_authored_property.affected_characters.has(character)):
 		current_authored_property.affected_characters.append(character)
 		if (!creating_new_property):
 			character.add_property_to_bnumber_properties(current_authored_property, storyworld.characters)
-		emit_signal("affected_character_added", current_authored_property, character)
+		affected_character_added.emit(current_authored_property, character)
 
 func remove_character_from_affected_characters(character):
 	current_authored_property.affected_characters.erase(character)
@@ -53,13 +51,13 @@ func remove_character_from_affected_characters(character):
 								effect.assignment_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
 						elif (effect is SpoolEffect):
 							effect.assignment_script.replace_character_and_property_with_pointer(character, current_authored_property, replacement)
-	emit_signal("affected_character_removed", current_authored_property, character)
+	affected_character_removed.emit(current_authored_property, character)
 
 func _on_NameEdit_text_changed(new_text):
 	current_authored_property.property_name = new_text
 	if (!creating_new_property):
 		log_update(current_authored_property)
-	emit_signal("bnumber_property_name_changed", current_authored_property)
+	bnumber_property_name_changed.emit(current_authored_property)
 
 func _on_DefaultValueEdit_value_changed(value):
 	current_authored_property.default_value = value

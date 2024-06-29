@@ -15,6 +15,9 @@ var linked_scripts = []
 var occurrences = 0 #The number of times that this encounter has occurred on the current branch. Used by the engine to check whether or not an encounter has occurred.
 var reachable = false #Used by the automated rehearsal system to keep track of whether or not an encounter can be reached by the player.
 var yielding_paths #The estimated number of possible paths through the storyworld that reach this encounter.
+var notable_outcomes = {} # Used to keep track of how often specific events occur after this option is chosen by the player.
+var impact = 0 # An estimate of the difference between the outcomes of this option and the outcomes of this option's siblings.
+var outcome_range = 0
 
 func _init(in_encounter, in_id:String, in_text:String, in_graph_offset = Vector2(0, 0)):
 	encounter = in_encounter
@@ -67,21 +70,37 @@ func has_search_text(searchterm):
 				return true
 	return false
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func get_listable_impact():
+	var estimate = impact * 1000
+	estimate = floor(estimate)
+	estimate = float(estimate)
+	estimate = estimate / 1000
+	estimate = str(estimate)
+	return estimate
+
+func get_listable_outcome_range():
+	var estimate = outcome_range * 1000
+	estimate = floor(estimate)
+	estimate = float(estimate)
+	estimate = estimate / 1000
+	estimate = str(estimate)
+	return estimate
+
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var result = {}
 	result["id"] = id
-	result["text_script"] = text_script.compile(parent_storyworld, include_editor_only_variables)
+	result["text_script"] = text_script.compile(_parent_storyworld, _include_editor_only_variables)
 	result["visibility_script"] = null
 	if (null != visibility_script and visibility_script is ScriptManager):
-		result["visibility_script"] = visibility_script.compile(parent_storyworld, include_editor_only_variables)
+		result["visibility_script"] = visibility_script.compile(_parent_storyworld, _include_editor_only_variables)
 	result["performability_script"] = null
 	if (null != performability_script and performability_script is ScriptManager):
-		result["performability_script"] = performability_script.compile(parent_storyworld, include_editor_only_variables)
+		result["performability_script"] = performability_script.compile(_parent_storyworld, _include_editor_only_variables)
 	result["reactions"] = []
 	for reaction in reactions:
-		result["reactions"].append(reaction.compile(parent_storyworld, include_editor_only_variables))
+		result["reactions"].append(reaction.compile(_parent_storyworld, _include_editor_only_variables))
 	#Editor only variables:
-	if (include_editor_only_variables):
+	if (_include_editor_only_variables):
 		result["graph_offset_x"] = graph_offset.x
 		result["graph_offset_y"] = graph_offset.y
 	return result
@@ -100,6 +119,7 @@ func clear():
 	occurrences = 0
 	reachable = false
 	yielding_paths = 0
+	notable_outcomes.clear()
 	for reaction in reactions:
 		reaction.clear()
 		reaction.call_deferred("free")

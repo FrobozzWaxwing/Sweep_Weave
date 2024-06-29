@@ -48,12 +48,12 @@ func _on_ValidateButton_pressed():
 	$ColorRect/HBC/VBC/ValidateButton.disabled = true
 	var perform_validation = true
 	if (null == storyworld):
-		$ColorRect/HBC/VBC/StoryworldValidationOverview.text = "Error: Cannot perform validation, storyworld set to null."
+		$ColorRect/HBC/VBC/StoryworldValidationOverview.text = "Error: Storyworld set to null."
 		perform_validation = false
 	elif (!(storyworld is Storyworld)):
 		$ColorRect/HBC/VBC/StoryworldValidationOverview.text = "Error: The storyworld itself is invalid, so it is not possible to check scripts for errors."
 		perform_validation = false
-	elif (storyworld.encounters.empty()):
+	elif (storyworld.encounters.is_empty()):
 		$ColorRect/HBC/VBC/StoryworldValidationOverview.text = "This storyworld has no encounters."
 		perform_validation = false
 	else:
@@ -184,7 +184,7 @@ func _on_ValidateButton_pressed():
 							number_of_invalid_reaction_effects += 1
 	$ColorRect/HBC/VBC/ValidateButton.text = "Validate storyworld"
 	$ColorRect/HBC/VBC/ValidateButton.disabled = false
-	if (perform_validation and errors.empty()):
+	if (perform_validation and errors.is_empty()):
 		$ColorRect/HBC/VBC/StoryworldValidationOverview.text = "All scripts checked; no errors found."
 	elif(perform_validation):
 		$ColorRect/HBC/VBC/Label2.visible = true
@@ -293,16 +293,16 @@ func _on_OpenLinkedObjectButton_pressed():
 		if (current_error_report is ErrorReport):
 			if (current_error_report.reported_object is Encounter):
 				var encounter = current_error_report.reported_object
-				emit_signal("request_load_event", encounter, null, null)
+				request_load_event.emit(encounter, null, null)
 			elif (current_error_report.reported_object is Option):
 				var option = current_error_report.reported_object
 				var encounter = option.encounter
-				emit_signal("request_load_event", encounter, option, null)
+				request_load_event.emit(encounter, option, null)
 			elif (current_error_report.reported_object is Reaction):
 				var reaction = current_error_report.reported_object
 				var option = reaction.option
 				var encounter = option.encounter
-				emit_signal("request_load_event", encounter, option, reaction)
+				request_load_event.emit(encounter, option, reaction)
 
 func _on_OpenLinkedScriptButton_pressed():
 	var title = ""
@@ -349,7 +349,7 @@ func _on_OpenLinkedScriptButton_pressed():
 				open = true
 				title += "Effect \"to\" script."
 	if (open):
-		$ScriptEditWindow.window_title = title
+		$ScriptEditWindow.set_title(title)
 		$ScriptEditWindow/ScriptEditScreen.storyworld = storyworld
 		$ScriptEditWindow/ScriptEditScreen.script_to_edit = current_error_report.reported_script
 		$ScriptEditWindow/ScriptEditScreen.allow_root_character_editing = true

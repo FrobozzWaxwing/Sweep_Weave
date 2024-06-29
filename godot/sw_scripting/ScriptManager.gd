@@ -5,7 +5,7 @@ enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
 var contents = null
 var input_type = sw_script_data_types.VARIANT
 var output_type = sw_script_data_types.VARIANT
-var script_changed = false #Used by find and replace functions to track whether or not a change has been made to the script.
+var sw_script_changed = false #Used by find and replace functions to track whether or not a change has been made to the script.
 
 func _init(in_contents = null):
 	set_contents(in_contents)
@@ -22,7 +22,7 @@ func set_contents(new_script):
 		contents.parent_operator = self
 		contents.script_index = 0
 		output_type = sw_script_data_types.BOOLEAN
-	elif (TYPE_INT == typeof(new_script) or TYPE_REAL == typeof(new_script)):
+	elif (TYPE_INT == typeof(new_script) or TYPE_FLOAT == typeof(new_script)):
 		contents = BNumberConstant.new(new_script)
 		contents.parent_operator = self
 		contents.script_index = 0
@@ -47,7 +47,7 @@ func deeply_copy(original):
 		copy_of_element = null
 	elif (TYPE_BOOL == typeof(original)):
 		copy_of_element = original
-	elif (TYPE_INT == typeof(original) or TYPE_REAL == typeof(original)):
+	elif (TYPE_INT == typeof(original) or TYPE_FLOAT == typeof(original)):
 		copy_of_element = original
 	elif (TYPE_ARRAY == typeof(original)):
 		copy_of_element = []
@@ -132,234 +132,6 @@ func replace_element(old_element, new_element):
 		old_element.clear()
 		old_element.call_deferred("free")
 
-#func compare_to_search_term(operand, search_term):
-#	if (null == search_term):
-#		return true
-#	elif (typeof(operand) == typeof(search_term) and operand == search_term):
-#		return true
-#	return false
-#
-#func search_and_replace_onion(onion, search_term, replacement):
-#	#print ("Searching and replacing through script element.")
-#	if (null == onion):
-#		#print ("Script element was null.")
-#		return onion
-#	elif (onion is ArithmeticMeanOperator):
-#		#print ("Script element was Arithmetic Mean Operator.")
-#		var copy = []
-#		for each in onion.operands:
-#			var new_operand = search_and_replace_onion(each, search_term, replacement)
-#			if (null != new_operand):
-#				copy.append(new_operand)
-#		if (onion.operands != copy):
-#			script_changed = true
-#			if (0 == copy.size()):
-#				onion.operands = [0]
-#			else:
-#				onion.operands = copy.duplicate()
-#	elif (onion is BlendOperator):
-#		#print ("Script element was Blend Operator.")
-#		if (3 == onion.operands.size()):
-#			onion.operands[0] = search_and_replace_onion(onion.operands[0], search_term, replacement)
-#			onion.operands[1] = search_and_replace_onion(onion.operands[1], search_term, replacement)
-#			onion.operands[2] = search_and_replace_onion(onion.operands[2], search_term, replacement)
-#	elif (onion is BNumberConstant):
-#		#print ("Script element was Bounded Number Constant.")
-#		var flag = false
-#		if (search_term is BNumberConstant and onion.get_value() == search_term.get_value()):
-#			flag = true
-#		elif ((TYPE_INT == typeof(search_term) or TYPE_REAL == typeof(search_term)) and onion.get_value() == search_term):
-#			flag = true
-#		if (flag):
-#			if (replacement is BNumberConstant and onion.get_value() != replacement.get_value()):
-#				script_changed = true
-#				onion.set_value(replacement.get_value())
-#			elif ((TYPE_INT == typeof(replacement) or TYPE_REAL == typeof(replacement)) and onion.get_value() != replacement):
-#				script_changed = true
-#				onion.set_value(replacement)
-#	elif (onion is BNumberPointer and 0 < onion.keyring.size()):
-#		print ("Script element was Bounded Number Pointer.")
-#		if (search_term is BNumberPointer
-#			and compare_to_search_term(onion.character, search_term.character)
-#			and compare_to_search_term(onion.coefficient, search_term.coefficient)
-#			and compare_to_search_term(onion.keyring, search_term.keyring)):
-#			if (replacement is BNumberPointer):
-#				if (null != replacement.character):
-#					script_changed = true
-#					onion.character = replacement.character
-#				if (null != replacement.coefficient):
-#					script_changed = true
-#					onion.coefficient = replacement.coefficient
-#				if (null != replacement.keyring):
-#					script_changed = true
-#					onion.keyring = []
-#					for each in replacement.keyring:
-#						onion.keyring.append(each)
-#			elif (TYPE_INT == typeof(replacement) or TYPE_REAL == typeof(replacement) or TYPE_NIL == typeof(replacement)):
-#				script_changed = true
-##				onion.call_deferred("free")
-#				onion = replacement
-#		elif (search_term is Actor):
-#			if (replacement is Actor):
-#				print ("Search term and replacement are both characters.")
-#				if (onion.character == search_term):
-#					script_changed = true
-#					onion.character = replacement
-#				for key in onion.keyring:
-#					if (key == search_term.id):
-#						script_changed = true
-#						key = replacement.id
-#			elif (replacement is BNumberPointer or TYPE_INT == typeof(replacement) or TYPE_REAL == typeof(replacement) or TYPE_NIL == typeof(replacement)):
-#				var flag = false
-#				if (onion.character == search_term):
-#					flag = true
-#				for key in onion.keyring:
-#					if (key == search_term.id):
-#						flag = true
-#						break
-#				if (flag):
-#					if (replacement is BNumberPointer):
-#						if (null != replacement.character):
-#							script_changed = true
-#							onion.character = replacement.character
-#						if (null != replacement.coefficient):
-#							script_changed = true
-#							onion.coefficient = replacement.coefficient
-#						if (null != replacement.keyring):
-#							script_changed = true
-#							onion.keyring = []
-#							for each in replacement.keyring:
-#								onion.keyring.append(each)
-#					else:
-#						script_changed = true
-##						onion.call_deferred("free")
-#						onion = replacement
-#		elif (search_term is BNumberBlueprint):
-#			if (onion.keyring[0] == search_term.id):
-#				if (replacement is BNumberBlueprint and search_term.depth == replacement.depth):
-#					script_changed = true
-#					onion.keyring[0] = replacement.id
-#				if (replacement is BNumberPointer):
-#					if (null != replacement.character):
-#						script_changed = true
-#						onion.character = replacement.character
-#					if (null != replacement.coefficient):
-#						script_changed = true
-#						onion.coefficient = replacement.coefficient
-#					if (null != replacement.keyring):
-#						script_changed = true
-#						onion.keyring = []
-#						for each in replacement.keyring:
-#							onion.keyring.append(each)
-#				elif (TYPE_INT == typeof(replacement) or TYPE_REAL == typeof(replacement) or TYPE_NIL == typeof(replacement)):
-#					script_changed = true
-##					onion.call_deferred("free")
-#					onion = replacement
-#		if (!onion.character.authored_property_directory.has(onion.keyring[0])):
-#			if (0 == onion.character.authored_properties.size()):
-#				script_changed = true
-##				onion.call_deferred("free")
-#				onion = 0
-#			else:
-#				script_changed = true
-#				var blueprint = onion.character.authored_properties[0]
-#				onion.keyring.clear()
-#				onion.keyring.append(blueprint.id)
-#				for layer in range(blueprint.depth):
-#					onion.keyring.append(onion.character.id)
-#	elif (onion is BooleanConstant):
-#		#print ("Script element was Boolean Constant.")
-#		if (compare_to_search_term(onion.get_value(), search_term)):
-#			if (TYPE_BOOL == typeof(replacement) and onion.get_value() != replacement):
-#				script_changed = true
-#				onion.set_value(replacement)
-#			elif (replacement is BooleanConstant and onion.get_value() != replacement.get_value()):
-#				script_changed = true
-#				onion.set_value(replacement.get_value())
-#	elif (onion is BooleanComparator):
-#		#print ("Script element was Boolean Operator.")
-#		var copy = []
-#		for each in onion.operands:
-#			var new_operand = search_and_replace_onion(each, search_term, replacement)
-#			if (null != new_operand):
-#				copy.append(new_operand)
-#		if (onion.operands != copy):
-#			script_changed = true
-#			if (0 == copy.size()):
-#				onion.operands = [true]
-#			else:
-#				onion.operands = copy.duplicate()
-#	elif (onion is BSumOperator):
-#		#print ("Script element was Bounded Sum Operator.")
-#		var copy = []
-#		for each in onion.operands:
-#			var new_operand = search_and_replace_onion(each, search_term, replacement)
-#			if (null != new_operand):
-#				copy.append(new_operand)
-#		if (onion.operands != copy):
-#			script_changed = true
-#			if (0 == copy.size()):
-#				onion.operands = [0]
-#			else:
-#				onion.operands = copy.duplicate()
-#	elif (onion is Desideratum):
-#		#print ("Script element was Proximity To Operator.")
-#		if (2 == onion.operands.size()):
-#			onion.operands[0] = search_and_replace_onion(onion.operands[0], search_term, replacement)
-#			onion.operands[1] = search_and_replace_onion(onion.operands[1], search_term, replacement)
-#	elif (onion is EventPointer):
-#		#print ("Script element was Event Pointer.")
-#		var flag = false
-#		if (search_term is EventPointer
-#			and compare_to_search_term(onion.negated, search_term.negated)
-#			and compare_to_search_term(onion.encounter, search_term.encounter)
-#			and compare_to_search_term(onion.option, search_term.option)
-#			and compare_to_search_term(onion.reaction, search_term.reaction)):
-#			flag = true
-#		elif (compare_to_search_term(onion.encounter, search_term)):
-#			flag = true
-#		elif (compare_to_search_term(onion.option, search_term)):
-#			flag = true
-#		elif (compare_to_search_term(onion.reaction, search_term)):
-#			flag = true
-#		if (flag):
-#			if (replacement is EventPointer):
-#				if (null != replacement.negated):
-#					script_changed = true
-#					onion.negated = replacement.negated
-#				if (null != replacement.encounter):
-#					script_changed = true
-#					onion.encounter = replacement.encounter
-#				if (null != replacement.option):
-#					script_changed = true
-#					onion.option = replacement.option
-#				if (null != replacement.reaction):
-#					script_changed = true
-#					onion.reaction = replacement.reaction
-#			elif (TYPE_BOOL == typeof(replacement) or TYPE_NIL == typeof(replacement)):
-#				script_changed = true
-##				onion.call_deferred("free")
-#				onion = replacement
-#	elif (onion is NudgeOperator):
-#		#print ("Script element was Nudge Operator.")
-#		if (2 == onion.operands.size()):
-#			onion.operands[0] = search_and_replace_onion(onion.operands[0], search_term, replacement)
-#			onion.operands[1] = search_and_replace_onion(onion.operands[1], search_term, replacement)
-#	if (null == onion):
-#		print ("Done searching script element. Returning null element.")
-#	else:
-#		print ("Done searching script element. Returning non-null element.")
-#	return onion
-#
-#func search_and_replace(search_term, replacement):
-#	script_changed = false
-#	var editted_script = search_and_replace_onion(contents, search_term, replacement)
-#	if (script_changed):
-#		set_contents(editted_script)
-#	var result = script_changed
-#	script_changed = false
-#	return result
-
 func recursive_replace_character_with_character(onion, search_term, replacement):
 	if (onion is BNumberPointer):
 		onion.replace_character_with_character(search_term, replacement)
@@ -373,7 +145,7 @@ func replace_character_with_character(search_term, replacement):
 
 func recursive_replace_property_with_pointer(onion, search_term, replacement):
 	if (onion is BNumberPointer):
-		if (!onion.keyring.empty() and onion.keyring.front() == search_term.id):
+		if (!onion.keyring.is_empty() and onion.keyring.front() == search_term.id):
 			onion.set_as_copy_of(replacement)
 	elif (onion is SWOperator):
 		for operand in onion.operands:
@@ -385,7 +157,7 @@ func replace_property_with_pointer(search_term, replacement):
 
 func recursive_replace_character_and_property_with_pointer(onion, search_character, search_property, replacement):
 	if (onion is BNumberPointer):
-		if (!onion.keyring.empty() and onion.character == search_character and onion.keyring.front() == search_property.id):
+		if (!onion.keyring.is_empty() and onion.character == search_character and onion.keyring.front() == search_property.id):
 			onion.set_as_copy_of(replacement)
 	elif (onion is SWOperator):
 		for operand in onion.operands:
@@ -402,114 +174,114 @@ func recursive_quicken_bnumberpointers(rehearsal, onion):
 			var pointer = rehearsal.cast_traits_legend[index]
 			if (onion.is_parallel_to(pointer)):
 				replace_element(onion, QuickBNPointer.new(rehearsal, index))
-				script_changed = true
+				sw_script_changed = true
 				constant = false
 				break
 		if (constant):
 			for pointer in rehearsal.cast_trait_constants:
 				if (onion.is_parallel_to(pointer)):
 					replace_element(onion, BNumberConstant.new(onion.get_value()))
-					script_changed = true
+					sw_script_changed = true
 					break
 	elif (onion is SWOperator):
 		for operand in onion.operands:
 			recursive_quicken_bnumberpointers(rehearsal, operand)
 
 func quicken_bnumberpointers(rehearsal):
-	script_changed = false
+	sw_script_changed = false
 	recursive_quicken_bnumberpointers(rehearsal, contents)
-	return script_changed
+	return sw_script_changed
 
 func recursive_delete_character(character, onion):
 	if (onion is BNumberPointer):
 		if (onion.character == character):
 			replace_element(onion, BNumberConstant.new(0))
-			script_changed = true
+			sw_script_changed = true
 		else:
 			for key in onion.keyring:
 				if (key == character.id):
 					replace_element(onion, BNumberConstant.new(0))
-					script_changed = true
+					sw_script_changed = true
 					break
 	elif (onion is SWOperator):
 		for operand in onion.operands:
 			recursive_delete_character(character, operand)
 
 func delete_character(character):
-	script_changed = false
+	sw_script_changed = false
 	recursive_delete_character(character, contents)
-	return script_changed
+	return sw_script_changed
 
 func recursive_delete_property(property, onion):
 	if (onion is BNumberPointer):
 		if (onion.keyring.front() == property.id):
 			replace_element(onion, BNumberConstant.new(0))
-			script_changed = true
+			sw_script_changed = true
 	elif (onion is SWOperator):
 		for operand in onion.operands:
 			recursive_delete_property(property, operand)
 
 func delete_property(property):
-	script_changed = false
+	sw_script_changed = false
 	recursive_delete_property(property, contents)
-	return script_changed
+	return sw_script_changed
 
 func recursive_delete_reaction(reaction, onion):
 	if (onion is EventPointer):
 		if (onion.reaction == reaction):
 			onion.reaction = null
-			script_changed = true
+			sw_script_changed = true
 	elif (onion is SWOperator):
 		for operand in onion.operands:
 			recursive_delete_reaction(reaction, operand)
 
 func delete_reaction(reaction):
-	script_changed = false
+	sw_script_changed = false
 	recursive_delete_reaction(reaction, contents)
-	return script_changed
+	return sw_script_changed
 
 func recursive_delete_option(option, onion):
 	if (onion is EventPointer):
 		if (onion.option == option):
 			onion.option = null
 			onion.reaction = null
-			script_changed = true
+			sw_script_changed = true
 	elif (onion is SWOperator):
 		for operand in onion.operands:
 			recursive_delete_option(option, operand)
 
 func delete_option(option):
-	script_changed = false
+	sw_script_changed = false
 	recursive_delete_option(option, contents)
-	return script_changed
+	return sw_script_changed
 
 func recursive_delete_encounter(encounter, onion):
 	if (onion is EventPointer):
 		if (onion.encounter == encounter):
 			replace_element(onion, BooleanConstant.new(true))
-			script_changed = true
+			sw_script_changed = true
 	elif (onion is SWOperator):
 		for operand in onion.operands:
 			recursive_delete_encounter(encounter, operand)
 
 func delete_encounter(encounter):
-	script_changed = false
+	sw_script_changed = false
 	recursive_delete_encounter(encounter, contents)
-	return script_changed
+	return sw_script_changed
 
 func recursive_delete_spool(spool, onion):
 	if (onion is SpoolStatusPointer):
 		if (onion.spool == spool):
 			replace_element(onion, BooleanConstant.new(true))
-			script_changed = true
+			sw_script_changed = true
 	elif (onion is SWOperator):
 		for operand in onion.operands:
 			recursive_delete_spool(spool, operand)
 
 func delete_spool(spool):
-	script_changed = false
+	sw_script_changed = false
 	recursive_delete_spool(spool, contents)
-	return script_changed
+	return sw_script_changed
 
 func recursive_has_search_text(onion, searchterm):
 	if (onion is StringConstant):
@@ -530,7 +302,7 @@ func has_search_text(searchterm):
 func recursive_find_occurrences_of_string(onion, searchterm, results):
 	if (onion is StringConstant):
 		var match_indices = onion.find_occurrences(searchterm)
-		if (TYPE_ARRAY == match_indices and !match_indices.empty()):
+		if (TYPE_ARRAY == match_indices and !match_indices.is_empty()):
 			for match_index in match_indices:
 				results["element"].append(onion)
 				results["match_index"].append(match_index)
@@ -660,14 +432,14 @@ func clear():
 	contents = null
 	output_type = sw_script_data_types.VARIANT
 
-func compile(parent_storyworld, include_editor_only_variables = false):
+func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var result = null
 	if (null == contents):
 		result = null
-	elif (TYPE_BOOL == typeof(contents) or TYPE_INT == typeof(contents) or TYPE_REAL == typeof(contents)):
+	elif (TYPE_BOOL == typeof(contents) or TYPE_INT == typeof(contents) or TYPE_FLOAT == typeof(contents)):
 		result = contents
 	elif (contents is SWScriptElement):
-		result = contents.compile(parent_storyworld, include_editor_only_variables)
+		result = contents.compile(_parent_storyworld, _include_editor_only_variables)
 	return result
 
 func stringify_datatype(datatype):
@@ -687,7 +459,7 @@ func data_to_string():
 	var result = "[invalid script]"
 	if (null == contents):
 		result = "null"
-	elif (TYPE_BOOL == typeof(contents) or TYPE_INT == typeof(contents) or TYPE_REAL == typeof(contents)):
+	elif (TYPE_BOOL == typeof(contents) or TYPE_INT == typeof(contents) or TYPE_FLOAT == typeof(contents)):
 		result = str(contents)
 	elif (contents is SWScriptElement):
 		result = contents.data_to_string()
@@ -728,12 +500,12 @@ func recursive_load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
 				element.spool = storyworld.spool_directory[data_to_load["spool"]]
 			if (TYPE_STRING == typeof(data_to_load["encounter"]) and storyworld.encounter_directory.has(data_to_load["encounter"])):
 				element.encounter = storyworld.encounter_directory[data_to_load["encounter"]]
-				if (TYPE_INT == typeof(data_to_load["option"]) or TYPE_REAL == typeof(data_to_load["option"])):
+				if (TYPE_INT == typeof(data_to_load["option"]) or TYPE_FLOAT == typeof(data_to_load["option"])):
 					var option_index = data_to_load["option"]
 					var maximum = element.encounter.options.size()
 					if (0 <= option_index and option_index < maximum):
 						element.option = element.encounter.options[option_index]
-						if (TYPE_INT == typeof(data_to_load["reaction"]) or TYPE_REAL == typeof(data_to_load["reaction"])):
+						if (TYPE_INT == typeof(data_to_load["reaction"]) or TYPE_FLOAT == typeof(data_to_load["reaction"])):
 							var reaction_index = data_to_load["reaction"]
 							maximum = element.option.reactions.size()
 							if (0 <= reaction_index and reaction_index < maximum):
@@ -780,7 +552,7 @@ func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load, expected_o
 	else:
 		set_contents(parsed_script)
 
-func recursive_load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load):
+func recursive_load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load):
 	var element = null
 	if (TYPE_BOOL == typeof(data_to_load)):
 		#Data should be either a boolean value, (true or false,) or a dictionary.
@@ -818,7 +590,7 @@ func recursive_load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load):
 		#Parse operands:
 		var operands = []
 		for operand in data_to_load["operands"]:
-			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_1_6(storyworld, operand)
+			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_1_8(storyworld, operand)
 			if (parsed_operand is SWScriptElement):
 				operands.append(parsed_operand)
 		#Create operator:
@@ -864,8 +636,8 @@ func recursive_load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load):
 			element = NudgeOperator.new(operands.pop_front(), operands.pop_front())
 	return proofread(element)
 
-func load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load, expected_output_datatype):
-	var parsed_script = recursive_load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load)
+func load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load, expected_output_datatype):
+	var parsed_script = recursive_load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load)
 	if (null == parsed_script):
 		if (sw_script_data_types.BNUMBER == expected_output_datatype):
 #			print ("Warning, script has null or invalid contents. Setting script contents to bounded number constant to match expected output datatype.")
@@ -882,19 +654,27 @@ func load_from_json_v0_0_34_through_v0_1_6(storyworld, data_to_load, expected_ou
 	else:
 		set_contents(parsed_script)
 
-func validate(intended_script_output_datatype):
+func validate(_intended_script_output_datatype):
 	if (null == contents):
-		return "Script contents are null."
+		return "Script root is null."
 	elif (!(contents is SWScriptElement)):
-		return "Script contents are not a SweepWeave script element."
+		return "Script root is not a SweepWeave script element."
 	elif (!is_instance_valid(contents)):
-		return "Script contents have been deleted but not properly nullified or replaced."
+		return "Script root has been deleted but not properly nullified or replaced."
 	else:
 		var validation_report = ""
-		if (output_type != intended_script_output_datatype and sw_script_data_types.VARIANT != intended_script_output_datatype):
-			validation_report += "Script has incorrect output type. The correct output type would be " + stringify_datatype(intended_script_output_datatype)
+		if (output_type != _intended_script_output_datatype and sw_script_data_types.VARIANT != _intended_script_output_datatype):
+			validation_report += "Script has incorrect output type. The correct output type would be " + stringify_datatype(_intended_script_output_datatype)
 			validation_report += ", but the script has an output type of " + stringify_datatype(output_type)
-		var contents_report = contents.validate(intended_script_output_datatype)
+		if (null == contents.parent_operator):
+			validation_report += "\n" + "The parent operator of the script root is null."
+		elif (!is_instance_valid(contents.parent_operator)):
+			validation_report += "\n" + "The parent operator of the script root is an invalid instance."
+		elif (contents.parent_operator != self):
+			validation_report += "\n" + "Script root has incorrect parent operator."
+		if (contents.script_index != 0):
+			validation_report += "\n" + "Script root has incorrect script index. The script index should be 0, but is " + str(contents.script_index) + "."
+		var contents_report = contents.validate(_intended_script_output_datatype)
 		if ("Passed." != contents_report):
 			validation_report += "\n" + contents_report
 		if ("" == validation_report):

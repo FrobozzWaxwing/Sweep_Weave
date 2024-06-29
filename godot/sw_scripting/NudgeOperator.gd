@@ -10,7 +10,7 @@ func _init(in_operand_0 = null, in_operand_1 = null):
 	add_operand(in_operand_0)
 	add_operand(in_operand_1)
 
-static func get_operator_type():
+func get_operator_type():
 	return "Nudge"
 
 func get_value():

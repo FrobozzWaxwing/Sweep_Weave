@@ -11,7 +11,7 @@ func _init(in_operand_0, in_operand_1, in_weight):
 	add_operand(in_operand_1)
 	add_operand(in_weight)
 
-static func get_operator_type():
+func get_operator_type():
 	return "Blend"
 
 func get_value():
