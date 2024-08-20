@@ -50,16 +50,27 @@ placeholder_text = "Enter search term"
 [node name="SortBar" type="HBoxContainer" parent="Background/VBC"]
 layout_mode = 2
 
+[node name="CollapseAll" type="Button" parent="Background/VBC/SortBar"]
+layout_mode = 2
+text = "Collapse All"
+
+[node name="ExpandToOptions" type="Button" parent="Background/VBC/SortBar"]
+layout_mode = 2
+text = "Expand to Options"
+
+[node name="ExpandToReactions" type="Button" parent="Background/VBC/SortBar"]
+layout_mode = 2
+text = "Expand to Reactions"
+
 [node name="Label" type="Label" parent="Background/VBC/SortBar"]
 layout_mode = 2
 text = " Sort by:"
 
 [node name="SortMenu" type="OptionButton" parent="Background/VBC/SortBar"]
 layout_mode = 2
-item_count = 10
 selected = 0
+item_count = 10
 popup/item_0/text = "Alphabetical"
-popup/item_0/id = 0
 popup/item_1/text = "Creation Time"
 popup/item_1/id = 1
 popup/item_2/text = "Modified Time"
@@ -92,10 +103,14 @@ size_flags_vertical = 3
 hide_root = true
 
 [node name="NegatedCheckBox" type="CheckBox" parent="Background/VBC"]
+visible = false
 layout_mode = 2
 text = "Negated"
 
 [connection signal="text_submitted" from="Background/VBC/SearchBar/LineEdit" to="." method="_on_LineEdit_text_entered"]
+[connection signal="pressed" from="Background/VBC/SortBar/CollapseAll" to="." method="_on_collapse_all_pressed"]
+[connection signal="pressed" from="Background/VBC/SortBar/ExpandToOptions" to="." method="_on_expand_to_options_pressed"]
+[connection signal="pressed" from="Background/VBC/SortBar/ExpandToReactions" to="." method="_on_expand_to_reactions_pressed"]
 [connection signal="item_selected" from="Background/VBC/SortBar/SortMenu" to="." method="_on_SortMenu_item_selected"]
 [connection signal="toggled" from="Background/VBC/SortBar/ToggleReverseButton" to="." method="_on_ToggleReverseButton_toggled"]
 [connection signal="item_activated" from="Background/VBC/EventTree" to="." method="_on_EventTree_item_activated"]

@@ -20,8 +20,6 @@ clip_contents = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -521.0
-offset_bottom = -39.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -60,10 +58,9 @@ text = "Sort by:"
 
 [node name="SortMenu" type="OptionButton" parent="Column1/SortBar"]
 layout_mode = 2
-item_count = 10
 selected = 0
+item_count = 10
 popup/item_0/text = "Alphabetical"
-popup/item_0/id = 0
 popup/item_1/text = "Creation Time"
 popup/item_1/id = 1
 popup/item_2/text = "Modified Time"
@@ -106,90 +103,94 @@ custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+split_offset = 730
 
-[node name="Column2" type="VBoxContainer" parent="HSC"]
-custom_minimum_size = Vector2(32, 0)
+[node name="Column2" type="VSplitContainer" parent="HSC"]
+clip_contents = true
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
+split_offset = 500
 
-[node name="HBCTitle" type="HBoxContainer" parent="HSC/Column2"]
+[node name="EncounterDetails" type="VBoxContainer" parent="HSC/Column2"]
 layout_mode = 2
 
-[node name="EncounterTitleEdit" type="LineEdit" parent="HSC/Column2/HBCTitle"]
+[node name="HBCTitle" type="HBoxContainer" parent="HSC/Column2/EncounterDetails"]
+layout_mode = 2
+
+[node name="EncounterTitleEdit" type="LineEdit" parent="HSC/Column2/EncounterDetails/HBCTitle"]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Encounter Title"
 caret_blink = true
 caret_blink_interval = 0.5
 
-[node name="EditEncounterAcceptabilityScriptButton" type="Button" parent="HSC/Column2/HBCTitle"]
+[node name="EditEncounterAcceptabilityScriptButton" type="Button" parent="HSC/Column2/EncounterDetails/HBCTitle"]
 layout_mode = 2
 tooltip_text = "Edit this encounter's acceptability script."
 icon = ExtResource("14")
 
-[node name="EditEncounterDesirabilityScriptButton" type="Button" parent="HSC/Column2/HBCTitle"]
+[node name="EditEncounterDesirabilityScriptButton" type="Button" parent="HSC/Column2/EncounterDetails/HBCTitle"]
 layout_mode = 2
 tooltip_text = "Edit this encounter's desirability script."
 icon = ExtResource("15")
 
-[node name="EncounterMainTextEdit" type="TextEdit" parent="HSC/Column2"]
+[node name="EncounterMainTextEdit" type="TextEdit" parent="HSC/Column2/EncounterDetails"]
 layout_mode = 2
 size_flags_vertical = 3
+placeholder_text = "Encounter main text"
 wrap_mode = 1
 highlight_current_line = true
 
-[node name="SimplifiedEncounterDesirabilityScriptingInterface" parent="HSC/Column2" instance=ExtResource("17")]
+[node name="SimplifiedEncounterDesirabilityScriptingInterface" parent="HSC/Column2/EncounterDetails" instance=ExtResource("17")]
 visible = false
 layout_mode = 2
 
-[node name="HBCOptionButtons" type="HBoxContainer" parent="HSC/Column2"]
+[node name="OptionDetails" type="VBoxContainer" parent="HSC/Column2"]
+layout_mode = 2
+
+[node name="HBCOptionButtons" type="HBoxContainer" parent="HSC/Column2/OptionDetails"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="HSC/Column2/HBCOptionButtons"]
+[node name="Label" type="Label" parent="HSC/Column2/OptionDetails/HBCOptionButtons"]
 layout_mode = 2
 text = "Options: "
 
-[node name="AddOption" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+[node name="AddOption" type="Button" parent="HSC/Column2/OptionDetails/HBCOptionButtons"]
 layout_mode = 2
 tooltip_text = "Add new option."
 icon = ExtResource("2")
 
-[node name="DeleteOption" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+[node name="DeleteOption" type="Button" parent="HSC/Column2/OptionDetails/HBCOptionButtons"]
 layout_mode = 2
 tooltip_text = "Delete selected options."
 icon = ExtResource("11")
 
-[node name="MoveOptionUpButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+[node name="MoveOptionUpButton" type="Button" parent="HSC/Column2/OptionDetails/HBCOptionButtons"]
 layout_mode = 2
 tooltip_text = "Move option up."
 icon = ExtResource("3")
 
-[node name="MoveOptionDownButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+[node name="MoveOptionDownButton" type="Button" parent="HSC/Column2/OptionDetails/HBCOptionButtons"]
 layout_mode = 2
 tooltip_text = "Move option down."
 icon = ExtResource("10")
 
-[node name="EditOptionVisibilityScriptButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+[node name="EditOptionVisibilityScriptButton" type="Button" parent="HSC/Column2/OptionDetails/HBCOptionButtons"]
 layout_mode = 2
 tooltip_text = "Edit this option's visibility script."
 icon = ExtResource("12")
 
-[node name="EditOptionPerformabilityScriptButton" type="Button" parent="HSC/Column2/HBCOptionButtons"]
+[node name="EditOptionPerformabilityScriptButton" type="Button" parent="HSC/Column2/OptionDetails/HBCOptionButtons"]
 layout_mode = 2
 tooltip_text = "Edit this option's performability script."
 icon = ExtResource("13")
 
-[node name="OptionsList" parent="HSC/Column2" instance=ExtResource("8")]
-custom_minimum_size = Vector2(0, 128)
+[node name="OptionsList" parent="HSC/Column2/OptionDetails" instance=ExtResource("8")]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
+size_flags_vertical = 3
 
-[node name="OptTxtLabel" type="Label" parent="HSC/Column2"]
-layout_mode = 2
-text = "Text of option: "
-
-[node name="OptionText" type="LineEdit" parent="HSC/Column2"]
+[node name="OptionText" type="LineEdit" parent="HSC/Column2/OptionDetails"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 placeholder_text = "Option text"
@@ -241,15 +242,12 @@ icon_alignment = 1
 custom_minimum_size = Vector2(0, 128)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="HSC/Column3"]
-layout_mode = 2
-text = "Reaction text:"
-
 [node name="ReactionText" type="TextEdit" parent="HSC/Column3"]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+placeholder_text = "Reaction text"
 wrap_mode = 1
 
 [node name="SimplifiedReactionDesirabilityScriptingInterface" parent="HSC/Column3" instance=ExtResource("17")]
@@ -262,7 +260,7 @@ layout_mode = 2
 [node name="ChangeConsequence" type="Button" parent="HSC/Column3/HBCConsequence"]
 visible = false
 layout_mode = 2
-tooltip_text = "This sets the reaction's consequence to the first currently selected encounter, (selected in the encounter list on the far left of the screen.)"
+tooltip_text = "Any time this reaction occurs, this encounter will occur next."
 text = "Change Consequence:"
 
 [node name="HBCEffectButtons" type="HBoxContainer" parent="HSC/Column3"]
@@ -328,7 +326,7 @@ dialog_autowrap = true
 
 [node name="ScriptEditWindow" type="AcceptDialog" parent="."]
 title = "Script Editor"
-size = Vector2i(800, 650)
+size = Vector2i(900, 650)
 
 [node name="ScriptEditScreen" parent="ScriptEditWindow" instance=ExtResource("6")]
 offset_left = 8.0
@@ -343,28 +341,28 @@ offset_bottom = -36.0
 [connection signal="pressed" from="Column1/HBC2/Duplicate" to="." method="_on_Duplicate_pressed"]
 [connection signal="item_selected" from="Column1/EncountersList" to="." method="_on_EncountersList_item_selected"]
 [connection signal="multi_selected" from="Column1/EncountersList" to="." method="_on_EncountersList_multi_selected"]
-[connection signal="text_changed" from="HSC/Column2/HBCTitle/EncounterTitleEdit" to="." method="_on_EncounterTitleEdit_text_changed"]
-[connection signal="pressed" from="HSC/Column2/HBCTitle/EditEncounterAcceptabilityScriptButton" to="." method="_on_EditEncounterAcceptabilityScriptButton_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCTitle/EditEncounterDesirabilityScriptButton" to="." method="_on_EditEncounterDesirabilityScriptButton_pressed"]
-[connection signal="text_changed" from="HSC/Column2/EncounterMainTextEdit" to="." method="_on_EncounterMainTextEdit_text_changed"]
-[connection signal="sw_script_changed" from="HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface" to="." method="_on_SimplifiedEncounterDesirabilityScriptingInterface_sw_script_changed"]
-[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/AddOption" to="." method="_on_AddOption_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/DeleteOption" to="." method="_on_DeleteOption_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/MoveOptionUpButton" to="." method="_on_MoveOptionUpButton_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/MoveOptionDownButton" to="." method="_on_MoveOptionDownButton_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/EditOptionVisibilityScriptButton" to="." method="_on_EditOptionVisibilityScriptButton_pressed"]
-[connection signal="pressed" from="HSC/Column2/HBCOptionButtons/EditOptionPerformabilityScriptButton" to="." method="_on_EditOptionPerformabilityScriptButton_pressed"]
-[connection signal="add_at" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_add_at"]
-[connection signal="copy" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_copy"]
-[connection signal="cut" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_cut"]
-[connection signal="delete" from="HSC/Column2/OptionsList" to="." method="confirm_option_deletion"]
-[connection signal="duplicate" from="HSC/Column2/OptionsList" to="." method="duplicate_selected_options"]
-[connection signal="edit_performability_script" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_edit_performability_script"]
-[connection signal="edit_visibility_script" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_edit_visibility_script"]
-[connection signal="item_moved" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_item_moved"]
-[connection signal="multi_selected" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_multi_selected"]
-[connection signal="paste_at" from="HSC/Column2/OptionsList" to="." method="_on_OptionsList_paste_at"]
-[connection signal="text_changed" from="HSC/Column2/OptionText" to="." method="_on_OptionText_text_changed"]
+[connection signal="text_changed" from="HSC/Column2/EncounterDetails/HBCTitle/EncounterTitleEdit" to="." method="_on_EncounterTitleEdit_text_changed"]
+[connection signal="pressed" from="HSC/Column2/EncounterDetails/HBCTitle/EditEncounterAcceptabilityScriptButton" to="." method="_on_EditEncounterAcceptabilityScriptButton_pressed"]
+[connection signal="pressed" from="HSC/Column2/EncounterDetails/HBCTitle/EditEncounterDesirabilityScriptButton" to="." method="_on_EditEncounterDesirabilityScriptButton_pressed"]
+[connection signal="text_changed" from="HSC/Column2/EncounterDetails/EncounterMainTextEdit" to="." method="_on_EncounterMainTextEdit_text_changed"]
+[connection signal="sw_script_changed" from="HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface" to="." method="_on_SimplifiedEncounterDesirabilityScriptingInterface_sw_script_changed"]
+[connection signal="pressed" from="HSC/Column2/OptionDetails/HBCOptionButtons/AddOption" to="." method="_on_AddOption_pressed"]
+[connection signal="pressed" from="HSC/Column2/OptionDetails/HBCOptionButtons/DeleteOption" to="." method="_on_DeleteOption_pressed"]
+[connection signal="pressed" from="HSC/Column2/OptionDetails/HBCOptionButtons/MoveOptionUpButton" to="." method="_on_MoveOptionUpButton_pressed"]
+[connection signal="pressed" from="HSC/Column2/OptionDetails/HBCOptionButtons/MoveOptionDownButton" to="." method="_on_MoveOptionDownButton_pressed"]
+[connection signal="pressed" from="HSC/Column2/OptionDetails/HBCOptionButtons/EditOptionVisibilityScriptButton" to="." method="_on_EditOptionVisibilityScriptButton_pressed"]
+[connection signal="pressed" from="HSC/Column2/OptionDetails/HBCOptionButtons/EditOptionPerformabilityScriptButton" to="." method="_on_EditOptionPerformabilityScriptButton_pressed"]
+[connection signal="add_at" from="HSC/Column2/OptionDetails/OptionsList" to="." method="_on_OptionsList_add_at"]
+[connection signal="copy" from="HSC/Column2/OptionDetails/OptionsList" to="." method="_on_OptionsList_copy"]
+[connection signal="cut" from="HSC/Column2/OptionDetails/OptionsList" to="." method="_on_OptionsList_cut"]
+[connection signal="delete" from="HSC/Column2/OptionDetails/OptionsList" to="." method="confirm_option_deletion"]
+[connection signal="duplicate" from="HSC/Column2/OptionDetails/OptionsList" to="." method="duplicate_selected_options"]
+[connection signal="edit_performability_script" from="HSC/Column2/OptionDetails/OptionsList" to="." method="_on_OptionsList_edit_performability_script"]
+[connection signal="edit_visibility_script" from="HSC/Column2/OptionDetails/OptionsList" to="." method="_on_OptionsList_edit_visibility_script"]
+[connection signal="item_moved" from="HSC/Column2/OptionDetails/OptionsList" to="." method="_on_OptionsList_item_moved"]
+[connection signal="multi_selected" from="HSC/Column2/OptionDetails/OptionsList" to="." method="_on_OptionsList_multi_selected"]
+[connection signal="paste_at" from="HSC/Column2/OptionDetails/OptionsList" to="." method="_on_OptionsList_paste_at"]
+[connection signal="text_changed" from="HSC/Column2/OptionDetails/OptionText" to="." method="_on_OptionText_text_changed"]
 [connection signal="pressed" from="HSC/Column3/HBC/AddReaction" to="." method="_on_AddReaction_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBC/DeleteReaction" to="." method="_on_DeleteReaction_pressed"]
 [connection signal="pressed" from="HSC/Column3/HBC/MoveReactionUpButton" to="." method="_on_MoveReactionUpButton_pressed"]

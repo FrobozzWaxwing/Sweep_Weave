@@ -52,7 +52,7 @@ func get_truncated_text(maximum_output_length = 20):
 	else:
 		return text.left(maximum_output_length - 3) + "..."
 
-func get_listable_text(maximum_output_length = 80):
+func get_listable_text(maximum_output_length = 200):
 	var text = get_text()
 	if ("" == text):
 		return "[Blank Option]"

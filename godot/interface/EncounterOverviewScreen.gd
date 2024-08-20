@@ -265,4 +265,3 @@ func set_gui_theme(theme_name, background_color):
 			$Background/VBC/HFlowContainer/DeleteEncounterButton.set_button_icon(delete_icon_light)
 			light_mode = false
 	refresh_sort_icon()
-

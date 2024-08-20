@@ -5,7 +5,7 @@ var blacklist = [] #A list of encounters that should not be made available for s
 var selected_event = null #An EventPointer.
 var searchterm = ""
 var display_options = true #If true, the refresh function will display the options of encounters as branches of those encounters in the EventTree.
-var display_negated_checkbox = true
+var display_negated_checkbox = false
 var light_mode = true
 #Clarity is a light mode theme, while Lapis Lazuli is a dark mode theme.
 
@@ -131,6 +131,26 @@ func _on_ToggleReverseButton_toggled(button_pressed):
 	storyworld.sort_encounters(sort_method, button_pressed)
 	refresh()
 	refresh_sort_icon()
+
+func _on_collapse_all_pressed() -> void:
+	var branch = $Background/VBC/EventTree.get_root().get_first_child()
+	while (null != branch):
+		branch.call_recursive("set_collapsed", true)
+		branch = branch.get_next()
+
+func _on_expand_to_options_pressed() -> void:
+	var branch = $Background/VBC/EventTree.get_root().get_first_child()
+	while (null != branch):
+		branch.set_collapsed(false)
+		for leaf in branch.get_children():
+			leaf.set_collapsed(true)
+		branch = branch.get_next()
+
+func _on_expand_to_reactions_pressed() -> void:
+	var branch = $Background/VBC/EventTree.get_root().get_first_child()
+	while (null != branch):
+		branch.call_recursive("set_collapsed", false)
+		branch = branch.get_next()
 
 func _on_EventTree_item_activated():
 	event_doubleclicked.emit(selected_event)

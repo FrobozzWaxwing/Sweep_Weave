@@ -97,21 +97,21 @@ func set_display_reaction_qdse(display):
 
 func set_clipboard(new_clipboard):
 	clipboard = new_clipboard
-	$HSC/Column2/OptionsList.clipboard = new_clipboard
+	$HSC/Column2/OptionDetails/OptionsList.clipboard = new_clipboard
 	$HSC/Column3/ReactionsList.clipboard = new_clipboard
 	$HSC/Column3/AfterReactionEffectsDisplay.clipboard = new_clipboard
 
 func refresh_option_list():
-	$HSC/Column2/OptionsList.clear()
+	$HSC/Column2/OptionDetails/OptionsList.clear()
 	if (null != current_encounter):
-		$HSC/Column2/OptionsList.items_to_list = current_encounter.options.duplicate()
-		$HSC/Column2/OptionsList.refresh()
+		$HSC/Column2/OptionDetails/OptionsList.items_to_list = current_encounter.options.duplicate()
+		$HSC/Column2/OptionDetails/OptionsList.refresh()
 		if (0 < current_encounter.options.size()):
 			load_Option(current_encounter.options.front())
-			$HSC/Column2/OptionsList.select_first_item()
+			$HSC/Column2/OptionDetails/OptionsList.select_first_item()
 	else:
-		$HSC/Column2/OptionsList.items_to_list.clear()
-		$HSC/Column2/OptionsList.refresh()
+		$HSC/Column2/OptionDetails/OptionsList.items_to_list.clear()
+		$HSC/Column2/OptionDetails/OptionsList.refresh()
 
 func refresh_reaction_list():
 	$HSC/Column3/ReactionsList.clear()
@@ -142,8 +142,8 @@ func refresh_reaction_after_effects_list():
 	$EffectEditor/EffectEditorScreen.refresh()
 
 func refresh_bnumber_property_lists():
-	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.storyworld = storyworld
-	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.refresh_bnumber_property_lists()
+	$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.storyworld = storyworld
+	$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.refresh_bnumber_property_lists()
 	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.storyworld = storyworld
 	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.refresh_bnumber_property_lists()
 	refresh_reaction_after_effects_list()
@@ -152,17 +152,17 @@ func refresh_spool_lists():
 	refresh_reaction_after_effects_list()
 
 func refresh_quick_encounter_scripting_interface():
-	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.storyworld = storyworld
+	$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.storyworld = storyworld
 	if (current_encounter is Encounter and current_encounter.desirability_script is ScriptManager):
-		$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.script_to_edit = current_encounter.desirability_script
-		$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.refresh()
+		$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.script_to_edit = current_encounter.desirability_script
+		$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.refresh()
 		if (display_encounter_qdse):
-			$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.set_visible(true)
+			$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.set_visible(true)
 		else:
-			$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.set_visible(false)
+			$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.set_visible(false)
 	else:
-		$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.script_to_edit = null
-		$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.set_visible(false)
+		$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.script_to_edit = null
+		$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.set_visible(false)
 
 func refresh_quick_reaction_scripting_interface():
 	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.storyworld = storyworld
@@ -191,12 +191,12 @@ func refresh_reaction_consequence_display():
 			$HSC/Column3/HBCConsequence/ChangeConsequence.set_text("")
 
 func on_character_deleted():
-	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.refresh()
+	$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.refresh()
 	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.refresh()
 	refresh_bnumber_property_lists()
 
 func on_property_deleted():
-	$HSC/Column2/SimplifiedEncounterDesirabilityScriptingInterface.refresh()
+	$HSC/Column2/EncounterDetails/SimplifiedEncounterDesirabilityScriptingInterface.refresh()
 	$HSC/Column3/SimplifiedReactionDesirabilityScriptingInterface.refresh()
 	refresh_bnumber_property_lists()
 
@@ -224,10 +224,10 @@ func load_Option(option):
 	current_option = option
 	refresh_reaction_list()
 	if (null == option):
-		$HSC/Column2/OptionText.text = ""
+		$HSC/Column2/OptionDetails/OptionText.text = ""
 		load_Reaction(null)
 	else:
-		$HSC/Column2/OptionText.text = option.get_text()
+		$HSC/Column2/OptionDetails/OptionText.text = option.get_text()
 		if (0 < option.reactions.size()):
 			load_Reaction(option.reactions[0])
 			$HSC/Column3/ReactionsList.select_first_item()
@@ -242,14 +242,14 @@ func load_Encounter(encounter):
 		if (encounter == $Column1/EncountersList.get_item_metadata(index)):
 			$Column1/EncountersList.select(index)
 			break
-	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = encounter.title
-	$HSC/Column2/EncounterMainTextEdit.text = encounter.get_text()
+	$HSC/Column2/EncounterDetails/HBCTitle/EncounterTitleEdit.text = encounter.title
+	$HSC/Column2/EncounterDetails/EncounterMainTextEdit.text = encounter.get_text()
 	refresh_bnumber_property_lists()
 	refresh_quick_encounter_scripting_interface()
 	refresh_option_list()
 	if (0 < encounter.options.size()):
 		load_Option(encounter.options[0])
-		$HSC/Column2/OptionsList.select_first_item()
+		$HSC/Column2/OptionDetails/OptionsList.select_first_item()
 	else:
 		load_Option(null)
 
@@ -262,11 +262,11 @@ func Clear_Encounter_Editing_Screen():
 	current_encounter = null
 	current_option = null
 	current_reaction = null
-	$HSC/Column2/HBCTitle/EncounterTitleEdit.text = ""
-	$HSC/Column2/EncounterMainTextEdit.text = ""
-	$HSC/Column2/OptionsList.items_to_list.clear()
-	$HSC/Column2/OptionsList.refresh()
-	$HSC/Column2/OptionText.text = ""
+	$HSC/Column2/EncounterDetails/HBCTitle/EncounterTitleEdit.text = ""
+	$HSC/Column2/EncounterDetails/EncounterMainTextEdit.text = ""
+	$HSC/Column2/OptionDetails/OptionsList.items_to_list.clear()
+	$HSC/Column2/OptionDetails/OptionsList.refresh()
+	$HSC/Column2/OptionDetails/OptionText.text = ""
 	$HSC/Column3/ReactionsList.items_to_list.clear()
 	$HSC/Column3/ReactionsList.refresh()
 	$HSC/Column3/ReactionText.text = ""
@@ -336,7 +336,7 @@ func _on_EncounterTitleEdit_text_changed(new_text):
 func _on_EncounterMainTextEdit_text_changed():
 	#Change encounter main text
 	if (null != current_encounter):
-		current_encounter.set_text($HSC/Column2/EncounterMainTextEdit.text)
+		current_encounter.set_text($HSC/Column2/EncounterDetails/EncounterMainTextEdit.text)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 		refresh_graphview.emit()
@@ -377,7 +377,7 @@ func _on_ConfirmDeletion_confirmed():
 		refresh_option_list()
 		if (!current_encounter.options.is_empty()):
 			load_Option(current_encounter.options.front())
-			$HSC/Column2/OptionsList.select_first_item()
+			$HSC/Column2/OptionDetails/OptionsList.select_first_item()
 		else:
 			load_Option(null)
 		update_wordcount(current_encounter)
@@ -430,11 +430,11 @@ func _on_AddOption_pressed():
 	if (null != current_encounter):
 		var new_option = storyworld.create_new_generic_option(current_encounter)
 		current_encounter.options.append(new_option)
-		$HSC/Column2/OptionsList.items_to_list.append(new_option)
-		$HSC/Column2/OptionsList.list_item(new_option)
+		$HSC/Column2/OptionDetails/OptionsList.items_to_list.append(new_option)
+		$HSC/Column2/OptionDetails/OptionsList.list_item(new_option)
 		load_Option(new_option)
-		$HSC/Column2/OptionsList.deselect_all()
-		$HSC/Column2/OptionsList.select_last_item()
+		$HSC/Column2/OptionDetails/OptionsList.deselect_all()
+		$HSC/Column2/OptionDetails/OptionsList.select_last_item()
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
@@ -451,7 +451,7 @@ func confirm_option_deletion(options):
 		$ConfirmDeletion.popup_centered()
 
 func _on_DeleteOption_pressed():
-	confirm_option_deletion($HSC/Column2/OptionsList.get_all_selected_metadata())
+	confirm_option_deletion($HSC/Column2/OptionDetails/OptionsList.get_all_selected_metadata())
 
 func _on_OptionsList_item_moved(item, from_index, to_index):
 	if (null == current_encounter):
@@ -466,13 +466,13 @@ func _on_OptionsList_item_moved(item, from_index, to_index):
 		current_encounter.options.append(option)
 
 func _on_MoveOptionUpButton_pressed():
-	$HSC/Column2/OptionsList.raise_selected_item()
+	$HSC/Column2/OptionDetails/OptionsList.raise_selected_item()
 
 func _on_MoveOptionDownButton_pressed():
-	$HSC/Column2/OptionsList.lower_selected_item()
+	$HSC/Column2/OptionDetails/OptionsList.lower_selected_item()
 
 func _on_OptionsList_multi_selected(item, column, selected):
-	var selected_option = $HSC/Column2/OptionsList.get_first_selected_metadata()
+	var selected_option = $HSC/Column2/OptionDetails/OptionsList.get_first_selected_metadata()
 	if (null != selected_option):
 		current_option = selected_option
 		load_Option(current_option)
@@ -481,15 +481,17 @@ func _on_OptionsList_multi_selected(item, column, selected):
 
 func _on_OptionText_text_changed(new_text):
 	if (null != current_option):
-		current_option.set_text($HSC/Column2/OptionText.text)
-		$HSC/Column2/OptionsList.refresh()
-		$HSC/Column2/OptionsList.select_linked_item(current_option)
+		current_option.set_text($HSC/Column2/OptionDetails/OptionText.text)
+		$HSC/Column2/OptionDetails/OptionsList.refresh()
+		$HSC/Column2/OptionDetails/OptionsList.select_linked_item(current_option)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
 #Option list context menu:
 
 func add_options_at_position(options_to_add, position_in_list):
+	for option in options_to_add:
+		option.encounter = current_encounter
 	if (1 == options_to_add.size()):
 		current_encounter.options.insert(position_in_list, options_to_add.front())
 	elif (0 >= position_in_list):
@@ -511,11 +513,11 @@ func duplicate_selected_options(selected_items):
 			new_option.set_as_copy_of(option, false)
 			new_option.encounter = current_encounter
 			current_encounter.options.append(new_option)
-			$HSC/Column2/OptionsList.items_to_list.append(new_option)
-			$HSC/Column2/OptionsList.list_item(new_option)
+			$HSC/Column2/OptionDetails/OptionsList.items_to_list.append(new_option)
+			$HSC/Column2/OptionDetails/OptionsList.list_item(new_option)
 			last_option_added = new_option
 		load_Option(last_option_added)
-		$HSC/Column2/OptionsList.select_only_linked_item(last_option_added)
+		$HSC/Column2/OptionDetails/OptionsList.select_only_linked_item(last_option_added)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 		refresh_graphview.emit()
@@ -526,7 +528,7 @@ func _on_OptionsList_add_at(index):
 		current_encounter.options.insert(index, new_option)
 		refresh_option_list()
 		load_Option(new_option)
-		$HSC/Column2/OptionsList.select_only_linked_item(new_option)
+		$HSC/Column2/OptionDetails/OptionsList.select_only_linked_item(new_option)
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 
@@ -544,7 +546,7 @@ func _on_OptionsList_paste_at(index):
 			clipboard.delete_clipped_originals()
 		refresh_option_list()
 		load_Option(items_to_add.front())
-		$HSC/Column2/OptionsList.select_only_linked_item(items_to_add.front())
+		$HSC/Column2/OptionDetails/OptionsList.select_only_linked_item(items_to_add.front())
 		update_wordcount(current_encounter)
 		log_update(current_encounter)
 		refresh_graphview.emit()
@@ -625,6 +627,8 @@ func _on_SimplifiedReactionDesirabilityScriptingInterface_sw_script_changed(sw_s
 #Reaction list context menu:
 
 func add_reactions_at_position(reactions_to_add, position_in_list):
+	for reaction in reactions_to_add:
+		reaction.option = current_option
 	if (1 == reactions_to_add.size()):
 		current_option.reactions.insert(position_in_list, reactions_to_add.front())
 	elif (0 >= position_in_list):
@@ -783,6 +787,8 @@ func _on_AfterReactionEffectsDisplay_edit_effect_script(effect):
 #Effect list context menu:
 
 func add_effects_at_position(effects_to_add, position_in_list):
+	for effect in effects_to_add:
+		effect.cause = current_reaction
 	if (1 == effects_to_add.size()):
 		current_reaction.after_effects.insert(position_in_list, effects_to_add.front())
 	elif (0 >= position_in_list):
@@ -850,8 +856,8 @@ func update_wordcount(encounter):
 		refresh_encounter_list()
 
 func _ready():
-	$HSC/Column2/OptionsList.context_menu_enabled = true
-	$HSC/Column2/OptionsList.item_type = "option"
+	$HSC/Column2/OptionDetails/OptionsList.context_menu_enabled = true
+	$HSC/Column2/OptionDetails/OptionsList.item_type = "option"
 	$HSC/Column3/ReactionsList.context_menu_enabled = true
 	$HSC/Column3/ReactionsList.item_type = "reaction"
 	$HSC/Column3/AfterReactionEffectsDisplay.context_menu_enabled = true
@@ -976,14 +982,14 @@ func set_gui_theme(theme_name, background_color):
 		"Clarity":
 			$Column1/HBC/AddButton.icon = add_icon_dark
 			$Column1/HBC/DeleteButton.icon = delete_icon_dark
-			$HSC/Column2/HBCTitle/EditEncounterAcceptabilityScriptButton.icon = acceptability_icon_dark
-			$HSC/Column2/HBCTitle/EditEncounterDesirabilityScriptButton.icon = desirability_icon_dark
-			$HSC/Column2/HBCOptionButtons/AddOption.icon = add_icon_dark
-			$HSC/Column2/HBCOptionButtons/DeleteOption.icon = delete_icon_dark
-			$HSC/Column2/HBCOptionButtons/MoveOptionUpButton.icon = move_up_icon_dark
-			$HSC/Column2/HBCOptionButtons/MoveOptionDownButton.icon = move_down_icon_dark
-			$HSC/Column2/HBCOptionButtons/EditOptionVisibilityScriptButton.icon = visibility_icon_dark
-			$HSC/Column2/HBCOptionButtons/EditOptionPerformabilityScriptButton.icon = performability_icon_dark
+			$HSC/Column2/EncounterDetails/HBCTitle/EditEncounterAcceptabilityScriptButton.icon = acceptability_icon_dark
+			$HSC/Column2/EncounterDetails/HBCTitle/EditEncounterDesirabilityScriptButton.icon = desirability_icon_dark
+			$HSC/Column2/OptionDetails/HBCOptionButtons/AddOption.icon = add_icon_dark
+			$HSC/Column2/OptionDetails/HBCOptionButtons/DeleteOption.icon = delete_icon_dark
+			$HSC/Column2/OptionDetails/HBCOptionButtons/MoveOptionUpButton.icon = move_up_icon_dark
+			$HSC/Column2/OptionDetails/HBCOptionButtons/MoveOptionDownButton.icon = move_down_icon_dark
+			$HSC/Column2/OptionDetails/HBCOptionButtons/EditOptionVisibilityScriptButton.icon = visibility_icon_dark
+			$HSC/Column2/OptionDetails/HBCOptionButtons/EditOptionPerformabilityScriptButton.icon = performability_icon_dark
 			$HSC/Column3/HBC/AddReaction.icon = add_icon_dark
 			$HSC/Column3/HBC/DeleteReaction.icon = delete_icon_dark
 			$HSC/Column3/HBC/MoveReactionUpButton.icon = move_up_icon_dark
@@ -997,14 +1003,14 @@ func set_gui_theme(theme_name, background_color):
 		"Lapis Lazuli":
 			$Column1/HBC/AddButton.icon = add_icon_light
 			$Column1/HBC/DeleteButton.icon = delete_icon_light
-			$HSC/Column2/HBCTitle/EditEncounterAcceptabilityScriptButton.icon = acceptability_icon
-			$HSC/Column2/HBCTitle/EditEncounterDesirabilityScriptButton.icon = desirability_icon
-			$HSC/Column2/HBCOptionButtons/AddOption.icon = add_icon_light
-			$HSC/Column2/HBCOptionButtons/DeleteOption.icon = delete_icon_light
-			$HSC/Column2/HBCOptionButtons/MoveOptionUpButton.icon = move_up_icon_light
-			$HSC/Column2/HBCOptionButtons/MoveOptionDownButton.icon = move_down_icon_light
-			$HSC/Column2/HBCOptionButtons/EditOptionVisibilityScriptButton.icon = visibility_icon
-			$HSC/Column2/HBCOptionButtons/EditOptionPerformabilityScriptButton.icon = performability_icon
+			$HSC/Column2/EncounterDetails/HBCTitle/EditEncounterAcceptabilityScriptButton.icon = acceptability_icon
+			$HSC/Column2/EncounterDetails/HBCTitle/EditEncounterDesirabilityScriptButton.icon = desirability_icon
+			$HSC/Column2/OptionDetails/HBCOptionButtons/AddOption.icon = add_icon_light
+			$HSC/Column2/OptionDetails/HBCOptionButtons/DeleteOption.icon = delete_icon_light
+			$HSC/Column2/OptionDetails/HBCOptionButtons/MoveOptionUpButton.icon = move_up_icon_light
+			$HSC/Column2/OptionDetails/HBCOptionButtons/MoveOptionDownButton.icon = move_down_icon_light
+			$HSC/Column2/OptionDetails/HBCOptionButtons/EditOptionVisibilityScriptButton.icon = visibility_icon
+			$HSC/Column2/OptionDetails/HBCOptionButtons/EditOptionPerformabilityScriptButton.icon = performability_icon
 			$HSC/Column3/HBC/AddReaction.icon = add_icon_light
 			$HSC/Column3/HBC/DeleteReaction.icon = delete_icon_light
 			$HSC/Column3/HBC/MoveReactionUpButton.icon = move_up_icon_light

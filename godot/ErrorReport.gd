@@ -4,7 +4,7 @@ class_name ErrorReport
 var reported_object = null
 var reported_script = null
 #enum sw_script_data_types {BOOLEAN, BNUMBER, STRING, VARIANT}
-enum report_types {TEXT, ACCEPTABILITY, DESIRABILITY, VISIBILITY, PERFORMABILITY, EFFECT}
+enum report_types {ITEM, TEXT, ACCEPTABILITY, DESIRABILITY, VISIBILITY, PERFORMABILITY, EFFECT}
 var script_type = null
 var error_summary = ""
 var error_details = ""
@@ -17,7 +17,9 @@ func _init(in_reported_object, in_reported_script, in_script_type, in_error_summ
 	error_details = in_error_details
 
 func set_script_type(in_script_type):
-	if (in_script_type.matchn("text")):
+	if (in_script_type.matchn("item")):
+		script_type = report_types.ITEM
+	elif (in_script_type.matchn("text")):
 		script_type = report_types.TEXT
 	elif (in_script_type.matchn("acceptability")):
 		script_type = report_types.ACCEPTABILITY

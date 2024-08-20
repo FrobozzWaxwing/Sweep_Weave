@@ -55,9 +55,11 @@ layout_mode = 2
 [node name="ReportTabs" type="TabContainer" parent="Panel/VBC"]
 layout_mode = 2
 size_flags_vertical = 3
+current_tab = 0
 
 [node name="EventIndex" type="VBoxContainer" parent="Panel/VBC/ReportTabs"]
 layout_mode = 2
+metadata/_tab_index = 0
 
 [node name="HBC" type="HBoxContainer" parent="Panel/VBC/ReportTabs/EventIndex"]
 layout_mode = 2
@@ -80,6 +82,7 @@ hide_root = true
 [node name="CastVariablesIndex" type="VBoxContainer" parent="Panel/VBC/ReportTabs"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="HBC" type="HBoxContainer" parent="Panel/VBC/ReportTabs/CastVariablesIndex"]
 visible = false
@@ -107,6 +110,7 @@ layout_mode = 2
 [node name="NotableOutcomeIndex" type="VBoxContainer" parent="Panel/VBC/ReportTabs"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 2
 
 [node name="HBC" type="HBoxContainer" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex"]
 layout_mode = 2
@@ -129,10 +133,9 @@ text = "Sort by:"
 
 [node name="SortMenu" type="OptionButton" parent="Panel/VBC/ReportTabs/NotableOutcomeIndex/HBC"]
 layout_mode = 2
-item_count = 10
 selected = 0
+item_count = 10
 popup/item_0/text = "Alphabetical"
-popup/item_0/id = 0
 popup/item_1/text = "Creation Time"
 popup/item_1/id = 1
 popup/item_2/text = "Modified Time"

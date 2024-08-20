@@ -60,7 +60,7 @@ func _on_ValidateButton_pressed():
 		$ColorRect/HBC/VBC/StoryworldValidationOverview.text = ""
 	if (perform_validation):
 		for encounter in storyworld.encounters:
-			if (!(encounter is Encounter)):
+			if (null == encounter or !(is_instance_valid(encounter)) or encounter is not Encounter):
 				number_of_invalid_encounters += 1
 				continue
 			if (null == encounter.text_script):
@@ -100,9 +100,21 @@ func _on_ValidateButton_pressed():
 					list_error(new_error_report)
 					number_of_invalid_encounter_desirability_scripts += 1
 			for option in encounter.options:
-				if (!(option is Option)):
+				if (null == option or !(is_instance_valid(option)) or option is not Option):
 					number_of_invalid_options += 1
 					continue
+				if (null == option.encounter):
+					var summary = "Option \"" + option.get_truncated_text(20) + "\" encounter is null."
+					var details = "Error found in Encounter \"" + encounter.title + "\" / option \"" + option.get_text() + "\" Option encounter is null."
+					var new_error_report = ErrorReport.new(option, null, "item", summary, details)
+					list_error(new_error_report)
+					number_of_invalid_options += 1
+				elif (option.encounter != encounter):
+					var summary = "Option \"" + option.get_truncated_text(20) + "\" is linked to incorrect encounter."
+					var details = "Error found in Encounter \"" + encounter.title + "\" / option \"" + option.get_text() + "\" Option is linked to incorrect encounter."
+					var new_error_report = ErrorReport.new(option, null, "item", summary, details)
+					list_error(new_error_report)
+					number_of_invalid_options += 1
 				if (null == option.text_script):
 					var summary = "Option \"" + option.get_truncated_text(20) + "\" text script is null."
 					var details = "Error found in Encounter \"" + encounter.title + "\" / option \"" + option.get_text() + "\" text script is null."
@@ -143,9 +155,21 @@ func _on_ValidateButton_pressed():
 						list_error(new_error_report)
 						number_of_invalid_option_performability_scripts += 1
 				for reaction in option.reactions:
-					if (!(reaction is Reaction)):
+					if (null == reaction or !(is_instance_valid(reaction)) or reaction is not Reaction):
 						number_of_invalid_reactions += 1
 						continue
+					if (null == reaction.option):
+						var summary = "Reaction \"" + reaction.get_truncated_text(20) + "\" option is null."
+						var details = "Error found in Encounter \"" + encounter.title + "\" / option \"" + option.get_text() + "\" / reaction \"" + reaction.get_text() + "\" Reaction option is null."
+						var new_error_report = ErrorReport.new(reaction, null, "item", summary, details)
+						list_error(new_error_report)
+						number_of_invalid_reactions += 1
+					elif (reaction.option != option):
+						var summary = "Reaction \"" + reaction.get_truncated_text(20) + "\" is linked to incorrect option."
+						var details = "Error found in Encounter \"" + encounter.title + "\" / option \"" + option.get_text() + "\" / reaction \"" + reaction.get_text() + "\" Reaction is linked to incorrect option."
+						var new_error_report = ErrorReport.new(reaction, null, "item", summary, details)
+						list_error(new_error_report)
+						number_of_invalid_reactions += 1
 					if (null == reaction.text_script):
 						var summary = "Reaction \"" + reaction.get_truncated_text(20) + "\" text script is null."
 						var details = "Error found in Encounter \"" + encounter.title + "\" / option \"" + option.get_text() + "\" / reaction \"" + reaction.get_text() + "\" performability script is null."
@@ -173,9 +197,21 @@ func _on_ValidateButton_pressed():
 							list_error(new_error_report)
 							number_of_invalid_reaction_desirability_scripts += 1
 					for effect in reaction.after_effects:
-						if (!(effect is SWEffect)):
+						if (null == effect or !(is_instance_valid(effect)) or effect is not SWEffect):
 							number_of_invalid_reaction_effects += 1
 							continue
+						if (null == effect.cause):
+							var summary = "Effect (" + effect.data_to_string() + ") cause is null."
+							var details = "Error found in effect of Encounter \"" + encounter.title + "\" / option \"" + option.get_text() + "\" / reaction \"" + reaction.get_text() + "\" Effect cause is null."
+							var new_error_report = ErrorReport.new(reaction, null, "item", summary, details)
+							list_error(new_error_report)
+							number_of_invalid_reaction_effects += 1
+						elif (effect.cause != reaction):
+							var summary = "Effect (" + effect.data_to_string() + ") is linked to incorrect cause."
+							var details = "Error found in effect of Encounter \"" + encounter.title + "\" / option \"" + option.get_text() + "\" / reaction \"" + reaction.get_text() + "\" Effect is linked to incorrect cause."
+							var new_error_report = ErrorReport.new(reaction, null, "item", summary, details)
+							list_error(new_error_report)
+							number_of_invalid_reaction_effects += 1
 						var reaction_effect_validation_report = effect.validate(sw_script_data_types.VARIANT)
 						if ("Passed." != reaction_effect_validation_report):
 							var summary = "Effect (" + effect.data_to_string() + ")"

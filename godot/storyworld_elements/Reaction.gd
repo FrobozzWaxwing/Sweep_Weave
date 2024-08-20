@@ -54,11 +54,12 @@ func get_truncated_text(maximum_output_length:int = 20):
 	else:
 		return text.left(maximum_output_length - 3) + "..."
 
-func get_listable_text(maximum_output_length:int = 80):
+func get_listable_text(maximum_output_length:int = 200):
 	var text = get_text()
 	if ("" == text):
 		return "[Blank Reaction]"
-	elif (maximum_output_length >= text.length()):
+	text = text.get_slice("\n", 0)
+	if (maximum_output_length >= text.length()):
 		return text
 	else:
 		return text.left(maximum_output_length - 3) + "..."

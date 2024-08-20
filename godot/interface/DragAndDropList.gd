@@ -195,6 +195,7 @@ func _on_item_rmb_selected(position):
 		if ("option" == item_type):
 			context_menu.add_item("Edit visibility script", 12)
 			context_menu.add_item("Edit performability script", 13)
+			#context_menu.add_item("Inspect option internals", 16)
 		if ("reaction" == item_type):
 			context_menu.add_item("Edit desirability script", 14)
 		if ("effect" == item_type):
@@ -206,7 +207,7 @@ func _on_item_mouse_selected(position, mouse_button_index):
 		_on_item_rmb_selected(position)
 
 func show_outer_context_menu():
-	#This shows the context menu that is designed for when the user clicks the empty part of the tree.
+	# This shows the context menu that is designed for when the user clicks the empty part of the tree.
 	focused_item = null
 	# Bring up context menu.
 	var mouse_position = get_global_mouse_position()
@@ -216,7 +217,7 @@ func show_outer_context_menu():
 		context_menu.add_item("Add new " + item_type, 2)
 	context_menu.add_item("Paste", 7)
 	if (!can_paste()):
-		#Disable pasting options.
+		# Disable pasting options.
 		context_menu.set_item_disabled((context_menu.get_item_count() - 1), true)
 	context_menu.add_item("Select all", 10)
 	context_menu.add_item("Deselect all", 11)
@@ -234,67 +235,79 @@ func _on_ContextMenu_id_pressed(id):
 			index = focused_item.get_index()
 	match id:
 		0:
-			#Add new item before
+			# Add new item before
 			add_at.emit(index)
 			print ("Adding new " + item_type + " before the selected one.")
 		1:
-			#Add new item after
+			# Add new item after
 			add_at.emit(index + 1)
 			print ("Adding new " + item_type + " after the selected one.")
 		2:
-			#Add new item at end of list
+			# Add new item at end of list
 			add_at.emit(item_count)
 			print ("Adding new " + item_type + " at the end of the list.")
 		3:
-			#Cut
+			# Cut
 			cut.emit(get_all_selected_metadata())
 			print ("Cutting selected " + item_type + " for pasting.")
 		4:
-			#Copy
+			# Copy
 			copy.emit(get_all_selected_metadata())
 			print ("Copying selected " + item_type + ".")
 		5:
-			#Paste before
+			# Paste before
 			paste_at.emit(index)
 			print ("Pasting before selected " + item_type + ".")
 		6:
-			#Paste after
+			# Paste after
 			paste_at.emit(index + 1)
 			print ("Pasting after selected " + item_type + ".")
 		7:
-			#Paste at end of list
+			# Paste at end of list
 			paste_at.emit(item_count)
 			print ("Pasting at the end of the list.")
 		8:
-			#Delete
+			# Delete
 			delete.emit(get_all_selected_metadata())
 			print ("Asking for confirmation for possible deletion of " + item_type + "s.")
 		9:
-			#Duplicate
+			# Duplicate
 			duplicate.emit(get_all_selected_metadata())
 			print ("Duplicating selected " + item_type + "s.")
 		10:
-			#Select all
+			# Select all
 			select_all()
 			print ("Selecting all " + item_type + "s.")
 		11:
-			#Deselect all
+			# Deselect all
 			deselect_all()
 			print ("Deselecting all " + item_type + "s.")
 		12:
-			#Edit visibility script
+			# Edit visibility script
 			edit_visibility_script.emit(focused_item)
 			print ("Editing visibility script.")
 		13:
-			#Edit performability script
+			# Edit performability script
 			edit_performability_script.emit(focused_item)
 			print ("Editing performability script.")
 		14:
-			#Edit desirability script
+			# Edit desirability script
 			edit_desirability_script.emit(focused_item)
 			print ("Editing desirability script.")
 		15:
-			#Edit effect script
+			# Edit effect script
 			edit_effect_script.emit(focused_item)
 			print ("Editing effect script.")
-
+		16:
+			# Inspect item internals
+			if (null == focused_item):
+				print ("Item is null.")
+			elif (!(is_instance_valid(focused_item))):
+				print ("Item is invalid.")
+			elif (focused_item is Option):
+				if (null == focused_item.encounter):
+					print ("null == focused_item.encounter")
+				elif (focused_item.encounter is Encounter):
+					print ("focused_item.encounter: " + focused_item.encounter.id)
+			else:
+				print ("Item is not the correct type.")

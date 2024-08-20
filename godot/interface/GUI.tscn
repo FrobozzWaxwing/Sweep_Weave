@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://interface/GUI.gd" id="1"]
 [ext_resource type="Script" path="res://interface/FileMenu.gd" id="2"]
 [ext_resource type="PackedScene" uid="uid://bf3pftycfcdvc" path="res://interface/EncounterEditScreen.tscn" id="3"]
-[ext_resource type="PackedScene" path="res://interface/StoryworldMergingScreen.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://dyoqojiia0nn0" path="res://interface/StoryworldMergingScreen.tscn" id="4"]
 [ext_resource type="PackedScene" uid="uid://2drjtayo0geb" path="res://interface/SettingsEditScreen.tscn" id="5"]
 [ext_resource type="PackedScene" uid="uid://6cxvq1qx3md7" path="res://interface/DocumentationScreen.tscn" id="6"]
 [ext_resource type="PackedScene" uid="uid://dny4elq2jiwd1" path="res://interface/AuthoredPropertyCreationScreen.tscn" id="7"]
@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://bf14vd68l46tj" path="res://interface/EncounterOverviewScreen.tscn" id="10"]
 [ext_resource type="PackedScene" uid="uid://dnxd03sk3fslv" path="res://interface/GraphViewScreen.tscn" id="11"]
 [ext_resource type="PackedScene" uid="uid://cuwvdxyyh1unn" path="res://interface/PlayScreen.tscn" id="12"]
-[ext_resource type="PackedScene" path="res://interface/CharacterEditScreen.tscn" id="13"]
+[ext_resource type="PackedScene" uid="uid://b4de5y8e6pc3k" path="res://interface/CharacterEditScreen.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://interface/StatisticsScreen.tscn" id="14"]
 [ext_resource type="Script" path="res://interface/ViewMenu.gd" id="15"]
 [ext_resource type="Script" path="res://interface/HelpMenu.gd" id="16"]
@@ -77,45 +77,56 @@ clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+current_tab = 0
 
 [node name="Overview" parent="Background/VBC/EditorTabs" instance=ExtResource("10")]
 layout_mode = 2
+metadata/_tab_index = 0
 
 [node name="Encounters" parent="Background/VBC/EditorTabs" instance=ExtResource("3")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="Spools" parent="Background/VBC/EditorTabs" instance=ExtResource("9")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 2
 
 [node name="Characters" parent="Background/VBC/EditorTabs" instance=ExtResource("13")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 3
 
 [node name="PersonalityModel" parent="Background/VBC/EditorTabs" instance=ExtResource("7")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 4
 
 [node name="Settings" parent="Background/VBC/EditorTabs" instance=ExtResource("5")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 5
 
 [node name="Documentation" parent="Background/VBC/EditorTabs" instance=ExtResource("6")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 6
 
 [node name="GraphView" parent="Background/VBC/EditorTabs" instance=ExtResource("11")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 7
 
 [node name="Play" parent="Background/VBC/EditorTabs" instance=ExtResource("12")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 8
 
 [node name="Rehearsal" parent="Background/VBC/EditorTabs" instance=ExtResource("21")]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 9
 
 [node name="LoadFileDialog" type="FileDialog" parent="."]
 title = "Load Storyworld"
@@ -243,7 +254,7 @@ layout_mode = 2
 
 [node name="StoryworldTroubleshooting" type="AcceptDialog" parent="."]
 title = "Storyworld Troubleshooter"
-size = Vector2i(700, 650)
+size = Vector2i(1000, 650)
 popup_window = true
 
 [node name="StoryworldValidationInterface" parent="StoryworldTroubleshooting" instance=ExtResource("8")]

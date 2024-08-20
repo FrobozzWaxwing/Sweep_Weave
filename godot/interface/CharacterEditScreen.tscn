@@ -1,111 +1,85 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=4 format=3 uid="uid://b4de5y8e6pc3k"]
 
-[ext_resource path="res://interface/CharacterEditScreen.gd" type="Script" id=1]
-[ext_resource path="res://icons/delete.svg" type="Texture2D" id=2]
-[ext_resource path="res://icons/add.svg" type="Texture2D" id=3]
+[ext_resource type="Script" path="res://interface/CharacterEditScreen.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://ifsr140r60d5" path="res://icons/delete.svg" id="2"]
+[ext_resource type="Texture2D" uid="uid://cgalqocn148ji" path="res://icons/add.svg" id="3"]
 
 [node name="CharacterEditScreen" type="ColorRect"]
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 3
-color = Color( 0, 0.0627451, 0.12549, 1 )
-script = ExtResource( 1 )
+color = Color(0, 0.0627451, 0.12549, 1)
+script = ExtResource("1")
 
 [node name="HBC" type="HBoxContainer" parent="."]
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 580.0
+grow_vertical = 2
 size_flags_horizontal = 3
 
 [node name="VBC" type="VBoxContainer" parent="HBC"]
-offset_right = 160.0
-offset_bottom = 634.0
+custom_minimum_size = Vector2(256, 0)
+layout_mode = 2
 
 [node name="Header" type="HBoxContainer" parent="HBC/VBC"]
-offset_right = 160.0
-offset_bottom = 30.0
+layout_mode = 2
 
 [node name="AddCharacter" type="Button" parent="HBC/VBC/Header"]
-offset_right = 36.0
-offset_bottom = 30.0
+layout_mode = 2
 tooltip_text = "Add new character."
-icon = ExtResource( 3 )
+icon = ExtResource("3")
 
 [node name="DeleteCharacter" type="Button" parent="HBC/VBC/Header"]
-offset_left = 40.0
-offset_right = 76.0
-offset_bottom = 30.0
+layout_mode = 2
 tooltip_text = "Delete selected characters."
-icon = ExtResource( 2 )
+icon = ExtResource("2")
 
 [node name="Label" type="Label" parent="HBC/VBC/Header"]
-offset_left = 80.0
-offset_top = 8.0
-offset_right = 151.0
-offset_bottom = 22.0
+layout_mode = 2
 text = "Characters:"
 
-[node name="Scroll" type="ScrollContainer" parent="HBC/VBC"]
-offset_top = 34.0
-offset_right = 160.0
-offset_bottom = 634.0
-custom_minimum_size = Vector2( 160, 600 )
-scroll_horizontal_enabled = false
-
-[node name="CharacterList" type="ItemList" parent="HBC/VBC/Scroll"]
-offset_right = 160.0
-offset_bottom = 600.0
-custom_minimum_size = Vector2( 160, 600 )
-auto_height = true
+[node name="CharacterList" type="ItemList" parent="HBC/VBC"]
+custom_minimum_size = Vector2(160, 600)
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="VBC2" type="VBoxContainer" parent="HBC"]
-offset_left = 164.0
-offset_right = 484.0
-offset_bottom = 634.0
-custom_minimum_size = Vector2( 320, 624 )
+custom_minimum_size = Vector2(320, 624)
+layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="HBC/VBC2"]
-offset_right = 320.0
-offset_bottom = 14.0
+layout_mode = 2
 text = "Character name: "
 
 [node name="CharNameEdit" type="LineEdit" parent="HBC/VBC2"]
-offset_top = 18.0
-offset_right = 320.0
-offset_bottom = 42.0
+layout_mode = 2
 caret_blink = true
 caret_blink_interval = 0.5
 
 [node name="Label2" type="Label" parent="HBC/VBC2"]
-offset_top = 46.0
-offset_right = 320.0
-offset_bottom = 77.0
+layout_mode = 2
 text = "Character pronoun:
 (e.g. \"they,\" \"she,\" \"he.\")"
 
 [node name="CharPronounEdit" type="LineEdit" parent="HBC/VBC2"]
-offset_top = 81.0
-offset_right = 320.0
-offset_bottom = 105.0
+layout_mode = 2
 caret_blink = true
 caret_blink_interval = 0.5
 
 [node name="Scroll_Properties" type="ScrollContainer" parent="HBC/VBC2"]
-offset_top = 109.0
-offset_right = 320.0
-offset_bottom = 634.0
-custom_minimum_size = Vector2( 0, 525 )
-scroll_horizontal_enabled = false
+custom_minimum_size = Vector2(0, 525)
+layout_mode = 2
 
 [node name="VBC" type="VBoxContainer" parent="HBC/VBC2/Scroll_Properties"]
-offset_right = 320.0
-offset_bottom = 525.0
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="ConfirmCharacterDeletion" type="ConfirmationDialog" parent="."]
-offset_right = 310.0
-offset_bottom = 202.0
 dialog_autowrap = true
 
 [node name="Center" type="CenterContainer" parent="ConfirmCharacterDeletion"]
@@ -113,22 +87,16 @@ offset_left = 8.0
 offset_top = 8.0
 offset_right = 302.0
 offset_bottom = 166.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="AntagonistReplacementPicker" type="OptionButton" parent="ConfirmCharacterDeletion/Center"]
 visible = false
-offset_left = 132.0
-offset_top = 69.0
-offset_right = 161.0
-offset_bottom = 89.0
+layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [connection signal="pressed" from="HBC/VBC/Header/AddCharacter" to="." method="_on_AddCharacter_pressed"]
 [connection signal="pressed" from="HBC/VBC/Header/DeleteCharacter" to="." method="_on_DeleteCharacter_pressed"]
-[connection signal="item_selected" from="HBC/VBC/Scroll/CharacterList" to="." method="_on_CharacterList_item_selected"]
+[connection signal="item_selected" from="HBC/VBC/CharacterList" to="." method="_on_CharacterList_item_selected"]
 [connection signal="text_changed" from="HBC/VBC2/CharNameEdit" to="." method="_on_CharNameEdit_text_changed"]
 [connection signal="text_changed" from="HBC/VBC2/CharPronounEdit" to="." method="_on_CharPronounEdit_text_changed"]
 [connection signal="confirmed" from="ConfirmCharacterDeletion" to="." method="_on_ConfirmCharacterDeletion_confirmed"]

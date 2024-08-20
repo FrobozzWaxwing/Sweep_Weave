@@ -120,4 +120,3 @@ func set_gui_theme(theme_name, background_color):
 		"Lapis Lazuli":
 			light_mode = false
 	get_tree().call_group("graphview_nodes", "set_gui_theme", theme_name, background_color)
-

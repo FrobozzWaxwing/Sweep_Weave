@@ -30,6 +30,15 @@ func get_index():
 		return storyworld.characters.find(self)
 	return -1
 
+func get_listable_text(maximum_output_length:int = 200):
+	var text = char_name
+	if ("" == text):
+		return "[Unnamed Character]"
+	elif (maximum_output_length >= text.length()):
+		return text
+	else:
+		return text.left(maximum_output_length - 3) + "..."
+
 func index_authored_property(property):
 	authored_properties.append(property)
 	authored_property_directory[property.id] = property

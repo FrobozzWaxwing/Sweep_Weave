@@ -22,14 +22,14 @@ func log_update(character = null):
 	storyworld.project_saved = false
 
 func refresh_character_list():
-	$HBC/VBC/Scroll/CharacterList.clear()
+	$HBC/VBC/CharacterList.clear()
 	var index = 0
 	for character in storyworld.characters:
-		$HBC/VBC/Scroll/CharacterList.add_item(character.char_name)
-		$HBC/VBC/Scroll/CharacterList.set_item_metadata(index, character)
+		$HBC/VBC/CharacterList.add_item(character.get_listable_text())
+		$HBC/VBC/CharacterList.set_item_metadata(index, character)
 		index += 1
 	if (0 < storyworld.characters.size()):
-		$HBC/VBC/Scroll/CharacterList.select(0)
+		$HBC/VBC/CharacterList.select(0)
 
 func refresh_property_list():
 	for each in $HBC/VBC2/Scroll_Properties/VBC.get_children():
@@ -66,24 +66,24 @@ func _on_AddCharacter_pressed():
 	storyworld.add_character(new_character)
 	new_character.initialize_bnumber_properties(storyworld.characters, storyworld.authored_properties)
 	log_update(new_character)
-	$HBC/VBC/Scroll/CharacterList.add_item(new_character.char_name)
-	var index = $HBC/VBC/Scroll/CharacterList.get_item_count() - 1
-	$HBC/VBC/Scroll/CharacterList.set_item_metadata(index, new_character)
+	$HBC/VBC/CharacterList.add_item(new_character.get_listable_text())
+	var index = $HBC/VBC/CharacterList.get_item_count() - 1
+	$HBC/VBC/CharacterList.set_item_metadata(index, new_character)
 	new_character_created.emit(new_character)
 	load_character(new_character)
 
-func load_character(who):
+func load_character(who:Actor):
 	current_character = who
 	$HBC/VBC2/CharNameEdit.text = current_character.char_name
 	$HBC/VBC2/CharPronounEdit.text = current_character.pronoun
 	refresh_property_list()
-	$HBC/VBC/Scroll/CharacterList.select(storyworld.characters.find(who))
+	$HBC/VBC/CharacterList.select(storyworld.characters.find(who))
 
-func _on_CharNameEdit_text_changed(new_text):
+func _on_CharNameEdit_text_changed(new_text:String):
 	current_character.char_name = new_text
-	if ($HBC/VBC/Scroll/CharacterList.is_anything_selected()):
-		var selection = $HBC/VBC/Scroll/CharacterList.get_selected_items()
-		$HBC/VBC/Scroll/CharacterList.set_item_text(selection[0], current_character.char_name)
+	if ($HBC/VBC/CharacterList.is_anything_selected()):
+		var selection = $HBC/VBC/CharacterList.get_selected_items()
+		$HBC/VBC/CharacterList.set_item_text(selection[0], current_character.get_listable_text())
 	for each in $HBC/VBC2/Scroll_Properties/VBC.get_children():
 		each.refresh_character_name(current_character)
 	log_update(current_character)
@@ -94,28 +94,19 @@ func _on_CharPronounEdit_text_changed(new_text):
 	log_update(null)
 
 func _on_DeleteCharacter_pressed():
-	if ($HBC/VBC/Scroll/CharacterList.is_anything_selected()):
+	if ($HBC/VBC/CharacterList.is_anything_selected()):
 		if (1 < storyworld.characters.size()):
-			var selection = $HBC/VBC/Scroll/CharacterList.get_selected_items()
+			var selection = $HBC/VBC/CharacterList.get_selected_items()
 			var dialog_text = 'Are you sure you wish to delete the character: "'
 			character_to_delete = storyworld.characters[selection[0]]
 			dialog_text += character_to_delete.char_name + '"?'
-#			dialog_text += character_to_delete.char_name + '"? If so, please select a character to replace them with in every script currently employing them.'
 			$ConfirmCharacterDeletion.dialog_text = dialog_text
-#			$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.clear()
-#			var option_index = 0
-#			for each in storyworld.characters:
-#				if (each != character_to_delete):
-#					$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.add_item(each.char_name)
-#					$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.set_item_metadata(option_index, each)
-#					option_index += 1
-#			$ConfirmCharacterDeletion/Center/AntagonistReplacementPicker.select(0)
 			$ConfirmCharacterDeletion.popup_centered()
 		else:
 			print("The storyworld must have at least one character.")
 
 func _on_ConfirmCharacterDeletion_confirmed():
-	if ($HBC/VBC/Scroll/CharacterList.is_anything_selected()):
+	if ($HBC/VBC/CharacterList.is_anything_selected()):
 		#Delete character from scripts:
 		for encounter in storyworld.encounters:
 			encounter.acceptability_script.delete_character(character_to_delete) #ScriptManager
@@ -141,7 +132,7 @@ func _on_ConfirmCharacterDeletion_confirmed():
 
 func _on_CharacterList_item_selected(index):
 	if (0 < storyworld.characters.size()):
-		var who = $HBC/VBC/Scroll/CharacterList.get_item_metadata(index)
+		var who = $HBC/VBC/CharacterList.get_item_metadata(index)
 		load_character(who)
 
 #GUI Themes:

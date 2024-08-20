@@ -589,4 +589,3 @@ func set_gui_theme(theme_name, _background_color):
 		"Lapis Lazuli":
 			light_mode = false
 	refresh_outcome_sort_icon()
-

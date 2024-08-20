@@ -71,10 +71,9 @@ text = "Sort by:"
 
 [node name="SortMenu" type="OptionButton" parent="Background/VBC/HFlowContainer/SortBar"]
 layout_mode = 2
-item_count = 10
 selected = 0
+item_count = 10
 popup/item_0/text = "Alphabetical"
-popup/item_0/id = 0
 popup/item_1/text = "Creation Time"
 popup/item_1/id = 1
 popup/item_2/text = "Modified Time"

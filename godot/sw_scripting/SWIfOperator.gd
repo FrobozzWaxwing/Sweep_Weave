@@ -28,12 +28,12 @@ func remove_conditional(in_index):
 		index = in_index -1
 	#Remove condition.
 	var operand = operands[index]
-	operands.remove(index)
+	operands.remove_at(index)
 	operand.clear()
 	operand.call_deferred("free")
 	#Remove conditional result.
 	operand = operands[index]
-	operands.remove(index)
+	operands.remove_at(index)
 	operand.clear()
 	operand.call_deferred("free")
 	for i in range(index, operands.size()):

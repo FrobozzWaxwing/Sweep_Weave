@@ -18,7 +18,7 @@ func add_operand(operand):
 		operand.script_index = operands.size() - 1
 
 func erase_operand(operand_to_erase):
-	operands.remove(operand_to_erase.script_index)
+	operands.remove_at(operand_to_erase.script_index)
 	for i in range(operand_to_erase.script_index, operands.size()):
 		var operand = operands[i]
 		if (operand is SWScriptElement):

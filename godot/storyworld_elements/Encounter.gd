@@ -61,7 +61,7 @@ func set_text(new_text:String):
 		if (text_script.contents is StringConstant):
 			text_script.contents.set_value(new_text)
 
-func get_listable_text(maximum_output_length:int = 70):
+func get_listable_text(maximum_output_length:int = 200):
 	var text = title
 	if ("" == text):
 		return "[Untitled Encounter]"

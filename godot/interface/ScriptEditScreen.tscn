@@ -47,7 +47,7 @@ size_flags_vertical = 3
 size_flags_stretch_ratio = 0.5
 
 [node name="EventSelectionDialog" type="ConfirmationDialog" parent="."]
-size = Vector2i(256, 256)
+size = Vector2i(700, 512)
 
 [node name="EventSelectionInterface" parent="EventSelectionDialog" instance=ExtResource("2")]
 offset_left = 8.0
