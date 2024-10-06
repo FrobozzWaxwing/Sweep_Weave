@@ -43,7 +43,7 @@ text = "Speed: "
 layout_mode = 2
 min_value = 1.0
 max_value = 1000.0
-value = 1.0
+value = 1000.0
 
 [node name="SaveReportButton" type="Button" parent="Panel/VBC/HBC"]
 layout_mode = 2

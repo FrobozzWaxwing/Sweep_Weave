@@ -91,7 +91,6 @@ func reset():
 	#Refresh next-page tab:
 	$TabContainer/NextPage/VBC/EncounterSelector.storyworld = storyworld
 	$TabContainer/NextPage/VBC/EncounterSelector.display_options = false
-	$TabContainer/NextPage/VBC/EncounterSelector.display_negated_checkbox = false
 	$TabContainer/NextPage/VBC/EncounterSelector.reset()
 	$TabContainer/NextPage/VBC/EncounterSelector.refresh()
 	$TabContainer/NextPage/VBC/NextPageOptionButton.select(1)
@@ -136,5 +135,3 @@ func set_gui_theme(theme_name, background_color):
 	$TabContainer/SpoolStatus/VBC/ScriptEditingInterface.set_gui_theme(theme_name, background_color)
 	$TabContainer/NextPage.color = background_color
 	$TabContainer/NextPage/VBC/EncounterSelector.set_gui_theme(theme_name, background_color)
-
-

@@ -809,16 +809,14 @@ func duplicate_selected_effects(selected_items):
 			if (item is BNumberEffect):
 				var copy = BNumberEffect.new()
 				copy.set_as_copy_of(item)
-				copy.cause = current_reaction
-				current_reaction.after_effects.append(copy)
+				current_reaction.add_effect(copy)
 				$HSC/Column3/AfterReactionEffectsDisplay.items_to_list.append(copy)
 				$HSC/Column3/AfterReactionEffectsDisplay.list_item(copy)
 				change_made = true
 			elif (item is SpoolEffect):
 				var copy = SpoolEffect.new()
 				copy.set_as_copy_of(item)
-				copy.cause = current_reaction
-				current_reaction.after_effects.append(copy)
+				current_reaction.add_effect(copy)
 				$HSC/Column3/AfterReactionEffectsDisplay.items_to_list.append(copy)
 				$HSC/Column3/AfterReactionEffectsDisplay.list_item(copy)
 				change_made = true

@@ -79,6 +79,11 @@ func get_excerpt(maximum_output_length:int = 256):
 		text = text.substr(0, text.rfind(" "))
 		return text + "..."
 
+func find_option_by_id(id):
+	for option in options:
+		if (option.id == id):
+			return option
+
 func calculate_desirability():
 	var result = null
 	if (desirability_script is ScriptManager):

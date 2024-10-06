@@ -102,11 +102,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 hide_root = true
 
-[node name="NegatedCheckBox" type="CheckBox" parent="Background/VBC"]
-visible = false
-layout_mode = 2
-text = "Negated"
-
 [connection signal="text_submitted" from="Background/VBC/SearchBar/LineEdit" to="." method="_on_LineEdit_text_entered"]
 [connection signal="pressed" from="Background/VBC/SortBar/CollapseAll" to="." method="_on_collapse_all_pressed"]
 [connection signal="pressed" from="Background/VBC/SortBar/ExpandToOptions" to="." method="_on_expand_to_options_pressed"]
@@ -115,4 +110,3 @@ text = "Negated"
 [connection signal="toggled" from="Background/VBC/SortBar/ToggleReverseButton" to="." method="_on_ToggleReverseButton_toggled"]
 [connection signal="item_activated" from="Background/VBC/EventTree" to="." method="_on_EventTree_item_activated"]
 [connection signal="item_selected" from="Background/VBC/EventTree" to="." method="_on_EventTree_item_selected"]
-[connection signal="pressed" from="Background/VBC/NegatedCheckBox" to="." method="_on_NegatedCheckBox_pressed"]

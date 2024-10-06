@@ -78,7 +78,6 @@ func deeply_copy(original):
 		copy_of_element = Desideratum.new(copy_of_operands.pop_front(), copy_of_operands.pop_front())
 	elif (original is EventPointer):
 		copy_of_element = EventPointer.new(original.encounter, original.option, original.reaction)
-		copy_of_element.negated = original.negated
 	elif (original is NudgeOperator):
 		copy_of_element = NudgeOperator.new(copy_of_operands.pop_front(), copy_of_operands.pop_front())
 	elif (original is SpoolStatusPointer):
@@ -493,11 +492,8 @@ func recursive_load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
 			var character = storyworld.character_directory[data_to_load["character"]]
 			element = BNumberPointer.new(character, data_to_load["keyring"])
 			element.coefficient = data_to_load["coefficient"]
-		elif ("Event Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["negated", "spool", "encounter", "option", "reaction"]) and TYPE_BOOL == typeof(data_to_load["negated"])):
+		elif ("Event Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["encounter", "option", "reaction"])):
 			element = EventPointer.new()
-			element.negated = data_to_load["negated"]
-			if (TYPE_STRING == typeof(data_to_load["spool"]) and storyworld.spool_directory.has(data_to_load["spool"])):
-				element.spool = storyworld.spool_directory[data_to_load["spool"]]
 			if (TYPE_STRING == typeof(data_to_load["encounter"]) and storyworld.encounter_directory.has(data_to_load["encounter"])):
 				element.encounter = storyworld.encounter_directory[data_to_load["encounter"]]
 				if (TYPE_INT == typeof(data_to_load["option"]) or TYPE_FLOAT == typeof(data_to_load["option"])):
@@ -514,6 +510,8 @@ func recursive_load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
 							print ("Reaction index is not a number.")
 				else:
 					print ("Option index is not a number.")
+			if (data_to_load.has("negated") and true == data_to_load["negated"]):
+				element = SWNotOperator.new(element)
 	elif ("Operator" == data_to_load["script_element_type"] and data_to_load.has_all(["operator_type", "operands"])):
 		#Parse operands:
 		var operands = []
@@ -552,7 +550,7 @@ func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load, expected_o
 	else:
 		set_contents(parsed_script)
 
-func recursive_load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load):
+func recursive_load_from_json_v0_0_34_through_v0_1_9(storyworld, data_to_load):
 	var element = null
 	if (TYPE_BOOL == typeof(data_to_load)):
 		#Data should be either a boolean value, (true or false,) or a dictionary.
@@ -566,17 +564,16 @@ func recursive_load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load):
 			var character = storyworld.character_directory[data_to_load["character"]]
 			element = BNumberPointer.new(character, data_to_load["keyring"])
 			element.coefficient = data_to_load["coefficient"]
-		elif ("Event Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["negated", "spool", "encounter", "option", "reaction"]) and TYPE_BOOL == typeof(data_to_load["negated"])):
+		elif ("Event Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["encounter", "option", "reaction"])):
 			element = EventPointer.new()
-			element.negated = data_to_load["negated"]
-			if (TYPE_STRING == typeof(data_to_load["spool"]) and storyworld.spool_directory.has(data_to_load["spool"])):
-				element.spool = storyworld.spool_directory[data_to_load["spool"]]
 			if (TYPE_STRING == typeof(data_to_load["encounter"]) and storyworld.encounter_directory.has(data_to_load["encounter"])):
 				element.encounter = storyworld.encounter_directory[data_to_load["encounter"]]
 				if (TYPE_STRING == typeof(data_to_load["option"]) and storyworld.option_directory.has(data_to_load["option"])):
 					element.option = storyworld.option_directory[data_to_load["option"]]
 					if (TYPE_STRING == typeof(data_to_load["reaction"]) and storyworld.reaction_directory.has(data_to_load["reaction"])):
 						element.reaction = storyworld.reaction_directory[data_to_load["reaction"]]
+			if (data_to_load.has("negated") and true == data_to_load["negated"]):
+				element = SWNotOperator.new(element)
 		elif ("Spool Status Pointer" == data_to_load["pointer_type"] and data_to_load.has_all(["spool", "negated"]) and storyworld.spool_directory.has(data_to_load["spool"])):
 			element = SpoolStatusPointer.new()
 			element.spool = storyworld.spool_directory[data_to_load["spool"]]
@@ -590,7 +587,7 @@ func recursive_load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load):
 		#Parse operands:
 		var operands = []
 		for operand in data_to_load["operands"]:
-			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_1_8(storyworld, operand)
+			var parsed_operand = recursive_load_from_json_v0_0_34_through_v0_1_9(storyworld, operand)
 			if (parsed_operand is SWScriptElement):
 				operands.append(parsed_operand)
 		#Create operator:
@@ -636,8 +633,8 @@ func recursive_load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load):
 			element = NudgeOperator.new(operands.pop_front(), operands.pop_front())
 	return proofread(element)
 
-func load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load, expected_output_datatype):
-	var parsed_script = recursive_load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load)
+func load_from_json_v0_0_34_through_v0_1_9(storyworld, data_to_load, expected_output_datatype):
+	var parsed_script = recursive_load_from_json_v0_0_34_through_v0_1_9(storyworld, data_to_load)
 	if (null == parsed_script):
 		if (sw_script_data_types.BNUMBER == expected_output_datatype):
 #			print ("Warning, script has null or invalid contents. Setting script contents to bounded number constant to match expected output datatype.")

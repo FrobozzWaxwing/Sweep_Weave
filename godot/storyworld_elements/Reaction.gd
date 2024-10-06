@@ -84,6 +84,11 @@ func has_search_text(searchterm:String):
 	else:
 		return false
 
+func add_effect(effect):
+	if (effect is SWEffect):
+		after_effects.append(effect)
+		effect.cause = self
+
 func compile(_parent_storyworld, _include_editor_only_variables:bool = false):
 	var result = {}
 	result["id"] = id
@@ -142,14 +147,14 @@ func set_as_copy_of(original, copy_id:bool = true):
 			var change_copy = BNumberEffect.new()
 			var succeeded = change_copy.set_as_copy_of(change)
 			if (succeeded):
-				after_effects.append(change_copy)
+				add_effect(change_copy)
 			else:
 				change_copy.call_deferred("free")
 		elif (change is SpoolEffect):
 			var change_copy = SpoolEffect.new()
 			var succeeded = change_copy.set_as_copy_of(change)
 			if (succeeded):
-				after_effects.append(change_copy)
+				add_effect(change_copy)
 			else:
 				change_copy.call_deferred("free")
 

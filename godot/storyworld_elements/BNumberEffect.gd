@@ -58,18 +58,26 @@ func remap(storyworld):
 	return result
 
 func data_to_string():
-	var result = "Set "
-	if (assignee is BNumberPointer):
+	if (assignee is BNumberPointer and assignment_script is ScriptManager and assignment_script.contents is NudgeOperator and assignment_script.contents.operands.front() is BNumberPointer and assignment_script.contents.operands.back() is BNumberConstant and assignee.is_parallel_to(assignment_script.contents.operands.front())):
+		var result = "Nudge "
 		result += assignee.data_to_string()
+		result += " by "
+		result += str(assignment_script.contents.operands.back().get_value())
+		result += "."
+		return result
 	else:
-		result += "[invalid operand]"
-	result += " to "
-	if (assignment_script is ScriptManager):
-		result += assignment_script.data_to_string()
-	else:
-		result += "[invalid script]"
-	result += "."
-	return result
+		var result = "Set "
+		if (assignee is BNumberPointer):
+			result += assignee.data_to_string()
+		else:
+			result += "[invalid operand]"
+		result += " to "
+		if (assignment_script is ScriptManager):
+			result += assignment_script.data_to_string()
+		else:
+			result += "[invalid script]"
+		result += "."
+		return result
 
 func compile(_parent_storyworld, _include_editor_only_variables = false):
 	if (!(assignee is BNumberPointer and assignment_script is ScriptManager)):
@@ -105,7 +113,7 @@ func load_from_json_v0_0_21_through_v0_0_29(storyworld, data_to_load):
 	else:
 		return false
 
-func load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load):
+func load_from_json_v0_0_34_through_v0_1_9(storyworld, data_to_load):
 	clear()
 	if (data_to_load.has_all(["Set", "to"])):
 		if (data_to_load["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == data_to_load["Set"]["pointer_type"] and TYPE_STRING == typeof(data_to_load["Set"]["character"]) and storyworld.character_directory.has(data_to_load["Set"]["character"])):
@@ -122,7 +130,7 @@ func load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load):
 					output_datatype = sw_script_data_types.BNUMBER
 				elif (assignee.output_type == sw_script_data_types.BOOLEAN):
 					output_datatype = sw_script_data_types.BOOLEAN
-			script.load_from_json_v0_0_34_through_v0_1_8(storyworld, data_to_load["to"], output_datatype)
+			script.load_from_json_v0_0_34_through_v0_1_9(storyworld, data_to_load["to"], output_datatype)
 			assignment_script = script
 	if (assignee is BNumberPointer and assignment_script is ScriptManager):
 		return true

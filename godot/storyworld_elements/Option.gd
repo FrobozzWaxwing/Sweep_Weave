@@ -16,6 +16,7 @@ var occurrences = 0 #The number of times that this encounter has occurred on the
 var reachable = false #Used by the automated rehearsal system to keep track of whether or not an encounter can be reached by the player.
 var yielding_paths #The estimated number of possible paths through the storyworld that reach this encounter.
 var notable_outcomes = {} # Used to keep track of how often specific events occur after this option is chosen by the player.
+var special_ending_count = 0 # Used to keep track of the number of times that the special "The End" page follows this option. Since "The End" is represented in history book entries by null instead of by an encounter, we need a different variable for this than the notable_outcomes variable.
 var impact = 0 # An estimate of the difference between the outcomes of this option and the outcomes of this option's siblings.
 var outcome_range = 0
 

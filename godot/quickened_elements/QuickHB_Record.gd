@@ -62,6 +62,15 @@ func decrement_occurrences():
 func record_spool_statuses(rehearsal):
 	active_spools = rehearsal.active_spools.duplicate()
 
+func add_outcomes(outcome_encounter, paths):
+	if (null == outcome_encounter):
+		player_choice.special_ending_count += paths
+	else:
+		if (player_choice.notable_outcomes.has(outcome_encounter)):
+			player_choice.notable_outcomes[outcome_encounter] += paths
+		else:
+			player_choice.notable_outcomes[outcome_encounter] = paths
+
 func get_parent():
 	return parent_record
 

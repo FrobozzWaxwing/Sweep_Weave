@@ -27,11 +27,16 @@ func clear():
 	value = ""
 
 func compile(_parent_storyworld, _include_editor_only_variables = false):
-	var output = {}
-	output["script_element_type"] = "Pointer"
-	output["pointer_type"] = get_pointer_type()
-	output["value"] = value
-	return output
+	if (_include_editor_only_variables):
+		# Save to json.
+		var output = {}
+		output["script_element_type"] = "Pointer"
+		output["pointer_type"] = get_pointer_type()
+		output["value"] = value
+		return output
+	else:
+		# Compile to html.
+		return value
 
 func data_to_string():
 	return value

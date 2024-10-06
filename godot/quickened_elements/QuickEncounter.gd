@@ -68,6 +68,14 @@ func get_open_options():
 			options.append(option)
 	return options
 
+func find_option_by_id(id):
+	for option in pretallied_options:
+		if (option.id == id):
+			return option
+	for option in mercurial_options:
+		if (option.id == id):
+			return option
+
 func calculate_desirability():
 	var result = null
 	if (desirability_script is ScriptManager):

@@ -2,7 +2,6 @@ extends SWPointer
 class_name EventPointer
 # This operator tests whether or not an event has occurred.
 
-var negated = false #Do we negate the result of the evaluation?
 var encounter = null #Only for historybook lookups. Translated into a string for interpreter.
 var option = null #Only for historybook lookups. Translated into a numerical index for interpreter.
 var reaction = null #Only for historybook lookups. Translated into a numerical index for interpreter.
@@ -18,7 +17,6 @@ func get_pointer_type():
 
 func clear():
 	treeview_node = null
-	negated = false
 	encounter = null
 	option = null
 	reaction = null
@@ -31,20 +29,14 @@ func get_value():
 		if (null == option or 0 < option.occurrences):
 			if (null == reaction or 0 < reaction.occurrences):
 				has_occurred = true
-	if (negated != has_occurred):
-		return true
-	else:
-		return false
+	return has_occurred
 
 func data_to_string():
 	return summarize()
 
 func summarize():
 	var output = ""
-	if (false == negated):
-		output += "Event has occurred: "
-	else:
-		output += "Event has not occurred: "
+	output += "Event has occurred: "
 	if (null != encounter):
 		output += encounter.title
 	else:
@@ -60,7 +52,6 @@ func compile(_parent_storyworld, _include_editor_only_variables = false):
 	var output = {}
 	output["script_element_type"] = "Pointer"
 	output["pointer_type"] = get_pointer_type()
-	output["negated"] = negated
 	if (null == encounter):
 		output["encounter"] = null
 	else:
@@ -88,7 +79,6 @@ func compile(_parent_storyworld, _include_editor_only_variables = false):
 	return output
 
 func set_as_copy_of(original):
-	negated = original.negated
 	encounter = original.encounter
 	option = original.option
 	reaction = original.reaction
@@ -99,7 +89,7 @@ func remap(storyworld):
 		if (storyworld.encounter_directory.has(encounter.id)):
 			encounter = storyworld.encounter_directory[encounter.id]
 			if (null != option):
-				option = encounter.options[option.get_index()]
+				option = encounter.find_option_by_id(option.id)
 				if (null != reaction):
 					reaction = option.reactions[reaction.get_index()]
 			else:
@@ -114,9 +104,6 @@ func remap(storyworld):
 
 func validate(_intended_script_output_datatype):
 	var report = ""
-	#Check negated:
-	if (TYPE_BOOL != typeof(negated)):
-		report += "\n" + "Negated is not a boolean."
 	if (null == encounter and null == option and null == reaction):
 		report += "\n" + "Encounter, option, and reaction are all null."
 	if ("" == report):
@@ -125,4 +112,4 @@ func validate(_intended_script_output_datatype):
 		return get_pointer_type() + " errors:" + report
 
 func is_parallel_to(sibling):
-	return negated == sibling.negated and encounter == sibling.encounter and option == sibling.option and reaction == sibling.reaction
+	return encounter == sibling.encounter and option == sibling.option and reaction == sibling.reaction

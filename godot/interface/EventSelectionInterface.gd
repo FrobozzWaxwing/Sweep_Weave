@@ -5,7 +5,6 @@ var blacklist = [] #A list of encounters that should not be made available for s
 var selected_event = null #An EventPointer.
 var searchterm = ""
 var display_options = true #If true, the refresh function will display the options of encounters as branches of those encounters in the EventTree.
-var display_negated_checkbox = false
 var light_mode = true
 #Clarity is a light mode theme, while Lapis Lazuli is a dark mode theme.
 
@@ -57,7 +56,6 @@ func refresh():
 							else:
 								entry_r.set_text(0, text)
 							entry_r.set_metadata(0, {"encounter": encounter, "option": option, "reaction": reaction})
-	$Background/VBC/NegatedCheckBox.visible = display_negated_checkbox
 
 @onready var sort_alpha_icon_light = preload("res://icons/sort-alpha-down.svg")
 @onready var sort_alpha_icon_dark = preload("res://icons/sort-alpha-down_dark.svg")
@@ -110,10 +108,6 @@ func _on_EventTree_item_selected():
 		selected_event.option = option
 		selected_event.reaction = reaction
 		selected_event_changed.emit(selected_event)
-
-func _on_NegatedCheckBox_pressed():
-	selected_event.negated = $Background/VBC/NegatedCheckBox.is_pressed()
-	selected_event_changed.emit(selected_event)
 
 func _on_SortMenu_item_selected(index):
 	var sort_method = $Background/VBC/SortBar/SortMenu.get_popup().get_item_text(index)

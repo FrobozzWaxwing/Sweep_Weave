@@ -4,7 +4,7 @@ var current_project_path = ""
 var current_html_template_path = "res://custom_resources/encounter_engine.html"
 var open_after_compiling = false
 
-var sweepweave_version_number = "0.1.8"
+var sweepweave_version_number = "0.1.9"
 var storyworld = null
 var clipboard = Clipboard.new()
 

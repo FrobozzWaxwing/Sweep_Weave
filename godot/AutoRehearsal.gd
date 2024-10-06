@@ -418,20 +418,19 @@ func rewind(leaf:QuickHB_Record):
 	return parent
 
 func record_notable_outcome(leaf:QuickHB_Record):
-	var encounter = leaf.encounter
-	if (null != encounter):
-		var page = leaf.get_parent()
-		while (null != page and null != page.player_choice):
-			if (page.player_choice.notable_outcomes.has(encounter)):
-				page.player_choice.notable_outcomes[encounter] += page.path_multiplier
-			else:
-				page.player_choice.notable_outcomes[encounter] = page.path_multiplier
-			for each in page.parallel_to:
-				if (each.player_choice.notable_outcomes.has(encounter)):
-					each.player_choice.notable_outcomes[encounter] += page.path_multiplier
-				else:
-					each.player_choice.notable_outcomes[encounter] = page.path_multiplier
-			page = page.get_parent()
+	var outcome_encounter = leaf.encounter
+	# Record outcomes for leaf first, using the path_multiplier for the path count.
+	leaf.add_outcomes(outcome_encounter, leaf.path_multiplier)
+	for parallel in leaf.parallel_to:
+		parallel.add_outcomes(outcome_encounter, leaf.path_multiplier)
+	# Climb down the tree and record the leaf as a notable outcome of each page along the way, as well as parallel pages.
+	var paths = leaf.path_multiplier * (1 + leaf.parallel_to.size())
+	var page = leaf.get_parent()
+	while (null != page and null != page.player_choice):
+		page.add_outcomes(outcome_encounter, paths)
+		for each in page.parallel_to:
+			each.add_outcomes(outcome_encounter, paths)
+		page = page.get_parent()
 
 func rehearse_depth_first():
 	if (null == starting_page or null == current_page):

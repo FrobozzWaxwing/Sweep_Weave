@@ -12,7 +12,7 @@ config_version=5
 
 config/name="SweepWeave"
 config/description="An experimental authoring tool for interactive storyworlds."
-config/version="0.1.8.0"
+config/version="0.1.9.0"
 run/main_scene="res://interface/GUI.tscn"
 config/features=PackedStringArray("4.3")
 run/low_processor_mode=true

@@ -569,7 +569,7 @@ func parse_reactions_data_v0_0_07_through_v0_0_15(data, incomplete_reactions, op
 				var new_script = ScriptManager.new(new_nudge_operator)
 				var pointer2 = BNumberPointer.new(character, [x["pValue"]])
 				var new_effect = BNumberEffect.new(pointer2, new_script)
-				reaction.after_effects.append(new_effect)
+				reaction.add_effect(new_effect)
 		elif (each.has_all(["deltaLove", "deltaTrust", "deltaFear"])):
 			#This section is included for backwards compatibility.
 			if (0 != each["deltaLove"]):
@@ -579,7 +579,7 @@ func parse_reactions_data_v0_0_07_through_v0_0_15(data, incomplete_reactions, op
 				var new_script = ScriptManager.new(new_nudge_operator)
 				var pointer2 = BNumberPointer.new(antagonist, ["pBad_Good"])
 				var new_effect = BNumberEffect.new(pointer2, new_script)
-				reaction.after_effects.append(new_effect)
+				reaction.add_effect(new_effect)
 			if (0 != each["deltaTrust"]):
 				var pointer1 = BNumberPointer.new(antagonist, ["pFalse_Honest"])
 				var point = BNumberConstant.new(each["deltaTrust"])
@@ -587,7 +587,7 @@ func parse_reactions_data_v0_0_07_through_v0_0_15(data, incomplete_reactions, op
 				var new_script = ScriptManager.new(new_nudge_operator)
 				var pointer2 = BNumberPointer.new(antagonist, ["pFalse_Honest"])
 				var new_effect = BNumberEffect.new(pointer2, new_script)
-				reaction.after_effects.append(new_effect)
+				reaction.add_effect(new_effect)
 			if (0 != each["deltaFear"]):
 				var pointer1 = BNumberPointer.new(antagonist, ["pTimid_Dominant"])
 				var point = BNumberConstant.new(each["deltaFear"])
@@ -595,17 +595,18 @@ func parse_reactions_data_v0_0_07_through_v0_0_15(data, incomplete_reactions, op
 				var new_script = ScriptManager.new(new_nudge_operator)
 				var pointer2 = BNumberPointer.new(antagonist, ["pTimid_Dominant"])
 				var new_effect = BNumberEffect.new(pointer2, new_script)
-				reaction.after_effects.append(new_effect)
+				reaction.add_effect(new_effect)
 		result.append(reaction)
 		reaction_directory[reaction.id] = reaction
 	return result
 
 func parse_prerequisite_data_v0_0_07_through_v0_0_15(data):
 	var new_prerequisite = EventPointer.new()
-	new_prerequisite.negated = data["negated"]
 	new_prerequisite.encounter = encounter_directory[data["encounter"]]
 	new_prerequisite.option = new_prerequisite.encounter.options[data["option"]]
 	new_prerequisite.reaction = new_prerequisite.option.reactions[data["reaction"]]
+	if (data["negated"]):
+		new_prerequisite = SWNotOperator.new(new_prerequisite)
 	return new_prerequisite
 
 func load_from_json_v0_0_07_through_v0_0_15(data_to_load):
@@ -823,7 +824,7 @@ func load_from_json_v0_0_21_through_v0_0_29(data_to_load):
 						parsed_effects.append(new_effect)
 				reaction.after_effects.clear()
 				for effect in parsed_effects:
-					reaction.after_effects.append(effect)
+					reaction.add_effect(effect)
 				if ("wild" == reaction.consequence):
 					reaction.consequence = null
 				elif (encounter_directory.has(reaction.consequence)):
@@ -900,7 +901,7 @@ func load_from_json_v0_0_21_through_v0_0_29(data_to_load):
 
 #Functions for loading project files made in SweepWeave versions 0.0.34 through 0.0.35:
 
-func parse_reactions_data_v0_0_34_through_v0_1_8(reactions_data, option):
+func parse_reactions_data_v0_0_34_through_v0_1_9(reactions_data, option):
 	var result = []
 	for reaction_data in reactions_data:
 		var graph_offset = Vector2(0, 0)
@@ -956,7 +957,7 @@ func load_from_json_v0_0_34_through_v0_1_2(data_to_load):
 				#if (option_data.has("graph_offset_x") && option_data.has("graph_offset_y")):
 				#	graph_offset = Vector2(option_data["graph_offset_x"], option_data["graph_offset_y"])
 				var new_option = Option.new(new_encounter, option_data["id"], "", graph_offset)
-				new_option.reactions = parse_reactions_data_v0_0_34_through_v0_1_8(option_data["reactions"], new_option)
+				new_option.reactions = parse_reactions_data_v0_0_34_through_v0_1_9(option_data["reactions"], new_option)
 				new_option.text_script = option_data["text_script"]
 				new_option.visibility_script = option_data["visibility_script"]
 				new_option.performability_script = option_data["performability_script"]
@@ -973,46 +974,46 @@ func load_from_json_v0_0_34_through_v0_1_2(data_to_load):
 	#Parse scripts:
 	for encounter in encounters:
 		var new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.text_script, sw_script_data_types.STRING)
+		new_script.load_from_json_v0_0_34_through_v0_1_9(self, encounter.text_script, sw_script_data_types.STRING)
 		encounter.text_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
+		new_script.load_from_json_v0_0_34_through_v0_1_9(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
 		encounter.acceptability_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
+		new_script.load_from_json_v0_0_34_through_v0_1_9(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
 		encounter.desirability_script = new_script
 		for option in encounter.options:
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.text_script, sw_script_data_types.STRING)
+			new_script.load_from_json_v0_0_34_through_v0_1_9(self, option.text_script, sw_script_data_types.STRING)
 			option.text_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.visibility_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_1_9(self, option.visibility_script, sw_script_data_types.BOOLEAN)
 			option.visibility_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.performability_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_1_9(self, option.performability_script, sw_script_data_types.BOOLEAN)
 			option.performability_script = new_script
 			for reaction in option.reactions:
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_1_8(self, reaction.text_script, sw_script_data_types.STRING)
+				new_script.load_from_json_v0_0_34_through_v0_1_9(self, reaction.text_script, sw_script_data_types.STRING)
 				reaction.text_script = new_script
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_1_8(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
+				new_script.load_from_json_v0_0_34_through_v0_1_9(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
 				reaction.desirability_script = new_script
 				var parsed_effects = []
 				for effect_data in reaction.after_effects:
 					if ("Bounded Number Effect" == effect_data["effect_type"] and effect_data["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == effect_data["Set"]["pointer_type"] and TYPE_STRING == typeof(effect_data["Set"]["character"]) and effect_data["to"].has("script_element_type")):
 						var new_effect = BNumberEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_8(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_9(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 					elif ("Spool Effect" == effect_data["effect_type"] and TYPE_STRING == typeof(effect_data["Set"])):
 						var new_effect = SpoolEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_8(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_9(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 				reaction.after_effects.clear()
 				for effect in parsed_effects:
-					reaction.after_effects.append(effect)
+					reaction.add_effect(effect)
 				if ("wild" == reaction.consequence):
 					reaction.consequence = null
 				elif (encounter_directory.has(reaction.consequence)):
@@ -1069,7 +1070,7 @@ func load_from_json_v0_0_34_through_v0_1_2(data_to_load):
 	reaction_directory.clear()
 	print("Project Loaded: " + storyworld_title + " by " + storyworld_author + ". (Storyworld SWV# " + sweepweave_version_number + ")")
 
-func load_from_json_v0_1_3_through_v0_1_8(data_to_load):
+func load_from_json_v0_1_3_through_v0_1_9(data_to_load):
 	#Load characters.
 	for entry in data_to_load.characters:
 		if (entry.has_all(["name", "pronoun", "bnumber_properties", "id", "creation_index", "creation_time", "modified_time"])):
@@ -1109,7 +1110,7 @@ func load_from_json_v0_1_3_through_v0_1_8(data_to_load):
 				#if (option_data.has("graph_offset_x") && option_data.has("graph_offset_y")):
 				#	graph_offset = Vector2(option_data["graph_offset_x"], option_data["graph_offset_y"])
 				var new_option = Option.new(new_encounter, option_data["id"], "", graph_offset)
-				new_option.reactions = parse_reactions_data_v0_0_34_through_v0_1_8(option_data["reactions"], new_option)
+				new_option.reactions = parse_reactions_data_v0_0_34_through_v0_1_9(option_data["reactions"], new_option)
 				new_option.text_script = option_data["text_script"]
 				new_option.visibility_script = option_data["visibility_script"]
 				new_option.performability_script = option_data["performability_script"]
@@ -1126,46 +1127,46 @@ func load_from_json_v0_1_3_through_v0_1_8(data_to_load):
 	#Parse scripts:
 	for encounter in encounters:
 		var new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.text_script, sw_script_data_types.STRING)
+		new_script.load_from_json_v0_0_34_through_v0_1_9(self, encounter.text_script, sw_script_data_types.STRING)
 		encounter.text_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
+		new_script.load_from_json_v0_0_34_through_v0_1_9(self, encounter.acceptability_script, sw_script_data_types.BOOLEAN)
 		encounter.acceptability_script = new_script
 		new_script = ScriptManager.new(null)
-		new_script.load_from_json_v0_0_34_through_v0_1_8(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
+		new_script.load_from_json_v0_0_34_through_v0_1_9(self, encounter.desirability_script, sw_script_data_types.BNUMBER)
 		encounter.desirability_script = new_script
 		for option in encounter.options:
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.text_script, sw_script_data_types.STRING)
+			new_script.load_from_json_v0_0_34_through_v0_1_9(self, option.text_script, sw_script_data_types.STRING)
 			option.text_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.visibility_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_1_9(self, option.visibility_script, sw_script_data_types.BOOLEAN)
 			option.visibility_script = new_script
 			new_script = ScriptManager.new(null)
-			new_script.load_from_json_v0_0_34_through_v0_1_8(self, option.performability_script, sw_script_data_types.BOOLEAN)
+			new_script.load_from_json_v0_0_34_through_v0_1_9(self, option.performability_script, sw_script_data_types.BOOLEAN)
 			option.performability_script = new_script
 			for reaction in option.reactions:
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_1_8(self, reaction.text_script, sw_script_data_types.STRING)
+				new_script.load_from_json_v0_0_34_through_v0_1_9(self, reaction.text_script, sw_script_data_types.STRING)
 				reaction.text_script = new_script
 				new_script = ScriptManager.new(null)
-				new_script.load_from_json_v0_0_34_through_v0_1_8(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
+				new_script.load_from_json_v0_0_34_through_v0_1_9(self, reaction.desirability_script, sw_script_data_types.BNUMBER)
 				reaction.desirability_script = new_script
 				var parsed_effects = []
 				for effect_data in reaction.after_effects:
 					if ("Bounded Number Effect" == effect_data["effect_type"] and effect_data["Set"].has_all(["pointer_type", "character", "coefficient", "keyring"]) and "Bounded Number Pointer" == effect_data["Set"]["pointer_type"] and TYPE_STRING == typeof(effect_data["Set"]["character"]) and effect_data["to"].has("script_element_type")):
 						var new_effect = BNumberEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_8(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_9(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 					elif ("Spool Effect" == effect_data["effect_type"] and TYPE_STRING == typeof(effect_data["Set"])):
 						var new_effect = SpoolEffect.new()
-						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_8(self, effect_data)
+						var effect_is_valid = new_effect.load_from_json_v0_0_34_through_v0_1_9(self, effect_data)
 						if (effect_is_valid):
 							parsed_effects.append(new_effect)
 				reaction.after_effects.clear()
 				for effect in parsed_effects:
-					reaction.after_effects.append(effect)
+					reaction.add_effect(effect)
 				if ("wild" == reaction.consequence):
 					reaction.consequence = null
 				elif (encounter_directory.has(reaction.consequence)):
@@ -1220,7 +1221,7 @@ func load_from_json_v0_1_3_through_v0_1_8(data_to_load):
 		ifid = IFIDGenerator.IFID_from_creation_time(creation_time)
 	#about_text, meta_description, language, rating, css_theme and font_size were added in 0.1.3.
 	if (data_to_load.has("about_text")):
-		about_text.load_from_json_v0_0_34_through_v0_1_8(self, data_to_load.about_text, sw_script_data_types.STRING)
+		about_text.load_from_json_v0_0_34_through_v0_1_9(self, data_to_load.about_text, sw_script_data_types.STRING)
 	if (data_to_load.has("meta_description")):
 		meta_description = data_to_load.meta_description
 	if (data_to_load.has("language")):
@@ -1264,9 +1265,9 @@ func load_from_json(file_text):
 				clear()
 				load_from_json_v0_0_34_through_v0_1_2(data_to_load)
 				return "Passed."
-			elif (0 == int(version[0]) and 1 == int(version[1]) and 3 <= int(version[2]) and 8 >= int(version[2])):
+			elif (0 == int(version[0]) and 1 == int(version[1]) and 3 <= int(version[2]) and 9 >= int(version[2])):
 				clear()
-				load_from_json_v0_1_3_through_v0_1_8(data_to_load)
+				load_from_json_v0_1_3_through_v0_1_9(data_to_load)
 				return "Passed."
 			else:
 				print ("Cannot load project file. The project appears to have been made using an unrecognized version of SweepWeave.")

@@ -7,7 +7,7 @@ var rehearsal_status = rehearsal_statuses.SET
 var time_stopwatch_started = 0
 var time_rehearsal_started = null
 var elapsed_time = 0
-var steps_per_frame = 1
+var steps_per_frame = 1000
 var total_steps_taken = 0
 var periodic_report = ""
 var periodic_report_time = 0
@@ -299,6 +299,9 @@ func refresh_outcome_index():
 	var list_of_encounters = rehearsal.storyworld.encounters.duplicate()
 	sort_encounters(list_of_encounters, sort_method, reversed)
 	for encounter in list_of_encounters:
+		if (encounter.yielding_paths == 0):
+			# Omit encounters that never occur.
+			continue
 		var encounter_branch = $Panel/VBC/ReportTabs/NotableOutcomeIndex/EventTree.create_item(root)
 		encounter_branch.set_text(0, encounter.title)
 		encounter_branch.set_text(1, encounter.get_listable_impact())

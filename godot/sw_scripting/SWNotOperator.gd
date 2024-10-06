@@ -42,4 +42,3 @@ func data_to_string():
 	result += stringify_operand_at_index(0)
 	result += ")"
 	return result
-
